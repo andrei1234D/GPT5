@@ -666,7 +666,6 @@ def main():
     spy_ctx = get_spy_ctx()  # used both for scoring context and for proxy derivation below
 
     # ranker.score_universe also skips anything that fails its hard filter; kept2 is already trash-filtered, so this is just extra safety
-    ranked_all = ranker.score_universe(kept2, context=spy_ctx)
     ranked = [(t, n, f, score) for (t, n, f, score, _parts) in ranked_all]
     top200 = ranked[:200]
     if not top200:
