@@ -662,7 +662,6 @@ def main():
         return fail("All filtered by daily context")
 
     # 5) Rank to 200 using a robust composite score (trash-aware, small-cap friendly)
-    from trash_ranker import RobustRanker  # local import so you don't have to edit top imports
 
     spy_ctx = get_spy_ctx()  # used both for scoring context and for proxy derivation below
 
