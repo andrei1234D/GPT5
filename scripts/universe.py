@@ -5,7 +5,7 @@ import csv
 import sys
 from pathlib import Path
 
-CSV_PATH = Path("data/universe.csv")
+CSV_PATH = Path("data/universe_clean.csv")
 
 def load_universe():
     if not CSV_PATH.exists():

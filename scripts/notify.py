@@ -38,12 +38,11 @@ INPUT EXTRAS:
 - Each candidate block may include:
   • DATA_AVAILABILITY: which of {FUNDAMENTALS, VALUATION, RISKS, CATALYSTS} are MISSING or PARTIAL.
   • BASELINE_HINTS: exact baselines for each category.
-  • FUNDAMENTALS FIELDS (if present): EPS_GROWTH_YOY, REV_GROWTH_YOY, GROSS_MARGIN, OPER_MARGIN, FCF_MARGIN, DEBT_TO_EBITDA, NET_CASH, GUIDANCE_CHANGE, OP_EFF_TREND.
   • VALUATION FIELDS (if present): PE, PE_SECTOR, EV_EBITDA, PS, FCF_YIELD, PEG.
   • PROXIES: simple, price/volume-only signals with 1–5 severity and a direction (+/-).
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
   • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities like +1..+5 or -1..-5.
-  • CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today/None; EARNINGS_IN_DAYS=<int or N/A>.
+  • CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today/None.
   • EXPECTED_VOLATILITY_PCT: derived from ATR%, use as 'Expected volatility' in the Certainty rule.
   • FVA_HINT: a technical fair-value anchor seed, derived only from supplied indicators.
 
@@ -57,7 +56,7 @@ MANDATORY HANDLING:
     • DIP_REVERSAL (+1..+5)   ⇒ +8, +12, +18, +24, +30 (only if recent drawdown then firming momentum).
     • TECH_BREAKDOWN (-1..-5) ⇒ −10, −20, −30, −45, −60.
     • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15.
-  Timing multiplier applies: Today×1.50, ≤2d×1.25, ≤4d×1.10, ≤7d×1.00.
+  Timing multiplier applies for TECH_BREAKOUT timing: Today×1.50.
 - FUNDAMENTALS PROXY MAPPING (start at 125 baseline; clamp total from these tech proxies to ±35 overall):
     • GROWTH_TECH (±1..±5)        → Revenue/EPS growth: ±5, ±10, ±15, ±25, ±35
     • MARGIN_TREND_TECH (±1..±5)  → Margin trend: ±4, ±8, ±12, ±20, ±30
@@ -473,8 +472,6 @@ def fetch_funda_valuation_for_top(tickers: list[str]) -> dict[str, dict]:
             if rg is not None:
                 m["REV_GROWTH_YOY"] = round(rg, 2)
 
-            # EPS YoY often unavailable; leaving None is OK per prompt rules
-
             # Cashflow
             qcf = getattr(tk, "quarterly_cashflow", None)
             fcf = None
@@ -706,9 +703,10 @@ def main():
         catalyst_line = "TECH_BREAKOUT={}; TECH_BREAKDOWN={}; DIP_REVERSAL={}; EARNINGS_SOON={}".format(
             sgn(cat["TECH_BREAKOUT"]), sgn(cat["TECH_BREAKDOWN"]), sgn(cat["DIP_REVERSAL"]), sgn(earn_sev)
         )
-        timing_line = "TECH_BREAKOUT={}; EARNINGS_IN_DAYS={}".format(
-            "Today" if (cat["TECH_BREAKOUT"]>0 and feats.get("is_20d_high")) else "None",
-            earn_days if earn_days is not None else "N/A"
+
+        # Only keep TECH_BREAKOUT timing hint (no EARNINGS_IN_DAYS)
+        timing_tb = "TECH_BREAKOUT={}".format(
+            "Today" if (cat["TECH_BREAKOUT"]>0 and feats.get("is_20d_high")) else "None"
         )
 
         # --- Fundamentals proxies
@@ -732,20 +730,6 @@ def main():
 
         def fmt_pct(x): return f"{x:.2f}%" if isinstance(x,(int,float)) else "N/A"
         def fmt_num(x): return f"{x:.2f}" if isinstance(x,(int,float)) else "N/A"
-        def fmt_bool(x): return "true" if x is True else ("false" if x is False else "N/A")
-
-        funda_fields = (
-            "FUNDAMENTALS_FIELDS: "
-            f"REV_GROWTH_YOY={fmt_pct(fm.get('REV_GROWTH_YOY'))}; "
-            f"EPS_GROWTH_YOY={fmt_pct(fm.get('EPS_GROWTH_YOY'))}; "
-            f"GROSS_MARGIN={fmt_pct(fm.get('GROSS_MARGIN'))}; "
-            f"OPER_MARGIN={fmt_pct(fm.get('OPER_MARGIN'))}; "
-            f"FCF_MARGIN={fmt_pct(fm.get('FCF_MARGIN'))}; "
-            f"DEBT_TO_EBITDA={fmt_num(fm.get('DEBT_TO_EBITDA'))}; "
-            f"NET_CASH={fmt_bool(fm.get('NET_CASH'))}; "
-            f"GUIDANCE_CHANGE={'N/A'}; "
-            f"OP_EFF_TREND={fm.get('OP_EFF_TREND') or 'N/A'}"
-        )
 
         val_fields = (
             "VALUATION_FIELDS: "
@@ -763,17 +747,15 @@ def main():
         funda_cov = f"{len(funda_present)}/8"
         val_cov   = f"{len(val_present)}/5"
 
-        # ---- stash full inputs for debug Discord
+        # ---- stash full inputs for debug Discord (without EARNINGS_IN_DAYS and without FUNDAMENTALS_FIELDS)
         debug_inputs[t] = {
             "TICKER": t,
             "COMPANY": name,
             "CURRENT_PRICE": feats.get("price"),
             "FEATURES": feats,
             "PROXIES": proxies,
-            "FUNDAMENTALS_FIELDS": fm,
             "FUNDAMENTALS_PROXIES": fund_proxy,
             "CATALYST_PROXIES": cat,
-            "EARNINGS_IN_DAYS": earn_days,
             "DATA_AVAILABILITY": data_availability,
             "COVERAGE": {"fundamentals": funda_cov, "valuation": val_cov},
         }
@@ -795,14 +777,13 @@ def main():
             "20d%: {d20}\n"
             "60d%: {r60}\n"
             "Vol_vs_20d%: {v20}\n"
-            "{funda_fields}\n"
             "{val_fields}\n"
             "DATA_AVAILABILITY: {data_av}\n"
             "BASELINE_HINTS: {baselines}\n"
             "PROXIES: MARKET_TREND={mt}; REL_STRENGTH={rs}; BREADTH_VOLUME={bv}; VALUATION_HISTORY={vh}; RISK_VOLATILITY={rv}; RISK_DRAWDOWN={rd}\n"
             "PROXIES_FUNDAMENTALS: {fund_line}\n"
             "PROXIES_CATALYSTS: {cat_line}\n"
-            "CATALYST_TIMING_HINTS: {timing_line}\n"
+            "CATALYST_TIMING_HINTS: {timing_tb}\n"
             "EXPECTED_VOLATILITY_PCT: {ev}\n"
             "FVA_HINT: {fva}\n"
             "FUNDAMENTALS_COVERAGE: {funda_cov}\n"
@@ -815,14 +796,13 @@ def main():
                 rsi=feats.get("RSI14"), macd=feats.get("MACD_hist"), atr=feats.get("ATRpct"),
                 dd=feats.get("drawdown_pct"), d5=feats.get("d5"), d20=feats.get("d20"), r60=feats.get("r60"),
                 v20=feats.get("vol_vs20"),
-                funda_fields=funda_fields,
                 val_fields=val_fields,
                 data_av=data_availability,
                 baselines=baseline_str,
                 mt=proxies["market_trend"], rs=proxies["relative_strength"],
                 bv=proxies["breadth_volume"], vh=proxies["valuation_history"],
                 rv=proxies["risk_volatility"], rd=proxies["risk_drawdown"],
-                fund_line=fund_line, cat_line=catalyst_line, timing_line=timing_line,
+                fund_line=fund_line, cat_line=catalyst_line, timing_tb=timing_tb,
                 ev=proxies["expected_volatility_pct"],
                 fva=proxies["fva_hint"] if proxies["fva_hint"] is not None else "N/A",
                 bon=proxies["suggested_bonuses"],
@@ -842,7 +822,6 @@ def main():
     final_text = apply_personal_bonuses_to_text(final_text)
 
     # 8.1) Post debug inputs for the picked ticker(s)
-    # Try multiple ways to find tickers in the model output
     RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")
     RE_FORECAST_TICK = re.compile(r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b")
 
@@ -855,7 +834,7 @@ def main():
         if x not in seen:
             seen.add(x); picked_unique.append(x)
 
-    # Fallbacks: if still nothing, try first TOP-20 ticker; as a last resort, skip
+    # Fallbacks
     if not picked_unique:
         if len(debug_inputs) == 1:
             picked_unique = list(debug_inputs.keys())

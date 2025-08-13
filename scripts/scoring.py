@@ -46,10 +46,3 @@ def composite_importance_score(feats: Dict) -> Tuple[float, Dict[str, float]]:
     HERE = os.path.dirname(__file__)
     if HERE not in sys.path:
         sys.path.insert(0, HERE)
-
-    from trash_ranker import RobustRanker  # absolute import from the scripts folder
-
-    r = RobustRanker()
-    r.fit_cross_section([feats])                 # single-observation fit (fine for one-off use)
-    score, parts = r.composite_score(feats, None)
-    return score, parts
