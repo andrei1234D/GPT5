@@ -1,4 +1,3 @@
-# scripts/notify.py
 import os
 import re
 import sys
@@ -172,7 +171,7 @@ def post_debug_inputs_to_discord(tickers: list[str], debug_inputs: dict[str, dic
             "username": "Daily Stock Debug",
             "embeds": [{
                 "title": f"Model inputs — {t}",
-                "description": f"```json\n{blob}\n```"
+                "description": f"json\n{blob}\n"
             }]
         }
         try:
