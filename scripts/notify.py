@@ -115,20 +115,20 @@ def main():
         return fail("All filtered by daily context")
 
     # 5) Score & top-200
-    ranked_all = []
+# 5) Rank to 200 using a simple composite score you already import
+    ranked = []
     for (t, n, f) in kept2:
-        try:
-            score = float(base_importance_score(f))
-        except Exception:
-            score = _fallback_score(f)
-        ranked_all.append((t, n, f, score))
-    ranked_all.sort(key=lambda x: x[3], reverse=True)
+            try:
+             score = base_importance_score(f)  # from scoring.py
+            except Exception:
+                score = 0.0
+    ranked.append((t, n, f, score))
 
-    top200 = ranked_all[:200]
+    ranked.sort(key=lambda x: x[3], reverse=True)
+    top200 = ranked[:200]
     if not top200:
         return fail("No candidates after ranking")
     log(f"[INFO] Reduced to top 200. Example leader: {top200[0][0]}")
-
     # 6) Prepare TOP 10 blocks + debug payloads
     top20 = top200[:10]
     tickers_top20 = [t for t, _, _, _ in top20]
