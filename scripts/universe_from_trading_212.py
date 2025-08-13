@@ -1,18 +1,113 @@
-import os, csv, sys, requests, re
+# scripts/universe_from_trading_212.py
+from __future__ import annotations
+import os, sys, csv, re, json, time, random, datetime as dt
 from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, List
+import requests
 
-API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com")
-API_BASE_DEMO = "https://live.trading212.com"  # keep as you asked
+# -------------------- CLI overrides (key=value) --------------------
+def apply_cli_overrides():
+    for arg in sys.argv[1:]:
+        if "=" in arg:
+            k, v = arg.split("=", 1)
+            k = k.strip().upper()
+            v = v.strip()
+            if k in {"APIKEY", "T212_API_KEY"}:
+                os.environ["T212_API_KEY"] = v
+            elif k in {"BASE", "T212_API_BASE"}:
+                os.environ["T212_API_BASE"] = v.rstrip("/")
+            elif k in {"ALLOW_STALE", "ALLOWSTALE"}:
+                os.environ["ALLOW_STALE"] = v
+            elif k == "OUT":
+                os.environ["UNIVERSE_OUT"] = v
+            elif k == "REJECTS":
+                os.environ["UNIVERSE_REJECTS"] = v
+            elif k == "MAX_RETRIES":
+                os.environ["T212_MAX_RETRIES"] = v
+            elif k == "BACKOFF_BASE":
+                os.environ["T212_BACKOFF_BASE"] = v
+            elif k == "BACKOFF_CAP":
+                os.environ["T212_BACKOFF_CAP"] = v
+apply_cli_overrides()
+
+# -------------------- Config --------------------
+API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip("/")
+API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
 API_KEY = os.getenv("T212_API_KEY")
-OUT_PATH = Path("data/universe.csv")
-REJECTS_PATH = Path("data/universe_rejects.csv")
 
-def log(msg): print(msg, flush=True)
+OUT_PATH = Path(os.getenv("UNIVERSE_OUT", "data/universe.csv"))
+REJECTS_PATH = Path(os.getenv("UNIVERSE_REJECTS", "data/universe_rejects.csv"))
+ALLOW_STALE = os.getenv("ALLOW_STALE", "0").lower() in {"1", "true", "yes"}
 
-# ----- Junk filter -----
+MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "7"))
+BACKOFF_BASE = float(os.getenv("T212_BACKOFF_BASE", "1.5"))
+BACKOFF_CAP  = float(os.getenv("T212_BACKOFF_CAP", "60"))
+TIMEOUT      = float(os.getenv("T212_TIMEOUT", "30"))
+
+SESSION = requests.Session()
+USER_AGENT = os.getenv("HTTP_USER_AGENT", "universe-builder/1.0 (+github actions)")
+
+def log(msg: str): print(msg, flush=True)
+
+# -------------------- Retry helper --------------------
+RETRY_STATUS = {429, 500, 502, 503, 504}
+
+def _sleep_for_retry(resp: Optional[requests.Response], attempt: int):
+    # 1) Honor Retry-After if present
+    if resp is not None:
+        ra = resp.headers.get("Retry-After")
+        if ra:
+            # seconds?
+            try:
+                sec = int(ra)
+                time.sleep(min(sec, BACKOFF_CAP))
+                return
+            except Exception:
+                pass
+            # HTTP-date?
+            try:
+                when = dt.datetime.strptime(ra, "%a, %d %b %Y %H:%M:%S %Z")
+                delta = (when - dt.datetime.utcnow()).total_seconds()
+                if delta > 0:
+                    time.sleep(min(delta, BACKOFF_CAP))
+                    return
+            except Exception:
+                pass
+    # 2) Exponential backoff with jitter
+    base = min(BACKOFF_CAP, BACKOFF_BASE ** attempt)
+    sleep_s = random.uniform(0.6 * base, 1.4 * base)
+    time.sleep(max(0.5, sleep_s))
+
+def request_with_retry(method: str, url: str, *, headers=None, timeout=TIMEOUT) -> requests.Response:
+    hdrs = {"User-Agent": USER_AGENT}
+    if headers: hdrs.update(headers)
+
+    last_exc = None
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            resp = SESSION.request(method, url, headers=hdrs, timeout=timeout)
+            if resp.status_code in RETRY_STATUS and attempt < MAX_RETRIES:
+                log(f"[WARN] HTTP {resp.status_code} from {url} — retry {attempt+1}/{MAX_RETRIES}")
+                _sleep_for_retry(resp, attempt + 1); continue
+            resp.raise_for_status()
+            return resp
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+            last_exc = e
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            if isinstance(e, requests.HTTPError) and status not in RETRY_STATUS:
+                break  # non-retryable HTTP
+            if attempt < MAX_RETRIES:
+                log(f"[WARN] {type(e).__name__} — retry {attempt+1}/{MAX_RETRIES}")
+                _sleep_for_retry(getattr(e, "response", None), attempt + 1); continue
+            break
+    if last_exc: raise last_exc
+    raise RuntimeError("request failed after retries")
+
+# -------------------- Junk filter --------------------
 ALLOWED = re.compile(r"^[A-Z0-9.\-]+$")
+
 def is_junk_symbol(sym: str) -> bool:
-    s = sym.upper()
+    s = (sym or "").upper()
     if not re.search(r"[A-Z]", s):  # must contain a letter
         return True
     if not ALLOWED.match(s):        # only A-Z/0-9/./-
@@ -23,7 +118,7 @@ def is_junk_symbol(sym: str) -> bool:
         return True
     return False
 
-# ----- Yahoo suffix maps -----
+# -------------------- Yahoo suffix maps --------------------
 SUFFIX_BY_MIC = {
     # US
     "XNAS":"", "XNYS":"", "ARCX":"", "BATS":"", "IEXG":"", "CBOE":"", "XNGS":"", "XNCM":"",
@@ -45,13 +140,10 @@ SUFFIX_BY_MIC = {
     # MEA
     "XJSE":"JO", "XDFM":"DU", "XADS":"AD", "XSAU":"SR", "XTAE":"TA",
     # China/Taiwan
-    "XSHG":"SS", "XSHE":"SZ", "XTAI":"TW", "ROCO":"TWO"  # TWO is rare; keep for completeness
+    "XSHG":"SS", "XSHE":"SZ", "XTAI":"TW", "ROCO":"TWO"
 }
-
 SUFFIX_BY_EXCHANGE = {
-    # US
     "NASDAQ":"", "NYSE":"", "ARCA":"", "AMEX":"", "NYSE MKT":"",
-    # UK & Europe
     "LSE":"L", "LON":"L", "LSE_INTL":"L",
     "XETRA":"DE", "FRANKFURT":"F", "FRA":"F",
     "SIX":"SW", "SWX":"SW",
@@ -63,21 +155,14 @@ SUFFIX_BY_EXCHANGE = {
     "MILAN":"MI", "BORSA ITALIANA":"MI",
     "STOCKHOLM":"ST", "HELSINKI":"HE", "COPENHAGEN":"CO", "OSLO":"OL",
     "WARSAW":"WA", "PRAGUE":"PR", "VIENNA":"VI",
-    # Canada
     "TSX":"TO", "TORONTO":"TO", "TSX VENTURE":"V", "TSXV":"V",
-    # APAC
     "ASX":"AX", "HKEX":"HK", "HONG KONG":"HK", "TOKYO":"T", "JPX":"T", "SGX":"SI",
     "KRX":"KS", "KOSDAQ":"KQ",
-    # India
     "NSE":"NS", "BSE":"BO",
-    # LatAm
     "B3":"SA", "SAO PAULO":"SA", "BMV":"MX", "MEXICO":"MX",
-    # MEA
     "JSE":"JO", "DUBAI":"DU", "ABU DHABI":"AD", "SAUDI":"SR", "TASE":"TA",
-    # China/Taiwan
     "SHANGHAI":"SS", "SHENZHEN":"SZ", "TAIWAN":"TW"
 }
-
 SUFFIX_BY_ISIN_COUNTRY = {
     "US":"", "GB":"L", "DE":"DE", "FR":"PA", "NL":"AS", "BE":"BR", "PT":"LS",
     "ES":"MC", "IT":"MI", "CH":"SW", "CA":"TO", "AU":"AX", "JP":"T", "HK":"HK",
@@ -85,100 +170,115 @@ SUFFIX_BY_ISIN_COUNTRY = {
     "AT":"VI", "BR":"SA", "MX":"MX", "ZA":"JO", "IE":"IR", "SA":"SR", "AE":"DU",
     "QA":"QA", "IL":"TA", "KR":"KS", "IN":"NS", "TW":"TW", "CN":"SS"
 }
-
-# Known Yahoo suffixes for later normalization
-KNOWN_YH_SUFFIXES = set(SUFFIX_BY_MIC.values()) | {"HK","TWO","IR","TW"}
-
-def _do_get(base, path):
-    if not API_KEY:
-        log("[ERROR] Missing T212_API_KEY environment variable"); sys.exit(1)
-    url = f"{base}{path}"
-    r = requests.get(url, headers={"Authorization": API_KEY}, timeout=120)
-    return r
-
-def fetch_instruments():
-    r = _do_get(API_BASE_LIVE, "/api/v0/equity/metadata/instruments")
-    if r.status_code == 200:
-        return r.json(), API_BASE_LIVE
-    if r.status_code in (401, 403):
-        r2 = _do_get(API_BASE_DEMO, "/api/v0/equity/metadata/instruments")
-        if r2.status_code == 200:
-            log("[WARN] Live rejected the key; Demo accepted. Using demo base.")
-            return r2.json(), API_BASE_DEMO
-        if r.status_code == 401: log("[ERROR] 401 Unauthorized from Trading 212.")
-        else: log("[ERROR] 403 Forbidden from Trading 212 (missing scope?).")
-        log("Hints:")
-        log(" • Use the correct environment (Live vs Practice).")
-        log(" • Practice keys require https://demo.trading212.com.")
-        log(" • Ensure the token has 'metadata' scope.")
-        log(" • Header must be: Authorization: <your_key>  (no 'Bearer')")
-        log(f"Live={r.status_code}, Demo={r2.status_code}")
-        sys.exit(1)
-    r.raise_for_status()
-    return r.json(), API_BASE_LIVE
+KNOWN_YH_SUFFIXES = set(SUFFIX_BY_MIC.values()) | {"HK", "TWO", "IR", "TW"}
 
 def simplify_symbol(t212_ticker: str) -> str:
-    # drop suffix after underscore, keep dots/hyphens
-    return t212_ticker.split("_", 1)[0].strip().replace(" ", "-")
+    return (t212_ticker or "").split("_", 1)[0].strip().replace(" ", "-")
 
-def _isin_cc(isin: str) -> str | None:
+def _isin_cc(isin: str) -> Optional[str]:
     if not isin or len(isin) < 2: return None
     cc = isin[:2].upper()
     return cc if re.fullmatch(r"[A-Z]{2}", cc) else None
 
 def _yahoo_base_with_padding(base: str, suffix: str) -> str:
-    # JP/HK/TW/CN numeric tickers need zero padding to 4 digits
     if base.isdigit() and suffix in {"T", "HK", "TW", "SS", "SZ"}:
         return base.zfill(4)
     return base
 
-def map_to_yahoo(symbol: str, exchange: str | None, mic: str | None, isin: str | None) -> str:
-    base = symbol.upper()
+def map_to_yahoo(symbol: str, exchange: Optional[str], mic: Optional[str], isin: Optional[str]) -> str:
+    base = (symbol or "").upper()
     ex = (exchange or "").upper().strip()
     mc = (mic or "").upper().strip()
 
-    # If already ends with a known Yahoo suffix, trust it
     if "." in base:
         head, tail = base.rsplit(".", 1)
         if tail in KNOWN_YH_SUFFIXES:
             return f"{_yahoo_base_with_padding(head, tail)}.{tail}"
 
-    # 1) Try MIC
     suf = SUFFIX_BY_MIC.get(mc)
-    # 2) Try exchange name
-    if suf is None:
-        suf = SUFFIX_BY_EXCHANGE.get(ex)
-    # 3) Try ISIN country
+    if suf is None: suf = SUFFIX_BY_EXCHANGE.get(ex)
     if suf is None:
         cc = _isin_cc(isin or "")
         suf = SUFFIX_BY_ISIN_COUNTRY.get(cc) if cc else None
-
-    # Default: US (no suffix)
     suf = "" if suf is None else suf
 
-    # Format/pad base for certain markets
     base = _yahoo_base_with_padding(base, suf)
-
-    # US class shares: convert inner dot to hyphen (e.g., BRK.B → BRK-B)
     if suf == "" and "." in base:
         base = base.replace(".", "-")
 
     return f"{base}.{suf}" if suf else base
 
-def main():
-    log("[INFO] Fetching instrument metadata from Trading 212…")
-    data, base_used = fetch_instruments()
-    total = len(data) if isinstance(data, list) else 0
-    log(f"[INFO] Base used: {base_used}")
-    log(f"[INFO] Received {total} instruments (all types)")
+# -------------------- HTTP to T212 --------------------
+def _do_get(base: str, path: str) -> requests.Response:
+    if not API_KEY:
+        log("[ERROR] Missing T212_API_KEY environment variable"); sys.exit(1)
+    url = f"{base}{path}"
+    headers = {"Authorization": API_KEY, "Accept": "application/json"}
+    return request_with_retry("GET", url, headers=headers)
 
-    rows_raw, rejects = [], []
+def fetch_instruments() -> Tuple[List[Dict[str, Any]], str]:
+    # Try LIVE
+    try:
+        r = _do_get(API_BASE_LIVE, "/api/v0/equity/metadata/instruments")
+        if r.status_code == 200:
+            return r.json(), API_BASE_LIVE
+    except requests.HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status in (401, 403):
+            log("[WARN] Live rejected the key; trying Demo…")
+        elif status == 429:
+            log("[WARN] Live returned 429 (rate-limited); will try Demo after backoff…")
+        else:
+            log(f"[WARN] Live HTTP {status}; will try Demo…")
+    except Exception as e:
+        log(f"[WARN] Live error: {repr(e)}; will try Demo…")
+
+    # Try DEMO
+    try:
+        r2 = _do_get(API_BASE_DEMO, "/api/v0/equity/metadata/instruments")
+        if r2.status_code == 200:
+            log("[WARN] Demo accepted. Using demo base.")
+            return r2.json(), API_BASE_DEMO
+        # fall-through -> raise below
+        r2.raise_for_status()
+    except Exception as e:
+        raise RuntimeError(f"T212 fetch failed on both bases: {repr(e)}")
+
+# -------------------- IO helpers --------------------
+def atomic_write_csv(path: Path, rows: List[Tuple], header: Tuple[str, ...]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with tmp.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f); w.writerow(header); w.writerows(rows)
+    os.replace(tmp, path)
+
+# -------------------- Main --------------------
+def main():
+    try:
+        log("[INFO] Fetching instrument metadata from Trading 212…")
+        data, base_used = fetch_instruments()
+        total = len(data) if isinstance(data, list) else 0
+        log(f"[INFO] Base used: {base_used}")
+        log(f"[INFO] Received {total} instruments (all types)")
+    except Exception as e:
+        msg = f"{e}"
+        if ALLOW_STALE and OUT_PATH.exists():
+            log(f"[WARN] {msg}")
+            log(f"[WARN] Falling back to stale file: {OUT_PATH}")
+            sys.exit(0)
+        log(f"[FATAL] {msg}")
+        sys.exit(1)
+
+    rows_raw: List[Tuple[str, str]] = []
+    rejects: List[Tuple[str, str, str]] = []
+
     for it in (data or []):
-        ttype = (it.get("type") or "").upper()
+        ttype = (it.get("type") or it.get("instrumentType") or "").upper()
         if ttype not in {"EQUITY", "STOCK"}:
             continue
-        tick = (it.get("ticker") or "").strip()
-        name = (it.get("name") or it.get("shortName") or "").strip()
+
+        tick = (it.get("ticker") or it.get("symbol") or "").strip()
+        name = (it.get("name") or it.get("shortName") or it.get("description") or "").strip()
         if not tick or not name:
             continue
 
@@ -187,34 +287,32 @@ def main():
             rejects.append((simple.upper(), name, "junk-filter"))
             continue
 
-        # Try to pull exchange/mic/isin from the payload (T212 field names vary)
         exchange = it.get("exchange") or it.get("exchangeCode") or it.get("venue") or it.get("market")
         mic = it.get("mic") or it.get("primaryMic") or it.get("marketIdentifierCode")
         isin = it.get("isin")
 
-        yahoo = map_to_yahoo(simple, exchange, mic, isin)
-        rows_raw.append((yahoo, name))
+        yh = map_to_yahoo(simple, exchange, mic, isin)
+        rows_raw.append((yh.upper(), name))
 
     log(f"[INFO] Filtered equities: {len(rows_raw)} (rejected {len(rejects)} junk-like symbols)")
 
-    seen = set(); rows = []
+    # de-dup + sort
+    seen = set(); rows: List[Tuple[str, str]] = []
     for sym, name in rows_raw:
         if sym in seen: 
             continue
         seen.add(sym); rows.append((sym, name))
     rows.sort(key=lambda x: x[0])
 
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["ticker", "company"])
-        w.writerows(rows)
+    if not rows and ALLOW_STALE and OUT_PATH.exists():
+        log("[WARN] Zero rows produced; keeping stale file due to ALLOW_STALE=1.")
+        sys.exit(0)
+    if not rows:
+        log("[ERROR] Zero rows produced and no stale fallback available."); sys.exit(1)
 
+    atomic_write_csv(OUT_PATH, rows, ("ticker", "company"))
     if rejects:
-        with REJECTS_PATH.open("w", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
-            w.writerow(["ticker", "company", "reason"])
-            w.writerows(rejects)
+        atomic_write_csv(REJECTS_PATH, rejects, ("ticker", "company", "reason"))
 
     log(f"[INFO] Wrote {len(rows)} rows to {OUT_PATH}")
     if rejects:
