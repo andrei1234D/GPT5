@@ -1,17 +1,25 @@
+# .github/workflows/alert.yml
 name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 5 * * *"   # 08:00 Bucharest (UTC+3 summer) = 05:00 UTC
+    - cron: "0 4 * * *"   # 08:00 Bucharest (UTC+3 summer)
   workflow_dispatch:
 
 jobs:
   send-alert:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Restore cached data (yesterday's CSVs)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: universe-cache-${{ hashFiles('data/universe_clean.csv') }}
+          restore-keys: |
+            universe-cache-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -23,23 +31,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pytz yfinance pandas numpy
 
-      - name: Build universe.csv from Trading 212
+      - name: Build universe.csv from Trading 212 (fallback to stale)
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          ALLOW_STALE: "1"
         run: |
           python scripts/universe_from_trading_212.py
+          ls -lah data || true
           ls -lah data/universe.csv || true
 
-      - name: Clean universe (build universe_clean.csv)
+      - name: Clean universe (fallback to stale)
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          RELAX_IF_ZERO: "1"
-          KEEP_REITS: "1"
-          KILL_TRUSTS: "1"
-          KILL_PREFS: "1"
+          CLEAN_ALLOW_OFFLINE: "1"
+          ALLOW_STALE: "1"
         run: |
           python scripts/clean_universe.py
-          ls -lah data/universe_clean.csv || true
+          wc -l data/universe_clean.csv || true
+          head -n 5 data/universe_clean.csv || true
 
       - name: Run notifier
         env:
@@ -48,6 +57,5 @@ jobs:
           YF_CHUNK_SIZE: "50"
           YF_MAX_RETRIES: "4"
           YF_RETRY_SLEEP: "3.0"
-          FORCE_RUN: "1"   # optional: skip internal wait-to-08:00
         run: |
           python scripts/notify.py
