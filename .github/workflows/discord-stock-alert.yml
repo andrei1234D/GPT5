@@ -2,7 +2,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 4 * * *" # 08:00 Bucharest time (UTC+3 in summer)
+    - cron: "0 5 * * *"   # 08:00 Bucharest (UTC+3 summer) = 05:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -20,23 +20,34 @@ jobs:
 
       - name: Install dependencies
         run: |
-           python -m pip install --upgrade pip
-           pip install requests pytz yfinance pandas numpy
+          python -m pip install --upgrade pip
+          pip install requests pytz yfinance pandas numpy
 
       - name: Build universe.csv from Trading 212
         env:
-         T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
         run: |
-         python scripts/universe_from_trading_212.py
-         ls -lah data/universe.csv || true
+          python scripts/universe_from_trading_212.py
+          ls -lah data/universe.csv || true
 
+      - name: Clean universe (build universe_clean.csv)
+        env:
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          RELAX_IF_ZERO: "1"
+          KEEP_REITS: "1"
+          KILL_TRUSTS: "1"
+          KILL_PREFS: "1"
+        run: |
+          python scripts/clean_universe.py
+          ls -lah data/universe_clean.csv || true
 
       - name: Run notifier
         env:
-         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-         YF_CHUNK_SIZE: "50"
-         YF_MAX_RETRIES: "4"
-         YF_RETRY_SLEEP: "3.0"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          YF_CHUNK_SIZE: "50"
+          YF_MAX_RETRIES: "4"
+          YF_RETRY_SLEEP: "3.0"
+          FORCE_RUN: "1"   # optional: skip internal wait-to-08:00
         run: |
           python scripts/notify.py

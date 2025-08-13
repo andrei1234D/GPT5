@@ -1,36 +1,31 @@
-# scripts/universe.py
-# Strict loader: require data/universe.csv (ticker,company). No fallback.
-
-import csv
-import sys
+import csv, sys
 from pathlib import Path
 
-CSV_PATH = Path("data/universe_clean.csv")
+PREFERRED = [Path("data/universe_clean.csv"), Path("data/universe.csv")]
 
 def load_universe():
-    if not CSV_PATH.exists():
-        print(f"[ERROR] Missing {CSV_PATH}. Build it first (Trading 212 step).", flush=True)
+    path = next((p for p in PREFERRED if p.exists()), None)
+    if not path:
+        print("[ERROR] Missing data/universe_clean.csv and data/universe.csv", flush=True)
         sys.exit(1)
 
     out = []
-    with CSV_PATH.open("r", encoding="utf-8", newline="") as f:
-        reader = csv.DictReader(f)
-        # Validate required headers (case-insensitive)
-        need = {"ticker", "company"}
-        have = {c.strip().lower() for c in (reader.fieldnames or [])}
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        rdr = csv.DictReader(f)
+        need = {"ticker","company"}
+        have = {c.strip().lower() for c in (rdr.fieldnames or [])}
         if not need.issubset(have):
-            print(f"[ERROR] {CSV_PATH} must have headers: ticker,company (found: {sorted(have)})", flush=True)
+            print(f"[ERROR] {path} must have headers: ticker,company", flush=True)
             sys.exit(1)
-
-        for row in reader:
+        for row in rdr:
             t = (row.get("ticker") or "").strip().upper()
             n = (row.get("company") or "").strip()
             if t and n:
                 out.append((t, n))
 
     if not out:
-        print(f"[ERROR] {CSV_PATH} is empty after parsing.", flush=True)
+        print(f"[ERROR] {path} is empty after parsing.", flush=True)
         sys.exit(1)
 
-    print(f"[INFO] Loaded {len(out)} tickers from {CSV_PATH}", flush=True)
+    print(f"[INFO] Loaded {len(out)} tickers from {path}", flush=True)
     return out
