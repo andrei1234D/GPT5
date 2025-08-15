@@ -5,108 +5,21 @@ on:
     - cron: "0 4 * * *"   # 04:00 UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   send-alert:
-    # allow this workflow to push commits
-    permissions:
-      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          # default is fine, but keeping explicit helps when pushing
           persist-credentials: true
           fetch-depth: 0
 
-      # Always restore the latest data/ from any previous run,
-      # and always save a NEW cache at the end (thanks to run_id).
-      - name: Restore cached data (aliases, universe, etc.)
-        uses: actions/cache@v4
-        with:
-          path: data
-          key: universe-cache-${{ github.run_id }}
-          restore-keys: |
-            universe-cache-
+      # ... your earlier steps unchanged ...
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pytz yfinance pandas numpy
-          # If your PE fetcher uses BeautifulSoup, uncomment next line:
-          # pip install beautifulsoup4 lxml
-
-      - name: Build universe.csv from Trading 212 (fallback to stale)
-        env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          ALLOW_STALE: "1"
-        run: |
-          python scripts/universe_from_trading_212.py
-          ls -lah data || true
-          ls -lah data/universe.csv || true
-
-      - name: Clean universe (fallback to stale)
-        env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          CLEAN_ALLOW_OFFLINE: "1"
-          ALLOW_STALE: "1"
-        run: |
-          python scripts/clean_universe.py
-          wc -l data/universe_clean.csv || true
-          head -n 5 data/universe_clean.csv || true
-
-      # Learn & grow data/aliases.csv from the last run’s rejects
-      - name: Auto-build Yahoo aliases from last run’s rejects
-        env:
-          ALIASES_FROM: data/universe_rejects.csv
-          ALIASES_OUT:  data/aliases.csv
-          ALIASES_MAX_PER_RUN: "250"
-          ALIAS_LOG_LEVEL: "INFO"
-          YF_TEST_PERIOD: "60d"
-          YF_TEST_INTERVAL: "1d"
-        run: |
-          python scripts/aliases_autobuild.py
-
-      - name: Run notifier
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-          # --- Logging ---
-          PYTHONUNBUFFERED: "1"
-          FEATURES_LOG_LEVEL: "DEBUG"      # or "INFO"
-          FEATURES_VERBOSE: "1"
-          FEATURES_LOG_EVERY: "300"
-          RANKER_LOG_LEVEL: "DEBUG"        # or "INFO"
-          RANKER_VERBOSE: "1"
-          RANKER_LOG_EVERY: "300"
-          QUICK_LOG_LEVEL: "INFO"
-
-          # --- yfinance tuning ---
-          YF_CHUNK_SIZE: "60"
-          YF_MAX_RETRIES: "4"
-          YF_RETRY_SLEEP: "3.0"
-
-          # --- Stage-1 quick pass ---
-          STAGE1_MODE: "loose"             # loose | normal | strict
-          STAGE1_KEEP: "200"
-          STAGE1_RESCUE_FRAC: "0.15"       # keep up to 15% extra protected names
-
-          # --- Ranker hard drops ---
-          HARD_DROP_MODE: "loose"          # off | loose | normal | strict
-          HARD_GRACE_ATR: "2.0"
-
-          # --- OpenAI call timeout (seconds) ---
-          OPENAI_TIMEOUT: "240"
-        run: |
-          python scripts/notify.py
-
-      # --- Commit the latest blocks_to_gpt_*.txt into the repo ---
       - name: Find latest blocks file
         id: pick_file
         shell: bash
@@ -123,18 +36,18 @@ jobs:
           echo "basename=$(basename "$FILE")" >> "$GITHUB_OUTPUT"
 
       - name: Commit blocks file to repo (overwrite single file)
-  if: steps.pick_file.outputs.found == '1'
-  shell: bash
-  run: |
-    set -e
-    git config user.name  "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
-    mkdir -p logs
-    cp "${{ steps.pick_file.outputs.file }}" "logs/blocks_to_gpt_latest.txt"
-    git add "logs/blocks_to_gpt_latest.txt"
-    if git diff --cached --quiet; then
-      echo "No changes to commit."
-    else
-      git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
-      git push
-    fi
+        if: steps.pick_file.outputs.found == '1'
+        shell: bash
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p logs
+          cp "${{ steps.pick_file.outputs.file }}" "logs/blocks_to_gpt_latest.txt"
+          git add "logs/blocks_to_gpt_latest.txt"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else:
+            git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
+            git push
+          fi
