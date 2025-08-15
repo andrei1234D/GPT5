@@ -40,7 +40,7 @@ if not IN_PATH.exists():
 ALLOW_STALE        = os.getenv("ALLOW_STALE", "1").lower() in {"1","true","yes"}
 CLEAN_ALLOW_OFFLINE= os.getenv("CLEAN_ALLOW_OFFLINE", "1").lower() in {"1","true","yes"}
 
-MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "7"))
+MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "5"))
 BACKOFF_BASE = float(os.getenv("T212_BACKOFF_BASE", "1.5"))
 BACKOFF_CAP  = float(os.getenv("T212_BACKOFF_CAP", "60"))
 TIMEOUT      = float(os.getenv("T212_TIMEOUT", "30"))
