@@ -1,34 +1,78 @@
 # scripts/debugger.py
-import json
 import requests
+import json
 
-def post_debug_inputs_to_discord(tickers: list[str], debug_inputs: dict[str, dict], webhook_url: str):
-    """Send JSON dumps of the exact GPT inputs per ticker (chunked to avoid embed limits)."""
-    for t in tickers:
-        data = debug_inputs.get(t)
-        if not data:
-            continue
-        try:
-            blob = json.dumps(data, indent=2, ensure_ascii=False, default=str)
-        except Exception:
-            safe = {k: (str(v) if not isinstance(v, (str, int, float, bool, dict, list)) else v)
-                    for k, v in (data or {}).items()}
-            blob = json.dumps(safe, indent=2, ensure_ascii=False)
+def _fmt_num(x):
+    try:
+        return "N/A" if x is None else f"{float(x):.2f}"
+    except Exception:
+        return "N/A"
 
-        # Discord embed description limit ~4096; keep chunks around 3400–3500
-        chunk_size = 3400
-        chunks = [blob[i:i+chunk_size] for i in range(0, len(blob), chunk_size)] or ["{}"]
+def _fmt_pct(x):
+    try:
+        return "N/A" if x is None else f"{float(x):.2f}%"
+    except Exception:
+        return "N/A"
 
-        for idx, ch in enumerate(chunks, start=1):
-            title = f"Model inputs — {t}" + (f" ({idx}/{len(chunks)})" if len(chunks) > 1 else "")
-            payload = {
-                "username": "Daily Stock Debug",
-                "embeds": [{
-                    "title": title,
-                    "description": f"```json\n{ch}\n```"
-                }]
-            }
-            try:
-                requests.post(webhook_url, json=payload, timeout=60).raise_for_status()
-            except Exception as e:
-                print(f"[WARN] Debug Discord post failed for {t} part {idx}: {repr(e)}", flush=True)
+def post_debug_inputs_to_discord(picked, debug_inputs, webhook_url):
+    """
+    picked: list[str] of tickers GPT selected
+    debug_inputs: {ticker: debug_dict} (as built in prompt_blocks.build_prompt_block)
+    webhook_url: Discord webhook
+    """
+    if not picked:
+        return
+
+    embeds = []
+    for t in picked:
+        d = debug_inputs.get(t) or {}
+        vals = d.get("VALUATION_FIELDS_DICT") or {}
+        prox = (d.get("PROXIES_BLOCK") or {})
+        ind  = (d.get("INDICATORS_BLOCK") or {})
+
+        title = f"DEBUG — {t} ({d.get('COMPANY','?')})"
+        desc  = f"Price: {d.get('CURRENT_PRICE','N/A')}  |  FVA_HINT: {_fmt_num(prox.get('FVA_HINT'))}"
+
+        # --- Indicators summary (short) ---
+        indicators_text = (
+            f"RSI14 {_fmt_num(ind.get('RSI14'))} · ATR% {_fmt_num(ind.get('ATR_pct'))} · "
+            f"vsSMA50 {_fmt_num(ind.get('vsSMA50_pct'))}% · vsSMA200 {_fmt_num(ind.get('vsSMA200_pct'))}% · "
+            f"Vol_vs_20d {_fmt_num(ind.get('Vol_vs_20d_pct'))}%"
+        )
+
+        # --- Proxies summary (short) ---
+        proxies_text = (
+            f"MT {prox.get('MARKET_TREND','?')} | RS {prox.get('REL_STRENGTH','?')} | BV {prox.get('BREADTH_VOLUME','?')} | "
+            f"ValHist {prox.get('VALUATION_HISTORY','?')} | RiskVol {prox.get('RISK_VOLATILITY','?')} | RiskDD {prox.get('RISK_DRAWDOWN','?')}"
+        )
+
+        # --- Valuations section (this is the new bit you asked for) ---
+        valuations_text = (
+            f"PE: {_fmt_num(vals.get('PE'))} | PEG: {_fmt_num(vals.get('PEG'))}\n"
+            f"FCF Yield: {_fmt_pct(vals.get('FCF_YIELD_pct'))}\n"
+            f"EV/EBITDA: {_fmt_num(vals.get('EV_EBITDA'))} | EV/Rev: {_fmt_num(vals.get('EV_REV'))} | P/S: {_fmt_num(vals.get('PS'))}"
+        )
+
+        # PROMPT block (trim so we don’t blow Discord limits)
+        prompt_block = (d.get("PROMPT_BLOCK") or "").strip()
+        if len(prompt_block) > 1000:
+            prompt_block = prompt_block[:1000] + " …(truncated)"
+
+        embed = {
+            "title": title,
+            "description": desc,
+            "fields": [
+                {"name": "Indicators", "value": indicators_text or "N/A", "inline": False},
+                {"name": "Proxies", "value": proxies_text or "N/A", "inline": False},
+                {"name": "Valuations", "value": valuations_text or "N/A", "inline": False},
+                {"name": "Prompt Block (preview)", "value": f"```text\n{prompt_block}\n```", "inline": False},
+            ],
+            "color": 0x4B9CD3,  # nice blue
+        }
+        embeds.append(embed)
+
+    try:
+        requests.post(webhook_url, json={"username": "Daily Stock Debug", "embeds": embeds}, timeout=30).raise_for_status()
+    except Exception as e:
+        # Don’t crash the main flow if debug post fails
+        print(f"[WARN] Debug Discord post failed: {e}", flush=True)

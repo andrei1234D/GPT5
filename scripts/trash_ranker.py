@@ -1,4 +1,3 @@
-# scripts/trash_ranker.py
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
@@ -29,13 +28,17 @@ def clamp(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
 
 def tri_sweetspot(x: Optional[float], lo: float, mid_lo: float, mid_hi: float, hi: float) -> float:
+    """
+    Returns a 0..1 score that peaks in the [mid_lo, mid_hi] band,
+    linearly rises from lo..mid_lo and falls from mid_hi..hi, zero outside.
+    """
     if x is None: return 0.5
     try: x = float(x)
     except: return 0.5
     if x <= lo or x >= hi: return 0.0
     if mid_lo <= x <= mid_hi: return 1.0
-    if x < mid_lo: return (x - lo) / (mid_lo - lo)
-    return (hi - x) / (hi - mid_hi)
+    if x < mid_lo: return (x - lo) / max((mid_lo - lo), 1e-9)
+    return (hi - x) / max((hi - mid_hi), 1e-9)
 
 def bool01(x) -> Optional[float]:
     if x is True: return 1.0
@@ -61,7 +64,6 @@ class HardFilter:
     def _scaled(self):
         m = self.mode
         if m == "off":
-            # effectively disable hard drop (except crazy penny)
             return dict(
                 min_price=self.min_price,
                 max_atr_pct=self.max_atr_pct + 999,
@@ -91,7 +93,7 @@ class HardFilter:
                 pump_vol_vs20=self.pump_vol_vs20 - 25.0,
                 pump_d5=self.pump_d5 - 1.0
             )
-        # loose default: slightly more forgiving than base
+        # loose default
         return dict(
             min_price=self.min_price,
             max_atr_pct=self.max_atr_pct + 1.5,
@@ -122,7 +124,7 @@ class HardFilter:
         if atrp is not None:
             lim = t["max_atr_pct"]
             if trend_leader:
-                lim += self.grace_atr  # grace for leaders
+                lim += self.grace_atr
             if atrp > lim:
                 return True, f"ATRpct>{lim} (atr={atrp}, leader={trend_leader})"
 
@@ -140,6 +142,16 @@ class HardFilter:
                 return False, "pump_pattern_soft_keep"
             return True, "pump pattern (RSI/vol/d5)"
 
+        # Conservative valuation blow-off: only triggers with mania momentum
+        pe  = safe(feats.get("val_PE"), None)
+        ps  = safe(feats.get("val_PS"), None)
+        peg = safe(feats.get("val_PEG"), None)
+        if ((pe is not None and pe >= 80) or (ps is not None and ps >= 40) or (peg is not None and peg >= 5.0)):
+            if (rsi is not None and rsi >= t["pump_rsi"]) and (v20 is not None and v20 >= t["pump_vol_vs20"]) and (d5 is not None and d5 >= t["pump_d5"]):
+                if self.mode in {"off", "loose"} and trend_leader:
+                    return False, "valuation-blowoff-soft-keep"
+                return True, "valuation-blowoff (PE/PS/PEG extreme + RSI/vol spike)"
+
         return False, ""
 
     def is_garbage(self, feats: Dict) -> bool:
@@ -149,11 +161,12 @@ class HardFilter:
 # ---------- composite score ----------
 @dataclass
 class RankerParams:
-    w_trend: float = 0.35
-    w_momo:  float = 0.30
-    w_struct: float = 0.15
-    w_stab:  float = 0.15
-    w_blowoff: float = 0.05
+    w_trend: float = 0.32
+    w_momo:  float = 0.28
+    w_struct: float = 0.14
+    w_stab:  float = 0.14
+    w_blowoff: float = 0.02
+    w_value: float = 0.10   # valuation tilt
     atr_soft_cap: float = 6.0
     vol20_soft_cap: float = 250.0
     dd_soft_cap: float = -35.0
@@ -196,6 +209,33 @@ class RobustRanker:
         try: z = (float(x) - med) / (scale if scale != 0 else 1.0)
         except: z = 0.0
         return float(clamp(z, -4.0, 4.0))
+
+    def _value_tilt(self, feats: Dict) -> float:
+        """
+        Returns a -1..+1 valuation score from (optionally present) fields:
+        val_PE, val_PS, val_EV_REV, val_EV_EBITDA, val_PEG, val_FCF_YIELD (percent).
+        Missing values contribute near-neutral.
+        """
+        pe     = safe(feats.get("val_PE"), None)
+        ps     = safe(feats.get("val_PS"), None)
+        evrev  = safe(feats.get("val_EV_REV"), None)
+        ebitda = safe(feats.get("val_EV_EBITDA"), None)
+        peg    = safe(feats.get("val_PEG"), None)
+        fcfy   = safe(feats.get("val_FCF_YIELD"), None)  # percent
+
+        def to_pm01(u: float) -> float:
+            # map 0..1 sweetspot score → -1..+1
+            return clamp(u * 2.0 - 1.0, -1.0, 1.0)
+
+        s = 0.0
+        s += 0.25 * to_pm01(tri_sweetspot(pe,     lo=5.0,  mid_lo=10.0, mid_hi=25.0, hi=60.0))
+        s += 0.15 * to_pm01(tri_sweetspot(ps,     lo=0.5,  mid_lo=2.0,  mid_hi=10.0, hi=30.0))
+        s += 0.15 * to_pm01(tri_sweetspot(evrev,  lo=0.5,  mid_lo=2.0,  mid_hi=10.0, hi=30.0))
+        s += 0.15 * to_pm01(tri_sweetspot(ebitda, lo=5.0,  mid_lo=8.0,  mid_hi=20.0, hi=40.0))
+        s += 0.15 * to_pm01(tri_sweetspot(peg,    lo=0.3,  mid_lo=0.8,  mid_hi=1.8,  hi=4.0))
+        s += 0.15 * to_pm01(tri_sweetspot(fcfy,   lo=-5.0, mid_lo=1.0,  mid_hi=8.0,  hi=20.0))
+
+        return clamp(s, -1.0, 1.0)
 
     def composite_score(self, feats: Dict, context: Optional[Dict]=None) -> Tuple[float, Dict[str, float]]:
         P = self.params
@@ -240,20 +280,32 @@ class RobustRanker:
             vol_pen = 0.0 if v20  is None else (-clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0))
             stability = clamp(0.6*atr_pen + 0.3*dd_pen + 0.1*vol_pen, -1.0, 0.0)
 
+            # Blowoff detector
             blow = 0.0
             if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
                 blow = -1.0
             elif (rsi is not None and rsi >= 85):
                 blow = -0.7
 
-            parts = {"trend": trend, "momo": momo, "struct": struct, "stability": stability, "blowoff": blow}
-            w = {"trend": P.w_trend, "momo": P.w_momo, "struct": P.w_struct, "stability": P.w_stab, "blowoff": P.w_blowoff}
+            # Make blowoffs harsher under extreme valuations
+            pe  = safe(feats.get("val_PE"), None)
+            ps  = safe(feats.get("val_PS"), None)
+            peg = safe(feats.get("val_PEG"), None)
+            if ((pe is not None and pe >= 60) or (ps is not None and ps >= 30) or (peg is not None and peg >= 4.0)):
+                if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
+                    blow = -1.0
+
+            # Valuation tilt (−1..+1 → part)
+            value = self._value_tilt(feats)
+
+            parts = {"trend": trend, "momo": momo, "struct": struct, "stability": stability, "blowoff": blow, "value": value}
+            w = {"trend": P.w_trend, "momo": P.w_momo, "struct": P.w_struct, "stability": P.w_stab, "blowoff": P.w_blowoff, "value": P.w_value}
             active_w = sum(w.values()) or 1.0
             score_unit = sum(w[k]*v for k,v in parts.items())
             scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
             if self.verbose and logger.isEnabledFor(logging.DEBUG):
-                logger.debug("[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f -> score=%.2f",
-                             parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], scr)
+                logger.debug("[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f",
+                             parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr)
             return (scr, parts)
         except Exception as e:
             if self.verbose: logger.exception(f"[Ranker] composite_score error: {e}")

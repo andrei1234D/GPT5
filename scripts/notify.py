@@ -14,6 +14,7 @@ from gpt_client import call_gpt5
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
+from data_fetcher import fetch_valuations_for_top
 
 from trash_ranker import RobustRanker
 from quick_scorer import rank_stage1
@@ -148,7 +149,17 @@ def main():
 
     # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
     ranker = RobustRanker()
-    ranker.fit_cross_section([f for (t, n, f, s, meta) in pre_top200])
+    vals_pre = fetch_valuations_for_top(tickers_pre)
+    for (t, n, f, _score, _meta) in pre_top200:
+        v = (vals_pre.get(t) or {})
+        f["val_PE"]         = v.get("PE")
+        f["val_PS"]         = v.get("PS")
+        f["val_EV_REV"]     = v.get("EV_REV")
+        f["val_EV_EBITDA"]  = v.get("EV_EBITDA")
+        f["val_PEG"]        = v.get("PEG")
+        f["val_FCF_YIELD"]  = v.get("FCF_YIELD")
+
+    tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
 
     thorough_ranked = []
     for (t, n, f, _score, _meta) in pre_top200:
@@ -170,7 +181,8 @@ def main():
     spy_ctx = get_spy_ctx()
     pe_map = fetch_pe_for_top(tickers_top10)
     earn_days_map = fetch_next_earnings_days(tickers_top10)
-
+    valuations_map = fetch_valuations_for_top(tickers_top10)
+    
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
@@ -188,16 +200,27 @@ def main():
         elif earn_days <= 14: earn_sev = 2
         else:                 earn_sev = 0
 
-        pe_hint = pe_map.get(t)
+    # NEW: pull all valuation fields
+    vals = valuations_map.get(t, {}) or {}
+    pe_hint = vals.get("PE")
 
-        block_text, debug_dict = build_prompt_block(
-            t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
-            cat=cat, earn_sev=earn_sev, fm={},  # we no longer pass valuation/fundamentals
-            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
-            pe_hint=pe_hint  # <-- ensure your build_prompt_block supports this arg
-        )
-        blocks.append(block_text)
-        debug_inputs[t] = debug_dict
+    fm = {
+        "PE": vals.get("PE"),
+        "PS": vals.get("PS"),
+        "EV_EBITDA": vals.get("EV_EBITDA"),
+        "EV_REV": vals.get("EV_REV"),          # NEW in prompt + debug
+        "PEG": vals.get("PEG"),
+        "FCF_YIELD": vals.get("FCF_YIELD"),    # percent; may be negative
+    }
+
+    block_text, debug_dict = build_prompt_block(
+        t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
+        cat=cat, earn_sev=earn_sev, fm=fm,
+        baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
+        pe_hint=pe_hint
+    )
+    blocks.append(block_text)
+    debug_inputs[t] = debug_dict
 
     blocks_text = "\n\n".join(blocks)
     user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(today=now.strftime("%b %d"), blocks=blocks_text)
