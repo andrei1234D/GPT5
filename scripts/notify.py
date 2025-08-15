@@ -9,7 +9,7 @@ from proxies import get_spy_ctx, derive_proxies, fund_proxies_from_feats, cataly
 from fundamentals import fetch_next_earnings_days  # still used for EARNINGS_SOON sev
 from data_fetcher import fetch_pe_for_top          # your PE fetcher
 from prompt_blocks import BASELINE_HINTS, build_prompt_block
-from gpt_client import call_gpt5, apply_personal_bonuses_to_text
+from gpt_client import call_gpt5 
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
@@ -169,11 +169,9 @@ def main():
 
     # 8) GPT-5 adjudication (no fallback posting if GPT fails)
     try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000, timeout=float(os.getenv("OPENAI_TIMEOUT","180")))
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000, timeout=float(os.getenv("OPENAI_TIMEOUT","360")))
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
-
-    final_text = apply_personal_bonuses_to_text(final_text)
 
     # 9) Parse selected tickers from GPT output and post debug
     RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")

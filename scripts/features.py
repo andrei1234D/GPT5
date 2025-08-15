@@ -187,9 +187,12 @@ def fetch_history(
     - Applies aliases (static + data/aliases.csv if present).
     - Batches requests to reduce rate-limit errors.
     - Auto-adjusted prices to keep units consistent (splits/dividends).
+    - Accepts only frames with >= YF_MIN_ROWS (default 40) rows after cleaning.
     """
     t0 = time.time()
-    extra_aliases = load_aliases_csv("data/aliases.csv")  # <- optional external file
+    min_rows = int(os.getenv("YF_MIN_ROWS", "40"))
+
+    extra_aliases = load_aliases_csv("data/aliases.csv")  # optional external file
 
     # apply aliases first, then normalize for Yahoo
     alias_applied: Dict[str, str] = {}
@@ -209,10 +212,22 @@ def fetch_history(
     keys = list(yh_map.keys())
 
     if FEATURES_VERBOSE:
-        logger.info(f"[fetch] start period={period} universe={len(keys)} chunk_size={chunk_size} retries={max_retries}")
+        logger.info(f"[fetch] start period={period} universe={len(keys)} chunk_size={chunk_size} retries={max_retries} min_rows={min_rows}")
 
     # totals across all chunks
     total_ok = total_fb_ok = total_empty = total_rejects = 0
+
+    def _usable_df(df_in: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
+        """Keep only OHLCV cols, drop all-NaN rows, require min_rows."""
+        if not isinstance(df_in, pd.DataFrame) or df_in.empty:
+            return None
+        cols = [c for c in df_in.columns if c in FIELDS]
+        if not cols:
+            return None
+        df2 = df_in[cols].dropna(how="all")
+        if df2 is None or df2.empty or df2.shape[0] < min_rows:
+            return None
+        return df2
 
     for i in range(0, len(keys), chunk_size):
         chunk_keys = keys[i:i + chunk_size]
@@ -220,7 +235,7 @@ def fetch_history(
         if FEATURES_VERBOSE:
             logger.info(f"[fetch] chunk {i//chunk_size+1}/{(len(keys)+chunk_size-1)//chunk_size} size={len(chunk_keys)}")
 
-        # Retry the batch a few times on transient errors
+        # Retry the batch on transient errors
         attempt = 0
         data = None
         while attempt < max_retries:
@@ -256,27 +271,24 @@ def fetch_history(
         for orig in chunk_keys:
             yh = yh_map[orig]
             try:
-                df_norm = _normalize_ohlcv(data, ticker_hint=yh) if data is not None else None
-                if isinstance(df_norm, pd.DataFrame):
-                    cols = [c for c in df_norm.columns if c in FIELDS]
-                    if cols:
-                        df2 = df_norm[cols].dropna(how="all")
-                        if df2 is not None and not df2.empty:
-                            out[orig] = df2
-                            ok_in_chunk += 1
-                            total_ok += 1
-                            if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                                logger.debug(f"[fetch] ok {orig}->{yh} rows={df2.shape[0]} cols={cols}")
-                            continue
-                        else:
-                            empty_in_chunk += 1
-                            total_empty += 1
-                            if FEATURES_VERBOSE:
-                                logger.debug(f"[fetch] empty-after-clean {orig}->{yh} (trying fallback)")
-                # fall through to single-ticker fallback
+                df_norm = _normalize_ohlcv(data, ticker_hint=(yh or "").strip()) if data is not None else None
+                df_use = _usable_df(df_norm)
+                if df_use is not None:
+                    out[orig] = df_use
+                    ok_in_chunk += 1
+                    total_ok += 1
+                    if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
+                        logger.debug(f"[fetch] ok {orig}->{yh} rows={df_use.shape[0]} cols={list(df_use.columns)}")
+                    continue
+                else:
+                    empty_in_chunk += 1
+                    total_empty += 1
+                    if FEATURES_VERBOSE:
+                        logger.debug(f"[fetch] empty/too-few-rows {orig}->{yh} (trying fallback)")
+                # force fallback
                 raise ValueError("normalize-empty")
             except Exception:
-                # one-off single download fallback
+                # single-ticker fallback
                 try:
                     single = yf.download(
                         tickers=yh,
@@ -288,27 +300,19 @@ def fetch_history(
                         threads=False,
                     )
                     df1 = _normalize_ohlcv(single)
-                    cols = [c for c in df1.columns if c in FIELDS] if isinstance(df1, pd.DataFrame) else []
-                    if cols:
-                        df2 = df1[cols].dropna(how="all")
-                        if not df2.empty:
-                            out[orig] = df2
-                            fb_ok_in_chunk += 1
-                            total_fb_ok += 1
-                            if FEATURES_VERBOSE:
-                                logger.debug(f"[fetch] fallback ok {orig} rows={df2.shape[0]}")
-                        else:
-                            rejects.append((orig, "404/empty"))
-                            rej_in_chunk += 1
-                            total_rejects += 1
-                            if FEATURES_VERBOSE:
-                                logger.debug(f"[fetch] reject {orig}: empty-after-clean")
+                    df_use = _usable_df(df1)
+                    if df_use is not None:
+                        out[orig] = df_use
+                        fb_ok_in_chunk += 1
+                        total_fb_ok += 1
+                        if FEATURES_VERBOSE:
+                            logger.debug(f"[fetch] fallback ok {orig} rows={df_use.shape[0]}")
                     else:
-                        rejects.append((orig, "404/empty"))
+                        rejects.append((orig, "404/empty-or-short"))
                         rej_in_chunk += 1
                         total_rejects += 1
                         if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] reject {orig}: no usable columns")
+                            logger.debug(f"[fetch] reject {orig}: empty/short after fallback")
                 except Exception as e2:
                     rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
                     rej_in_chunk += 1
@@ -333,8 +337,8 @@ def fetch_history(
             if header_needed:
                 w.writerow(["ticker", "reason", "ts"])
             ts = time.strftime("%Y-%m-%d %H:%M:%S")
-            for t, r in rejects:
-                w.writerow([t, r, ts])
+            for tkr, r in rejects:
+                w.writerow([tkr, r, ts])
         if FEATURES_VERBOSE:
             logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
 
