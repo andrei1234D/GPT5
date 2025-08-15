@@ -149,6 +149,7 @@ def main():
 
     # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
     ranker = RobustRanker()
+    tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
     for (t, n, f, _score, _meta) in pre_top200:
         v = (vals_pre.get(t) or {})
@@ -159,7 +160,7 @@ def main():
         f["val_PEG"]        = v.get("PEG")
         f["val_FCF_YIELD"]  = v.get("FCF_YIELD")
 
-    tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
+    
 
     thorough_ranked = []
     for (t, n, f, _score, _meta) in pre_top200:
