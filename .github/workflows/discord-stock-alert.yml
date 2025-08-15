@@ -18,7 +18,56 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      # ... your earlier steps unchanged ...
+      # ... your existing steps (cache, setup-python, install deps, build/clean universe, aliases) ...
+
+      - name: Run notifier
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+          # --- Logging ---
+          PYTHONUNBUFFERED: "1"
+          FEATURES_LOG_LEVEL: "DEBUG"
+          FEATURES_VERBOSE: "1"
+          FEATURES_LOG_EVERY: "300"
+          RANKER_LOG_LEVEL: "DEBUG"
+          RANKER_VERBOSE: "1"
+          RANKER_LOG_EVERY: "300"
+          QUICK_LOG_LEVEL: "INFO"
+
+          # --- yfinance tuning ---
+          YF_CHUNK_SIZE: "60"
+          YF_MAX_RETRIES: "4"
+          YF_RETRY_SLEEP: "3.0"
+
+          # --- Stage-1 quick pass ---
+          STAGE1_MODE: "loose"
+          STAGE1_KEEP: "200"
+          STAGE1_RESCUE_FRAC: "0.15"
+
+          # --- Ranker hard drops ---
+          HARD_DROP_MODE: "loose"
+          HARD_GRACE_ATR: "2.0"
+
+          # --- OpenAI call timeout (seconds) ---
+          OPENAI_TIMEOUT: "240"
+
+          # --- Force GPT input dump ---
+          LOG_GPT_INPUT: "1"
+          LOG_GPT_INPUT_STDOUT: "0"
+        run: |
+          python scripts/notify.py
+
+      # Helpful: show what files exist so we can see the path that was created
+      - name: List possible logs (debug)
+        if: always()
+        shell: bash
+        run: |
+          echo "PWD: $(pwd)"
+          ls -lah || true
+          ls -lah data || true
+          ls -lah data/logs || true
+          ls -1t data/logs/blocks_to_gpt_* 2>/dev/null || true
 
       - name: Find latest blocks file
         id: pick_file
@@ -47,7 +96,7 @@ jobs:
           git add "logs/blocks_to_gpt_latest.txt"
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else:
+          else
             git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
             git push
           fi
