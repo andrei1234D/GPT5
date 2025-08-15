@@ -25,7 +25,7 @@ def call_gpt5(system_msg: str, user_msg: str, max_tokens: int = 7000) -> str:
         "max_output_tokens": max_tokens,
         "temperature": 1.0
     }
-    r = requests.post(f"{OPENAI_BASE}/responses", headers=headers, json=body, timeout=180)
+    r = requests.post(f"{OPENAI_BASE}/responses", headers=headers, json=body, timeout=360)
     r.raise_for_status()
     data = r.json()
     text = extract_output_text(data)
