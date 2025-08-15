@@ -192,7 +192,7 @@ def fetch_history(
     extra_aliases = load_aliases_csv("data/aliases.csv")  # <- optional external file
 
     # apply aliases first, then normalize for Yahoo
-    alias_applied = {}
+    alias_applied: Dict[str, str] = {}
     yh_map: Dict[str, str] = {}
     for t in tickers:
         ali = apply_alias(t, extra_aliases)
@@ -210,6 +210,9 @@ def fetch_history(
 
     if FEATURES_VERBOSE:
         logger.info(f"[fetch] start period={period} universe={len(keys)} chunk_size={chunk_size} retries={max_retries}")
+
+    # totals across all chunks
+    total_ok = total_fb_ok = total_empty = total_rejects = 0
 
     for i in range(0, len(keys), chunk_size):
         chunk_keys = keys[i:i + chunk_size]
@@ -248,19 +251,28 @@ def fetch_history(
             if FEATURES_VERBOSE:
                 logger.warning("[fetch] chunk failed: empty data after retries")
 
-        ok_in_chunk = 0
+        ok_in_chunk = empty_in_chunk = fb_ok_in_chunk = rej_in_chunk = 0
+
         for orig in chunk_keys:
             yh = yh_map[orig]
             try:
                 df_norm = _normalize_ohlcv(data, ticker_hint=yh) if data is not None else None
-                if isinstance(df_norm, pd.DataFrame) and not df_norm.empty:
+                if isinstance(df_norm, pd.DataFrame):
                     cols = [c for c in df_norm.columns if c in FIELDS]
                     if cols:
-                        out[orig] = df_norm[cols].dropna(how="all")
-                        ok_in_chunk += 1
-                        if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                            logger.debug(f"[fetch] ok {orig}->{yh} rows={out[orig].shape[0]} cols={cols}")
-                        continue
+                        df2 = df_norm[cols].dropna(how="all")
+                        if df2 is not None and not df2.empty:
+                            out[orig] = df2
+                            ok_in_chunk += 1
+                            total_ok += 1
+                            if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
+                                logger.debug(f"[fetch] ok {orig}->{yh} rows={df2.shape[0]} cols={cols}")
+                            continue
+                        else:
+                            empty_in_chunk += 1
+                            total_empty += 1
+                            if FEATURES_VERBOSE:
+                                logger.debug(f"[fetch] empty-after-clean {orig}->{yh} (trying fallback)")
                 # fall through to single-ticker fallback
                 raise ValueError("normalize-empty")
             except Exception:
@@ -276,23 +288,39 @@ def fetch_history(
                         threads=False,
                     )
                     df1 = _normalize_ohlcv(single)
-                    cols = [c for c in df1.columns if c in FIELDS]
-                    if cols and not df1.empty:
-                        out[orig] = df1[cols].dropna(how="all")
-                        ok_in_chunk += 1
-                        if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] fallback ok {orig} rows={out[orig].shape[0]}")
+                    cols = [c for c in df1.columns if c in FIELDS] if isinstance(df1, pd.DataFrame) else []
+                    if cols:
+                        df2 = df1[cols].dropna(how="all")
+                        if not df2.empty:
+                            out[orig] = df2
+                            fb_ok_in_chunk += 1
+                            total_fb_ok += 1
+                            if FEATURES_VERBOSE:
+                                logger.debug(f"[fetch] fallback ok {orig} rows={df2.shape[0]}")
+                        else:
+                            rejects.append((orig, "404/empty"))
+                            rej_in_chunk += 1
+                            total_rejects += 1
+                            if FEATURES_VERBOSE:
+                                logger.debug(f"[fetch] reject {orig}: empty-after-clean")
                     else:
                         rejects.append((orig, "404/empty"))
+                        rej_in_chunk += 1
+                        total_rejects += 1
                         if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] reject {orig}: 404/empty")
+                            logger.debug(f"[fetch] reject {orig}: no usable columns")
                 except Exception as e2:
                     rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
+                    rej_in_chunk += 1
+                    total_rejects += 1
                     if FEATURES_VERBOSE:
                         logger.debug(f"[fetch] reject {orig}: {e2!r}")
 
         if FEATURES_VERBOSE:
-            logger.info(f"[fetch] chunk done ok={ok_in_chunk}/{len(chunk_keys)}")
+            logger.info(
+                f"[fetch] chunk done ok={ok_in_chunk} fb_ok={fb_ok_in_chunk} "
+                f"empty={empty_in_chunk} rejects={rej_in_chunk}/{len(chunk_keys)}"
+            )
 
     # persist rejects (append-safe, once per function call)
     if rejects:
@@ -311,7 +339,10 @@ def fetch_history(
             logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
 
     if FEATURES_VERBOSE:
-        logger.info(f"[fetch] finished in {time.time()-t0:.2f}s ok={len(out)}/{len(keys)}")
+        logger.info(
+            f"[fetch] finished in {time.time()-t0:.2f}s "
+            f"ok={total_ok} fb_ok={total_fb_ok} empty={total_empty} rejects={total_rejects} / universe={len(keys)}"
+        )
     return out
 
 # ---------------------------- compute ------------------------------ #
