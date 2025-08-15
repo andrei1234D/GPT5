@@ -9,9 +9,11 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 
+from aliases import apply_alias, load_aliases_csv  # <-- NEW
+
 # ---------------------------- logging ------------------------------ #
 def _maybe_configure_logging():
-    # Prefer FEATURES_LOG_LEVEL, otherwise allow reuse of RANKER_LOG_LEVEL
+    # Prefer FEATURES_LOG_LEVEL, otherwise reuse RANKER_LOG_LEVEL
     level_name = (os.getenv("FEATURES_LOG_LEVEL") or os.getenv("RANKER_LOG_LEVEL") or "").upper().strip()
     if not level_name:
         return
@@ -21,6 +23,10 @@ def _maybe_configure_logging():
         logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 _maybe_configure_logging()
+# quiet 3rd-party DEBUG noise; keep our own logs verbose
+for _name in ("yfinance", "peewee", "curl_cffi.requests", "urllib3", "requests"):
+    logging.getLogger(_name).setLevel(logging.WARNING)
+
 logger = logging.getLogger("features")
 
 FEATURES_VERBOSE = os.getenv("FEATURES_VERBOSE", "").strip().lower() in {"1", "true", "yes"}
@@ -178,12 +184,28 @@ def fetch_history(
     """
     Returns {original_ticker: normalized OHLCV DataFrame}.
     - Preserves real Yahoo suffixes.
+    - Applies aliases (static + data/aliases.csv if present).
     - Batches requests to reduce rate-limit errors.
     - Auto-adjusted prices to keep units consistent (splits/dividends).
     """
     t0 = time.time()
-    yh_map = {t: _normalize_symbol_for_yahoo(t) for t in tickers}
+    extra_aliases = load_aliases_csv("data/aliases.csv")  # <- optional external file
+
+    # apply aliases first, then normalize for Yahoo
+    alias_applied = {}
+    yh_map: Dict[str, str] = {}
+    for t in tickers:
+        ali = apply_alias(t, extra_aliases)
+        if ali != t:
+            alias_applied[t] = ali
+        yh_map[t] = _normalize_symbol_for_yahoo(ali)
+
+    if FEATURES_VERBOSE and alias_applied:
+        for k, v in alias_applied.items():
+            logger.info(f"[alias] {k} -> {v}")
+
     out: Dict[str, pd.DataFrame] = {}
+    rejects: List[Tuple[str, str]] = []  # (ticker, reason)
     keys = list(yh_map.keys())
 
     if FEATURES_VERBOSE:
@@ -195,7 +217,7 @@ def fetch_history(
         if FEATURES_VERBOSE:
             logger.info(f"[fetch] chunk {i//chunk_size+1}/{(len(keys)+chunk_size-1)//chunk_size} size={len(chunk_keys)}")
 
-        # Retry a few times on transient errors
+        # Retry the batch a few times on transient errors
         attempt = 0
         data = None
         while attempt < max_retries:
@@ -225,14 +247,12 @@ def fetch_history(
         if data is None or (isinstance(data, pd.DataFrame) and data.empty):
             if FEATURES_VERBOSE:
                 logger.warning("[fetch] chunk failed: empty data after retries")
-            continue
 
         ok_in_chunk = 0
-        # For each ticker in this chunk, extract + normalize its own frame
         for orig in chunk_keys:
             yh = yh_map[orig]
             try:
-                df_norm = _normalize_ohlcv(data, ticker_hint=yh)
+                df_norm = _normalize_ohlcv(data, ticker_hint=yh) if data is not None else None
                 if isinstance(df_norm, pd.DataFrame) and not df_norm.empty:
                     cols = [c for c in df_norm.columns if c in FIELDS]
                     if cols:
@@ -241,12 +261,11 @@ def fetch_history(
                         if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
                             logger.debug(f"[fetch] ok {orig}->{yh} rows={out[orig].shape[0]} cols={cols}")
                         continue
-                # fallback if normalization failed or returned empty
+                # fall through to single-ticker fallback
                 raise ValueError("normalize-empty")
             except Exception:
                 # one-off single download fallback
                 try:
-                    t2 = time.time()
                     single = yf.download(
                         tickers=yh,
                         period=period,
@@ -258,17 +277,38 @@ def fetch_history(
                     )
                     df1 = _normalize_ohlcv(single)
                     cols = [c for c in df1.columns if c in FIELDS]
-                    if cols:
+                    if cols and not df1.empty:
                         out[orig] = df1[cols].dropna(how="all")
                         ok_in_chunk += 1
                         if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] fallback ok {orig} rows={out[orig].shape[0]} took {time.time()-t2:.2f}s")
+                            logger.debug(f"[fetch] fallback ok {orig} rows={out[orig].shape[0]}")
+                    else:
+                        rejects.append((orig, "404/empty"))
+                        if FEATURES_VERBOSE:
+                            logger.debug(f"[fetch] reject {orig}: 404/empty")
                 except Exception as e2:
+                    rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
                     if FEATURES_VERBOSE:
-                        logger.debug(f"[fetch] fallback failed {orig}: {e2!r}")
+                        logger.debug(f"[fetch] reject {orig}: {e2!r}")
 
         if FEATURES_VERBOSE:
             logger.info(f"[fetch] chunk done ok={ok_in_chunk}/{len(chunk_keys)}")
+
+    # persist rejects (append-safe, once per function call)
+    if rejects:
+        import csv
+        os.makedirs("data", exist_ok=True)
+        path = "data/universe_rejects.csv"
+        header_needed = not os.path.exists(path)
+        with open(path, "a", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            if header_needed:
+                w.writerow(["ticker", "reason", "ts"])
+            ts = time.strftime("%Y-%m-%d %H:%M:%S")
+            for t, r in rejects:
+                w.writerow([t, r, ts])
+        if FEATURES_VERBOSE:
+            logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
 
     if FEATURES_VERBOSE:
         logger.info(f"[fetch] finished in {time.time()-t0:.2f}s ok={len(out)}/{len(keys)}")
@@ -291,7 +331,7 @@ def compute_indicators(df: pd.DataFrame) -> dict:
     vol = df["Volume"] if "Volume" in cols else pd.Series(index=px.index, dtype=float)
 
     if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-        logger.debug(f"[ind] rows={len(px)} hasVol={ 'Volume' in cols } minDate={px.index.min()} maxDate={px.index.max()}")
+        logger.debug(f"[ind] rows={len(px)} hasVol={'Volume' in cols} minDate={px.index.min()} maxDate={px.index.max()}")
 
     sma20 = px.rolling(20).mean()
     sma50 = px.rolling(50).mean()
