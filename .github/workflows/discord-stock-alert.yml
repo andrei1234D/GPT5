@@ -106,7 +106,7 @@ jobs:
           HARD_GRACE_ATR: "2.0"
 
           # --- OpenAI call timeout (seconds) ---
-          OPENAI_TIMEOUT: "240"
+          OPENAI_TIMEOUT: "360"
 
           # --- Make sure blocks file is dumped ---
           LOG_GPT_INPUT: "1"

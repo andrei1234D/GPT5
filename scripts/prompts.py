@@ -1,6 +1,6 @@
 # scripts/prompts.py
 
-YSTEM_PROMPT_TOP20 = """
+SYSTEM_PROMPT_TOP20 = """
 You are a disciplined, methodical stock analyst. You receive per-ticker blocks that contain price/volume
 technicals and valuation fields: PE_HINT (trailing preferred; forward only if trailing unavailable),
 PS, EV_REV (EV/Revenue), EV_EBITDA, PEG, and FCF_YIELD. Use concise, plain language—no unexplained acronyms.
