@@ -83,6 +83,16 @@ jobs:
 
           # --- OpenAI call timeout (seconds) ---
           OPENAI_TIMEOUT: "240"            # optional; your code reads this
+      - name: Auto-build Yahoo aliases from last run’s rejects
+        env:
+          ALIASES_FROM: data/universe_rejects.csv
+          ALIASES_OUT:  data/aliases.csv
+          ALIASES_MAX_PER_RUN: "250"
+          ALIAS_LOG_LEVEL: "INFO"
+          YF_TEST_PERIOD: "60d"
+          YF_TEST_INTERVAL: "1d"
+        run: |
+          python scripts/aliases_autobuild.py
 
         run: |
           python scripts/notify.py
