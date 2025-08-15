@@ -1,82 +1,111 @@
-# scripts/aliases_autobuild.py
-from __future__ import annotations
-import os, time, logging
-from typing import Dict, List, Tuple
-import pandas as pd
+# aliases_autobuild.py (core logic snippet)
+
+import os, re, csv, time
 import yfinance as yf
 
-from aliases import load_aliases_csv, save_aliases_csv, generate_alias_candidates
+YF_TEST_PERIOD   = os.getenv("YF_TEST_PERIOD", "60d")
+YF_TEST_INTERVAL = os.getenv("YF_TEST_INTERVAL", "1d")
+MIN_OK_ROWS      = int(os.getenv("ALIASES_MIN_ROWS", "20"))
+MAX_PER_RUN      = int(os.getenv("ALIASES_MAX_PER_RUN", "250"))
 
-logging.basicConfig(level=getattr(logging, os.getenv("ALIAS_LOG_LEVEL", "INFO").upper(), logging.INFO),
-                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-log = logging.getLogger("aliases_autobuild")
+# Map Trading212-style hyphen suffixes to Yahoo’s dot suffixes
+SUFFIX_MAP = {
+    "L": "L",   # London
+    "T": "TO",  # Toronto
+    "V": "V",   # TSXV
+    "SI": "SI", "KS": "KS", "CO": "CO", "HE": "HE", "OL": "OL", "WA": "WA",
+    "PR": "PR", "AX": "AX", "HK": "HK", "MI": "MI", "MC": "MC", "ST": "ST",
+    "PA": "PA", "AS": "AS", "F": "F", "SW": "SW", "DE": "DE"
+}
 
-REJECTS_PATH = os.getenv("ALIASES_FROM", "data/universe_rejects.csv")
-ALIASES_OUT  = os.getenv("ALIASES_OUT",  "data/aliases.csv")
-MAX_PER_RUN  = int(os.getenv("ALIASES_MAX_PER_RUN", "250"))
-TEST_PERIOD  = os.getenv("YF_TEST_PERIOD", "60d")
-TEST_INTERVAL= os.getenv("YF_TEST_INTERVAL","1d")
-SLEEP_BETWEEN= float(os.getenv("ALIASES_SLEEP_S", "0.10"))
-
-def _is_viable_yahoo(sym: str) -> bool:
+def _has_data(sym: str) -> bool:
     try:
-        df = yf.download(sym, period=TEST_PERIOD, interval=TEST_INTERVAL,
-                         auto_adjust=True, progress=False, threads=False, group_by="ticker")
-        if isinstance(df, pd.DataFrame) and not df.empty and ("Close" in df.columns or "Adj Close" in df.columns):
-            return True
+        hist = yf.Ticker(sym).history(period=YF_TEST_PERIOD, interval=YF_TEST_INTERVAL, auto_adjust=True)
+        return isinstance(hist, type(hist)) and len(hist.index) >= MIN_OK_ROWS
     except Exception:
         return False
-    return False
 
-def main() -> None:
-    if not os.path.exists(REJECTS_PATH):
-        log.info("No rejects file found (%s); nothing to do.", REJECTS_PATH)
-        return
+def _generate_candidates(bad: str) -> list[str]:
+    s = bad.strip().upper()
 
-    # Load newest batch of rejects (dedupe by ticker, keep last reason)
-    rej = pd.read_csv(REJECTS_PATH)
-    if "ticker" not in rej.columns:
-        log.warning("Rejects file has no 'ticker' column; aborting.")
-        return
+    # If it already has a dot suffix and fails, also try the plain base (for US tickers mis-suffixed)
+    plain_from_dot = []
+    if "." in s:
+        base = s.split(".", 1)[0]
+        if base and base.isalnum():
+            plain_from_dot.append(base)
 
-    # Prefer most recent failures first
-    if "ts" in rej.columns:
-        rej = rej.sort_values("ts", ascending=False)
-    tickers: List[str] = list(dict.fromkeys(rej["ticker"].astype(str).str.upper()))
+    # Hyphen → dot (T212 quirk): e.g., "BBDC-L", "SSONL-L", "ANIIL-L"
+    cand = []
+    m = re.match(r"^([A-Z0-9\.]+)-([A-Z]{1,2})$", s)
+    if m:
+        base, suff = m.group(1), m.group(2)
+        if suff in SUFFIX_MAP:
+            yy = SUFFIX_MAP[suff]
+            # 1) direct conversion: base + .yy
+            cand.append(f"{base}.{yy}")
+            # 2) LSE trust quirk: if base ends with the first letter of the suffix (e.g., 'L'),
+            #    also try dropping that final letter: "SSONL" -> "SSON.L", "ANIIL" -> "ANII.L"
+            if base.endswith(yy[0]):
+                cand.append(f"{base[:-1]}.{yy}")
+            # 3) for 1-letter suffixes, also try dropping trailing duplicate letter again
+            if len(yy) == 1 and base.endswith(yy):
+                cand.append(f"{base[:-1]}.{yy}")
 
-    # Don't try to rebuild aliases we already have
-    existing = load_aliases_csv(ALIASES_OUT)
-    todo = [t for t in tickers if t not in existing]
-    if not todo:
-        log.info("No new tickers to alias. Existing=%d", len(existing))
-        return
+            # 4) if the mapped suffix is UK ".L", also try the plain base (some entries are US)
+            if yy == "L":
+                cand += plain_from_dot
 
-    log.info("Trying to auto-alias up to %d of %d rejected tickers", min(MAX_PER_RUN, len(todo)), len(todo))
+    # From dot-suffix to plain (US fallback) if not already added
+    cand += plain_from_dot
 
-    learned: Dict[str, str] = {}
-    tries = 0
-    for orig in todo:
-        if len(learned) >= MAX_PER_RUN:
-            break
-        tries += 1
-        cands = generate_alias_candidates(orig)
-        ok = None
-        for cand in cands[:20]:  # keep it tight
-            if _is_viable_yahoo(cand):
-                ok = cand
+    # Always try the raw base with no suffix if it looks like a US ticker
+    if "-" not in s and "." not in s and s.isalnum():
+        cand.append(s)
+
+    # De-dup while preserving order
+    seen, out = set(), []
+    for c in cand:
+        if c not in seen:
+            seen.add(c); out.append(c)
+    return out[:5]  # cap to keep it surgical
+
+def learn_aliases_from_rejects(path_in: str, path_out: str) -> int:
+    os.makedirs(os.path.dirname(path_out), exist_ok=True)
+    learned = []
+
+    # Read rejects (expects a "ticker" column)
+    ticks = []
+    with open(path_in, newline="", encoding="utf-8") as f:
+        r = csv.DictReader(f)
+        for row in r:
+            t = (row.get("ticker") or "").strip()
+            if t:
+                ticks.append(t)
+    if not ticks:
+        print(f"[aliases_autobuild] No rejected tickers in {path_in}")
+        return 0
+
+    print(f"[aliases_autobuild] Trying to auto-alias up to {min(len(ticks), MAX_PER_RUN)} of {len(ticks)} rejected tickers")
+
+    for bad in ticks[:MAX_PER_RUN]:
+        for cand in _generate_candidates(bad):
+            if _has_data(cand):
+                learned.append((bad, cand))
+                print(f"[aliases_autobuild] learned {bad} -> {cand}")
                 break
-            time.sleep(SLEEP_BETWEEN)
-        if ok:
-            learned[orig] = ok
-            log.info("[learned] %s -> %s", orig, ok)
-        else:
-            log.debug("[miss] %s (no viable candidate)", orig)
 
-    if learned:
-        save_aliases_csv(ALIASES_OUT, learned)
-        log.info("Saved %d new aliases to %s", len(learned), ALIASES_OUT)
-    else:
-        log.info("No aliases learned this run.")
+    if not learned:
+        print("[aliases_autobuild] No aliases learned this run.")
+        return 0
 
-if __name__ == "__main__":
-    main()
+    # Append to aliases.csv as "from,to"
+    append_header = not os.path.exists(path_out)
+    with open(path_out, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if append_header:
+            w.writerow(["from", "to"])
+        for a, b in learned:
+            w.writerow([a, b])
+    print(f"[aliases_autobuild] Wrote {len(learned)} new aliases -> {path_out}")
+    return len(learned)
