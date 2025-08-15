@@ -65,7 +65,6 @@ def call_gpt5(
     user_msg: str,
     *,
     model: str = None,
-    temperature: float = None,
     max_tokens: int = None,
     timeout: Optional[float] = None,
     retries: int = 2,
@@ -76,7 +75,6 @@ def call_gpt5(
 
     Env defaults:
       OPENAI_MODEL       (default "gpt-5")
-      OPENAI_TEMPERATURE (default "0.2")
       OPENAI_MAX_TOKENS  (default "1200")
       OPENAI_TIMEOUT     (seconds; default "180")
     """
@@ -84,8 +82,7 @@ def call_gpt5(
         raise RuntimeError("OPENAI_API_KEY is not set")
 
     model = model or os.getenv("OPENAI_MODEL", "gpt-5")
-    temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.2")) if temperature is None else float(temperature)
-    max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200")) if max_tokens is None else int(max_tokens)
+    max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "13000")) if max_tokens is None else int(max_tokens)
     timeout = float(os.getenv("OPENAI_TIMEOUT", "360")) if timeout is None else float(timeout)
 
     headers = {
@@ -100,7 +97,6 @@ def call_gpt5(
             {"role": "user", "content": user_msg},
         ],
         "max_output_tokens": max_tokens,
-        "temperature": temperature,
     }
 
     url = f"{OPENAI_BASE.rstrip('/')}/responses"

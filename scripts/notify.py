@@ -34,7 +34,6 @@ DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
 INPUT EXTRAS:
 - Each candidate block may include:
-  • DATA_AVAILABILITY: which of {FUNDAMENTALS, VALUATION, RISKS, CATALYSTS} are MISSING or PARTIAL.
   • BASELINE_HINTS: exact baselines for each category.
   • PROXIES: price/volume proxies with severities (−5..+5) and directions (+/−).
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
@@ -212,7 +211,7 @@ def main():
     # 8) GPT-5 adjudication
     
     try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000)
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
