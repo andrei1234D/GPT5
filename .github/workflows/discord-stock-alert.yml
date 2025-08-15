@@ -3,7 +3,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 4 * * *" 
+    - cron: "0 4 * * *"   # 04:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -13,11 +13,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Restore cached data (yesterday's CSVs)
+      # Always restore the latest data/ from any previous run,
+      # and always save a NEW cache at the end (thanks to run_id).
+      - name: Restore cached data (aliases, universe, etc.)
         uses: actions/cache@v4
         with:
           path: data
-          key: universe-cache-${{ hashFiles('data/universe_clean.csv') }}
+          key: universe-cache-${{ github.run_id }}
           restore-keys: |
             universe-cache-
 
@@ -52,6 +54,18 @@ jobs:
           wc -l data/universe_clean.csv || true
           head -n 5 data/universe_clean.csv || true
 
+      # Learn & grow data/aliases.csv from the last run’s rejects
+      - name: Auto-build Yahoo aliases from last run’s rejects
+        env:
+          ALIASES_FROM: data/universe_rejects.csv
+          ALIASES_OUT:  data/aliases.csv
+          ALIASES_MAX_PER_RUN: "250"
+          ALIAS_LOG_LEVEL: "INFO"
+          YF_TEST_PERIOD: "60d"
+          YF_TEST_INTERVAL: "1d"
+        run: |
+          python scripts/aliases_autobuild.py
+
       - name: Run notifier
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -82,17 +96,6 @@ jobs:
           HARD_GRACE_ATR: "2.0"
 
           # --- OpenAI call timeout (seconds) ---
-          OPENAI_TIMEOUT: "240"            # optional; your code reads this
-      - name: Auto-build Yahoo aliases from last run’s rejects
-        env:
-          ALIASES_FROM: data/universe_rejects.csv
-          ALIASES_OUT:  data/aliases.csv
-          ALIASES_MAX_PER_RUN: "250"
-          ALIAS_LOG_LEVEL: "INFO"
-          YF_TEST_PERIOD: "60d"
-          YF_TEST_INTERVAL: "1d"
-        run: |
-          python scripts/aliases_autobuild.py
-
+          OPENAI_TIMEOUT: "240"
         run: |
           python scripts/notify.py
