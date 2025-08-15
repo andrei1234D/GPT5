@@ -5,6 +5,7 @@ on:
     - cron: "0 4 * * *"   # 04:00 UTC
   workflow_dispatch:
 
+# allow this workflow to push commits
 permissions:
   contents: write
 
@@ -18,7 +19,62 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      # ... your existing steps (cache, setup-python, install deps, build/clean universe, aliases) ...
+      - name: Restore cached data (aliases, universe, etc.)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: universe-cache-${{ github.run_id }}
+          restore-keys: |
+            universe-cache-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests pytz yfinance pandas numpy
+          fi
+
+      - name: Verify environment (debug)
+        run: |
+          python -V
+          python -c "import pandas as pd, yfinance as yf, numpy as np; print('pandas', pd.__version__, 'yfinance', yf.__version__)"
+
+      - name: Build universe.csv from Trading 212 (fallback to stale)
+        env:
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          ALLOW_STALE: "1"
+        run: |
+          python scripts/universe_from_trading_212.py || true
+          ls -lah data || true
+          ls -lah data/universe.csv || true
+
+      - name: Clean universe (fallback to stale)
+        env:
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          CLEAN_ALLOW_OFFLINE: "1"
+          ALLOW_STALE: "1"
+        run: |
+          python scripts/clean_universe.py || true
+          wc -l data/universe_clean.csv || true
+          head -n 5 data/universe_clean.csv || true
+
+      - name: Auto-build Yahoo aliases from last run’s rejects
+        env:
+          ALIASES_FROM: data/universe_rejects.csv
+          ALIASES_OUT:  data/aliases.csv
+          ALIASES_MAX_PER_RUN: "250"
+          ALIAS_LOG_LEVEL: "INFO"
+          YF_TEST_PERIOD: "60d"
+          YF_TEST_INTERVAL: "1d"
+        run: |
+          python scripts/aliases_autobuild.py || true
 
       - name: Run notifier
         env:
@@ -52,23 +108,13 @@ jobs:
           # --- OpenAI call timeout (seconds) ---
           OPENAI_TIMEOUT: "240"
 
-          # --- Force GPT input dump ---
+          # --- Make sure blocks file is dumped ---
           LOG_GPT_INPUT: "1"
           LOG_GPT_INPUT_STDOUT: "0"
         run: |
           python scripts/notify.py
 
-      # Helpful: show what files exist so we can see the path that was created
-      - name: List possible logs (debug)
-        if: always()
-        shell: bash
-        run: |
-          echo "PWD: $(pwd)"
-          ls -lah || true
-          ls -lah data || true
-          ls -lah data/logs || true
-          ls -1t data/logs/blocks_to_gpt_* 2>/dev/null || true
-
+      # --- Commit the latest blocks_to_gpt_*.txt into the repo ---
       - name: Find latest blocks file
         id: pick_file
         shell: bash
@@ -78,11 +124,11 @@ jobs:
           if [ -z "$FILE" ]; then
             echo "found=0" >> "$GITHUB_OUTPUT"
             echo "No blocks_to_gpt_*.txt found"
-            exit 0
+          else
+            echo "found=1" >> "$GITHUB_OUTPUT"
+            echo "file=$FILE" >> "$GITHUB_OUTPUT"
+            echo "basename=$(basename "$FILE")" >> "$GITHUB_OUTPUT"
           fi
-          echo "found=1" >> "$GITHUB_OUTPUT"
-          echo "file=$FILE" >> "$GITHUB_OUTPUT"
-          echo "basename=$(basename "$FILE")" >> "$GITHUB_OUTPUT"
 
       - name: Commit blocks file to repo (overwrite single file)
         if: steps.pick_file.outputs.found == '1'
