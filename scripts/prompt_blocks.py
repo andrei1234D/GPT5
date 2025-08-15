@@ -136,13 +136,8 @@ def build_prompt_block(
         "FEATURES_RAW": feats,
         "INDICATORS_BLOCK": indicators_dict,
 
-        "FUNDAMENTALS_VALUATION_RAW": fm,
-        "VALUATION_FIELDS_BLOCK": val_fields_dict,
-
-        "DATA_AVAILABILITY": data_availability,
         "BASELINE_HINTS_DICT": baseline_hints,
         "BASELINE_HINTS_STR": baseline_str,
-        "COVERAGE": {"fundamentals": funda_cov, "valuation": val_cov},
 
         "PROXIES_BLOCK": {
             "MARKET_TREND": proxies["market_trend"],

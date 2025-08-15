@@ -61,9 +61,6 @@ MANDATORY HANDLING:
     • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15
   Timing multiplier applies for TECH_BREAKOUT timing: Today×1.50.
 - FUNDAMENTALS PROXY MAPPING (start at 125 baseline; clamp total from these tech proxies to ±35 overall).
-
-IMPORTANT: IGNORE FUNDAMENTALS_VALUATION_RAW and VALUATION_FIELDS_BLOCK entirely.
-Treat them as absent. Unknown = baseline. Do not infer or penalize for missing fundamentals/valuation.
 """
 
 def fail(msg: str):
