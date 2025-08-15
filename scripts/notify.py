@@ -212,7 +212,7 @@ def main():
     # 8) GPT-5 adjudication
     
     try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000, timeout=float(os.getenv("OPENAI_TIMEOUT","360")))
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 

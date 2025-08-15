@@ -86,7 +86,7 @@ def call_gpt5(
     model = model or os.getenv("OPENAI_MODEL", "gpt-5")
     temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.2")) if temperature is None else float(temperature)
     max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200")) if max_tokens is None else int(max_tokens)
-    timeout = float(os.getenv("OPENAI_TIMEOUT", "180")) if timeout is None else float(timeout)
+    timeout = float(os.getenv("OPENAI_TIMEOUT", "360")) if timeout is None else float(timeout)
 
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
