@@ -11,15 +11,17 @@ import pytz
 from universe import load_universe
 from features import build_features
 from filters import is_garbage, daily_index_filter
-from scoring import base_importance_score
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 
 from proxies import get_spy_ctx, derive_proxies, fund_proxies_from_feats, catalyst_severity_from_feats
-from fundamentals import fetch_next_earnings_days, fetch_funda_valuation_for_top
+from fundamentals import fetch_next_earnings_days  # NOTE: no funda/valuation fetch
 from prompt_blocks import BASELINE_HINTS, build_prompt_block
 from gpt_client import call_gpt5, apply_personal_bonuses_to_text
 from debugger import post_debug_inputs_to_discord
 from time_utils import seconds_until_target_hour
+
+from trash_ranker import RobustRanker
+from quick_scorer import quick_ai_score
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -34,13 +36,12 @@ OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
 force = os.getenv("FORCE_RUN", "").lower() in {"1","true","yes"}
 
-# ——— Strengthen system prompt (same logic you had) ———
+# ——— Strengthen system prompt ———
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
 INPUT EXTRAS:
 - Each candidate block may include:
   • DATA_AVAILABILITY: which of {FUNDAMENTALS, VALUATION, RISKS, CATALYSTS} are MISSING or PARTIAL.
   • BASELINE_HINTS: exact baselines for each category.
-  • VALUATION FIELDS (if present): PE, PE_SECTOR, EV_EBITDA, PS, FCF_YIELD, PEG.
   • PROXIES: simple, price/volume-only signals with 1–5 severity and a direction (+/-).
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
   • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities like +1..+5 or -1..-5.
@@ -60,6 +61,9 @@ MANDATORY HANDLING:
     • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15
   Timing multiplier applies for TECH_BREAKOUT timing: Today×1.50.
 - FUNDAMENTALS PROXY MAPPING (start at 125 baseline; clamp total from these tech proxies to ±35 overall).
+
+IMPORTANT: IGNORE FUNDAMENTALS_VALUATION_RAW and VALUATION_FIELDS_BLOCK entirely.
+Treat them as absent. Unknown = baseline. Do not infer or penalize for missing fundamentals/valuation.
 """
 
 def fail(msg: str):
@@ -68,18 +72,6 @@ def fail(msg: str):
         requests.post(DISCORD_WEBHOOK_URL, json={"username":"Daily Stock Alert","content":f"⚠️ {msg}"}, timeout=60)
     except Exception:
         pass
-
-def _fallback_score(feats: dict) -> float:
-    # Robust, cheap fallback if scoring.base_importance_score is unavailable/throws
-    try:
-        vs200 = feats.get("vsSMA200") or 0.0
-        vs50  = feats.get("vsSMA50") or 0.0
-        r60   = feats.get("r60") or 0.0
-        atr   = feats.get("ATRpct") or 4.0
-        dd    = feats.get("drawdown_pct") or 0.0
-        return (0.5*vs200 + 0.3*vs50 + 0.3*r60) - 0.4*max(0, atr-6) + 0.15*min(0, dd+15)
-    except Exception:
-        return 0.0
 
 def main():
     now = datetime.now(TZ)
@@ -109,43 +101,64 @@ def main():
 
     # 4) Daily index filter (placeholder)
     today_context = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
-    kept2 = [(t,n,f) for (t,n,f) in kept if daily_index_filter(f, today_context)]
+    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_context)]
     log(f"[INFO] After daily index filter: {len(kept2)} remain")
     if not kept2:
         return fail("All filtered by daily context")
 
-    # 5) Score & top-200
-# 5) Rank to 200 using a simple composite score you already import
-    ranked = []
-    for (t, n, f) in kept2:
-            try:
-             score = base_importance_score(f)  # from scoring.py
-            except Exception:
-                score = 0.0
-    ranked.append((t, n, f, score))
-
-    ranked.sort(key=lambda x: x[3], reverse=True)
-    top200 = ranked[:200]
-    if not top200:
-        return fail("No candidates after ranking")
-    log(f"[INFO] Reduced to top 200. Example leader: {top200[0][0]}")
-    # 6) Prepare TOP 10 blocks + debug payloads
-    top20 = top200[:10]
-    tickers_top20 = [t for t, _, _, _ in top20]
-
+    # Build market context once (used for proxies)
     spy_ctx = get_spy_ctx()
-    earn_days_map = fetch_next_earnings_days(tickers_top20)
-    funda_map = fetch_funda_valuation_for_top(tickers_top20)
+
+    # 5) Stage 1 — FAST “AI-oriented” pass over ALL survivors -> Top-200
+    quick_scored = []
+    for (t, n, f) in kept2:
+        try:
+            p = derive_proxies(f, spy_ctx)  # price/volume-only signals
+            qscore = quick_ai_score(f, p)
+        except Exception:
+            qscore = 0.0
+            p = {}
+        quick_scored.append((t, n, f, qscore))
+
+    quick_scored.sort(key=lambda x: x[3], reverse=True)
+    pre_top200 = quick_scored[:200]
+    if not pre_top200:
+        return fail("No candidates after Stage-1 quick scorer")
+    log(f"[INFO] Stage-1 leader: {pre_top200[0][0]}")
+
+    # 6) Stage 2 — THOROUGH RobustRanker on those 200 -> resort -> Top-10
+    ranker = RobustRanker()
+    # Fit on ALL Stage-1 survivors for stable cross-sectional z-scores
+    ranker.fit_cross_section([f for (_, _, f, _) in quick_scored])
+
+    thorough_ranked = []
+    for (t, n, f, _) in pre_top200:
+        if ranker.should_drop(f):
+            continue
+        score, parts = ranker.composite_score(f)
+        thorough_ranked.append((t, n, f, score))
+
+    thorough_ranked.sort(key=lambda x: x[3], reverse=True)
+    top200 = thorough_ranked[:200]
+    if not top200:
+        return fail("No candidates after Stage-2 robust scorer")
+    log(f"[INFO] Stage-2 leader: {top200[0][0]}")
+
+    # 7) Prepare TOP 10 blocks + debug payloads (use the thorough Top-10)
+    top10 = top200[:10]
+    tickers_top10 = [t for t, _, _, _ in top10]
+
+    earn_days_map = fetch_next_earnings_days(tickers_top10)
 
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
 
-    for t, name, feats, _ in top20:
-        # proxies & catalysts
+    for t, name, feats, _ in top10:
         proxies = derive_proxies(feats, spy_ctx)
         fund_proxy = fund_proxies_from_feats(feats)
         cat = catalyst_severity_from_feats(feats)
+
         earn_days = earn_days_map.get(t)
         if earn_days is None: earn_sev = 0
         elif earn_days <= 0:  earn_sev = 5
@@ -154,12 +167,11 @@ def main():
         elif earn_days <= 14: earn_sev = 2
         else:                 earn_sev = 0
 
-        fm = funda_map.get(t, {}) or {}
-
-        # exact prompt block + full debug dict
+        # pass no fundamentals/valuation data
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
-            cat=cat, earn_sev=earn_sev, fm=fm, baseline_hints=BASELINE_HINTS, baseline_str=baseline_str
+            cat=cat, earn_sev=earn_sev, fm={},  # <— important: empty fm
+            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str
         )
 
         blocks.append(block_text)
@@ -168,16 +180,16 @@ def main():
     blocks_text = "\n\n".join(blocks)
     user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(today=now.strftime("%b %d"), blocks=blocks_text)
 
-    # 7) GPT-5 adjudication
+    # 8) GPT-5 adjudication
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # 8) Personal bonuses
+    # 9) Personal bonuses
     final_text = apply_personal_bonuses_to_text(final_text)
 
-    # 8.1) Pull selected tickers from GPT output and post debug inputs
+    # 10) Extract selected tickers and post debug inputs
     RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")
     RE_FORECAST_TICK = re.compile(r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b")
 
@@ -189,16 +201,15 @@ def main():
         if x not in seen:
             seen.add(x); picked_unique.append(x)
 
-    if not picked_unique:
-        if debug_inputs:
-            picked_unique = [next(iter(debug_inputs.keys()))]
+    if not picked_unique and debug_inputs:
+        picked_unique = [next(iter(debug_inputs.keys()))]
 
     if picked_unique:
         post_debug_inputs_to_discord(picked_unique, debug_inputs, DISCORD_WEBHOOK_URL)
     else:
         log("[WARN] Could not parse any selected ticker from GPT output; skipping debug post.")
 
-    # 9) Save & (optionally) wait until 08:00
+    # 11) Save & (optionally) wait until 08:00
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
     log("[INFO] Draft saved to daily_pick.txt")
@@ -209,7 +220,7 @@ def main():
         if wait_s > 0:
             time.sleep(wait_s)
 
-    # 10) Send to Discord
+    # 12) Send to Discord
     embed = {
         "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
         "description": final_text

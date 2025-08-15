@@ -3,7 +3,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 4 * * *"   # 08:00 Bucharest (UTC+3 summer)
+    - cron: "0 5 * * *"   # ~08:00 Bucharest during UTC+3 (summer). See note below.
   workflow_dispatch:
 
 jobs:
@@ -54,7 +54,15 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          YF_CHUNK_SIZE: "50"
+          # Logging for features + ranker
+          FEATURES_LOG_LEVEL: "DEBUG"   # or "INFO"
+          FEATURES_VERBOSE: "1"
+          FEATURES_LOG_EVERY: "300"
+          RANKER_LOG_LEVEL: "DEBUG"     # keep ranker consistent if you want
+          RANKER_VERBOSE: "1"
+          RANKER_LOG_EVERY: "300"
+          # yfinance tuning
+          YF_CHUNK_SIZE: "60"
           YF_MAX_RETRIES: "4"
           YF_RETRY_SLEEP: "3.0"
         run: |
