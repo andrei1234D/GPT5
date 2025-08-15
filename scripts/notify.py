@@ -1,27 +1,21 @@
-# scripts/notify_main.py
-import os
-import re
-import sys
-import time
+# scripts/notify.py
+import os, re, sys, time, requests, pytz
 from datetime import datetime
-
-import requests
-import pytz
 
 from universe import load_universe
 from features import build_features
 from filters import is_garbage, daily_index_filter
-from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
-
 from proxies import get_spy_ctx, derive_proxies, fund_proxies_from_feats, catalyst_severity_from_feats
-from fundamentals import fetch_next_earnings_days  # NOTE: no funda/valuation fetch
+from fundamentals import fetch_next_earnings_days  # still used for EARNINGS_SOON sev
+from data_fetcher import fetch_pe_for_top          # your PE fetcher
 from prompt_blocks import BASELINE_HINTS, build_prompt_block
 from gpt_client import call_gpt5, apply_personal_bonuses_to_text
-from debugger import post_debug_inputs_to_discord
+from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
+from debugger import post_debug_inputs_to_discord
 
 from trash_ranker import RobustRanker
-from quick_scorer import quick_ai_score
+from quick_scorer import rank_stage1
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -34,7 +28,6 @@ def need_env(name):
 
 OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
-force = os.getenv("FORCE_RUN", "").lower() in {"1","true","yes"}
 
 # ——— Strengthen system prompt ———
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
@@ -42,26 +35,31 @@ INPUT EXTRAS:
 - Each candidate block may include:
   • DATA_AVAILABILITY: which of {FUNDAMENTALS, VALUATION, RISKS, CATALYSTS} are MISSING or PARTIAL.
   • BASELINE_HINTS: exact baselines for each category.
-  • PROXIES: simple, price/volume-only signals with 1–5 severity and a direction (+/-).
+  • PROXIES: price/volume proxies with severities (−5..+5) and directions (+/−).
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
-  • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities like +1..+5 or -1..-5.
-  • CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today/None.
-  • EXPECTED_VOLATILITY_PCT: derived from ATR%, use as 'Expected volatility' in the Certainty rule.
-  • FVA_HINT: a technical fair-value anchor seed, derived only from supplied indicators.
+  • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities.
+  • CATALYST_TIMING_HINTS: e.g., TECH_BREAKOUT=Today/None.
+  • EXPECTED_VOLATILITY_PCT: derived from ATR%.
+  • FVA_HINT: technical fair-value anchor seed, derived only from indicators.
+  • PE_HINT: optional numeric P/E (trailing preferred; forward if trailing unavailable).
 
 MANDATORY HANDLING:
 - If DATA_AVAILABILITY says a category is MISSING ⇒ set that category exactly to its BASELINE_HINTS value (do NOT set 0).
-- If PARTIAL ⇒ use only the provided FIELDS and PROXIES for that category; keep unaddressed sub-factors at baseline.
+- If PARTIAL ⇒ use only the provided PROXIES; keep unaddressed sub-factors at baseline.
 - Never assume unknown = bad; unknown = baseline.
 - PROXIES map 1–5 severity to the factor ranges you already have.
 - CATALYST PROXY MAPPING (apply to 'Near-Term Catalysts' base 100):
     • TECH_BREAKOUT (+1..+5)  ⇒ +10, +20, +30, +45, +60
     • DIP_REVERSAL (+1..+5)   ⇒ +8, +12, +18, +24, +30
-    • TECH_BREAKDOWN (-1..-5) ⇒ −10, −20, −30, −45, −60
+    • TECH_BREAKDOWN (−1..−5) ⇒ −10, −20, −30, −45, −60
     • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15
-  Timing multiplier applies for TECH_BREAKOUT timing: Today×1.50.
-- FUNDAMENTALS PROXY MAPPING (start at 125 baseline; clamp total from these tech proxies to ±35 overall).
+  Timing multiplier applies for TECH_BREAKOUT timing: Today × 1.50.
+- P/E OVERLAY: apply only as specified in Technical Valuation & Risks sections; never use P/E to modify Market & Sector,
+  Quality (Tech Proxies), or Near-Term Catalysts.
 """
+
+
+force = os.getenv("FORCE_RUN", "").lower() in {"1","true","yes"}
 
 def fail(msg: str):
     log(f"[ERROR] {msg}")
@@ -83,14 +81,14 @@ def main():
     if not feats_map:
         return fail("No features computed (network/data)")
 
-    # 3) Trash filter
+    # 3) Trash filter (legacy fast filter)
     kept = []
     for t, name in universe:
         row = feats_map.get(t)
         if not row:
             continue
         feats = row["features"]
-        if not is_garbage(feats):
+        if not is_garbage(feats):   # your existing coarse filter
             kept.append((t, name, feats))
     log(f"[INFO] After trash filter: {len(kept)} remain")
     if not kept:
@@ -98,39 +96,28 @@ def main():
 
     # 4) Daily index filter (placeholder)
     today_context = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
-    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_context)]
+    kept2 = [(t,n,f) for (t,n,f) in kept if daily_index_filter(f, today_context)]
     log(f"[INFO] After daily index filter: {len(kept2)} remain")
     if not kept2:
         return fail("All filtered by daily context")
 
-    # Build market context once (used for proxies)
-    spy_ctx = get_spy_ctx()
+    # 5) Stage-1 — QUICK pass (resilient) -> pre_top200
+    pre_top200, quick_scored, removed = rank_stage1(
+        kept2,
+        keep=int(os.getenv("STAGE1_KEEP", "200")),
+        mode=os.getenv("STAGE1_MODE", "loose"),
+        rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
+        log_dir="data"
+    )
+    log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
-    # 5) Stage 1 — FAST “AI-oriented” pass over ALL survivors -> Top-200
-    quick_scored = []
-    for (t, n, f) in kept2:
-        try:
-            p = derive_proxies(f, spy_ctx)  # price/volume-only signals
-            qscore = quick_ai_score(f, p)
-        except Exception:
-            qscore = 0.0
-            p = {}
-        quick_scored.append((t, n, f, qscore))
-
-    quick_scored.sort(key=lambda x: x[3], reverse=True)
-    pre_top200 = quick_scored[:200]
-    if not pre_top200:
-        return fail("No candidates after Stage-1 quick scorer")
-    log(f"[INFO] Stage-1 leader: {pre_top200[0][0]}")
-
-    # 6) Stage 2 — THOROUGH RobustRanker on those 200 -> resort -> Top-10
+    # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
     ranker = RobustRanker()
-    # Fit on ALL Stage-1 survivors for stable cross-sectional z-scores
-    ranker.fit_cross_section([f for (_, _, f, _) in quick_scored])
+    ranker.fit_cross_section([f for (t, n, f, s, meta) in pre_top200])
 
     thorough_ranked = []
-    for (t, n, f, _) in pre_top200:
-        if ranker.should_drop(f):
+    for (t, n, f, _score, _meta) in pre_top200:
+        if ranker.should_drop(f):   # uses env-tunable HardFilter
             continue
         score, parts = ranker.composite_score(f)
         thorough_ranked.append((t, n, f, score))
@@ -145,6 +132,8 @@ def main():
     top10 = top200[:10]
     tickers_top10 = [t for t, _, _, _ in top10]
 
+    spy_ctx = get_spy_ctx()
+    pe_map = fetch_pe_for_top(tickers_top10)
     earn_days_map = fetch_next_earnings_days(tickers_top10)
 
     blocks = []
@@ -164,64 +153,51 @@ def main():
         elif earn_days <= 14: earn_sev = 2
         else:                 earn_sev = 0
 
-        # pass no fundamentals/valuation data
+        pe_hint = pe_map.get(t)
+
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
-            cat=cat, earn_sev=earn_sev, fm={},  # <— important: empty fm
-            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str
+            cat=cat, earn_sev=earn_sev, fm={},  # we no longer pass valuation/fundamentals
+            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
+            pe_hint=pe_hint  # <-- ensure your build_prompt_block supports this arg
         )
-
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 
     blocks_text = "\n\n".join(blocks)
     user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(today=now.strftime("%b %d"), blocks=blocks_text)
 
-    # 8) GPT-5 adjudication
+    # 8) GPT-5 adjudication (no fallback posting if GPT fails)
     try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000, timeout=float(os.getenv("OPENAI_TIMEOUT","180")))
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # 9) Personal bonuses
     final_text = apply_personal_bonuses_to_text(final_text)
 
-    # 10) Extract selected tickers and post debug inputs
+    # 9) Parse selected tickers from GPT output and post debug
     RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")
     RE_FORECAST_TICK = re.compile(r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b")
+    picked = list({*RE_PICK_TICKER.findall(final_text), *RE_FORECAST_TICK.findall(final_text)})
 
-    picked = RE_PICK_TICKER.findall(final_text)
-    picked += RE_FORECAST_TICK.findall(final_text)
-
-    seen = set(); picked_unique = []
-    for x in picked:
-        if x not in seen:
-            seen.add(x); picked_unique.append(x)
-
-    if not picked_unique and debug_inputs:
-        picked_unique = [next(iter(debug_inputs.keys()))]
-
-    if picked_unique:
-        post_debug_inputs_to_discord(picked_unique, debug_inputs, DISCORD_WEBHOOK_URL)
+    if picked:
+        post_debug_inputs_to_discord(picked, debug_inputs, DISCORD_WEBHOOK_URL)
     else:
         log("[WARN] Could not parse any selected ticker from GPT output; skipping debug post.")
 
-    # 11) Save & (optionally) wait until 08:00
+    # 10) Save & (optionally) wait until 08:00
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
     log("[INFO] Draft saved to daily_pick.txt")
 
     if not force:
-        wait_s = seconds_until_target_hour(8, 0, TZ)
+        wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
         log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
         if wait_s > 0:
             time.sleep(wait_s)
 
-    # 12) Send to Discord
-    embed = {
-        "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
-        "description": final_text
-    }
+    # 11) Send to Discord
+    embed = {"title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}", "description": final_text}
     payload = {"username": "Daily Stock Alert", "embeds": [embed]}
     try:
         requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=60).raise_for_status()

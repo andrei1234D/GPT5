@@ -3,7 +3,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 5 * * *"   # ~08:00 Bucharest during UTC+3 (summer). See note below.
+    - cron: "0 4 * * *" 
   workflow_dispatch:
 
 jobs:
@@ -30,6 +30,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests pytz yfinance pandas numpy
+          # If your PE fetcher uses BeautifulSoup, uncomment next line:
+          # pip install beautifulsoup4 lxml
 
       - name: Build universe.csv from Trading 212 (fallback to stale)
         env:
@@ -54,16 +56,33 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          # Logging for features + ranker
-          FEATURES_LOG_LEVEL: "DEBUG"   # or "INFO"
+
+          # --- Logging ---
+          PYTHONUNBUFFERED: "1"
+          FEATURES_LOG_LEVEL: "DEBUG"      # or "INFO"
           FEATURES_VERBOSE: "1"
           FEATURES_LOG_EVERY: "300"
-          RANKER_LOG_LEVEL: "DEBUG"     # keep ranker consistent if you want
+          RANKER_LOG_LEVEL: "DEBUG"        # or "INFO"
           RANKER_VERBOSE: "1"
           RANKER_LOG_EVERY: "300"
-          # yfinance tuning
+          QUICK_LOG_LEVEL: "INFO"
+
+          # --- yfinance tuning ---
           YF_CHUNK_SIZE: "60"
           YF_MAX_RETRIES: "4"
           YF_RETRY_SLEEP: "3.0"
+
+          # --- Stage-1 quick pass ---
+          STAGE1_MODE: "loose"             # loose | normal | strict
+          STAGE1_KEEP: "200"
+          STAGE1_RESCUE_FRAC: "0.15"       # keep up to 15% extra protected names
+
+          # --- Ranker hard drops ---
+          HARD_DROP_MODE: "loose"          # off | loose | normal | strict
+          HARD_GRACE_ATR: "2.0"
+
+          # --- OpenAI call timeout (seconds) ---
+          OPENAI_TIMEOUT: "240"            # optional; your code reads this
+
         run: |
           python scripts/notify.py

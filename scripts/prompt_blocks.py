@@ -14,13 +14,14 @@ def _fmt_num(x): return f"{x:.2f}" if isinstance(x,(int,float)) else "N/A"
 
 def build_prompt_block(
     t: str, name: str, feats: dict, proxies: dict, fund_proxy: dict,
-    cat: dict, earn_sev: int, fm: dict, baseline_hints: dict, baseline_str: str
+    cat: dict, earn_sev: int, fm: dict, baseline_hints: dict, baseline_str: str, pe_hint: float | None = None,
 ) -> Tuple[str, dict]:
     # Coverage & availability
     funda_present = [k for k in ["REV_GROWTH_YOY","EPS_GROWTH_YOY","GROSS_MARGIN","OPER_MARGIN","FCF_MARGIN","DEBT_TO_EBITDA","NET_CASH","OP_EFF_TREND"] if fm.get(k) is not None]
     val_present   = [k for k in ["PE","EV_EBITDA","PS","FCF_YIELD","PEG"] if fm.get(k) is not None]
     funda_cov = f"{len(funda_present)}/8"
     val_cov   = f"{len(val_present)}/5"
+    data_context = "PIPELINE=TECH_ONLY"
 
     has_any_funda = len(funda_present)>0
     has_any_val = len(val_present)>0
@@ -73,8 +74,7 @@ def build_prompt_block(
         "CATALYST_TIMING_HINTS: {timing_tb}\n"
         "EXPECTED_VOLATILITY_PCT: {ev}\n"
         "FVA_HINT: {fva}\n"
-        "FUNDAMENTALS_COVERAGE: {funda_cov}\n"
-        "VALUATION_COVERAGE: {val_cov}\n"
+         "PE_HINT: {pe}\n"
         "SUGGESTED_BONUSES: {bon}\n".format(
             t=t, name=name,
             price=feats.get("price"),
@@ -83,6 +83,7 @@ def build_prompt_block(
             rsi=feats.get("RSI14"), macd=feats.get("MACD_hist"), atr=feats.get("ATRpct"),
             dd=feats.get("drawdown_pct"), d5=feats.get("d5"), d20=feats.get("d20"), r60=feats.get("r60"),
             v20=feats.get("vol_vs20"),
+            data_ctx=data_context,
             val_fields=val_fields,
             data_av=data_availability,
             baselines=baseline_str,
@@ -96,6 +97,7 @@ def build_prompt_block(
             cat_line=catalyst_line, timing_tb=timing_tb,
             ev=proxies["expected_volatility_pct"],
             fva=proxies["fva_hint"] if proxies["fva_hint"] is not None else "N/A",
+             pe=(f"{pe_hint:.2f}" if isinstance(pe_hint,(int,float)) else "N/A"),
             bon=proxies["suggested_bonuses"],
             funda_cov=funda_cov, val_cov=val_cov
         )
@@ -153,7 +155,7 @@ def build_prompt_block(
         "PROXIES_FUNDAMENTALS_BLOCK": fund_proxy,
         "PROXIES_CATALYSTS_BLOCK": proxies_catalysts_full,
         "CATALYST_TIMING_HINTS_BLOCK": catalyst_timing_hints,
-
+        "PE_HINT": pe_hint, 
         "PROMPT_BLOCK": block_text,
     }
 
