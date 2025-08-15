@@ -2,6 +2,7 @@
 import os, re, sys, time, requests, pytz
 from datetime import datetime
 
+from pathlib import Path
 from universe import load_universe
 from features import build_features
 from filters import is_garbage, daily_index_filter
@@ -67,6 +68,41 @@ def fail(msg: str):
         requests.post(DISCORD_WEBHOOK_URL, json={"username":"Daily Stock Alert","content":f"⚠️ {msg}"}, timeout=60)
     except Exception:
         pass
+
+def dump_blocks_pre_gpt(
+    blocks: list[str],
+    user_prompt: str | None,
+    tz,
+    out_dir: str = "data/logs",
+    preview_lines: int = 12,
+    echo_stdout: bool = False,
+) -> str:
+    """
+    Writes a full copy of the 10 candidate blocks (exact strings sent to GPT)
+    to data/logs/blocks_to_gpt_<timestamp>.txt. Optionally echoes a short
+    preview to stdout. Returns the file path.
+    """
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(tz).strftime("%Y%m%d-%H%M%S")
+    path = os.path.join(out_dir, f"blocks_to_gpt_{ts}.txt")
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("=== 10 BLOCKS SENT TO GPT ===\n")
+        for i, b in enumerate(blocks, 1):
+            f.write(f"\n--- BLOCK {i}/{len(blocks)} ---\n")
+            f.write(b.rstrip() + "\n")
+        if user_prompt is not None:
+            f.write("\n=== FULL USER PROMPT (for reproducibility) ===\n")
+            f.write(user_prompt.rstrip() + "\n")
+
+    if echo_stdout:
+        print(f"[DEBUG] Wrote GPT input blocks to {path}")
+        for i, b in enumerate(blocks, 1):
+            head = "\n".join(b.splitlines()[:preview_lines])
+            print(f"\n[DEBUG] BLOCK {i} preview:\n{head}\n... (truncated)")
+
+    return path
+
 
 def main():
     now = datetime.now(TZ)
@@ -167,7 +203,14 @@ def main():
     blocks_text = "\n\n".join(blocks)
     user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(today=now.strftime("%b %d"), blocks=blocks_text)
 
-    # 8) GPT-5 adjudication (no fallback posting if GPT fails)
+    # --- NEW: log the exact inputs we’re about to send ---
+    if os.getenv("LOG_GPT_INPUT", "1").lower() in {"1", "true", "yes"}:
+        echo = os.getenv("LOG_GPT_INPUT_STDOUT", "0").lower() in {"1", "true", "yes"}
+        dump_path = dump_blocks_pre_gpt(blocks, user_prompt, TZ, echo_stdout=echo)
+        log(f"[INFO] Dumped pre-GPT blocks to {dump_path}")
+
+    # 8) GPT-5 adjudication
+    
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20, user_prompt, max_tokens=13000, timeout=float(os.getenv("OPENAI_TIMEOUT","360")))
     except Exception as e:
