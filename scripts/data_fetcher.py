@@ -176,3 +176,5 @@ if __name__ == "__main__":
     tickers = sys.argv[1:] or ["AAPL", "MSFT", "ACQ.TO", "ANIP"]
     res = fetch_pe_for_top(tickers)
     print(json.dumps(res, indent=2))
+
+#IT JUST WORKS !
