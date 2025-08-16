@@ -21,7 +21,7 @@ from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
 
 from trash_ranker import RobustRanker
-from quick_scorer import rank_stage1
+from quick_scorer import rank_stage1, quick_score  # <-- import quick_score too
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -144,39 +144,47 @@ def main():
     if not kept2:
         return fail("All filtered by daily context")
 
-# 5) Stage-1 — QUICK pass (resilient) -> pre_top200
-    pre_top200, quick_scored, removed = rank_stage1(...)
+    # 5) Stage-1 — QUICK pass (resilient) -> pre_top200
+    pre_top200, quick_scored, removed = rank_stage1(
+        kept2,
+        keep=int(os.getenv("STAGE1_KEEP", "200")),
+        mode=os.getenv("STAGE1_MODE", "loose"),
+        rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
+        log_dir="data"
+    )
     log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
-# >>> PASTE THE P/E REFINE BLOCK HERE <<<
-    if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1","true","yes"}:
-        pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))
+    # ---- Optional: lightweight P/E refinement on a small pool (keeps runtime low)
+    if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"}:
+        pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))  # fetch PE for top-N from quick pass
         pool_tickers = [t for (t, _n, _f, _s, _m) in quick_scored[:pool_n]]
-    try:
-        from data_fetcher import fetch_pe_for_top
-        pe_map = fetch_pe_for_top(pool_tickers)
-    except Exception as e:
-        log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
-        pe_map = {}
+        try:
+            from data_fetcher import fetch_pe_for_top
+            pe_map = fetch_pe_for_top(pool_tickers)
+        except Exception as e:
+            log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
+            pe_map = {}
 
-    pre_top200_pe = []
-    for (t, n, f, s, meta) in pre_top200:
-        pe = pe_map.get(t)
-        if pe is not None and pe > 0:
-            f["val_PE"] = pe
-        pre_top200_pe.append((t, n, f, s, meta))
+        # Attach P/E only where we have it; missing stays neutral
+        pre_top200_pe = []
+        for (t, n, f, s, meta) in pre_top200:
+            pe = pe_map.get(t)
+            if pe is not None and pe > 0:
+                f["val_PE"] = pe  # quick_scorer will see this and apply a small tilt
+            pre_top200_pe.append((t, n, f, s, meta))
 
-    from quick_scorer import quick_score
-    rescored = []
-    for (t, n, f, _s, _m) in pre_top200_pe:
-        s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
-        rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
-    rescored.sort(key=lambda x: x[3], reverse=True)
-    pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
-    log("[INFO] Stage-1 P/E refine applied.")
+        # Rescore just the survivors (cheap) so the P/E tilt can move edges a bit
+        rescored = []
+        for (t, n, f, _s, _m) in pre_top200_pe:
+            s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
+            rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
+        rescored.sort(key=lambda x: x[3], reverse=True)
+        pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
+        log("[INFO] Stage-1 P/E refine applied.")
 
-# 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
+    # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
     ranker = RobustRanker()
+
     # Enrich the Stage-1 survivors with valuation fields (batch)
     tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
