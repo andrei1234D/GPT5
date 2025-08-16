@@ -25,7 +25,6 @@ def build_prompt_block(
     val_present_ct = sum(1 for k in val_keys if fm.get(k) is not None)
     valuation_availability = "VALUATION=PARTIAL" if val_present_ct > 0 else "VALUATION=MISSING"
 
-    data_availability = f"{fundamentals_availability}; {valuation_availability}"
 
     # --- Valuation fields line (now includes EV_REV) ---
     val_fields = (
@@ -65,7 +64,6 @@ def build_prompt_block(
         "60d%: {r60}\n"
         "Vol_vs_20d%: {v20}\n"
         "{val_fields}\n"
-        "DATA_AVAILABILITY: {data_av}\n"
         "BASELINE_HINTS: {baselines}\n"
         "PROXIES: MARKET_TREND={mt}; REL_STRENGTH={rs}; BREADTH_VOLUME={bv}; VALUATION_HISTORY={vh}; RISK_VOLATILITY={rv}; RISK_DRAWDOWN={rd}\n"
         "PROXIES_FUNDAMENTALS: GROWTH_TECH={gt}; MARGIN_TREND_TECH={mtf}; FCF_TREND_TECH={ft}; OP_EFF_TREND_TECH={ot}\n"
@@ -83,7 +81,6 @@ def build_prompt_block(
             dd=feats.get("drawdown_pct"), d5=feats.get("d5"), d20=feats.get("d20"), r60=feats.get("r60"),
             v20=feats.get("vol_vs20"),
             val_fields=val_fields,
-            data_av=data_availability,
             baselines=baseline_str,
             mt=proxies["market_trend"], rs=proxies["relative_strength"],
             bv=proxies["breadth_volume"], vh=proxies["valuation_history"],

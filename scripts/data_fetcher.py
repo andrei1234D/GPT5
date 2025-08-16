@@ -86,7 +86,7 @@ def _from_cache(cache: Dict[str, dict], t: str, ttl: int) -> Optional[dict]:
 def _put_cache(cache: Dict[str, dict], t: str, payload: dict) -> None:
     cache[t] = {"ts": time.time(), **payload}
 
-# ---------- price helpers ----------
+# ---------- price / size helpers ----------
 def _get_price_fast(tk: yf.Ticker) -> Optional[float]:
     # fast_info
     try:
@@ -119,12 +119,26 @@ def _get_market_cap(tk: yf.Ticker, info: Optional[dict]) -> Optional[float]:
     if isinstance(info, dict):
         mc = _safe_float(info.get("marketCap"))
         if mc: return mc
+        # compute fallback: price * sharesOutstanding
+        px = _safe_float(info.get("currentPrice"))
+        if px is None:
+            px = _get_price_fast(tk)
+        shares = _safe_float(info.get("sharesOutstanding"))
+        if px and shares:
+            return px * shares
     return None
 
-def _get_enterprise_value(info: Optional[dict]) -> Optional[float]:
+def _get_enterprise_value(info: Optional[dict], tk: Optional[yf.Ticker]=None) -> Optional[float]:
+    # direct
     if isinstance(info, dict):
         ev = _safe_float(info.get("enterpriseValue"))
         if ev: return ev
+        # compute fallback: marketCap + totalDebt - cash
+        mcap = _safe_float(info.get("marketCap"))
+        total_debt = _safe_float(info.get("totalDebt"))
+        cash = _safe_float(info.get("cash") or info.get("cashAndCashEquivalents"))
+        if mcap and total_debt is not None and cash is not None:
+            return mcap + total_debt - cash
     return None
 
 # ---------- PE (with EPS compute fallback) ----------
@@ -176,6 +190,42 @@ def _extract_pe_with_compute(tk: yf.Ticker) -> Tuple[Optional[float], str]:
 
     return None, "none"
 
+# ---------- FCF Yield helper ----------
+def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[dict]) -> Optional[float]:
+    """
+    Return FCF yield in PERCENT (can be negative), or None if we really can't compute it.
+    Tries Yahoo info keys, then falls back to cashflow TTM, and computes market cap if missing.
+    """
+    # 1) FCF value
+    fcf = _safe_float((info or {}).get("freeCashflow") or (info or {}).get("freeCashFlow") or (info or {}).get("freeCashFlowTTM"))
+    if fcf is None:
+        # cashflow statement fallback
+        try:
+            cf = getattr(tk, "cashflow", None)
+            if cf is not None and hasattr(cf, "index") and "Free Cash Flow" in cf.index:
+                series = cf.loc["Free Cash Flow"]
+                if len(series) > 0:
+                    fcf = _safe_float(series.iloc[0])
+        except Exception:
+            pass
+
+    # 2) market cap
+    mcap = _get_market_cap(tk, info)
+    if mcap is None:
+        # extra compute: price * sharesOutstanding if not done
+        px = None
+        if isinstance(fi_dict, dict):
+            px = _safe_float(fi_dict.get("lastPrice") or fi_dict.get("last_price"))
+        if px is None:
+            px = _get_price_fast(tk)
+        shares = _safe_float((info or {}).get("sharesOutstanding"))
+        if px and shares:
+            mcap = px * shares
+
+    if (mcap is not None and mcap > 0) and (fcf is not None):
+        return 100.0 * (fcf / mcap)  # keep sign
+    return None
+
 # ---------- Full valuation extractor ----------
 def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[float]], Dict[str, str]]:
     """
@@ -205,6 +255,11 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
     except Exception as e:
         logger.debug("info fetch failed: %r", e)
         info = None
+
+    # fast_info snapshot (for price, etc.)
+    fi = getattr(tk, "fast_info", None)
+    if not isinstance(fi, dict):
+        fi = None
 
     # --- PE ---
     pe, pe_src = _extract_pe_with_compute(tk)
@@ -236,7 +291,7 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
         if ev_ebitda and ev_ebitda > 0:
             vals["EV_EBITDA"], srcs["EV_EBITDA"] = ev_ebitda, "info"
         else:
-            ev = _get_enterprise_value(info)
+            ev = _get_enterprise_value(info, tk)
             ebitda = _safe_float(info.get("ebitda"))
             if ev and ebitda and ebitda > 0:
                 vals["EV_EBITDA"], srcs["EV_EBITDA"] = ev / ebitda, "computed"
@@ -247,7 +302,7 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
         if ev_rev and ev_rev > 0:
             vals["EV_REV"], srcs["EV_REV"] = ev_rev, "info"
         else:
-            ev = _get_enterprise_value(info)
+            ev = _get_enterprise_value(info, tk)
             tot_rev = _safe_float(info.get("totalRevenue"))
             if ev and tot_rev and tot_rev > 0:
                 vals["EV_REV"], srcs["EV_REV"] = ev / tot_rev, "computed"
@@ -258,12 +313,9 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
         if peg and peg > 0:
             vals["PEG"], srcs["PEG"] = peg, "info"
 
-    # --- FCF Yield (FCF / MarketCap) ---
-    if isinstance(info, dict):
-        fcf = _safe_float(info.get("freeCashflow") or info.get("freeCashFlow") or info.get("freeCashFlowTTM"))
-        mc = _get_market_cap(tk, info)
-        if fcf and mc and mc > 0:
-            vals["FCF_YIELD"], srcs["FCF_YIELD"] = (fcf / mc) * 100.0, "computed"
+    # --- FCF Yield (FCF / MarketCap), robust fallback (keeps negative)
+    vals["FCF_YIELD"] = _calc_fcf_yield_pct(tk, info, fi)
+    srcs["FCF_YIELD"] = "computed" if vals["FCF_YIELD"] is not None else "none"
 
     return vals, srcs
 
@@ -333,13 +385,12 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
 
     cache = _load_cache(_VAL_CACHE_PATH)
     out: Dict[str, Dict[str, Optional[float]]] = {}
-    delay = float(os.getenv("PE_FETCH_DELAY_S", "0.15"))
+    delay = float(os.getenv("VAL_FETCH_DELAY_S", os.getenv("PE_FETCH_DELAY_S", "0.15")))
 
     for t in tickers:
         cached = _from_cache(cache, t, _VAL_CACHE_TTL_S)
         if cached is not None and isinstance(cached.get("vals"), dict):
             vals = cached["vals"]
-            # cast safely to floats/None
             out[t] = {k: _safe_float(vals.get(k)) for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]}
             logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in out[t].items()})
             continue

@@ -100,6 +100,9 @@ jobs:
           STAGE1_MODE: "loose"
           STAGE1_KEEP: "200"
           STAGE1_RESCUE_FRAC: "0.15"
+          STAGE1_WRITE_CSV: "1"
+          QS_PE_WEIGHT: "0.06"          # 0.00–0.12; weight of P/E tilt in quick scorer
+          QS_USE_XS: "1"                # use cross-section z-scores (keep "1")
 
           # --- Ranker hard drops ---
           HARD_DROP_MODE: "loose"

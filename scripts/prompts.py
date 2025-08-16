@@ -12,18 +12,18 @@ CATEGORIES & RANGES (sum = BASE, clamp each range):
    Inputs: PROXIES.MARKET_TREND (−5..+5), REL_STRENGTH (−5..+5), BREADTH_VOLUME (−5..+5).
    Scoring: +/−20 per MARKET_TREND step, +/−20 per REL_STRENGTH step, +/−10 per BREADTH step. Clamp 0–300.
 
-2) Quality (Tech Proxies) (0–300)  Baseline = from BASELINE_HINTS (typ. 125)
+2) Quality (Tech Proxies) (0–250)  Baseline = from BASELINE_HINTS (typ. 125)
    Purpose: stand-in for fundamentals using tech-derived proxies ONLY.
    Inputs: PROXIES_FUNDAMENTALS {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} in −5..+5.
    Scoring (per severity step): GROWTH×12, MARGIN×10, FCF×10, OP_EFF×6. Add to baseline; clamp 0–300.
 
-3) Near-Term Catalysts (0–150)  Baseline = from BASELINE_HINTS (typ. 100)
+3) Near-Term Catalysts (0–150)  Baseline = from BASELINE_HINTS (typ. 75)
    Inputs: PROXIES_CATALYSTS {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} (signed severities).
    Mapping (add to baseline): BREAKOUT +10/+20/+30/+45/+60 by +1..+5; DIP_REVERSAL +8/+12/+18/+24/+30;
    BREAKDOWN −10/−20/−30/−45/−60 by −1..−5; EARNINGS_SOON +5/+8/+10/+12/+15.
    If CATALYST_TIMING_HINTS says TECH_BREAKOUT=Today, multiply BREAKOUT contribution ×1.5. Clamp 0–150.
 
-4) Technical Valuation (0–150)  Baseline = from BASELINE_HINTS (typ. 50)
+4) Technical Valuation (0–150)  Baseline = from BASELINE_HINTS (typ. 75)
    Purpose: valuation from technical anchors + provided simple ratios. Treat missing as neutral (no impact).
    Inputs: PROXIES.VALUATION_HISTORY (−5..+5), FVA_HINT, CURRENT_PRICE, AVWAP252, SMA50,
            and (if present) PE_HINT, PS, EV_REV, EV_EBITDA, PEG, FCF_YIELD.
@@ -68,12 +68,18 @@ FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
           if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
 - Round all $ to 2 decimals; output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
 
-CERTAINTY RULE (tech only):
-Certainty% = 100 − (EV×2) − (Risk score/2) + (5 if BASE ≥ 780). Clamp to 40–95.
+CERTAINTY RULE :
+INDEPENDENT CERTAINTY (0–100):
+- Ignore any previous formula. Think holistically with the info provided ONLY.
+- Consider: data coverage (how much is present vs missing), trend stability (ATR%, drawdown, blow-off signs),
+  liquidity/participation (Vol_vs_20d), clarity of catalysts/timing, alignment of structure (SMA/AVWAP), and whether
+  any valuation hints corroborate the technical picture. Missing data ≠ bad; treat unknown as neutral.
+- Calibrate roughly: 40=thin/incomplete/fragile; 55=okay; 70=good; 85=excellent; 95=near-certain.
+- Output a single integer percent (no decimals).
+- Add the certanty to the final score before writing it in "final base score"
 
 GENERAL RULES:
 - Treat missing/unknown as baseline (never as bad). Use ONLY supplied metrics.
-- DATA_AVAILABILITY: if a category is MISSING, set it exactly to its BASELINE_HINT; if PARTIAL, use only provided proxies.
 - P/E handling: if PE_HINT is present, use it and label (trailing|forward). If absent or EPS is negative, set P/E to N/A
   (do not penalize), and lean on PEG, FCF_YIELD, EV/REV, EV/EBITDA, PS.
 - OUTPUT picks:

@@ -48,7 +48,7 @@ RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "2.0"))
 # ---------------------------- constants ---------------------------- #
 FIELDS = {"Open", "High", "Low", "Close", "Adj Close", "Volume"}
 
-# Valid Yahoo exchange suffixes we want to preserve
+# ---------- symbol normalization (consistent with data_fetcher.py) ----------
 _YH_SUFFIXES = {
     "L","DE","F","SW","PA","AS","BR","LS","MC","MI","VI","ST","HE","CO","OL","WA","PR",
     "TO","V","AX","HK","T","SI","KS","KQ","NS","BO","JO","SA","MX","NZ","DU","AD","SR","TA",
