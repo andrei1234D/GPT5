@@ -21,8 +21,9 @@ def build_prompt_block(
     pe_hint: Optional[float] = None,
 ) -> Tuple[str, dict]:
     """
-    NOTE: This version fills valuation gaps by falling back to feats['val_*']
-    so values fetched in Stage-2 are visible even if fm is sparse.
+    Builds the per-ticker block for GPT and returns (block_text, debug_dict).
+    - Marks DATA_AVAILABILITY for FUNDAMENTALS, CATALYSTS, VALUATION explicitly.
+    - Fills valuation fields from feats['val_*'] when fm is missing entries.
     """
     fm = dict(fm or {})
 
@@ -42,13 +43,26 @@ def build_prompt_block(
     if pe_hint is None:
         pe_hint = fm.get("PE")
 
-    # --- Availability flags based on completed fm ---
+    # --- Availability flags ---
+    # FUNDAMENTALS: mark PARTIAL if we have any tech-fund proxies present (keys exist), else MISSING.
+    has_fund_proxies = any(k in fund_proxy for k in (
+        "GROWTH_TECH", "MARGIN_TREND_TECH", "FCF_TREND_TECH", "OP_EFF_TREND_TECH"
+    ))
+    fundamentals_availability = "FUNDAMENTALS=PARTIAL" if has_fund_proxies else "FUNDAMENTALS=MISSING"
+
+    # VALUATION: PARTIAL if we have any of the simple ratios OR the technical valuation hints (FVA or ValHist).
     val_keys = ["PE", "PS", "EV_EBITDA", "EV_REV", "FCF_YIELD", "PEG"]
     val_present_ct = sum(1 for k in val_keys if fm.get(k) is not None)
-    valuation_availability = "VALUATION=PARTIAL" if val_present_ct > 0 else "VALUATION=MISSING"
+    has_val_tech = (proxies.get("fva_hint") is not None) or (proxies.get("valuation_history") not in (None, 0))
+    valuation_availability = "VALUATION=PARTIAL" if (val_present_ct > 0 or has_val_tech) else "VALUATION=MISSING"
 
-    # We still don’t pass fundamentals data in this pipeline, so mark as missing
-    fundamentals_availability = "FUNDAMENTALS=MISSING"
+    # CATALYSTS: PARTIAL if any catalyst severity non-zero, earnings sev > 0, or timing suggests breakout.
+    has_cat_signal = (
+        any(abs(cat.get(k, 0)) > 0 for k in ("TECH_BREAKOUT", "TECH_BREAKDOWN", "DIP_REVERSAL")) or
+        (earn_sev or 0) > 0 or
+        bool(feats.get("is_20d_high"))
+    )
+    catalysts_availability = "CATALYSTS=PARTIAL" if has_cat_signal else "CATALYSTS=MISSING"
 
     # --- Valuation fields line ---
     val_fields = (
@@ -65,6 +79,7 @@ def build_prompt_block(
     def sgn(k: int) -> str:
         return ("+" + str(k)) if k > 0 else ("-" + str(abs(k)) if k < 0 else "0")
 
+    # Catalyst lines shown to GPT
     catalyst_line = "TECH_BREAKOUT={}; TECH_BREAKDOWN={}; DIP_REVERSAL={}; EARNINGS_SOON={}".format(
         sgn(cat.get("TECH_BREAKOUT", 0)), sgn(cat.get("TECH_BREAKDOWN", 0)),
         sgn(cat.get("DIP_REVERSAL", 0)), sgn(earn_sev)
@@ -73,6 +88,7 @@ def build_prompt_block(
         "Today" if (cat.get("TECH_BREAKOUT", 0) > 0 and feats.get("is_20d_high")) else "None"
     )
 
+    # --------- Compose prompt block text ----------
     block_text = (
         "TICKER: {t}\n"
         "COMPANY: {name}\n"
@@ -97,7 +113,7 @@ def build_prompt_block(
         "vsEMA200: {vsem200}%\n"
         "EMA50_slope_5d%: {ema50s}\n"
         "{val_fields}\n"
-        "DATA_AVAILABILITY: {funds_avail}; {vals_avail}\n"
+        "DATA_AVAILABILITY: {funds_avail}; {cats_avail}; {vals_avail}\n"
         "BASELINE_HINTS: {baselines}\n"
         "PROXIES: MARKET_TREND={mt}; REL_STRENGTH={rs}; BREADTH_VOLUME={bv}; VALUATION_HISTORY={vh}; RISK_VOLATILITY={rv}; RISK_DRAWDOWN={rd}\n"
         "PROXIES_FUNDAMENTALS: GROWTH_TECH={gt}; MARGIN_TREND_TECH={mtf}; FCF_TREND_TECH={ft}; OP_EFF_TREND_TECH={ot}\n"
@@ -120,23 +136,29 @@ def build_prompt_block(
         ema50s=feats.get("EMA50_slope_5d"),
         val_fields=val_fields,
         funds_avail=fundamentals_availability,
+        cats_avail=catalysts_availability,     # <-- ensure catalysts availability is emitted
         vals_avail=valuation_availability,
         baselines=baseline_str,
         mt=proxies["market_trend"], rs=proxies["relative_strength"],
         bv=proxies["breadth_volume"], vh=proxies["valuation_history"],
         rv=proxies["risk_volatility"], rd=proxies["risk_drawdown"],
-        gt=("+" + str(fund_proxy["GROWTH_TECH"])) if fund_proxy["GROWTH_TECH"] > 0 else str(fund_proxy["GROWTH_TECH"]),
-        mtf=("+" + str(fund_proxy["MARGIN_TREND_TECH"])) if fund_proxy["MARGIN_TREND_TECH"] > 0 else str(fund_proxy["MARGIN_TREND_TECH"]),
-        ft=("+" + str(fund_proxy["FCF_TREND_TECH"])) if fund_proxy["FCF_TREND_TECH"] > 0 else str(fund_proxy["FCF_TREND_TECH"]),
-        ot=("+" + str(fund_proxy["OP_EFF_TREND_TECH"])) if fund_proxy["OP_EFF_TREND_TECH"] > 0 else str(fund_proxy["OP_EFF_TREND_TECH"]),
+        gt=("+" + str(fund_proxy.get("GROWTH_TECH", 0))) if fund_proxy.get("GROWTH_TECH", 0) > 0 else str(fund_proxy.get("GROWTH_TECH", 0)),
+        mtf=("+" + str(fund_proxy.get("MARGIN_TREND_TECH", 0))) if fund_proxy.get("MARGIN_TREND_TECH", 0) > 0 else str(fund_proxy.get("MARGIN_TREND_TECH", 0)),
+        ft=("+" + str(fund_proxy.get("FCF_TREND_TECH", 0))) if fund_proxy.get("FCF_TREND_TECH", 0) > 0 else str(fund_proxy.get("FCF_TREND_TECH", 0)),
+        ot=("+" + str(fund_proxy.get("OP_EFF_TREND_TECH", 0))) if fund_proxy.get("OP_EFF_TREND_TECH", 0) > 0 else str(fund_proxy.get("OP_EFF_TREND_TECH", 0)),
         cat_line=catalyst_line, timing_tb=timing_tb,
-        ev=proxies["expected_volatility_pct"],
-        fva=proxies["fva_hint"] if proxies["fva_hint"] is not None else "N/A",
+        ev=proxies.get("expected_volatility_pct"),
+        fva=proxies.get("fva_hint") if proxies.get("fva_hint") is not None else "N/A",
         pe=(f"{pe_hint:.2f}" if isinstance(pe_hint, (int, float)) else "N/A"),
-        bon=proxies["suggested_bonuses"],
+        bon=proxies.get("suggested_bonuses", "NONE"),
     )
 
-    # --- Debug payload mirrors the same fallback values ---
+    # --------- Debug payload (define helper dicts BEFORE using) ----------
+    proxies_catalysts_full = {**(cat or {}), "EARNINGS_SOON": earn_sev}
+    catalyst_timing_hints = {
+        "TECH_BREAKOUT": ("Today" if (cat.get("TECH_BREAKOUT", 0) > 0 and feats.get("is_20d_high")) else "None")
+    }
+
     val_fields_dict = {
         "PE": fm.get("PE"),
         "PE_SECTOR": None,
@@ -167,10 +189,6 @@ def build_prompt_block(
         "vsEMA200_pct": feats.get("vsEMA200"),
         "EMA50_slope_5d_pct": feats.get("EMA50_slope_5d"),
     }
-    proxies_catalysts_full = {**cat, "EARNINGS_SOON": earn_sev}
-    catalyst_timing_hints = {
-        "TECH_BREAKOUT": ("Today" if (cat.get("TECH_BREAKOUT", 0) > 0 and feats.get("is_20d_high")) else "None")
-    }
 
     debug_dict = {
         "TICKER": t,
@@ -185,15 +203,15 @@ def build_prompt_block(
 
         "VALUATION_FIELDS_DICT": val_fields_dict,
         "PROXIES_BLOCK": {
-            "MARKET_TREND": proxies["market_trend"],
-            "REL_STRENGTH": proxies["relative_strength"],
-            "BREADTH_VOLUME": proxies["breadth_volume"],
-            "VALUATION_HISTORY": proxies["valuation_history"],
-            "RISK_VOLATILITY": proxies["risk_volatility"],
-            "RISK_DRAWDOWN": proxies["risk_drawdown"],
-            "EXPECTED_VOLATILITY_PCT": proxies["expected_volatility_pct"],
-            "FVA_HINT": proxies["fva_hint"],
-            "SUGGESTED_BONUSES": proxies["suggested_bonuses"],
+            "MARKET_TREND": proxies.get("market_trend"),
+            "REL_STRENGTH": proxies.get("relative_strength"),
+            "BREADTH_VOLUME": proxies.get("breadth_volume"),
+            "VALUATION_HISTORY": proxies.get("valuation_history"),
+            "RISK_VOLATILITY": proxies.get("risk_volatility"),
+            "RISK_DRAWDOWN": proxies.get("risk_drawdown"),
+            "EXPECTED_VOLATILITY_PCT": proxies.get("expected_volatility_pct"),
+            "FVA_HINT": proxies.get("fva_hint"),
+            "SUGGESTED_BONUSES": proxies.get("suggested_bonuses"),
         },
         "PROXIES_FUNDAMENTALS_BLOCK": fund_proxy,
         "PROXIES_CATALYSTS_BLOCK": proxies_catalysts_full,
