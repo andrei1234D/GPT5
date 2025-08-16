@@ -295,21 +295,28 @@ def main():
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # 9) Parse selected tickers from GPT output and post debug
-    #    More permissive: supports bullets, dashes, colons, optional bold, or end-of-line.
+    # 9) Parse selected tickers from GPT output and post debug — STRICT + FILTERED
+    # Only line-1 picks like: "**KOD – Kodiak Sciences"
     RE_PICK_TICKER = re.compile(
-        r"(?im)^\s*(?:\d+\)|[-*•]\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})(?:\*\*)?(?=\s(?:–|-|:)|\s|$)"
+        r"(?m)^\s*\*\*([A-Z]{1,10}(?:[.\-][A-Z0-9]{1,5})?)\s+[–—-]\s"
     )
     RE_FORECAST_TICK = re.compile(
         r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b"
     )
 
-    picked = list({*RE_PICK_TICKER.findall(final_text), *RE_FORECAST_TICK.findall(final_text)})
-    force_debug = os.getenv("DEBUGGER_FORCE_POST", "1").lower() in {"1", "true", "yes"}
+    valid_set = set(debug_inputs.keys())  # the Top-10 we built blocks for
+    a = RE_PICK_TICKER.findall(final_text)
+    b = RE_FORECAST_TICK.findall(final_text)
+    raw = list(dict.fromkeys(a + b))  # unique, keep order
+    picked = [t for t in raw if t in valid_set]
+    junk = [t for t in raw if t not in valid_set]
+    if junk:
+        log(f"[INFO] Ignored non-ticker matches: {junk}")
 
+    force_debug = os.getenv("DEBUGGER_FORCE_POST", "1").lower() in {"1", "true", "yes"}
     if not picked and force_debug:
-        picked = tickers_top10
-        log("[INFO] No tickers parsed; forcing debug post for Stage-2 Top-10.")
+        picked = tickers_top10[:]  # fallback to Stage-2 Top-10 only
+        log("[INFO] No valid tickers parsed; forcing debug post for Stage-2 Top-10.")
     elif picked:
         log(f"[INFO] Parsed tickers for debug: {', '.join(picked)}")
     else:
