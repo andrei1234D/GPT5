@@ -454,7 +454,7 @@ def rank_stage1(
     pre.sort(key=lambda x: x[3], reverse=True)
     pre = pre[:keep]
 
-    # ---- tier quotas merge (final stratification) ----
+        # ---- tier quotas merge (final stratification) ----
     min_small = int(os.getenv("STAGE1_MIN_SMALL", "0"))
     min_large = int(os.getenv("STAGE1_MIN_LARGE", "0"))
     # clamp if user set impossible combination
@@ -476,8 +476,10 @@ def rank_stage1(
 
         # fill remaining slots by best available regardless of tier
         remainder = keep - len(pick_small) - len(pick_large)
-        pool = [r for r in pre if r not in set(pick_small + pick_large)]
+        picked_tickers = {t for (t, _n, _f, _s, _m) in (pick_small + pick_large)}
+        pool = [r for r in pre if r[0] not in picked_tickers]  # r[0] is ticker
         tail = pool[:remainder]
+
         pre_topK = (pick_small + pick_large + tail)
         pre_topK.sort(key=lambda x: x[3], reverse=True)
     else:
