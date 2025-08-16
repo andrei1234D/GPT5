@@ -30,20 +30,23 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
+          # If you have a requirements.txt, install it first (may be empty or missing pandas)
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
-          else:
-            pip install requests pytz yfinance pandas numpy
           fi
+          # Always ensure the core libs your scripts need are present
+          pip install --upgrade --upgrade-strategy eager numpy pandas yfinance requests pytz
 
       - name: Verify environment (debug)
         run: |
           python -V
           python -c "import pandas as pd, yfinance as yf, numpy as np; print('pandas', pd.__version__, 'yfinance', yf.__version__, 'numpy', np.__version__)"
+
       - name: Build universe.csv from Trading 212 (fallback to stale)
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
@@ -99,28 +102,24 @@ jobs:
           TIER_TOPK_LARGE: "500"               # for TOPK_ADV
           TIER_BACKFILL_UNKNOWN_AS: "small"    # when ADV is missing
 
-          # Optional (THRESH mode): explicit thresholds override auto percentiles
-          # TIER_LARGE_USD: "50000000"         # $50M
-          # TIER_MEDIUM_USD: "10000000"        # $10M
-
           # --- Stage-1 quick pass ---
           STAGE1_MODE: "loose"
           STAGE1_KEEP: "200"
-          STAGE1_MIN_SMALL: "100"              # ensure small/large balance
+          STAGE1_MIN_SMALL: "100"
           STAGE1_MIN_LARGE: "100"
           STAGE1_RESCUE_FRAC: "0.15"
           STAGE1_WRITE_CSV: "0"
 
           # --- P/E tilt tuning (tier-aware) ---
-          QS_PE_WEIGHT: "0.06"                 # base
-          QS_PE_WEIGHT_LARGE: "0.10"           # stronger tilt for large caps
-          QS_PE_WEIGHT_SMALL: "0.04"           # lighter tilt for small caps
+          QS_PE_WEIGHT: "0.06"
+          QS_PE_WEIGHT_LARGE: "0.10"
+          QS_PE_WEIGHT_SMALL: "0.04"
           QS_USE_XS: "1"
 
           # --- Small-cap liquidity dampening (optional) ---
-          QS_SMALL_PRICE_MAX: "8"              # <= $8 → treat as small
-          QS_SMALL_LIQ_MAX: "8000000"          # <$8M avg $vol → small
-          QS_MIN_DOLLAR_VOL_20D: "3000000"     # extra risk penalty cutoff
+          QS_SMALL_PRICE_MAX: "8"
+          QS_SMALL_LIQ_MAX: "8000000"
+          QS_MIN_DOLLAR_VOL_20D: "3000000"
 
           # --- Optional: P/E refine pass on quick pool ---
           STAGE1_PE_RESCORE: "1"
