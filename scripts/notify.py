@@ -20,7 +20,7 @@ from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
 
-from trash_ranker import RobustRanker
+from trash_ranker import RobustRanker, pick_top_stratified
 from quick_scorer import rank_stage1, quick_score  # we rescore after adding PE
 
 TZ = pytz.timezone("Europe/Bucharest")
@@ -216,8 +216,15 @@ def main():
         return fail("No candidates after Stage-2 robust scorer")
     log(f"[INFO] Stage-2 leader: {top200[0][0]}")
 
-    # 7) Prepare TOP 10 blocks + debug payloads (use the thorough Top-10)
-    top10 = top200[:10]
+    # 7) Prepare a stratified Top-10: 5 small, 5 large, and aim for at least 5 with P/E
+    top10 = pick_top_stratified(
+        top200,
+        total=10,
+        min_small=int(os.getenv("STAGE2_MIN_SMALL", "5")),
+        min_large=int(os.getenv("STAGE2_MIN_LARGE", "5")),
+        pe_min=int(os.getenv("STAGE2_MIN_PE", "5")),
+    )
+
     tickers_top10 = [t for (t, _, _, _) in top10]
 
     spy_ctx = get_spy_ctx()

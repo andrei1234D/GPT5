@@ -115,7 +115,10 @@ jobs:
           STAGE1_MIN_LARGE: "100"
           STAGE1_RESCUE_FRAC: "0.15"
           STAGE1_WRITE_CSV: "0"
-
+          # --- Stage-2 stratified Top-10 ---
+          STAGE2_MIN_SMALL: "5"
+          STAGE2_MIN_LARGE: "5"
+          STAGE2_MIN_PE: "5"
           # --- P/E tilt tuning (tier-aware) ---
           QS_PE_WEIGHT: "0.06"
           QS_PE_WEIGHT_LARGE: "0.10"
