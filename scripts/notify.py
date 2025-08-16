@@ -1,20 +1,24 @@
 # scripts/notify.py
 import os, re, sys, time, requests, pytz
 from datetime import datetime
-
 from pathlib import Path
+
 from universe import load_universe
 from features import build_features
 from filters import is_garbage, daily_index_filter
-from proxies import get_spy_ctx, derive_proxies, fund_proxies_from_feats, catalyst_severity_from_feats
-from fundamentals import fetch_next_earnings_days  # still used for EARNINGS_SOON sev
-from data_fetcher import fetch_pe_for_top          # your PE fetcher
+from proxies import (
+    get_spy_ctx,
+    derive_proxies,
+    fund_proxies_from_feats,
+    catalyst_severity_from_feats,
+)
+from fundamentals import fetch_next_earnings_days
+from data_fetcher import fetch_valuations_for_top
 from prompt_blocks import BASELINE_HINTS, build_prompt_block
-from gpt_client import call_gpt5 
+from gpt_client import call_gpt5
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
-from data_fetcher import fetch_valuations_for_top
 
 from trash_ranker import RobustRanker
 from quick_scorer import rank_stage1
@@ -22,6 +26,7 @@ from quick_scorer import rank_stage1
 TZ = pytz.timezone("Europe/Bucharest")
 
 def log(m): print(m, flush=True)
+
 def need_env(name):
     v = os.getenv(name)
     if not v:
@@ -59,13 +64,16 @@ MANDATORY HANDLING:
   Quality (Tech Proxies), or Near-Term Catalysts.
 """
 
-
-force = os.getenv("FORCE_RUN", "").lower() in {"1","true","yes"}
+force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
 
 def fail(msg: str):
     log(f"[ERROR] {msg}")
     try:
-        requests.post(DISCORD_WEBHOOK_URL, json={"username":"Daily Stock Alert","content":f"⚠️ {msg}"}, timeout=60)
+        requests.post(
+            DISCORD_WEBHOOK_URL,
+            json={"username": "Daily Stock Alert", "content": f"⚠️ {msg}"},
+            timeout=60,
+        )
     except Exception:
         pass
 
@@ -78,7 +86,7 @@ def dump_blocks_pre_gpt(
     echo_stdout: bool = False,
 ) -> str:
     """
-    Writes a full copy of the 10 candidate blocks (exact strings sent to GPT)
+    Writes a full copy of the candidate blocks (exact strings sent to GPT)
     to data/logs/blocks_to_gpt_<timestamp>.txt. Optionally echoes a short
     preview to stdout. Returns the file path.
     """
@@ -103,13 +111,12 @@ def dump_blocks_pre_gpt(
 
     return path
 
-
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
     # 1) Load universe
-    universe = load_universe()  # list[(ticker, company)]
+    universe = load_universe()  # list of (ticker, company)
     log(f"[INFO] Universe size: {len(universe)}")
 
     # 2) Features for all
@@ -124,7 +131,7 @@ def main():
         if not row:
             continue
         feats = row["features"]
-        if not is_garbage(feats):   # your existing coarse filter
+        if not is_garbage(feats):
             kept.append((t, name, feats))
     log(f"[INFO] After trash filter: {len(kept)} remain")
     if not kept:
@@ -132,7 +139,7 @@ def main():
 
     # 4) Daily index filter (placeholder)
     today_context = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
-    kept2 = [(t,n,f) for (t,n,f) in kept if daily_index_filter(f, today_context)]
+    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_context)]
     log(f"[INFO] After daily index filter: {len(kept2)} remain")
     if not kept2:
         return fail("All filtered by daily context")
@@ -143,28 +150,32 @@ def main():
         keep=int(os.getenv("STAGE1_KEEP", "200")),
         mode=os.getenv("STAGE1_MODE", "loose"),
         rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
-        log_dir="data"
+        log_dir="data",
     )
     log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
     # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
     ranker = RobustRanker()
+
+    # Enrich the Stage-1 survivors with valuation fields (batch)
     tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
     for (t, n, f, _score, _meta) in pre_top200:
         v = (vals_pre.get(t) or {})
-        f["val_PE"]         = v.get("PE")
-        f["val_PS"]         = v.get("PS")
-        f["val_EV_REV"]     = v.get("EV_REV")
-        f["val_EV_EBITDA"]  = v.get("EV_EBITDA")
-        f["val_PEG"]        = v.get("PEG")
-        f["val_FCF_YIELD"]  = v.get("FCF_YIELD")
+        f["val_PE"]        = v.get("PE")
+        f["val_PS"]        = v.get("PS")
+        f["val_EV_REV"]    = v.get("EV_REV")
+        f["val_EV_EBITDA"] = v.get("EV_EBITDA")
+        f["val_PEG"]       = v.get("PEG")
+        f["val_FCF_YIELD"] = v.get("FCF_YIELD")
 
-    
+    # >>> IMPORTANT: learn cross-section stats from the enriched feature set
+    ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
 
+    # Now score thoroughly with the robust ranker
     thorough_ranked = []
     for (t, n, f, _score, _meta) in pre_top200:
-        if ranker.should_drop(f):   # uses env-tunable HardFilter
+        if ranker.should_drop(f):
             continue
         score, parts = ranker.composite_score(f)
         thorough_ranked.append((t, n, f, score))
@@ -177,63 +188,71 @@ def main():
 
     # 7) Prepare TOP 10 blocks + debug payloads (use the thorough Top-10)
     top10 = top200[:10]
-    tickers_top10 = [t for t, _, _, _ in top10]
+    tickers_top10 = [t for (t, _, _, _) in top10]
 
     spy_ctx = get_spy_ctx()
-    pe_map = fetch_pe_for_top(tickers_top10)
     earn_days_map = fetch_next_earnings_days(tickers_top10)
+
+    # Pull all valuations once for the batch (for prompt + debug)
     valuations_map = fetch_valuations_for_top(tickers_top10)
-    
+
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
 
-    for t, name, feats, _ in top10:
+    for (t, name, feats, _score) in top10:
         proxies = derive_proxies(feats, spy_ctx)
         fund_proxy = fund_proxies_from_feats(feats)
         cat = catalyst_severity_from_feats(feats)
 
         earn_days = earn_days_map.get(t)
-        if earn_days is None: earn_sev = 0
-        elif earn_days <= 0:  earn_sev = 5
-        elif earn_days <= 3:  earn_sev = 4
-        elif earn_days <= 7:  earn_sev = 3
-        elif earn_days <= 14: earn_sev = 2
-        else:                 earn_sev = 0
+        if earn_days is None:
+            earn_sev = 0
+        elif earn_days <= 0:
+            earn_sev = 5
+        elif earn_days <= 3:
+            earn_sev = 4
+        elif earn_days <= 7:
+            earn_sev = 3
+        elif earn_days <= 14:
+            earn_sev = 2
+        else:
+            earn_sev = 0
 
-    # NEW: pull all valuation fields
-    vals = valuations_map.get(t, {}) or {}
-    pe_hint = vals.get("PE")
+        # All valuation fields for the prompt/debug
+        vals = (valuations_map.get(t) or {})
+        pe_hint = vals.get("PE")
+        fm = {
+            "PE":        vals.get("PE"),
+            "PS":        vals.get("PS"),
+            "EV_EBITDA": vals.get("EV_EBITDA"),
+            "EV_REV":    vals.get("EV_REV"),
+            "PEG":       vals.get("PEG"),
+            "FCF_YIELD": vals.get("FCF_YIELD"),
+        }
 
-    fm = {
-        "PE": vals.get("PE"),
-        "PS": vals.get("PS"),
-        "EV_EBITDA": vals.get("EV_EBITDA"),
-        "EV_REV": vals.get("EV_REV"),          # NEW in prompt + debug
-        "PEG": vals.get("PEG"),
-        "FCF_YIELD": vals.get("FCF_YIELD"),    # percent; may be negative
-    }
-
-    block_text, debug_dict = build_prompt_block(
-        t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
-        cat=cat, earn_sev=earn_sev, fm=fm,
-        baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
-        pe_hint=pe_hint
-    )
-    blocks.append(block_text)
-    debug_inputs[t] = debug_dict
+        block_text, debug_dict = build_prompt_block(
+            t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
+            cat=cat, earn_sev=earn_sev, fm=fm,
+            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
+            pe_hint=pe_hint
+        )
+        blocks.append(block_text)
+        debug_inputs[t] = debug_dict
 
     blocks_text = "\n\n".join(blocks)
-    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(today=now.strftime("%b %d"), blocks=blocks_text)
+    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
+        today=now.strftime("%b %d"),
+        blocks=blocks_text,
+    )
 
-    # --- NEW: log the exact inputs we’re about to send ---
+    # Log the exact inputs we’re about to send to GPT
     if os.getenv("LOG_GPT_INPUT", "1").lower() in {"1", "true", "yes"}:
         echo = os.getenv("LOG_GPT_INPUT_STDOUT", "0").lower() in {"1", "true", "yes"}
         dump_path = dump_blocks_pre_gpt(blocks, user_prompt, TZ, echo_stdout=echo)
         log(f"[INFO] Dumped pre-GPT blocks to {dump_path}")
 
     # 8) GPT-5 adjudication
-    
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
     except Exception as e:
@@ -241,7 +260,9 @@ def main():
 
     # 9) Parse selected tickers from GPT output and post debug
     RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")
-    RE_FORECAST_TICK = re.compile(r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b")
+    RE_FORECAST_TICK = re.compile(
+        r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b"
+    )
     picked = list({*RE_PICK_TICKER.findall(final_text), *RE_FORECAST_TICK.findall(final_text)})
 
     if picked:
@@ -261,7 +282,10 @@ def main():
             time.sleep(wait_s)
 
     # 11) Send to Discord
-    embed = {"title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}", "description": final_text}
+    embed = {
+        "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
+        "description": final_text,
+    }
     payload = {"username": "Daily Stock Alert", "embeds": [embed]}
     try:
         requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=60).raise_for_status()
