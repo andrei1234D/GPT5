@@ -57,6 +57,9 @@ class HardFilter:
     pump_vol_vs20: float = 400.0
     pump_d5: float = 18.0
 
+    # EMA-specific soft hardening (NEW)
+    ema_rollover_drop: int = field(default_factory=lambda: int(os.getenv("HARD_EMA_ROLLOVER", "1")))
+
     # strictness mode
     mode: str = field(default_factory=lambda: os.getenv("HARD_DROP_MODE", "loose").lower())
     grace_atr: float = field(default_factory=lambda: float(os.getenv("HARD_GRACE_ATR", "2.0")))
@@ -152,6 +155,15 @@ class HardFilter:
                     return False, "valuation-blowoff-soft-keep"
                 return True, "valuation-blowoff (PE/PS/PEG extreme + RSI/vol spike)"
 
+        # NEW: optional EMA rollover hard filter (only if enabled)
+        if self.ema_rollover_drop:
+            e50  = safe(feats.get("EMA50"), None)
+            e200 = safe(feats.get("EMA200"), None)
+            px   = safe(feats.get("price"), None)
+            if e50 and e200 and px:
+                # If EMA50 < EMA200 (bearish slope stack) AND price < EMA50, drop in normal/strict
+                if (e50 < e200) and (px < e50) and self.mode in {"normal", "strict"}:
+                    return True, "ema_rollover (px<EMA50<EMA200)"
         return False, ""
 
     def is_garbage(self, feats: Dict) -> bool:
@@ -194,7 +206,9 @@ class RobustRanker:
         return (med, scale)
 
     def fit_cross_section(self, feats_list: List[Dict]) -> None:
-        keys = ["vsSMA50","vsSMA200","d20","RSI14","MACD_hist","ATRpct","drawdown_pct","vol_vs20","r60","r120"]
+        # NEW: include EMA-based fields
+        keys = ["vsSMA50","vsSMA200","d20","RSI14","MACD_hist","ATRpct","drawdown_pct","vol_vs20","r60","r120",
+                "vsEMA50","vsEMA200","EMA50_slope_5d"]
         self.stats.clear()
         for k in keys:
             vals = [safe(f.get(k), None) for f in feats_list]
@@ -224,7 +238,6 @@ class RobustRanker:
         fcfy   = safe(feats.get("val_FCF_YIELD"), None)  # percent
 
         def to_pm01(u: float) -> float:
-            # map 0..1 sweetspot score → -1..+1
             return clamp(u * 2.0 - 1.0, -1.0, 1.0)
 
         s = 0.0
@@ -234,7 +247,6 @@ class RobustRanker:
         s += 0.15 * to_pm01(tri_sweetspot(ebitda, lo=5.0,  mid_lo=8.0,  mid_hi=20.0, hi=40.0))
         s += 0.15 * to_pm01(tri_sweetspot(peg,    lo=0.3,  mid_lo=0.8,  mid_hi=1.8,  hi=4.0))
         s += 0.15 * to_pm01(tri_sweetspot(fcfy,   lo=-5.0, mid_lo=1.0,  mid_hi=8.0,  hi=20.0))
-
         return clamp(s, -1.0, 1.0)
 
     def composite_score(self, feats: Dict, context: Optional[Dict]=None) -> Tuple[float, Dict[str, float]]:
@@ -245,31 +257,57 @@ class RobustRanker:
             macd  = safe(feats.get("MACD_hist"), 0.0)
             rsi   = safe(feats.get("RSI14"),   None)
             rsi_band = tri_sweetspot(rsi, lo=35, mid_lo=47, mid_hi=68, hi=75)
-            trend = 0.35*(self._zs("vsSMA200", vs200)/4.0) + 0.25*(self._zs("vsSMA50", vs50)/4.0) + 0.25*(clamp(macd,-1.5,1.5)/1.5) + 0.15*rsi_band
+
+            # NEW: EMA-based fields
+            vsem50  = safe(feats.get("vsEMA50"), None)
+            vsem200 = safe(feats.get("vsEMA200"), None)
+            e50s    = safe(feats.get("EMA50_slope_5d"), None)
+
+            trend = (
+                0.28*(self._zs("vsSMA200", vs200)/4.0) +
+                0.20*(self._zs("vsSMA50",  vs50) /4.0) +
+                0.20*(self._zs("vsEMA200", vsem200)/4.0) +   # NEW
+                0.17*(self._zs("vsEMA50",  vsem50) /4.0) +   # NEW
+                0.15*(clamp(macd,-1.5,1.5)/1.5) +
+                0.10*rsi_band
+            )
 
             d20  = safe(feats.get("d20"), 0.0)
             r60  = safe(feats.get("r60"), 0.0)
             r120 = safe(feats.get("r120"), 0.0)
             is20h = feats.get("is_20d_high")
             near20 = 1.0 if (is20h or (d20 is not None and d20 >= 8 and safe(feats.get("RSI14"), 50) <= 72)) else 0.0
-            momo = 0.38*(self._zs("d20", d20)/4.0) + 0.28*(self._zs("r60", r60)/4.0) + 0.24*(self._zs("r120", r120)/4.0) + 0.10*near20
+            momo = (
+                0.35*(self._zs("d20",  d20) /4.0) +
+                0.27*(self._zs("r60",  r60) /4.0) +
+                0.23*(self._zs("r120", r120)/4.0) +
+                0.10*(self._zs("EMA50_slope_5d", e50s)/4.0) +  # NEW
+                0.05*near20
+            )
 
             sma50 = safe(feats.get("SMA50"), None)
             sma200= safe(feats.get("SMA200"), None)
             px    = safe(feats.get("price"), None)
             avwap = safe(feats.get("AVWAP252"), None)
+            e50   = safe(feats.get("EMA50"), None)
+            e200  = safe(feats.get("EMA200"), None)
+
             align = 0.0
+            # SMA stack
             if sma50 is not None and sma200 is not None:
-                align += 0.6 if (sma50 > sma200) else -0.2
-            if px is not None and avwap is not None:
-                align += 0.4 if (px > avwap) else -0.1
-            if px is not None and sma50 is not None and sma200 is not None:
-                if px > sma50 > sma200: align += 0.25
-                elif px < sma50 < sma200: align -= 0.20
-                if avwap is not None:
-                    bullish_stack = (sma50 > sma200)
-                    if bullish_stack ^ (px > avwap):
-                        align -= 0.10
+                align += 0.5 if (sma50 > sma200) else -0.2
+            # EMA stack (NEW)
+            if e50 and e200:
+                align += 0.6 if (e50 > e200) else -0.25
+            # price vs EMA50/AVWAP
+            if px and e50:
+                align += 0.25 if (px > e50) else -0.15
+            if px and avwap:
+                align += 0.25 if (px > avwap) else -0.10
+            # clean stack bonus/penalty
+            if px and e50 and e200:
+                if px > e50 > e200: align += 0.20
+                elif px < e50 < e200: align -= 0.18
             struct = clamp(align, -1.0, 1.0)
 
             atrp = safe(feats.get("ATRpct"), None)
@@ -278,14 +316,22 @@ class RobustRanker:
             atr_pen = 0.0 if atrp is None else (-clamp((atrp - P.atr_soft_cap)/P.atr_soft_cap, 0.0, 1.0))
             dd_pen  = 0.0 if dd   is None else (-clamp((abs(min(dd,0.0)) - abs(P.dd_soft_cap))/25.0, 0.0, 1.0))
             vol_pen = 0.0 if v20  is None else (-clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0))
-            stability = clamp(0.6*atr_pen + 0.3*dd_pen + 0.1*vol_pen, -1.0, 0.0)
 
-            # Blowoff detector
+            # NEW: mean-reversion risk if far above EMA50
+            ext_pen = 0.0
+            if vsem50 is not None and vsem50 >= 20:
+                ext_pen = -clamp((vsem50 - 20)/40.0, 0.0, 0.3)  # up to -0.3
+            stability = clamp(0.55*atr_pen + 0.30*dd_pen + 0.10*vol_pen + 0.05*ext_pen, -1.0, 0.0)
+
+            # Blowoff detector (EMA-aware)
             blow = 0.0
             if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
                 blow = -1.0
             elif (rsi is not None and rsi >= 85):
                 blow = -0.7
+            # Harsher if also heavily extended above EMA50
+            if vsem50 is not None and vsem50 >= 25 and blow < 0:
+                blow = min(-1.0, blow - 0.2)
 
             # Make blowoffs harsher under extreme valuations
             pe  = safe(feats.get("val_PE"), None)

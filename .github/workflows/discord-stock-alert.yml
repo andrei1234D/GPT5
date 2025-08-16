@@ -99,8 +99,17 @@ jobs:
           # --- Stage-1 quick pass ---
           STAGE1_MODE: "loose"
           STAGE1_KEEP: "200"
+           # --- Tiering (large vs small by ADV) ---
+          TIER_POLICY: "TOPK_ADV"        # rank by avg_dollar_vol_20d and label top-K as "large"
+          TIER_TOPK_LARGE: "500"         # K = 500
+          TIER_BACKFILL_UNKNOWN_AS: "small"  # missing ADV gets treated as small
+
+          # --- Stage-1 tier quotas (force 50/50 split of KEEP) ---
+          STAGE1_MIN_SMALL: "100"        # with KEEP=200, keep 100 small
+          STAGE1_MIN_LARGE: "100"        # and 100 large
+          # (If you prefer a single switch, you can add STAGE1_FORCE_HALF=1 and handle it in code.)
           STAGE1_RESCUE_FRAC: "0.15"
-          STAGE1_WRITE_CSV: "1"
+          STAGE1_WRITE_CSV: "0"
           QS_PE_WEIGHT: "0.06"          # 0.00–0.12; weight of P/E tilt in quick scorer
           QS_USE_XS: "1"                # use cross-section z-scores (keep "1")
 

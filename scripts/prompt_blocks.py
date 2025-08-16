@@ -14,19 +14,16 @@ def _fmt_num(x): return f"{x:.2f}" if isinstance(x,(int,float)) else "N/A"
 
 def build_prompt_block(
     t: str, name: str, feats: dict, proxies: dict, fund_proxy: dict,
-    cat: dict, earn_sev: int, fm: dict, baseline_hints: dict, baseline_str: str, pe_hint: Optional[float] = None,
+    cat: dict, earn_sev: int, fm: dict, baseline_hints: dict, baseline_str: str,
+    pe_hint: Optional[float] = None,
 ) -> Tuple[str, dict]:
     # --- Availability flags ---
-    # We’re not supplying GAAP fundamentals; keep FUNDAMENTALS=MISSING so GPT uses baseline for that category.
     fundamentals_availability = "FUNDAMENTALS=MISSING"
-
-    # Count actual valuation fields present
     val_keys = ["PE", "PS", "EV_EBITDA", "EV_REV", "FCF_YIELD", "PEG"]
     val_present_ct = sum(1 for k in val_keys if fm.get(k) is not None)
     valuation_availability = "VALUATION=PARTIAL" if val_present_ct > 0 else "VALUATION=MISSING"
 
-
-    # --- Valuation fields line (now includes EV_REV) ---
+    # --- Valuation fields line ---
     val_fields = (
         "VALUATION_FIELDS: "
         f"PE={_fmt_num(fm.get('PE'))}; "
@@ -38,9 +35,12 @@ def build_prompt_block(
         f"PEG={_fmt_num(fm.get('PEG'))}"
     )
 
-    def sgn(k:int)->str: return ("+"+str(k)) if k>0 else ("-"+str(abs(k)) if k<0 else "0")
+    def sgn(k: int) -> str:
+        return ("+"+str(k)) if k>0 else ("-"+str(abs(k)) if k<0 else "0")
+
     catalyst_line = "TECH_BREAKOUT={}; TECH_BREAKDOWN={}; DIP_REVERSAL={}; EARNINGS_SOON={}".format(
-        sgn(cat.get("TECH_BREAKOUT",0)), sgn(cat.get("TECH_BREAKDOWN",0)), sgn(cat.get("DIP_REVERSAL",0)), sgn(earn_sev)
+        sgn(cat.get("TECH_BREAKOUT",0)), sgn(cat.get("TECH_BREAKDOWN",0)),
+        sgn(cat.get("DIP_REVERSAL",0)), sgn(earn_sev)
     )
     timing_tb = "TECH_BREAKOUT={}".format(
         "Today" if (cat.get("TECH_BREAKOUT",0)>0 and feats.get("is_20d_high")) else "None"
@@ -63,7 +63,16 @@ def build_prompt_block(
         "20d%: {d20}\n"
         "60d%: {r60}\n"
         "Vol_vs_20d%: {v20}\n"
+        # --- NEW: EMA lines sent to GPT ---
+        "EMA20: {ema20}\n"
+        "EMA50: {ema50}\n"
+        "EMA200: {ema200}\n"
+        "vsEMA50: {vsem50}%\n"
+        "vsEMA200: {vsem200}%\n"
+        "EMA50_slope_5d%: {ema50s}\n"
+        # -----------------------------------
         "{val_fields}\n"
+        "DATA_AVAILABILITY: {funds_avail}; {vals_avail}\n"
         "BASELINE_HINTS: {baselines}\n"
         "PROXIES: MARKET_TREND={mt}; REL_STRENGTH={rs}; BREADTH_VOLUME={bv}; VALUATION_HISTORY={vh}; RISK_VOLATILITY={rv}; RISK_DRAWDOWN={rd}\n"
         "PROXIES_FUNDAMENTALS: GROWTH_TECH={gt}; MARGIN_TREND_TECH={mtf}; FCF_TREND_TECH={ft}; OP_EFF_TREND_TECH={ot}\n"
@@ -72,41 +81,51 @@ def build_prompt_block(
         "EXPECTED_VOLATILITY_PCT: {ev}\n"
         "FVA_HINT: {fva}\n"
         "PE_HINT: {pe}\n"
-        "SUGGESTED_BONUSES: {bon}\n".format(
-            t=t, name=name,
-            price=feats.get("price"),
-            vs20=feats.get("vsSMA20"), vs50=feats.get("vsSMA50"), vs200=feats.get("vsSMA200"),
-            sma50=feats.get("SMA50"), avwap=feats.get("AVWAP252"),
-            rsi=feats.get("RSI14"), macd=feats.get("MACD_hist"), atr=feats.get("ATRpct"),
-            dd=feats.get("drawdown_pct"), d5=feats.get("d5"), d20=feats.get("d20"), r60=feats.get("r60"),
-            v20=feats.get("vol_vs20"),
-            val_fields=val_fields,
-            baselines=baseline_str,
-            mt=proxies["market_trend"], rs=proxies["relative_strength"],
-            bv=proxies["breadth_volume"], vh=proxies["valuation_history"],
-            rv=proxies["risk_volatility"], rd=proxies["risk_drawdown"],
-            gt=("+"+str(fund_proxy["GROWTH_TECH"])) if fund_proxy["GROWTH_TECH"]>0 else str(fund_proxy["GROWTH_TECH"]),
-            mtf=("+"+str(fund_proxy["MARGIN_TREND_TECH"])) if fund_proxy["MARGIN_TREND_TECH"]>0 else str(fund_proxy["MARGIN_TREND_TECH"]),
-            ft=("+"+str(fund_proxy["FCF_TREND_TECH"])) if fund_proxy["FCF_TREND_TECH"]>0 else str(fund_proxy["FCF_TREND_TECH"]),
-            ot=("+"+str(fund_proxy["OP_EFF_TREND_TECH"])) if fund_proxy["OP_EFF_TREND_TECH"]>0 else str(fund_proxy["OP_EFF_TREND_TECH"]),
-            cat_line=catalyst_line, timing_tb=timing_tb,
-            ev=proxies["expected_volatility_pct"],
-            fva=proxies["fva_hint"] if proxies["fva_hint"] is not None else "N/A",
-            pe=(f"{pe_hint:.2f}" if isinstance(pe_hint,(int,float)) else "N/A"),
-            bon=proxies["suggested_bonuses"],
-        )
+        "SUGGESTED_BONUSES: {bon}\n"
+    ).format(
+        t=t, name=name,
+        price=feats.get("price"),
+        vs20=feats.get("vsSMA20"), vs50=feats.get("vsSMA50"), vs200=feats.get("vsSMA200"),
+        sma50=feats.get("SMA50"), avwap=feats.get("AVWAP252"),
+        rsi=feats.get("RSI14"), macd=feats.get("MACD_hist"), atr=feats.get("ATRpct"),
+        dd=feats.get("drawdown_pct"), d5=feats.get("d5"), d20=feats.get("d20"), r60=feats.get("r60"),
+        v20=feats.get("vol_vs20"),
+        # NEW EMA values
+        ema20=feats.get("EMA20"),
+        ema50=feats.get("EMA50"),
+        ema200=feats.get("EMA200"),
+        vsem50=feats.get("vsEMA50"),
+        vsem200=feats.get("vsEMA200"),
+        ema50s=feats.get("EMA50_slope_5d"),
+        # rest
+        val_fields=val_fields,
+        funds_avail=fundamentals_availability,
+        vals_avail=valuation_availability,
+        baselines=baseline_str,
+        mt=proxies["market_trend"], rs=proxies["relative_strength"],
+        bv=proxies["breadth_volume"], vh=proxies["valuation_history"],
+        rv=proxies["risk_volatility"], rd=proxies["risk_drawdown"],
+        gt=("+"+str(fund_proxy["GROWTH_TECH"])) if fund_proxy["GROWTH_TECH"]>0 else str(fund_proxy["GROWTH_TECH"]),
+        mtf=("+"+str(fund_proxy["MARGIN_TREND_TECH"])) if fund_proxy["MARGIN_TREND_TECH"]>0 else str(fund_proxy["MARGIN_TREND_TECH"]),
+        ft=("+"+str(fund_proxy["FCF_TREND_TECH"])) if fund_proxy["FCF_TREND_TECH"]>0 else str(fund_proxy["FCF_TREND_TECH"]),
+        ot=("+"+str(fund_proxy["OP_EFF_TREND_TECH"])) if fund_proxy["OP_EFF_TREND_TECH"]>0 else str(fund_proxy["OP_EFF_TREND_TECH"]),
+        cat_line=catalyst_line, timing_tb=timing_tb,
+        ev=proxies["expected_volatility_pct"],
+        fva=proxies["fva_hint"] if proxies["fva_hint"] is not None else "N/A",
+        pe=(f"{pe_hint:.2f}" if isinstance(pe_hint,(int,float)) else "N/A"),
+        bon=proxies["suggested_bonuses"],
     )
 
-    # --- Debug payload (include all valuation fields, including EV_REV) ---
+    # --- Debug payload (unchanged except you already include EMA there) ---
     val_fields_dict = {
-    "PE": fm.get("PE"),
-    "PE_SECTOR": None,
-    "EV_EBITDA": fm.get("EV_EBITDA"),
-    "EV_REV": fm.get("EV_REV"),
-    "PS": fm.get("PS"),                   
-    "FCF_YIELD_pct": fm.get("FCF_YIELD"),
-    "PEG": fm.get("PEG"),
-}
+        "PE": fm.get("PE"),
+        "PE_SECTOR": None,
+        "EV_EBITDA": fm.get("EV_EBITDA"),
+        "EV_REV": fm.get("EV_REV"),
+        "PS": fm.get("PS"),
+        "FCF_YIELD_pct": fm.get("FCF_YIELD"),
+        "PEG": fm.get("PEG"),
+    }
     indicators_dict = {
         "vsSMA20_pct": feats.get("vsSMA20"),
         "vsSMA50_pct": feats.get("vsSMA50"),
@@ -121,6 +140,12 @@ def build_prompt_block(
         "d20_pct": feats.get("d20"),
         "r60_pct": feats.get("r60"),
         "Vol_vs_20d_pct": feats.get("vol_vs20"),
+        "EMA20": feats.get("EMA20"),
+        "EMA50": feats.get("EMA50"),
+        "EMA200": feats.get("EMA200"),
+        "vsEMA50_pct": feats.get("vsEMA50"),
+        "vsEMA200_pct": feats.get("vsEMA200"),
+        "EMA50_slope_5d_pct": feats.get("EMA50_slope_5d"),
     }
     proxies_catalysts_full = {**cat, "EARNINGS_SOON": earn_sev}
     catalyst_timing_hints = {
@@ -139,7 +164,6 @@ def build_prompt_block(
         "BASELINE_HINTS_STR": baseline_str,
 
         "VALUATION_FIELDS_DICT": val_fields_dict, 
-
         "PROXIES_BLOCK": {
             "MARKET_TREND": proxies["market_trend"],
             "REL_STRENGTH": proxies["relative_strength"],
@@ -155,7 +179,6 @@ def build_prompt_block(
         "PROXIES_CATALYSTS_BLOCK": proxies_catalysts_full,
         "CATALYST_TIMING_HINTS_BLOCK": catalyst_timing_hints,
 
-        "PE_HINT": pe_hint, 
         "PROMPT_BLOCK": block_text,
     }
 

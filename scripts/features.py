@@ -4,12 +4,57 @@ import time
 from typing import Dict, List, Tuple, Optional
 import os
 import logging
-from datetime import datetime
-
+import numpy as np
 import pandas as pd
 import yfinance as yf
 
-from aliases import apply_alias, load_aliases_csv  # <-- NEW
+from aliases import apply_alias, load_aliases_csv  # optional; safe if file missing
+
+# ---------------------------- EMA helpers -------------------------- #
+def _ema(series: pd.Series, length: int) -> pd.Series:
+    # min_periods ensures early values are NaN until we have enough data
+    return series.ewm(span=length, adjust=False, min_periods=length).mean()
+
+def add_ema_features(hist: pd.DataFrame, feats: dict) -> None:
+    """Attach EMA20/50/200, vsEMA50/200, and a tiny EMA50 slope to feats."""
+    if hist is None or hist.empty or "Close" not in hist:
+        feats["EMA20"] = feats["EMA50"] = feats["EMA200"] = None
+        feats["vsEMA50"] = feats["vsEMA200"] = None
+        feats["EMA50_slope_5d"] = None
+        return
+
+    c = hist["Close"].astype(float)
+
+    ema20  = _ema(c, 20)
+    ema50  = _ema(c, 50)
+    ema200 = _ema(c, 200)
+
+    def last_val(s: pd.Series) -> Optional[float]:
+        try:
+            v = s.iloc[-1]
+            return float(v) if pd.notna(v) else None
+        except Exception:
+            return None
+
+    feats["EMA20"]  = last_val(ema20)
+    feats["EMA50"]  = last_val(ema50)
+    feats["EMA200"] = last_val(ema200)
+
+    px   = feats.get("price")
+    e50  = feats.get("EMA50")
+    e200 = feats.get("EMA200")
+
+    feats["vsEMA50"]  = ((px / e50)  - 1.0) * 100.0 if (px and e50)  else None
+    feats["vsEMA200"] = ((px / e200) - 1.0) * 100.0 if (px and e200) else None
+
+    # 5-trading-day slope on EMA50 (small momentum hint)
+    try:
+        if len(ema50) >= 6 and pd.notna(ema50.iloc[-6]) and pd.notna(ema50.iloc[-1]) and float(ema50.iloc[-6]) != 0.0:
+            feats["EMA50_slope_5d"] = (float(ema50.iloc[-1]) / float(ema50.iloc[-6]) - 1.0) * 100.0
+        else:
+            feats["EMA50_slope_5d"] = None
+    except Exception:
+        feats["EMA50_slope_5d"] = None
 
 # ---------------------------- logging ------------------------------ #
 def _maybe_configure_logging():
@@ -48,7 +93,7 @@ RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "2.0"))
 # ---------------------------- constants ---------------------------- #
 FIELDS = {"Open", "High", "Low", "Close", "Adj Close", "Volume"}
 
-# ---------- symbol normalization (consistent with data_fetcher.py) ----------
+# ---------- symbol normalization (consistent with data_fetcher.py) ---------- #
 _YH_SUFFIXES = {
     "L","DE","F","SW","PA","AS","BR","LS","MC","MI","VI","ST","HE","CO","OL","WA","PR",
     "TO","V","AX","HK","T","SI","KS","KQ","NS","BO","JO","SA","MX","NZ","DU","AD","SR","TA",
@@ -388,6 +433,13 @@ def compute_indicators(df: pd.DataFrame) -> dict:
         except Exception:
             return None
 
+    # --- Liquidity proxies for tiering (cheap) ---
+    try:
+        avg_vol20 = float(vol.rolling(20).mean().iloc[last]) if "Volume" in cols else None
+    except Exception:
+        avg_vol20 = None
+    avg_dollar_vol20 = (avg_vol20 * cur) if (avg_vol20 is not None and cur is not None) else None
+
     feats = dict(
         price=round(cur, 2),
 
@@ -422,7 +474,25 @@ def compute_indicators(df: pd.DataFrame) -> dict:
             if "Volume" in cols and not pd.isna(vol.rolling(20).mean().iloc[last])
             else None
         ),
+
+        # Liquidity proxies
+        avg_vol_20d=round(avg_vol20, 0) if avg_vol20 is not None else None,
+        avg_dollar_vol_20d=round(avg_dollar_vol20, 2) if avg_dollar_vol20 is not None else None,
     )
+
+    # Optional: local liquidity tier only when TIER_POLICY says THRESH.
+    # When TIER_POLICY=TOPK_ADV, tiering is decided globally in rank_stage1 using top-K ADV.
+    try:
+        tier_policy = (os.getenv("TIER_POLICY", "THRESH") or "THRESH").upper()
+        if tier_policy == "THRESH":
+            hi = float(os.getenv("TIER_LARGE_USD", "50000000"))   # $50M default
+            mid = float(os.getenv("TIER_MEDIUM_USD", "10000000")) # $10M default
+            adv = feats["avg_dollar_vol_20d"] or 0.0
+            feats["liq_tier"] = "LARGE" if adv >= hi else ("MID" if adv >= mid else "SMALL")
+        else:
+            feats["liq_tier"] = None
+    except Exception:
+        feats["liq_tier"] = None
 
     if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
         logger.debug(
@@ -431,6 +501,13 @@ def compute_indicators(df: pd.DataFrame) -> dict:
             feats["RSI14"], _fmt(feats["MACD_hist"], ".3f"), _fmt(feats["ATRpct"]),
             _fmt(feats["drawdown_pct"]), _fmt(feats["r60"]), _fmt(feats["vol_vs20"])
         )
+
+    # Add EMA-derived features (uses Close column from df)
+    try:
+        add_ema_features(df, feats)
+    except Exception as e:
+        if FEATURES_VERBOSE:
+            logger.debug(f"[ind] EMA calc failed: {e!r}")
 
     return feats
 

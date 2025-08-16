@@ -1,8 +1,11 @@
 # scripts/quick_scorer.py
 from __future__ import annotations
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import os, math, csv, logging
 import numpy as np
+
+_TIER_THR_LARGE_USD = None
+_TIER_THR_MID_USD   = None
 
 # -------- logging --------
 def _cfg_log():
@@ -30,7 +33,7 @@ def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float,
     for k in keys:
         vals: List[float] = []
         for f in feats_list:
-            v = safe(f.get(k), None)  # keep None for invalid/NaN/inf
+            v = safe(f.get(k), None)
             if v is not None:
                 vals.append(v)
         if not vals:
@@ -43,6 +46,72 @@ def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float,
         if not (scale > 1e-9): scale = 1.0
         stats[k] = (med, scale)
     return stats
+
+
+def _auto_liq_thresholds(universe, p_large=80, p_mid=40):
+    """
+    Infer LARGE/MID cutoffs from cross-section percentiles of avg_dollar_vol_20d.
+    Falls back to 50M / 10M if too few values.
+    """
+    advs = []
+    for (_t, _n, f) in universe:
+        a = f.get("avg_dollar_vol_20d")
+        try:
+            if a is None: 
+                continue
+            a = float(a)
+            if a > 0 and not math.isinf(a) and not math.isnan(a):
+                advs.append(a)
+        except Exception:
+            pass
+
+    if len(advs) >= 30:
+        arr = np.array(advs, dtype=float)
+        thr_large = float(np.percentile(arr, p_large))
+        thr_mid   = float(np.percentile(arr, p_mid))
+    else:
+        thr_large = 50_000_000.0
+        thr_mid   = 10_000_000.0
+    return thr_large, thr_mid
+
+def _compute_and_set_tier_thresholds(universe):
+    """
+    Populate module-level thresholds using env overrides if provided,
+    otherwise auto-derive from the current universe.
+    """
+    global _TIER_THR_LARGE_USD, _TIER_THR_MID_USD
+    env_large = os.getenv("TIER_LARGE_USD", "").strip()
+    env_mid   = os.getenv("TIER_MEDIUM_USD", "").strip()
+    if env_large and env_mid:
+        try:
+            _TIER_THR_LARGE_USD = float(env_large)
+            _TIER_THR_MID_USD   = float(env_mid)
+        except Exception:
+            _TIER_THR_LARGE_USD, _TIER_THR_MID_USD = _auto_liq_thresholds(universe)
+    else:
+        _TIER_THR_LARGE_USD, _TIER_THR_MID_USD = _auto_liq_thresholds(universe)
+
+def _detect_tier(feats: Dict) -> str:
+    """
+    Classify by avg_dollar_vol_20d using current global thresholds.
+    Returns 'large' | 'mid' | 'small' | 'unknown'
+    """
+    adv = feats.get("avg_dollar_vol_20d")
+    try:
+        a = float(adv) if adv is not None else None
+    except Exception:
+        a = None
+
+    if a is None or _TIER_THR_LARGE_USD is None or _TIER_THR_MID_USD is None:
+        return "unknown"
+    if a >= _TIER_THR_LARGE_USD:
+        return "large"
+    if a >= _TIER_THR_MID_USD:
+        return "mid"
+    return "small"
+
+
+
 
 def _z(xs: Dict[str, Tuple[float,float]], key: str, x: float|None, lo=-4.0, hi=4.0) -> float:
     if x is None: return 0.0
@@ -83,61 +152,87 @@ def _tags(feats: Dict) -> List[str]:
         t.append("low_liquidity_today")
     return t
 
+# ---- tiering (small vs large) ----
+def _detect_tier(feats: Dict) -> str:
+    """
+    Classify into 'small' or 'large'.
+    Prefer market_cap if feats has it; else fall back to avg dollar vol; else price.
+    """
+    cap = safe(feats.get("market_cap"), None)  # optional, if you enrich feats later
+    liq = safe(feats.get("avg_dollar_vol_20d"), None)
+    price = safe(feats.get("price"), None)
+
+    cap_cut = float(os.getenv("QS_SMALL_CAP_MAX", "2000000000"))   # $2B default
+    liq_cut = float(os.getenv("QS_SMALL_LIQ_MAX", "10000000"))     # $10M avg $vol
+    px_cut  = float(os.getenv("QS_SMALL_PRICE_MAX", "12"))
+
+    if cap is not None:
+        return "small" if cap <= cap_cut else "large"
+    if liq is not None:
+        return "small" if liq <= liq_cut else "large"
+    if price is not None:
+        return "small" if price <= px_cut else "large"
+    return "large"
+
+def _tier_params(tier: str, mode: str, pe_weight_base: float):
+    """
+    Return (weights, pe_weight, atr_soft, vol_soft, dd_soft).
+    Small caps: slightly harsher risk + a bit more structure attention.
+    Large caps: slightly more trend/momo + stronger valuation tilt.
+    """
+    if tier == "small":
+        pe_w = float(os.getenv("QS_PE_WEIGHT_SMALL", str(pe_weight_base)))  # default same as base
+        if mode == "strict":
+            atr_soft, vol_soft, dd_soft = 5.0, 200, -42
+        elif mode == "normal":
+            atr_soft, vol_soft, dd_soft = 5.5, 220, -45
+        else:
+            atr_soft, vol_soft, dd_soft = 6.0, 240, -48
+        weights = dict(trend=0.44, momo=0.30, struct=0.14, risk=0.12)
+    else:
+        pe_w = float(os.getenv("QS_PE_WEIGHT_LARGE", str(pe_weight_base + 0.02)))  # +2% nudge
+        if mode == "strict":
+            atr_soft, vol_soft, dd_soft = 5.5, 240, -42
+        elif mode == "normal":
+            atr_soft, vol_soft, dd_soft = 6.0, 280, -45
+        else:
+            atr_soft, vol_soft, dd_soft = 6.5, 300, -50
+        weights = dict(trend=0.50, momo=0.33, struct=0.11, risk=0.04)
+    return weights, pe_w, atr_soft, vol_soft, dd_soft
+
 # ---- P/E tilt (optional; uses feats["val_PE"] or feats["PE"] if present) ----
 def _pe_tilt_points(pe: float|None, rsi: float|None, vol_vs20: float|None) -> float:
-    """
-    Returns a small tilt in [-20 .. +20] points (will be weighted later).
-    - Low P/E gets a bonus that saturates below ~10.
-    - Very high P/E gets a mild penalty, stronger only if overbought/frothy.
-    - Missing/None => 0 (neutral).
-    """
-    if pe is None or pe <= 0:  # treat invalid as neutral
+    if pe is None or pe <= 0:
         return 0.0
-
-    # Base shape: map P/E to a bounded score
-    # <=10: +20, 10..15: +12..+8, 15..25: +6..+0, 25..40: 0..-6, >40: -8
-    if pe <= 10:
-        base = 20.0
-    elif pe <= 15:
-        base = 12.0 - (pe - 10) * (4.0 / 5.0)    # 12 -> 8
-    elif pe <= 25:
-        base = 6.0 - (pe - 15) * (0.6)           # 6 -> 0
-    elif pe <= 40:
-        base = 0.0 - (pe - 25) * (0.4)           # 0 -> -6
-    else:
-        base = -8.0
-
-    # Froth guard: only let strong negatives apply when momentum is hot
+    if pe <= 10: base = 20.0
+    elif pe <= 15: base = 12.0 - (pe - 10) * (4.0 / 5.0)
+    elif pe <= 25: base = 6.0 - (pe - 15) * 0.6
+    elif pe <= 40: base = 0.0 - (pe - 25) * 0.4
+    else: base = -8.0
     rsi = None if rsi is None else float(rsi)
     vol_vs20 = None if vol_vs20 is None else float(vol_vs20)
-    if base < 0:
-        if not ( (rsi is not None and rsi >= 75) or (vol_vs20 is not None and vol_vs20 >= 200) ):
-            base *= 0.5  # soften penalty if not overbought/frothy
-
+    if base < 0 and not ((rsi is not None and rsi >= 75) or (vol_vs20 is not None and vol_vs20 >= 200)):
+        base *= 0.5
     return float(clamp(base, -20.0, 20.0))
 
 def quick_score(
     feats: Dict,
     mode: str = "loose",
-    xs: Dict[str, Tuple[float, float]] | None = None
+    xs: Dict[str, Tuple[float, float]] | None = None,
+    tier: Optional[str] = None
 ) -> Tuple[float, Dict]:
     """
     Fast, resilient first-pass score ~[-100..+200] (then we sort).
-    Uses cross-sectional z-scores when provided (cheap & adaptive).
+    Cross-sectional z-scores optional. Tier-aware weights & thresholds.
     Includes a small P/E tilt iff P/E exists in feats.
     """
-    # weights by mode (sum to 1.0). We carve out a small bucket for P/E.
-    pe_weight_env = float(os.getenv("QS_PE_WEIGHT", "0.06"))  # default 6%
-    pe_weight = float(clamp(pe_weight_env, 0.0, 0.12))
+    tier = tier or _detect_tier(feats)
 
-    if mode == "strict":
-        w_trend, w_momo, w_struct, w_risk = 0.44, 0.29, 0.14, 0.07
-    elif mode == "normal":
-        w_trend, w_momo, w_struct, w_risk = 0.47, 0.31, 0.12, 0.04
-    else:  # loose
-        w_trend, w_momo, w_struct, w_risk = 0.49, 0.33, 0.10, 0.02
+    # base P/E weight (can be overridden per-tier)
+    pe_weight_base = float(os.getenv("QS_PE_WEIGHT", "0.06"))
+    weights, pe_weight, atr_soft, vol_soft, dd_soft = _tier_params(tier, mode, pe_weight_base)
 
-    # Normalize to leave room for pe_weight
+    w_trend, w_momo, w_struct, w_risk = weights["trend"], weights["momo"], weights["struct"], weights["risk"]
     rem = max(1e-9, (w_trend + w_momo + w_struct + w_risk))
     scale = max(0.0, 1.0 - pe_weight) / rem
     w_trend  *= scale
@@ -145,14 +240,6 @@ def quick_score(
     w_struct *= scale
     w_risk   *= scale
     w_pe = pe_weight
-
-    # regime thresholds
-    if mode == "strict":
-        atr_soft, vol_soft, dd_soft = 5.5, 220, -40
-    elif mode == "normal":
-        atr_soft, vol_soft, dd_soft = 6.0, 250, -45
-    else:
-        atr_soft, vol_soft, dd_soft = 6.5, 300, -50
 
     vs50  = safe(feats.get("vsSMA50"), 0.0)
     vs200 = safe(feats.get("vsSMA200"), 0.0)
@@ -162,11 +249,16 @@ def quick_score(
     rsi   = safe(feats.get("RSI14"), None)
     macd  = safe(feats.get("MACD_hist"), 0.0)
     atr   = safe(feats.get("ATRpct"), 0.0)
-    dd    = safe(feats.get("drawdown_pct"), 0.0)  # negative is worse
+    dd    = safe(feats.get("drawdown_pct"), 0.0)
     v20   = safe(feats.get("vol_vs20"), 0.0)
     px    = safe(feats.get("price"), 0.0)
     sma50 = safe(feats.get("SMA50"), None)
     avwap = safe(feats.get("AVWAP252"), None)
+
+    # EMA features (if present)
+    vsE50  = safe(feats.get("vsEMA50"), None)
+    vsE200 = safe(feats.get("vsEMA200"), None)
+    e50s   = safe(feats.get("EMA50_slope_5d"), None)
 
     # Pull P/E if pre-attached (no network here)
     pe_val = None
@@ -178,7 +270,7 @@ def quick_score(
                 pass
             break
 
-    # --- cross-sectional z where available ---
+    # --- cross-sectional z where available (include EMA keys) ---
     use_xs = xs is not None and os.getenv("QS_USE_XS", "1").lower() in {"1", "true", "yes"}
     if use_xs:
         z_vs200 = _z(xs, "vsSMA200", vs200)
@@ -188,6 +280,9 @@ def quick_score(
         z_d20   = _z(xs, "d20",      d20)
         z_atr   = _z(xs, "ATRpct",   atr)
         z_v20   = _z(xs, "vol_vs20", v20)
+        z_vsE50 = _z(xs, "vsEMA50",  vsE50)
+        z_vsE200= _z(xs, "vsEMA200", vsE200)
+        z_e50s  = _z(xs, "EMA50_slope_5d", e50s)
     else:
         z_vs200 = clamp(vs200, -40, 80) / 20.0
         z_vs50  = clamp(vs50,  -40, 80) / 20.0
@@ -196,19 +291,29 @@ def quick_score(
         z_d20   = clamp(d20,   -25, 40) / 10.0
         z_atr   = (atr - 6.0) / 2.0
         z_v20   = (v20 - 200.0) / 80.0
+        z_vsE50 = (0.0 if vsE50  is None else clamp(vsE50,  -40, 80) / 20.0)
+        z_vsE200= (0.0 if vsE200 is None else clamp(vsE200, -40, 80) / 20.0)
+        z_e50s  = (0.0 if e50s   is None else clamp(e50s,   -20, 30) / 10.0)
 
-    # trend: favor alignment + healthy RSI band (adaptive)
+    # trend: add EMA alignment modestly
     rsi_band = _rsi_band_val(rsi)
-    trend = (0.5 * clamp(z_vs200/4.0, -1, 1) +
-             0.35 * clamp(z_vs50/4.0,  -1, 1) +
-             0.15 * clamp(macd/1.5,     -1, 1)) * 100.0 + 8.0 * rsi_band
+    trend = (
+        0.40 * clamp(z_vs200/4.0, -1, 1) +
+        0.25 * clamp(z_vs50/4.0,  -1, 1) +
+        0.15 * clamp(z_vsE200/4.0,-1, 1) +
+        0.10 * clamp(z_vsE50/4.0, -1, 1) +
+        0.10 * clamp(macd/1.5,    -1, 1)
+    ) * 100.0 + 8.0 * rsi_band
 
-    # momentum: 20–120 day persistence (adaptive)
-    momo = (0.42 * clamp(z_r60/4.0,  -1, 1) +
-            0.30 * clamp(z_r120/4.0, -1, 1) +
-            0.28 * clamp(z_d20/4.0,  -1, 1)) * 100.0
+    # momentum: include EMA50 slope
+    momo = (
+        0.36 * clamp(z_r60/4.0,   -1, 1) +
+        0.27 * clamp(z_r120/4.0,  -1, 1) +
+        0.22 * clamp(z_d20/4.0,   -1, 1) +
+        0.15 * clamp(z_e50s/4.0,  -1, 1)
+    ) * 100.0
 
-    # structure: simple alignment + anchor premium (price vs AVWAP252)
+    # structure: SMA/AVWAP + EMA alignment bonus
     struct = 0.0
     if sma50 and avwap:
         if px > sma50 > avwap:
@@ -223,8 +328,14 @@ def quick_score(
             struct += clamp(abs(prem) * 20.0, 0.0, 6.0)
         else:
             struct -= clamp(prem * 25.0, 0.0, 8.0)
+    # EMA stack nudge
+    if (vsE50 is not None and vsE200 is not None):
+        if vsE50 > 0 and vsE200 > 0:
+            struct += 3.0
+        elif vsE50 < 0 and vsE200 < 0:
+            struct -= 2.0
 
-    # risk (soft, adaptive)
+    # risk (soft, tier-aware)
     risk_pen = 0.0
     if use_xs:
         risk_pen -= clamp(max(0.0, z_atr), 0.0, 3.0) * 3.5
@@ -236,16 +347,26 @@ def quick_score(
             risk_pen -= min(8.0, (v20 - vol_soft) / 40.0)
     if dd < dd_soft:
         risk_pen -= min(8.0, (abs(dd) - abs(dd_soft)) / 4.0)
+    # froth/overbought
     if rsi is not None and rsi >= 85:
         risk_pen -= 8.0
     if rsi is not None and rsi >= 88 and d20 >= 150:
         risk_pen -= 10.0
     if rsi is not None and rsi >= 80 and v20 >= 200:
         risk_pen -= 6.0
+    # small-cap extras: thin tape and liquidity drought
+    if tier == "small":
+        liq_min = float(os.getenv("QS_MIN_DOLLAR_VOL_20D", "2000000"))  # $2M
+        liq = safe(feats.get("avg_dollar_vol_20d"), None)
+        if liq is not None and liq < liq_min:
+            # up to -10 for illiquidity; smooth scaling
+            risk_pen -= clamp((liq_min - liq) / max(liq_min, 1.0), 0.0, 1.0) * 10.0
+        if v20 <= -40:  # today is unusually quiet vs avg
+            risk_pen -= clamp(abs(v20 + 40.0) / 40.0, 0.0, 1.0) * 6.0
 
     # P/E tilt (neutral if missing)
     pe_points_raw = _pe_tilt_points(pe_val, rsi, v20)  # [-20..+20]
-    pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0  # normalize
+    pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0
 
     score = (w_trend  * trend +
              w_momo   * momo +
@@ -254,8 +375,8 @@ def quick_score(
              w_pe     * pe_score)
 
     return score, {
-        "trend": trend, "momo": momo, "struct": struct,
-        "risk_pen": risk_pen, "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe
+        "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,
+        "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier
     }
 
 def rank_stage1(
@@ -270,6 +391,7 @@ def rank_stage1(
       pre_topK:  list of (t, name, feats, score, meta) kept (sorted desc)
       quick_scored_all: same for ALL scored (sorted desc)
       removed_rows: diagnostics rows for CSV (ticker, reason,...)
+    Now tier-aware with optional quotas.
     """
     mode = (mode or os.getenv("STAGE1_MODE", "loose")).lower()
     keep = int(os.getenv("STAGE1_KEEP", str(keep)))
@@ -277,39 +399,89 @@ def rank_stage1(
     write_csv = os.getenv("STAGE1_WRITE_CSV", "1").lower() in {"1","true","yes"}
     os.makedirs(log_dir, exist_ok=True)
 
-    # --- compute cross-sectional stats once (cheap) ---
+    # cross-sectional stats (include EMA keys)
     feat_list = [f for (_t, _n, f) in universe]
-    xs_keys = ["vsSMA50","vsSMA200","d20","r60","r120","ATRpct","vol_vs20"]
+    xs_keys = ["vsSMA50","vsSMA200","d20","r60","r120","ATRpct","vol_vs20","vsEMA50","vsEMA200","EMA50_slope_5d"]
     xs = _xs_stats(feat_list, xs_keys)
+
+    # compute liquidity tier thresholds for this universe
+    _compute_and_set_tier_thresholds(universe)
+    if _TIER_THR_LARGE_USD is not None and _TIER_THR_MID_USD is not None:
+        log.info(f"[Stage1] liquidity tiers: LARGE≥{_TIER_THR_LARGE_USD:,.0f} USD, "
+                 f"MID≥{_TIER_THR_MID_USD:,.0f} USD (else SMALL)")
 
     scored: List[Tuple[str,str,Dict,float,Dict]] = []
     removed: List[Tuple] = []
-    protected_bucket: List[Tuple[str,str,Dict,float,Dict]] = []
+    protected_bucket_small: List[Tuple[str,str,Dict,float,Dict]] = []
+    protected_bucket_large: List[Tuple[str,str,Dict,float,Dict]] = []
 
     for (t, n, f) in universe:
-        s, parts = quick_score(f, mode=mode, xs=xs)
+        tier = _detect_tier(f)
+        # store tier on feats so downstream code can see it too
+        f["liq_tier"] = tier
+        s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)  # quick_score can ignore tier if not used
         tags = _tags(f)
-        row = (t, n, f, s, {"parts": parts, "tags": tags})
+        meta = {"parts": parts, "tags": tags, "tier": tier, "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d")}
+        row = (t, n, f, s, meta)
         scored.append(row)
 
     scored.sort(key=lambda x: x[3], reverse=True)
 
-    # protection: keep a slice of protected names even if not in top-K
+    # protection: keep a slice of protected names (per-tier)
     top_main = scored[:keep]
     borderline = scored[keep:]
 
-    # collect protected from borderline
     for r in borderline:
+        tier = r[4].get("tier")
         if any(tag.endswith("_protect") for tag in r[4]["tags"]):
-            protected_bucket.append(r)
+            if tier == "small":
+                protected_bucket_small.append(r)
+            else:
+                protected_bucket_large.append(r)
 
-    # limit rescued count
     max_rescue = max(0, int(keep * rescue_frac))
-    rescued = protected_bucket[:max_rescue]
+    # split rescue capacity roughly across tiers (by proportion present)
+    small_ct = sum(1 for (_t,_n,_f,_s,m) in scored if m["tier"]=="small")
+    large_ct = len(scored) - small_ct
+    small_ct = max(1, small_ct)
+    large_ct = max(1, large_ct)
+    small_quota = int(max_rescue * (small_ct / (small_ct + large_ct)))
+    large_quota = max_rescue - small_quota
 
-    pre_topK = (top_main + rescued)
-    pre_topK.sort(key=lambda x: x[3], reverse=True)
-    pre_topK = pre_topK[:keep]
+    rescued = protected_bucket_small[:small_quota] + protected_bucket_large[:large_quota]
+
+    pre = (top_main + rescued)
+    pre.sort(key=lambda x: x[3], reverse=True)
+    pre = pre[:keep]
+
+    # ---- tier quotas merge (final stratification) ----
+    min_small = int(os.getenv("STAGE1_MIN_SMALL", "0"))
+    min_large = int(os.getenv("STAGE1_MIN_LARGE", "0"))
+    # clamp if user set impossible combination
+    if min_small + min_large > keep:
+        over = min_small + min_large - keep
+        if min_small >= min_large:
+            min_small = max(0, min_small - over)
+        else:
+            min_large = max(0, min_large - over)
+
+    # If quotas are zero, skip stratification
+    if (min_small + min_large) > 0:
+        small_sorted = [r for r in pre if r[4]["tier"] == "small"]
+        large_sorted = [r for r in pre if r[4]["tier"] == "large"]
+        other = [r for r in pre if r[4]["tier"] not in {"small","large"}]  # kept for completeness
+
+        pick_small = small_sorted[:min_small]
+        pick_large = large_sorted[:min_large]
+
+        # fill remaining slots by best available regardless of tier
+        remainder = keep - len(pick_small) - len(pick_large)
+        pool = [r for r in pre if r not in set(pick_small + pick_large)]
+        tail = pool[:remainder]
+        pre_topK = (pick_small + pick_large + tail)
+        pre_topK.sort(key=lambda x: x[3], reverse=True)
+    else:
+        pre_topK = pre
 
     # removed diagnostics (everything not in pre_topK)
     kept_set = {t for (t, _n, _f, _s, _m) in pre_topK}
@@ -322,27 +494,32 @@ def rank_stage1(
                             f.get("price"), f.get("vsSMA50"), f.get("vsSMA200"),
                             f.get("RSI14"), f.get("ATRpct"), f.get("r60"),
                             f.get("vol_vs20"), f.get("drawdown_pct"),
+                            meta.get("tier"), f.get("avg_dollar_vol_20d"),
                             ";".join(meta["tags"]), reason))
 
     # write CSVs (optional for speed)
     if write_csv:
         try:
-            # kept
             path_kept = os.path.join(log_dir, "stage1_kept.csv")
             with open(path_kept, "w", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
-                w.writerow(["ticker","company","score","price","vsSMA50","vsSMA200","RSI14","ATR%","r60","vol_vs20","drawdown%","tags"])
+                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
+                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
+                            "vol_vs20","drawdown%","tags"])
                 for (t, n, feats, s, meta) in pre_topK:
-                    w.writerow([t, n, f"{s:.2f}", feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
+                    w.writerow([t, n, f"{s:.2f}", meta.get("tier"), feats.get("avg_dollar_vol_20d"),
+                                feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
                                 feats.get("RSI14"), feats.get("ATRpct"), feats.get("r60"),
-                                feats.get("vol_vs20"), feats.get("drawdown_pct"), ";".join(meta["tags"])])
+                                feats.get("vol_vs20"), feats.get("drawdown_pct"),
+                                ";".join(meta["tags"])] )
             log.info(f"[Stage1] kept={len(pre_topK)} -> {path_kept}")
 
-            # removed
             path_removed = os.path.join(log_dir, "stage1_removed.csv")
             with open(path_removed, "w", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
-                w.writerow(["ticker","company","score","price","vsSMA50","vsSMA200","RSI14","ATR%","r60","vol_vs20","drawdown%","tags","reason"])
+                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
+                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
+                            "vol_vs20","drawdown%","tags","reason"])
                 for row in removed:
                     w.writerow(row)
             log.info(f"[Stage1] removed={len(removed)} -> {path_removed}")
