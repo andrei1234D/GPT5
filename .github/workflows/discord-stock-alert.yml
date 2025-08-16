@@ -2,7 +2,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 4 * * *"   # 04:00 UTC
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -26,20 +26,26 @@ jobs:
           restore-keys: |
             universe-cache-
 
+      # Create a minimal requirements.txt so setup-python's pip cache has a key
+      - name: Ensure dependency manifest
+        run: |
+          if [ ! -f requirements.txt ]; then
+            printf "numpy\npandas\nyfinance\nrequests\npytz\n" > requirements.txt
+          fi
+          echo "Using requirements.txt:"
+          cat requirements.txt
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          # If you have a requirements.txt, install it first (may be empty or missing pandas)
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-          # Always ensure the core libs your scripts need are present
+          pip install -r requirements.txt
+          # Belt-and-suspenders: make sure core libs are present & up to date
           pip install --upgrade --upgrade-strategy eager numpy pandas yfinance requests pytz
 
       - name: Verify environment (debug)
@@ -98,9 +104,9 @@ jobs:
           YF_RETRY_SLEEP: "3.0"
 
           # --- Tiering policy ---
-          TIER_POLICY: "TOPK_ADV"              # options: TOPK_ADV | THRESH
-          TIER_TOPK_LARGE: "500"               # for TOPK_ADV
-          TIER_BACKFILL_UNKNOWN_AS: "small"    # when ADV is missing
+          TIER_POLICY: "TOPK_ADV"
+          TIER_TOPK_LARGE: "500"
+          TIER_BACKFILL_UNKNOWN_AS: "small"
 
           # --- Stage-1 quick pass ---
           STAGE1_MODE: "loose"
