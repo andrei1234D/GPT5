@@ -5,7 +5,6 @@ on:
     - cron: "0 4 * * *"   # 04:00 UTC
   workflow_dispatch:
 
-# allow this workflow to push commits
 permissions:
   contents: write
 
@@ -37,7 +36,7 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
-          else
+          else:
             pip install requests pytz yfinance pandas numpy
           fi
 
@@ -96,22 +95,37 @@ jobs:
           YF_MAX_RETRIES: "4"
           YF_RETRY_SLEEP: "3.0"
 
+          # --- Tiering policy ---
+          TIER_POLICY: "TOPK_ADV"              # options: TOPK_ADV | THRESH
+          TIER_TOPK_LARGE: "500"               # for TOPK_ADV
+          TIER_BACKFILL_UNKNOWN_AS: "small"    # when ADV is missing
+
+          # Optional (THRESH mode): explicit thresholds override auto percentiles
+          # TIER_LARGE_USD: "50000000"         # $50M
+          # TIER_MEDIUM_USD: "10000000"        # $10M
+
           # --- Stage-1 quick pass ---
           STAGE1_MODE: "loose"
           STAGE1_KEEP: "200"
-           # --- Tiering (large vs small by ADV) ---
-          TIER_POLICY: "TOPK_ADV"        # rank by avg_dollar_vol_20d and label top-K as "large"
-          TIER_TOPK_LARGE: "500"         # K = 500
-          TIER_BACKFILL_UNKNOWN_AS: "small"  # missing ADV gets treated as small
-
-          # --- Stage-1 tier quotas (force 50/50 split of KEEP) ---
-          STAGE1_MIN_SMALL: "100"        # with KEEP=200, keep 100 small
-          STAGE1_MIN_LARGE: "100"        # and 100 large
-          # (If you prefer a single switch, you can add STAGE1_FORCE_HALF=1 and handle it in code.)
+          STAGE1_MIN_SMALL: "100"              # ensure small/large balance
+          STAGE1_MIN_LARGE: "100"
           STAGE1_RESCUE_FRAC: "0.15"
           STAGE1_WRITE_CSV: "0"
-          QS_PE_WEIGHT: "0.06"          # 0.00–0.12; weight of P/E tilt in quick scorer
-          QS_USE_XS: "1"                # use cross-section z-scores (keep "1")
+
+          # --- P/E tilt tuning (tier-aware) ---
+          QS_PE_WEIGHT: "0.06"                 # base
+          QS_PE_WEIGHT_LARGE: "0.10"           # stronger tilt for large caps
+          QS_PE_WEIGHT_SMALL: "0.04"           # lighter tilt for small caps
+          QS_USE_XS: "1"
+
+          # --- Small-cap liquidity dampening (optional) ---
+          QS_SMALL_PRICE_MAX: "8"              # <= $8 → treat as small
+          QS_SMALL_LIQ_MAX: "8000000"          # <$8M avg $vol → small
+          QS_MIN_DOLLAR_VOL_20D: "3000000"     # extra risk penalty cutoff
+
+          # --- Optional: P/E refine pass on quick pool ---
+          STAGE1_PE_RESCORE: "1"
+          STAGE1_PE_POOL: "2000"
 
           # --- Ranker hard drops ---
           HARD_DROP_MODE: "loose"
@@ -120,13 +134,12 @@ jobs:
           # --- OpenAI call timeout (seconds) ---
           OPENAI_TIMEOUT: "360"
 
-          # --- Make sure blocks file is dumped ---
+          # --- Ensure we dump the exact GPT input blocks ---
           LOG_GPT_INPUT: "1"
           LOG_GPT_INPUT_STDOUT: "0"
         run: |
           python scripts/notify.py
 
-      # --- Commit the latest blocks_to_gpt_*.txt into the repo ---
       - name: Find latest blocks file
         id: pick_file
         shell: bash

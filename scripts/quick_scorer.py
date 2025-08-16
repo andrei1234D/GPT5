@@ -33,9 +33,14 @@ def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float,
     for k in keys:
         vals: List[float] = []
         for f in feats_list:
-            v = safe(f.get(k), None)
-            if v is not None:
-                vals.append(v)
+            v = f.get(k)
+            try:
+                if v is not None:
+                    v = float(v)
+                    if not (math.isnan(v) or math.isinf(v)):
+                        vals.append(v)
+            except Exception:
+                pass
         if not vals:
             stats[k] = (0.0, 1.0)
             continue
@@ -46,7 +51,6 @@ def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float,
         if not (scale > 1e-9): scale = 1.0
         stats[k] = (med, scale)
     return stats
-
 
 def _auto_liq_thresholds(universe, p_large=80, p_mid=40):
     """
@@ -91,28 +95,106 @@ def _compute_and_set_tier_thresholds(universe):
     else:
         _TIER_THR_LARGE_USD, _TIER_THR_MID_USD = _auto_liq_thresholds(universe)
 
-def _detect_tier(feats: Dict) -> str:
-    """
-    Classify by avg_dollar_vol_20d using current global thresholds.
-    Returns 'large' | 'mid' | 'small' | 'unknown'
-    """
+# ---- TIERING POLICY ------------------------------------------------
+def _tier_from_thresholds(feats: Dict) -> str:
+    """Map ADV to 'large'/'mid'/'small' using global thresholds; missing -> 'small'."""
     adv = feats.get("avg_dollar_vol_20d")
     try:
         a = float(adv) if adv is not None else None
     except Exception:
         a = None
-
     if a is None or _TIER_THR_LARGE_USD is None or _TIER_THR_MID_USD is None:
-        return "unknown"
+        return "small"
     if a >= _TIER_THR_LARGE_USD:
         return "large"
     if a >= _TIER_THR_MID_USD:
         return "mid"
     return "small"
 
+def _tier_fallback_small_vs_large(feats: Dict) -> str:
+    """
+    Legacy fallback: classify small vs large by cap/liquidity/price when no policy applies.
+    """
+    def _safe_float(x):
+        try:
+            return float(x)
+        except Exception:
+            return None
+    cap = _safe_float(feats.get("market_cap"))
+    liq = _safe_float(feats.get("avg_dollar_vol_20d"))
+    price = _safe_float(feats.get("price"))
 
+    cap_cut = float(os.getenv("QS_SMALL_CAP_MAX", "2000000000"))   # $2B default
+    liq_cut = float(os.getenv("QS_SMALL_LIQ_MAX", "10000000"))     # $10M avg $vol
+    px_cut  = float(os.getenv("QS_SMALL_PRICE_MAX", "12"))
 
+    if cap is not None:
+        return "small" if cap <= cap_cut else "large"
+    if liq is not None:
+        return "small" if liq <= liq_cut else "large"
+    if price is not None:
+        return "small" if price <= px_cut else "large"
+    return "large"
 
+def _tier_map_for_universe(universe: List[Tuple[str,str,Dict]]) -> Dict[str, str]:
+    """
+    Returns {ticker: 'small'|'large'} according to TIER_POLICY.
+    - TOPK_ADV: Top-K by ADV -> 'large'; others -> 'small'. Missing ADV uses TIER_BACKFILL_UNKNOWN_AS.
+    - THRESH:   Use feats['liq_tier'] from features.py if present (LARGE/MID/SMALL),
+                else derive thresholds cross-sectionally. 'mid' maps to 'large' weights.
+    """
+    policy = (os.getenv("TIER_POLICY", "THRESH") or "THRESH").upper()
+    backfill_unknown = (os.getenv("TIER_BACKFILL_UNKNOWN_AS", "small") or "small").lower()
+    if backfill_unknown not in {"small","large"}:
+        backfill_unknown = "small"
+
+    tier_map: Dict[str, str] = {}
+
+    if policy == "TOPK_ADV":
+        # Build ADV list
+        pairs = []
+        for (t, _n, f) in universe:
+            adv = f.get("avg_dollar_vol_20d")
+            try:
+                adv = float(adv) if adv is not None else None
+            except Exception:
+                adv = None
+            pairs.append((t, adv))
+        # sort by adv desc, ignore None
+        valid = [(t, a) for (t, a) in pairs if a is not None]
+        valid.sort(key=lambda x: x[1], reverse=True)
+
+        K = int(os.getenv("TIER_TOPK_LARGE", "500"))
+        large_set = set([t for (t, _a) in valid[:K]])
+
+        for (t, a) in pairs:
+            if t in large_set:
+                tier_map[t] = "large"
+            else:
+                if a is None:
+                    tier_map[t] = backfill_unknown
+                else:
+                    tier_map[t] = "small"
+
+        log.info(f"[Stage1] TIER_POLICY=TOPK_ADV: large={len(large_set)} (K={K}), backfill_unknown_as={backfill_unknown}")
+        return tier_map
+
+    # THRESH or anything else -> use thresholds / features.py precomputed tag
+    _compute_and_set_tier_thresholds(universe)
+    if _TIER_THR_LARGE_USD is not None and _TIER_THR_MID_USD is not None:
+        log.info(f"[Stage1] TIER_POLICY=THRESH thresholds: LARGE≥{_TIER_THR_LARGE_USD:,.0f} USD, "
+                 f"MID≥{_TIER_THR_MID_USD:,.0f} USD")
+
+    for (t, _n, f) in universe:
+        pre = (f.get("liq_tier") or "").upper()
+        if pre in {"LARGE","MID","SMALL"}:
+            tier_map[t] = "large" if pre in {"LARGE","MID"} else "small"
+        else:
+            tri = _tier_from_thresholds(f)  # large/mid/small
+            tier_map[t] = "large" if tri in {"large","mid"} else "small"
+    return tier_map
+
+# ---- scoring pieces ------------------------------------------------
 def _z(xs: Dict[str, Tuple[float,float]], key: str, x: float|None, lo=-4.0, hi=4.0) -> float:
     if x is None: return 0.0
     med, scale = xs.get(key, (0.0, 1.0))
@@ -151,28 +233,6 @@ def _tags(feats: Dict) -> List[str]:
     if v20 <= -60:
         t.append("low_liquidity_today")
     return t
-
-# ---- tiering (small vs large) ----
-def _detect_tier(feats: Dict) -> str:
-    """
-    Classify into 'small' or 'large'.
-    Prefer market_cap if feats has it; else fall back to avg dollar vol; else price.
-    """
-    cap = safe(feats.get("market_cap"), None)  # optional, if you enrich feats later
-    liq = safe(feats.get("avg_dollar_vol_20d"), None)
-    price = safe(feats.get("price"), None)
-
-    cap_cut = float(os.getenv("QS_SMALL_CAP_MAX", "2000000000"))   # $2B default
-    liq_cut = float(os.getenv("QS_SMALL_LIQ_MAX", "10000000"))     # $10M avg $vol
-    px_cut  = float(os.getenv("QS_SMALL_PRICE_MAX", "12"))
-
-    if cap is not None:
-        return "small" if cap <= cap_cut else "large"
-    if liq is not None:
-        return "small" if liq <= liq_cut else "large"
-    if price is not None:
-        return "small" if price <= px_cut else "large"
-    return "large"
 
 def _tier_params(tier: str, mode: str, pe_weight_base: float):
     """
@@ -226,7 +286,8 @@ def quick_score(
     Cross-sectional z-scores optional. Tier-aware weights & thresholds.
     Includes a small P/E tilt iff P/E exists in feats.
     """
-    tier = tier or _detect_tier(feats)
+    # Tier fallback if not supplied (kept for safety)
+    tier = (tier or _tier_fallback_small_vs_large(feats))
 
     # base P/E weight (can be overridden per-tier)
     pe_weight_base = float(os.getenv("QS_PE_WEIGHT", "0.06"))
@@ -391,7 +452,7 @@ def rank_stage1(
       pre_topK:  list of (t, name, feats, score, meta) kept (sorted desc)
       quick_scored_all: same for ALL scored (sorted desc)
       removed_rows: diagnostics rows for CSV (ticker, reason,...)
-    Now tier-aware with optional quotas.
+    Tiering respects TIER_POLICY (TOPK_ADV or THRESH) and quotas.
     """
     mode = (mode or os.getenv("STAGE1_MODE", "loose")).lower()
     keep = int(os.getenv("STAGE1_KEEP", str(keep)))
@@ -404,11 +465,8 @@ def rank_stage1(
     xs_keys = ["vsSMA50","vsSMA200","d20","r60","r120","ATRpct","vol_vs20","vsEMA50","vsEMA200","EMA50_slope_5d"]
     xs = _xs_stats(feat_list, xs_keys)
 
-    # compute liquidity tier thresholds for this universe
-    _compute_and_set_tier_thresholds(universe)
-    if _TIER_THR_LARGE_USD is not None and _TIER_THR_MID_USD is not None:
-        log.info(f"[Stage1] liquidity tiers: LARGE≥{_TIER_THR_LARGE_USD:,.0f} USD, "
-                 f"MID≥{_TIER_THR_MID_USD:,.0f} USD (else SMALL)")
+    # Build tier mapping for the whole universe according to policy
+    tier_map = _tier_map_for_universe(universe)
 
     scored: List[Tuple[str,str,Dict,float,Dict]] = []
     removed: List[Tuple] = []
@@ -416,10 +474,10 @@ def rank_stage1(
     protected_bucket_large: List[Tuple[str,str,Dict,float,Dict]] = []
 
     for (t, n, f) in universe:
-        tier = _detect_tier(f)
+        tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
         # store tier on feats so downstream code can see it too
         f["liq_tier"] = tier
-        s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)  # quick_score can ignore tier if not used
+        s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
         tags = _tags(f)
         meta = {"parts": parts, "tags": tags, "tier": tier, "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d")}
         row = (t, n, f, s, meta)
@@ -454,10 +512,10 @@ def rank_stage1(
     pre.sort(key=lambda x: x[3], reverse=True)
     pre = pre[:keep]
 
-        # ---- tier quotas merge (final stratification) ----
+    # ---- tier quotas merge (final stratification) ----
     min_small = int(os.getenv("STAGE1_MIN_SMALL", "0"))
     min_large = int(os.getenv("STAGE1_MIN_LARGE", "0"))
-    # clamp if user set impossible combination
+    # clamp impossible combination
     if min_small + min_large > keep:
         over = min_small + min_large - keep
         if min_small >= min_large:
@@ -476,10 +534,10 @@ def rank_stage1(
 
         # fill remaining slots by best available regardless of tier
         remainder = keep - len(pick_small) - len(pick_large)
-        picked_tickers = {t for (t, _n, _f, _s, _m) in (pick_small + pick_large)}
-        pool = [r for r in pre if r[0] not in picked_tickers]  # r[0] is ticker
+        # FIX: avoid set() on tuples containing dicts (unhashable). Compare by ticker.
+        taken_tickers = {r[0] for r in (pick_small + pick_large)}
+        pool = [r for r in pre if r[0] not in taken_tickers]
         tail = pool[:remainder]
-
         pre_topK = (pick_small + pick_large + tail)
         pre_topK.sort(key=lambda x: x[3], reverse=True)
     else:

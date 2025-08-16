@@ -21,7 +21,7 @@ from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
 
 from trash_ranker import RobustRanker
-from quick_scorer import rank_stage1, quick_score  # <-- import quick_score too
+from quick_scorer import rank_stage1, quick_score  # we rescore after adding PE
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -35,6 +35,8 @@ def need_env(name):
 
 OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
+# Optional separate webhook for debug; falls back to the main one:
+DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
 
 # ——— Strengthen system prompt ———
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
@@ -287,16 +289,31 @@ def main():
         return fail(f"GPT-5 failed: {repr(e)}")
 
     # 9) Parse selected tickers from GPT output and post debug
-    RE_PICK_TICKER = re.compile(r"(?im)^\s*(?:\d+\)\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})\s+[–-]")
+    #    More permissive: supports bullets, dashes, colons, optional bold, or end-of-line.
+    RE_PICK_TICKER = re.compile(
+        r"(?im)^\s*(?:\d+\)|[-*•]\s*)?(?:\*\*)?([A-Z][A-Z0-9.\-]{1,10})(?:\*\*)?(?=\s(?:–|-|:)|\s|$)"
+    )
     RE_FORECAST_TICK = re.compile(
         r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b"
     )
-    picked = list({*RE_PICK_TICKER.findall(final_text), *RE_FORECAST_TICK.findall(final_text)})
 
-    if picked:
-        post_debug_inputs_to_discord(picked, debug_inputs, DISCORD_WEBHOOK_URL)
+    picked = list({*RE_PICK_TICKER.findall(final_text), *RE_FORECAST_TICK.findall(final_text)})
+    force_debug = os.getenv("DEBUGGER_FORCE_POST", "1").lower() in {"1", "true", "yes"}
+
+    if not picked and force_debug:
+        picked = tickers_top10
+        log("[INFO] No tickers parsed; forcing debug post for Stage-2 Top-10.")
+    elif picked:
+        log(f"[INFO] Parsed tickers for debug: {', '.join(picked)}")
     else:
-        log("[WARN] Could not parse any selected ticker from GPT output; skipping debug post.")
+        log("[WARN] No tickers parsed and DEBUGGER_FORCE_POST=0; will skip debug post.")
+
+    try:
+        if picked:
+            post_debug_inputs_to_discord(picked, debug_inputs, DISCORD_DEBUG_WEBHOOK_URL)
+            log(f"[INFO] Posted debug embeds for: {', '.join(picked)}")
+    except Exception as e:
+        log(f"[WARN] Debug post failed: {e!r}")
 
     # 10) Save & (optionally) wait until 08:00
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
