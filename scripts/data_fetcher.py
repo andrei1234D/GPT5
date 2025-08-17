@@ -21,7 +21,9 @@ def _maybe_configure_logging():
 _maybe_configure_logging()
 logger = logging.getLogger("data_fetcher")
 
-VAL_LOG_SOURCES = os.getenv("VAL_LOG_SOURCES", "0").strip().lower() in {"1", "true", "yes"}
+# ---------- env knobs ----------
+YF_MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "3"))
+YF_RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "1.0"))
 
 # ---------- symbol normalization (consistent with features.py) ----------
 _YH_SUFFIXES = {
@@ -55,63 +57,108 @@ def _safe_float(x) -> Optional[float]:
 def _fmt(x: Optional[float]) -> str:
     return "N/A" if x is None else f"{x:.2f}"
 
-def _is_rate_limit_error(e: Exception) -> bool:
-    name = e.__class__.__name__
-    msg = repr(e)
-    return ("RateLimit" in name) or ("Too Many Requests" in msg) or ("rate limited" in msg.lower())
+def _is_rate_limited(err: Exception) -> bool:
+    s = f"{type(err).__name__}: {err}"
+    return ("Rate limit" in s) or ("Too Many Requests" in s) or ("YFRateLimitError" in s)
 
-# --------- cache helpers ---------
+def _coerce_cache_scalar(v):
+    """Turn 'N/A'/'NA'/'' -> None; numeric strings -> float; leave floats/None as-is."""
+    if v is None: return None
+    if isinstance(v, (int, float)):
+        return _safe_float(v)
+    if isinstance(v, str):
+        vs = v.strip().upper()
+        if vs in {"N/A", "NA", ""}:
+            return None
+        # try numeric
+        try:
+            return _safe_float(float(v))
+        except Exception:
+            return None
+    # anything else -> None
+    return None
+
+def _sanitize_val_block(d: dict) -> dict:
+    """Coerce any cached 'vals' dict fields to float|None and drop string 'N/A'."""
+    if not isinstance(d, dict):
+        return {}
+    out = {}
+    for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]:
+        out[k] = _coerce_cache_scalar(d.get(k))
+    return out
+
+# --------- cache helpers ----------
 _PE_CACHE_PATH = os.getenv("PE_CACHE_PATH", "data/pe_cache.json")
-_PE_CACHE_TTL_S = int(os.getenv("PE_CACHE_TTL_S", "86400"))  # 1 day
-
 _VAL_CACHE_PATH = os.getenv("VAL_CACHE_PATH", "data/valuations_cache.json")
-_VAL_CACHE_TTL_S = int(os.getenv("VAL_CACHE_TTL_S", "86400"))      # success TTL
-_VAL_FAIL_TTL_S = int(os.getenv("VAL_FAIL_TTL_S", "600"))          # rate_limit/error TTL (short)
+_PE_CACHE_TTL_S = int(os.getenv("PE_CACHE_TTL_S", "86400"))     # 1 day
+_VAL_CACHE_TTL_S = int(os.getenv("VAL_CACHE_TTL_S", "86400"))   # 1 day
 
 def _load_cache(path: str) -> Dict[str, dict]:
     try:
         if os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data if isinstance(data, dict) else {}
-    except Exception:
-        pass
+                if not isinstance(data, dict):
+                    return {}
+                # SANITIZE in-place: convert any "N/A" to None; numeric strings -> floats
+                dirty = False
+                for t, row in list(data.items()):
+                    if not isinstance(row, dict):
+                        dirty = True
+                        data.pop(t, None)
+                        continue
+                    # PE cache shape: {"ts":..,"pe":..., "source":...}
+                    if "pe" in row:
+                        new_pe = _coerce_cache_scalar(row.get("pe"))
+                        if new_pe != row.get("pe"):
+                            row["pe"] = new_pe
+                            dirty = True
+                    # VAL cache shape: {"ts":..,"vals":{...}, "sources": {...}}
+                    if "vals" in row and isinstance(row["vals"], dict):
+                        new_vals = _sanitize_val_block(row["vals"])
+                        # if original had any strings -> we mark dirty
+                        if any(isinstance(v, str) for v in row["vals"].values()):
+                            dirty = True
+                        row["vals"] = new_vals
+                if dirty:
+                    try:
+                        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+                        with open(path, "w", encoding="utf-8") as g:
+                            json.dump(data, g)
+                        logger.info("[cache] sanitized bad 'N/A' strings and rewrote %s", path)
+                    except Exception:
+                        pass
+                return data
+    except Exception as e:
+        logger.debug("[cache] load error %s: %r", path, e)
     return {}
 
 def _save_cache(path: str, cache: Dict[str, dict]) -> None:
     try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(cache, f)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("[cache] save error %s: %r", path, e)
 
-def _from_cache(cache: Dict[str, dict], t: str, ttl: int) -> Optional[dict]:
+def _from_cache(cache: Dict[str, dict], t: str, ttl: int, path: str) -> Optional[dict]:
     row = cache.get(t)
     if not isinstance(row, dict): return None
     ts = row.get("ts")
     if not isinstance(ts, (int, float)): return None
     if time.time() - float(ts) > ttl: return None
+    # Guard: if this cached row contains only None in vals, treat as miss
+    if "vals" in row and isinstance(row["vals"], dict):
+        vals = _sanitize_val_block(row["vals"])
+        # if any original value was a string, consider it stale to force a refetch
+        if any(isinstance(v, str) for v in row["vals"].values()):
+            logger.debug("[val] cached row had strings for %s; ignoring and refetching (path=%s)", t, path)
+            return None
+        if all(v is None for v in vals.values()):
+            return None
+    if "pe" in row and _safe_float(row.get("pe")) is None:
+        return None
     return row
-
-def _from_val_cache(cache: Dict[str, dict]) -> Tuple[Optional[dict], Optional[str], float]:
-    """
-    Return a callable that does TTL based on status.
-    """
-    def getter(t: str):
-        row = cache.get(t)
-        if not isinstance(row, dict):
-            return None, None, 0.0
-        ts = row.get("ts")
-        if not isinstance(ts, (int, float)):
-            return None, None, 0.0
-        status = row.get("status") or "ok"
-        ttl = _VAL_FAIL_TTL_S if status in {"rate_limit", "error"} else _VAL_CACHE_TTL_S
-        age = time.time() - float(ts)
-        if age > ttl:
-            return None, status, age
-        return row, status, age
-    return getter
 
 def _put_cache(cache: Dict[str, dict], t: str, payload: dict) -> None:
     cache[t] = {"ts": time.time(), **payload}
@@ -138,6 +185,7 @@ def _get_price_fast(tk: yf.Ticker) -> Optional[float]:
     return None
 
 def _get_market_cap(tk: yf.Ticker, info: Optional[dict]) -> Optional[float]:
+    # fast_info first
     try:
         fi = getattr(tk, "fast_info", None)
         if isinstance(fi, dict):
@@ -148,6 +196,7 @@ def _get_market_cap(tk: yf.Ticker, info: Optional[dict]) -> Optional[float]:
     if isinstance(info, dict):
         mc = _safe_float(info.get("marketCap"))
         if mc: return mc
+        # compute fallback: price * sharesOutstanding
         px = _safe_float(info.get("currentPrice"))
         if px is None:
             px = _get_price_fast(tk)
@@ -175,36 +224,44 @@ def _extract_pe_with_compute(tk: yf.Ticker) -> Tuple[Optional[float], str]:
         if isinstance(fi, dict):
             for key in ("trailingPE", "trailing_pe", "pe_ratio"):
                 pe = _safe_float(fi.get(key))
-                if pe and pe > 0:
-                    return pe, "trailing"
+                if pe and pe > 0: return pe, "trailing"
             for key in ("forwardPE", "forward_pe"):
                 pe = _safe_float(fi.get(key))
-                if pe and pe > 0:
-                    return pe, "forward"
+                if pe and pe > 0: return pe, "forward"
     except Exception:
         pass
-    # 2) info
+
+    # 2) info (retry for rate-limit)
     info = None
-    try:
-        info = tk.get_info() if hasattr(tk, "get_info") else tk.info
-    except Exception:
-        info = None
+    last_err = None
+    for i in range(max(1, YF_MAX_RETRIES)):
+        try:
+            info = tk.get_info() if hasattr(tk, "get_info") else tk.info
+            break
+        except Exception as e:
+            last_err = e
+            if _is_rate_limited(e) and i < YF_MAX_RETRIES - 1:
+                logger.debug("[pe] rate-limited; retrying %d/%d", i+1, YF_MAX_RETRIES-1)
+                time.sleep(YF_RETRY_SLEEP)
+                continue
+            logger.debug("info fetch failed: %r", e)
+            info = None
+            break
+
     if isinstance(info, dict):
         pe = _safe_float(info.get("trailingPE"))
-        if pe and pe > 0:
-            return pe, "trailing"
+        if pe and pe > 0: return pe, "trailing"
         pe = _safe_float(info.get("forwardPE"))
-        if pe and pe > 0:
-            return pe, "forward"
-    # 3) EPS compute
+        if pe and pe > 0: return pe, "forward"
+
+    # 3) compute
     price = _get_price_fast(tk)
     if isinstance(info, dict) and price:
         teps = _safe_float(info.get("trailingEps"))
-        if teps and teps > 0:
-            return price / teps, "trailing_computed"
+        if teps and teps > 0: return price / teps, "trailing_computed"
         feps = _safe_float(info.get("forwardEps"))
-        if feps and feps > 0:
-            return price / feps, "forward_computed"
+        if feps and feps > 0: return price / feps, "forward_computed"
+
     return None, "none"
 
 # ---------- FCF Yield helper ----------
@@ -219,6 +276,7 @@ def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[d
                     fcf = _safe_float(series.iloc[0])
         except Exception:
             pass
+
     mcap = _get_market_cap(tk, info)
     if mcap is None:
         px = None
@@ -229,41 +287,44 @@ def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[d
         shares = _safe_float((info or {}).get("sharesOutstanding"))
         if px and shares:
             mcap = px * shares
+
     if (mcap is not None and mcap > 0) and (fcf is not None):
         return 100.0 * (fcf / mcap)
     return None
 
 # ---------- Full valuation extractor ----------
 def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[float]], Dict[str, str]]:
-    """
-    Pulls a set of valuation ratios with safe fallbacks and minimal compute.
-    Returns (vals_dict, src_dict). src_dict includes a _status flag: ok|rate_limit|error.
-    """
     vals: Dict[str, Optional[float]] = {
         "PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None,
     }
     srcs: Dict[str, str] = {k: "none" for k in vals.keys()}
-    status = "ok"
 
-    # Try to get info; classify failures
+    # info with retry
     info = None
-    try:
-        info = tk.get_info() if hasattr(tk, "get_info") else tk.info
-    except Exception as e:
-        status = "rate_limit" if _is_rate_limit_error(e) else "error"
-        logger.debug("info fetch failed: %r", e)
-        info = None
+    last_err = None
+    for i in range(max(1, YF_MAX_RETRIES)):
+        try:
+            info = tk.get_info() if hasattr(tk, "get_info") else tk.info
+            break
+        except Exception as e:
+            last_err = e
+            if _is_rate_limited(e) and i < YF_MAX_RETRIES - 1:
+                logger.debug("[val] rate-limited; retrying %d/%d", i+1, YF_MAX_RETRIES-1)
+                time.sleep(YF_RETRY_SLEEP)
+                continue
+            logger.debug("info fetch failed: %r", e)
+            info = None
+            break
 
-    # fast_info snapshot (for price, etc.)
     fi = getattr(tk, "fast_info", None)
     if not isinstance(fi, dict):
         fi = None
 
-    # --- PE ---
+    # PE
     pe, pe_src = _extract_pe_with_compute(tk)
     vals["PE"], srcs["PE"] = pe, pe_src
 
-    # --- PS ---
+    # PS
     if isinstance(info, dict):
         ps = _safe_float(info.get("priceToSalesTrailing12Months") or info.get("priceToSales"))
         if ps and ps > 0:
@@ -279,7 +340,7 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
                 if mc and tot_rev and tot_rev > 0:
                     vals["PS"], srcs["PS"] = mc / tot_rev, "computed_mc_rev"
 
-    # --- EV/EBITDA ---
+    # EV/EBITDA
     if isinstance(info, dict):
         ev_ebitda = _safe_float(info.get("enterpriseToEbitda"))
         if ev_ebitda and ev_ebitda > 0:
@@ -290,7 +351,7 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
             if ev and ebitda and ebitda > 0:
                 vals["EV_EBITDA"], srcs["EV_EBITDA"] = ev / ebitda, "computed"
 
-    # --- EV/Revenue ---
+    # EV/Revenue
     if isinstance(info, dict):
         ev_rev = _safe_float(info.get("enterpriseToRevenue"))
         if ev_rev and ev_rev > 0:
@@ -301,20 +362,19 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
             if ev and tot_rev and tot_rev > 0:
                 vals["EV_REV"], srcs["EV_REV"] = ev / tot_rev, "computed"
 
-    # --- PEG ---
+    # PEG
     if isinstance(info, dict):
         peg = _safe_float(info.get("pegRatio") or info.get("trailingPegRatio"))
         if peg and peg > 0:
             vals["PEG"], srcs["PEG"] = peg, "info"
 
-    # --- FCF Yield (FCF / MarketCap)
+    # FCF Yield
     vals["FCF_YIELD"] = _calc_fcf_yield_pct(tk, info, fi)
     srcs["FCF_YIELD"] = "computed" if vals["FCF_YIELD"] is not None else "none"
 
-    srcs["_status"] = status
     return vals, srcs
 
-# ---------- Public: fetch just PE (back-compat) ----------
+# ---------- Public: fetch just PE ----------
 def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
     if os.getenv("DISABLE_PE_FETCH", "").strip().lower() in {"1","true","yes"}:
         return {t: None for t in tickers}
@@ -326,11 +386,12 @@ def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
         extra_aliases = {}
 
     cache = _load_cache(_PE_CACHE_PATH)
+    logger.debug("[pe] cache_path=%s", os.path.abspath(_PE_CACHE_PATH))
     out: Dict[str, Optional[float]] = {}
     delay = float(os.getenv("PE_FETCH_DELAY_S", "0.15"))
 
     for t in tickers:
-        cached = _from_cache(cache, t, _PE_CACHE_TTL_S)
+        cached = _from_cache(cache, t, _PE_CACHE_TTL_S, _PE_CACHE_PATH)
         if cached is not None and "pe" in cached:
             out[t] = _safe_float(cached.get("pe"))
             logger.debug("[pe] cache %s -> %s (%s)", t, _fmt(out[t]), cached.get("source") or "unknown")
@@ -343,26 +404,22 @@ def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
             tk = yf.Ticker(yh)
             pe, src = _extract_pe_with_compute(tk)
             out[t] = pe
+            # only cache success (not rate-limit empties)
             _put_cache(cache, t, {"pe": pe, "source": src})
             logger.info("[pe] %s (%s) -> %s (%s)", t, yh, "N/A" if pe is None else f"{pe:.2f}", src)
         except Exception as e:
             out[t] = None
-            _put_cache(cache, t, {"pe": None, "source": "error"})
-            logger.warning("[pe] fetch fail %s (%s): %r", t, yh, e)
-
+            if _is_rate_limited(e):
+                logger.warning("[pe] rate-limited for %s (%s); NOT caching empty result", t, yh)
+            else:
+                logger.warning("[pe] fetch fail %s (%s): %r (NOT caching empty)", t, yh, e)
         time.sleep(delay)
 
     _save_cache(_PE_CACHE_PATH, cache)
     return out
 
-# ---------- NEW: Full valuations fetch ----------
+# ---------- Full valuations fetch ----------
 def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
-    """
-    Fetch a pack of valuation ratios:
-      PE, PS, EV_EBITDA, EV_REV, PEG, FCF_YIELD (percent)
-    Returns: {ticker: {field: value_or_None}}
-    Cache stores extra: {"sources": {...}, "status": "ok|rate_limit|error"}.
-    """
     if os.getenv("DISABLE_VAL_FETCH", "").strip().lower() in {"1","true","yes"}:
         return {t: {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None} for t in tickers}
 
@@ -373,22 +430,16 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
         extra_aliases = {}
 
     cache = _load_cache(_VAL_CACHE_PATH)
-    get_cached = _from_val_cache(cache)
+    logger.debug("[val] cache_path=%s", os.path.abspath(_VAL_CACHE_PATH))
     out: Dict[str, Dict[str, Optional[float]]] = {}
     delay = float(os.getenv("VAL_FETCH_DELAY_S", os.getenv("PE_FETCH_DELAY_S", "0.15")))
 
     for t in tickers:
-        cached, status, age = get_cached(t)
+        cached = _from_cache(cache, t, _VAL_CACHE_TTL_S, _VAL_CACHE_PATH)
         if cached is not None and isinstance(cached.get("vals"), dict):
-            vals = cached["vals"]
-            out[t] = {k: _safe_float(vals.get(k)) for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]}
-            if VAL_LOG_SOURCES:
-                logger.debug("[val] cache %s (status=%s age=%.1fs) -> %s | sources=%s",
-                             t, cached.get("status","ok"), age,
-                             {k:_fmt(v) for k,v in out[t].items()},
-                             cached.get("sources"))
-            else:
-                logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in out[t].items()})
+            vals_clean = _sanitize_val_block(cached["vals"])
+            out[t] = vals_clean
+            logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in vals_clean.items()})
             continue
 
         ali = apply_alias(t, extra_aliases)
@@ -397,26 +448,24 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
         try:
             tk = yf.Ticker(yh)
             vals, srcs = _extract_valuations_version_safe(tk)
-            status = srcs.get("_status", "ok")
             out[t] = vals
-            _put_cache(cache, t, {"vals": vals, "sources": srcs, "status": status})
-            log_line = (
-                "[val] %s (%s) status=%s -> PE=%s PS=%s EV/EBITDA=%s EV/REV=%s PEG=%s FCF_YIELD=%s%%"
-                % (t, yh, status, _fmt(vals["PE"]), _fmt(vals["PS"]), _fmt(vals["EV_EBITDA"]),
-                   _fmt(vals["EV_REV"]), _fmt(vals["PEG"]), _fmt(vals["FCF_YIELD"]))
-            )
-            if status == "rate_limit":
-                logger.warning(log_line + "  (rate-limited; cached with short TTL)")
+            # cache only if at least one field present (avoid caching all-None due to transient errors)
+            if any(v is not None for v in vals.values()):
+                _put_cache(cache, t, {"vals": vals, "sources": srcs})
             else:
-                logger.info(log_line)
-            if VAL_LOG_SOURCES:
-                logger.debug("[val] sources %s -> %s", t, srcs)
+                logger.debug("[val] %s (%s) returned all None; NOT caching", t, yh)
+            logger.info(
+                "[val] %s (%s) -> PE=%s PS=%s EV/EBITDA=%s EV/REV=%s PEG=%s FCF_YIELD=%s%%",
+                t, yh,
+                _fmt(vals["PE"]), _fmt(vals["PS"]), _fmt(vals["EV_EBITDA"]), _fmt(vals["EV_REV"]),
+                _fmt(vals["PEG"]), _fmt(vals["FCF_YIELD"])
+            )
         except Exception as e:
-            status = "rate_limit" if _is_rate_limit_error(e) else "error"
             out[t] = {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None}
-            _put_cache(cache, t, {"vals": out[t], "sources": {"all": "error"}, "status": status})
-            logger.warning("[val] fetch fail %s (%s) status=%s: %r", t, yh, status, e)
-
+            if _is_rate_limited(e):
+                logger.warning("[val] rate-limited for %s (%s); NOT caching empty result", t, yh)
+            else:
+                logger.warning("[val] fetch fail %s (%s): %r (NOT caching empty)", t, yh, e)
         time.sleep(delay)
 
     _save_cache(_VAL_CACHE_PATH, cache)
@@ -424,19 +473,7 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
 
 # simple CLIs
 if __name__ == "__main__":
-    import sys, json as _json, argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument("tickers", nargs="*", default=["AAPL", "MSFT", "KOD"])
-    ap.add_argument("--show-sources", action="store_true", help="Also print per-field source and status")
-    args = ap.parse_args()
-
-    vals = fetch_valuations_for_top(args.tickers)
+    import sys, json as _json
+    tickers = sys.argv[1:] or ["AAPL", "MSFT", "KOD", "RDDT"]
+    vals = fetch_valuations_for_top(tickers)
     print(_json.dumps(vals, indent=2))
-
-    if args.show_sources:
-        cache = _load_cache(_VAL_CACHE_PATH)
-        for t in args.tickers:
-            row = cache.get(t) or {}
-            print(f"\n== {t} ==")
-            print("status:", row.get("status", "unknown"))
-            print("sources:", _json.dumps(row.get("sources", {}), indent=2))
