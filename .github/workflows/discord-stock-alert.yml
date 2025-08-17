@@ -2,7 +2,7 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "0 4 * * *"   # 04:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -45,7 +45,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          # Belt-and-suspenders: make sure core libs are present & up to date
           pip install --upgrade --upgrade-strategy eager numpy pandas yfinance requests pytz
 
       - name: Verify environment (debug)
@@ -55,8 +54,8 @@ jobs:
 
       - name: Build universe.csv from Trading 212 (fallback to stale)
         env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          ALLOW_STALE: "1"
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}   # Trading212 auth
+          ALLOW_STALE: "1"                            # allow old universe
         run: |
           python scripts/universe_from_trading_212.py || true
           ls -lah data || true
@@ -64,9 +63,9 @@ jobs:
 
       - name: Clean universe (fallback to stale)
         env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          CLEAN_ALLOW_OFFLINE: "1"
-          ALLOW_STALE: "1"
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}   # Trading212 auth
+          CLEAN_ALLOW_OFFLINE: "1"                    # no API? keep going
+          ALLOW_STALE: "1"                            # allow old files
         run: |
           python scripts/clean_universe.py || true
           wc -l data/universe_clean.csv || true
@@ -74,82 +73,86 @@ jobs:
 
       - name: Auto-build Yahoo aliases from last run’s rejects
         env:
-          ALIASES_FROM: data/universe_rejects.csv
-          ALIASES_OUT:  data/aliases.csv
-          ALIASES_MAX_PER_RUN: "250"
-          ALIAS_LOG_LEVEL: "INFO"
-          YF_TEST_PERIOD: "60d"
-          YF_TEST_INTERVAL: "1d"
+          ALIASES_FROM: data/universe_rejects.csv     # input rejects
+          ALIASES_OUT:  data/aliases.csv              # output aliases
+          ALIASES_MAX_PER_RUN: "250"                  # cap per run
+          ALIAS_LOG_LEVEL: "INFO"                     # alias logs
+          YF_TEST_PERIOD: "60d"                       # test history
+          YF_TEST_INTERVAL: "1d"                      # test interval
         run: |
           python scripts/aliases_autobuild.py || true
 
       - name: Run notifier
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}   # GPT auth
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # main channel
 
           # --- Logging ---
-          PYTHONUNBUFFERED: "1"
-          FEATURES_LOG_LEVEL: "DEBUG"
-          FEATURES_VERBOSE: "1"
-          FEATURES_LOG_EVERY: "300"
-          RANKER_LOG_LEVEL: "DEBUG"
-          RANKER_VERBOSE: "1"
-          RANKER_LOG_EVERY: "300"
-          QUICK_LOG_LEVEL: "INFO"
+          PYTHONUNBUFFERED: "1"            # flush logs
+          FEATURES_LOG_LEVEL: "DEBUG"      # features log level
+          FEATURES_VERBOSE: "1"            # extra features logs
+          FEATURES_LOG_EVERY: "300"        # features heartbeat
+          RANKER_LOG_LEVEL: "DEBUG"        # Stage-2 log level
+          RANKER_VERBOSE: "1"              # extra Stage-2 logs
+          RANKER_LOG_EVERY: "300"          # ranker heartbeat
+          QUICK_LOG_LEVEL: "INFO"          # Stage-1 log level
 
           # --- yfinance tuning ---
-          YF_CHUNK_SIZE: "60"
-          YF_MAX_RETRIES: "4"
-          YF_RETRY_SLEEP: "3.0"
+          YF_CHUNK_SIZE: "60"              # batch size
+          YF_MAX_RETRIES: "2"              # yf retries
+          YF_RETRY_SLEEP: "3.0"            # retry backoff (s)
 
           # --- Tiering policy ---
-          TIER_POLICY: "TOPK_ADV"
-          TIER_TOPK_LARGE: "500"
-          TIER_BACKFILL_UNKNOWN_AS: "small"
+          TIER_POLICY: "TOPK_ADV"          # tier mode
+          TIER_TOPK_LARGE: "500"           # # large by ADV
+          TIER_BACKFILL_UNKNOWN_AS: "small" # missing ADV → small
 
           # --- Stage-1 quick pass ---
-          STAGE1_MODE: "loose"
-          STAGE1_KEEP: "200"
-          STAGE1_MIN_SMALL: "100"
-          STAGE1_MIN_LARGE: "100"
-          STAGE1_RESCUE_FRAC: "0.15"
-          STAGE1_WRITE_CSV: "0"
+          STAGE1_MODE: "loose"             # strictness
+          STAGE1_KEEP: "200"               # survivors to S2
+          STAGE1_MIN_SMALL: "100"          # min small in keep
+          STAGE1_MIN_LARGE: "100"          # min large in keep
+          STAGE1_RESCUE_FRAC: "0.15"       # rescue edge %
+          STAGE1_WRITE_CSV: "0"            # write CSV toggle
+
           # --- Stage-2 stratified Top-10 ---
-          STAGE2_MIN_SMALL: "5"
-          STAGE2_MIN_LARGE: "5"
-          STAGE2_MIN_PE: "5"
-          # --- P/E tilt tuning (tier-aware) ---
-          QS_PE_WEIGHT: "0.06"
-          QS_PE_WEIGHT_LARGE: "0.10"
-          QS_PE_WEIGHT_SMALL: "0.04"
-          QS_USE_XS: "1"
+          STAGE2_MIN_SMALL: "5"            # small in Top-10
+          STAGE2_MIN_LARGE: "5"            # large in Top-10
+          STAGE2_MIN_PE: "5"               # with PE present
 
-          # --- Small-cap liquidity dampening (optional) ---
-          QS_SMALL_PRICE_MAX: "8"
-          QS_SMALL_LIQ_MAX: "8000000"
-          QS_MIN_DOLLAR_VOL_20D: "3000000"
+          # --- P/E tilt tuning (quick scorer) ---
+          QS_PE_WEIGHT: "0.06"             # base PE tilt
+          QS_PE_WEIGHT_LARGE: "0.10"       # large-cap tilt
+          QS_PE_WEIGHT_SMALL: "0.04"       # small-cap tilt
+          QS_USE_XS: "1"                   # use x-sec z-scores
 
-          # --- Optional: P/E refine pass on quick pool ---
-          STAGE1_PE_RESCORE: "1"
-          STAGE1_PE_POOL: "2000"
+          # --- Small-cap liquidity dampening ---
+          QS_SMALL_PRICE_MAX: "8"          # small if ≤$8
+          QS_SMALL_LIQ_MAX: "8000000"      # small if <$8M ADV
+          QS_MIN_DOLLAR_VOL_20D: "3000000" # min $vol guard
+
+          # --- Optional: P/E refine pass ---
+          STAGE1_PE_RESCORE: "1"           # enable PE pass
+          STAGE1_PE_POOL: "2000"           # fetch PE for N
 
           # --- Trash Ranker hard drops ---
-          HARD_DROP_MODE: "loose"
-          HARD_GRACE_ATR: "2.0"
-          ATH_GUARD: "1"           # 0 to disable
-          ATH_NEAR_PCT: "1.0"      # within 1% of 52w high triggers
-          ATH_MIN_RSI: "80"        # RSI threshold
-          ATH_MIN_VS50: "25"       # vsEMA50 threshold
-          ATH_VOL_RELIEF: "60"     # Vol_vs_20d ≥ this halves the penalty
-          ATH_SCORE_HAIRCUT: "22"  # points off the final -100..100 score at max severity
+          HARD_DROP_MODE: "loose"          # off/loose/normal/strict
+          HARD_GRACE_ATR: "2.0"            # ATR leniency
+
+          # --- All-time-high guard ---
+          ATH_GUARD: "1"                   # enable ATH cut
+          ATH_NEAR_PCT: "1.0"              # within 1% of high
+          ATH_MIN_RSI: "80"                # RSI trigger
+          ATH_MIN_VS50: "25"               # vsEMA50 trigger
+          ATH_VOL_RELIEF: "60"             # volume relief %
+          ATH_SCORE_HAIRCUT: "22"          # max score cut
 
           # --- OpenAI call timeout (seconds) ---
-          OPENAI_TIMEOUT: "360"
+          OPENAI_TIMEOUT: "360"            # GPT timeout
 
-          # --- Ensure we dump the exact GPT input blocks ---
-          LOG_GPT_INPUT: "1"
-          LOG_GPT_INPUT_STDOUT: "0"
+          # --- Dump exact GPT inputs ---
+          LOG_GPT_INPUT: "1"               # write blocks file
+          LOG_GPT_INPUT_STDOUT: "0"        # echo previews
         run: |
           python scripts/notify.py
 
