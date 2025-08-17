@@ -46,7 +46,7 @@ INPUT EXTRAS:
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
   • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities.
   • CATALYST_TIMING_HINTS: e.g., TECH_BREAKOUT=Today/None.
-  • EXPECTED_VOLATILITY_PCT: derived from ATR% (already clipped on our side).
+  • EXPECTED_VOLATILITY_PCT: derived from ATR% (clip to 1..6).
   • FVA_HINT: technical fair-value anchor seed, derived only from indicators.
   • PE_HINT: optional numeric P/E (trailing preferred; forward if trailing unavailable).
 
@@ -66,12 +66,12 @@ MANDATORY HANDLING:
 PLAN BUILDER (MANDATORY; DO NOT SKIP):
 - FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
   1) Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly only if indicators clearly justify it.
-  2) Tiny PE bias (only if PE_HINT present; always stay within the global clamp below):
+  2) Tiny PE bias (only if PE_HINT present; always stay within the global clamp below; VALUATION_HISTORY is the signed proxy −5..+5):
      • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
      • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
-  3) Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence. Treat as “very strong” only if:
-     TECH_BREAKOUT ≥ +4 AND RSI14 ≥ 75 AND vsSMA50 ≥ +20% AND Vol_vs_20d ≥ +150%. Otherwise honor the 20% clamp.
-  4) Let EV = EXPECTED_VOLATILITY_PCT, clamped to 1–6.
+  3) Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence. Treat as “very strong” only if
+     TECH_BREAKOUT ≥ +4 AND RSI14 ≥ 75 AND vsSMA50 ≥ +20% AND Vol_vs_20d% ≥ +150%. Otherwise honor the 20% clamp.
+  4) Let EV = EXPECTED_VOLATILITY_PCT, with EV := min(max(EV, 1), 6).
   5) Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
   6) Stop loss = FVA × (1 − 2.0×EV/100)
   7) Profit target = FVA × (1 + 3.0×EV/100)
@@ -79,14 +79,13 @@ PLAN BUILDER (MANDATORY; DO NOT SKIP):
              if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
   9) Rounding: round all $ to 2 decimals.
  10) Output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
-- GUARDS (avoid nonsensical plans):
+
+GUARDS (avoid nonsensical plans):
   • If after sanity Target ≤ CURRENT_PRICE → do NOT invent higher targets. Prefer: "No trade — extended; wait for pullback. (Anchor: $FVA)".
   • If CURRENT_PRICE > buy_high but CURRENT_PRICE < Target → keep the standard plan text and append " (Wait for pullback into range.)".
   • If CURRENT_PRICE < buy_low by more than ~2×EV% → append " (Accumulation zone)".
-
-Keep plans terse; do not explain math in prose; only the single-line plan plus the required summary fields.
+- Keep plans terse; do not explain math in prose; only the single-line plan plus the required summary fields.
 """
-
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
 
 def fail(msg: str):
