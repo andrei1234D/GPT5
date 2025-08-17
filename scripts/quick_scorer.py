@@ -4,6 +4,31 @@ from typing import Dict, List, Tuple, Optional
 import os, math, csv, logging
 import numpy as np
 
+"""
+New/updated ENV knobs this file now honors:
+
+# Weighting (lets you make technical valuation & risk matter more)
+QS_W_TREND_SMALL,  QS_W_MOMO_SMALL,  QS_W_STRUCT_SMALL,  QS_W_RISK_SMALL
+QS_W_TREND_LARGE,  QS_W_MOMO_LARGE,  QS_W_STRUCT_LARGE,  QS_W_RISK_LARGE
+QS_PE_WEIGHT, QS_PE_WEIGHT_SMALL, QS_PE_WEIGHT_LARGE
+
+# Anchor & structure shaping
+QS_USE_FVA=1|0
+QS_FVA_PEN_MAX           (default 12)   # max penalty when price > FVA
+QS_FVA_BONUS_MAX         (default 6)    # max bonus   when price < FVA
+QS_FVA_KO_PCT            (default 35)   # % above FVA that triggers extra KO haircut
+QS_STRUCT_PREM_CAP       (default 8)    # max negative points from AVWAP premium
+
+# Valuation overlay into 'struct' (optional)
+QS_VAL_OVERLAY=1|0
+QS_VAL_OVERLAY_MAX       (default 12)   # cap of overlay points added into struct
+
+# CSV dump of top-N rows with all features
+STAGE1_WRITE_TOPN_CSV=1|0
+STAGE1_TOPN_CSV          (default 2000)
+STAGE1_TOPN_PATH         (optional explicit output path)
+"""
+
 _TIER_THR_LARGE_USD = None
 _TIER_THR_MID_USD   = None
 
@@ -61,7 +86,7 @@ def _auto_liq_thresholds(universe, p_large=80, p_mid=40):
     for (_t, _n, f) in universe:
         a = f.get("avg_dollar_vol_20d")
         try:
-            if a is None: 
+            if a is None:
                 continue
             a = float(a)
             if a > 0 and not math.isinf(a) and not math.isnan(a):
@@ -239,8 +264,25 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
     Return (weights, pe_weight, atr_soft, vol_soft, dd_soft).
     Small caps: slightly harsher risk + a bit more structure attention.
     Large caps: slightly more trend/momo + stronger valuation tilt.
+
+    NEW: weights can be overridden via env:
+      QS_W_TREND_SMALL / QS_W_MOMO_SMALL / QS_W_STRUCT_SMALL / QS_W_RISK_SMALL
+      QS_W_TREND_LARGE / QS_W_MOMO_LARGE / QS_W_STRUCT_LARGE / QS_W_RISK_LARGE
     """
+    def _w(env_name: str, fallback: float) -> float:
+        try:
+            return float(os.getenv(env_name, str(fallback)))
+        except Exception:
+            return fallback
+
     if tier == "small":
+        # default (back-compatible), but overridable via env
+        wt_trend  = _w("QS_W_TREND_SMALL", 0.44)
+        wt_momo   = _w("QS_W_MOMO_SMALL",  0.30)
+        wt_struct = _w("QS_W_STRUCT_SMALL",0.14)
+        wt_risk   = _w("QS_W_RISK_SMALL",  0.12)
+        weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
+
         pe_w = float(os.getenv("QS_PE_WEIGHT_SMALL", str(pe_weight_base)))  # default same as base
         if mode == "strict":
             atr_soft, vol_soft, dd_soft = 5.0, 200, -42
@@ -248,8 +290,13 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
             atr_soft, vol_soft, dd_soft = 5.5, 220, -45
         else:
             atr_soft, vol_soft, dd_soft = 6.0, 240, -48
-        weights = dict(trend=0.44, momo=0.30, struct=0.14, risk=0.12)
     else:
+        wt_trend  = _w("QS_W_TREND_LARGE", 0.50)
+        wt_momo   = _w("QS_W_MOMO_LARGE",  0.33)
+        wt_struct = _w("QS_W_STRUCT_LARGE",0.11)
+        wt_risk   = _w("QS_W_RISK_LARGE",  0.04)
+        weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
+
         pe_w = float(os.getenv("QS_PE_WEIGHT_LARGE", str(pe_weight_base + 0.02)))  # +2% nudge
         if mode == "strict":
             atr_soft, vol_soft, dd_soft = 5.5, 240, -42
@@ -257,10 +304,7 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
             atr_soft, vol_soft, dd_soft = 6.0, 280, -45
         else:
             atr_soft, vol_soft, dd_soft = 6.5, 300, -50
-        weights = dict(trend=0.50, momo=0.33, struct=0.11, risk=0.04)
     return weights, pe_w, atr_soft, vol_soft, dd_soft
-
-
 
 # ---- P/E tilt (optional; uses feats["val_PE"] or feats["PE"] if present) ----
 def _pe_tilt_points(pe: float|None, rsi: float|None, vol_vs20: float|None) -> float:
@@ -389,14 +433,16 @@ def quick_score(
         if prem < 0:
             struct += clamp(abs(prem) * 20.0, 0.0, 6.0)
         else:
-            struct -= clamp(prem * 25.0, 0.0, 8.0)
+            # stronger, env-capped penalty for premium above AVWAP
+            prem_cap = float(os.getenv("QS_STRUCT_PREM_CAP", "8"))
+            struct -= clamp(prem * 25.0, 0.0, prem_cap)
     if (vsE50 is not None and vsE200 is not None):
         if vsE50 > 0 and vsE200 > 0:
             struct += 3.0
         elif vsE50 < 0 and vsE200 < 0:
             struct -= 2.0
 
-    # --- FVA anchor nudge (asymmetric) ---
+    # --- FVA anchor nudge (asymmetric) + KO for extreme premiums ---
     if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
         pen   = float(os.getenv("QS_FVA_PEN_MAX", "12"))   # max penalty when price > FVA
         bonus = float(os.getenv("QS_FVA_BONUS_MAX", "6"))  # max bonus   when price < FVA
@@ -413,12 +459,56 @@ def quick_score(
                 # price BELOW FVA → bonus up to env cap
                 struct += clamp(disc/20.0, 0.0, 1.0) * bonus
 
-            # --- KO gap for extended price far above anchor ---
+            # KO gap for extended price far above anchor + technically extended
             if px > fva:
                 gap = (px - fva) / max(abs(fva), 1e-9) * 100.0  # +% means price above anchor
                 if gap >= ko_pct and ((rsi is not None and rsi >= 72) or (vsE50 is not None and vsE50 >= 40)):
-                    # Extra haircut if both far above FVA and technically extended.
                     struct -= min(40.0, (gap - ko_pct) * 0.6)
+
+    # --- Valuation ratios overlay into 'struct' (optional; missing = neutral) ---
+    if os.getenv("QS_VAL_OVERLAY", "1").lower() in {"1","true","yes"}:
+        cap_overlay = float(os.getenv("QS_VAL_OVERLAY_MAX", "12"))
+        # Accept both "val_*" and plain keys if present
+        pe     = safe(feats.get("val_PE")        if feats.get("val_PE")        is not None else feats.get("PE"), None)
+        peg    = safe(feats.get("val_PEG")       if feats.get("val_PEG")       is not None else feats.get("PEG"), None)
+        fcfy   = safe(feats.get("val_FCF_YIELD") if feats.get("val_FCF_YIELD") is not None else feats.get("FCF_YIELD"), None)
+        ev_eb  = safe(feats.get("val_EV_EBITDA") if feats.get("val_EV_EBITDA") is not None else feats.get("EV_EBITDA"), None)
+        ev_rev = safe(feats.get("val_EV_REV")    if feats.get("val_EV_REV")    is not None else feats.get("EV_REV"), None)
+        ps     = safe(feats.get("val_PS")        if feats.get("val_PS")        is not None else feats.get("PS"), None)
+
+        pts = 0.0
+        # P/E (reward cheap; penalize only stretched, esp. if hot/extended)
+        if pe and pe > 0:
+            if pe <= 10: pts += 18
+            elif pe <= 12: pts += 14
+            elif pe <= 18 and (safe(feats.get("REL_STRENGTH"),0) >= 1 or safe(feats.get("VALUATION_HISTORY"),0) >= 0): pts += 8
+            elif 30 <= pe <= 40 and ((safe(feats.get("RSI14"),0) >= 75) or (safe(feats.get("vsSMA50"),0) >= 20)): pts -= 4
+            elif pe >= 50:
+                hot = (safe(feats.get("RSI14"),0) >= 80 and safe(feats.get("vol_vs20"),0) >= 200)
+                pts -= (15 if hot else 10)
+            pts = clamp(pts, -15, 20)
+
+        # PEG
+        if peg is not None:
+            pts += (6 if peg <= 1 else 4 if peg <= 1.5 else 1 if peg <= 2.5 else -4)
+
+        # FCF Yield (%)
+        if fcfy is not None:
+            pts += (10 if fcfy >= 6 else 6 if fcfy >= 3 else 2 if fcfy >= 1 else 0 if fcfy >= 0 else -6)
+
+        # EV/EBITDA
+        if ev_eb is not None:
+            pts += (8 if ev_eb <= 10 else 4 if ev_eb <= 15 else 0 if ev_eb <= 25 else -3 if ev_eb <= 30 else -6)
+
+        # EV/Revenue
+        if ev_rev is not None:
+            pts += (8 if ev_rev <= 2 else 5 if ev_rev <= 5 else 0 if ev_rev <= 10 else -4 if ev_rev <= 20 else -8)
+
+        # Price/Sales
+        if ps is not None:
+            pts += (6 if ps <= 2 else 3 if ps <= 5 else 0 if ps <= 10 else -3 if ps <= 15 else -5)
+
+        struct += clamp(pts, -cap_overlay, cap_overlay)
 
     # risk (soft, tier-aware)
     risk_pen = 0.0
@@ -508,6 +598,31 @@ def rank_stage1(
         scored.append(row)
 
     scored.sort(key=lambda x: x[3], reverse=True)
+
+    # ---- write top-N full-features CSV (optional) ----
+    if (os.getenv("STAGE1_WRITE_TOPN_CSV", "0").lower() in {"1", "true", "yes"}):
+        topn = int(os.getenv("STAGE1_TOPN_CSV", "2000"))
+        rows = scored[:topn]
+
+        # collect all feature keys present across the selected rows
+        feat_keys = sorted({k for (_t, _n, f, _s, _m) in rows for k in f.keys()})
+
+        # default path uses log_dir unless overridden
+        out_path = (os.getenv("STAGE1_TOPN_PATH")
+                    or os.path.join(log_dir, f"stage1_top{topn}_full.csv"))
+
+        try:
+            with open(out_path, "w", newline="", encoding="utf-8") as fcsv:
+                w = csv.writer(fcsv)
+                header = ["ticker", "company", "score", "tier"] + feat_keys
+                w.writerow(header)
+                for (t, n, feats, s, meta) in rows:
+                    tier = meta.get("tier") or feats.get("liq_tier") or ""
+                    row = [t, n, f"{s:.4f}", tier] + [feats.get(k, "") for k in feat_keys]
+                    w.writerow(row)
+            log.info(f"[Stage1] wrote top-N full CSV: {len(rows)} rows -> {out_path}")
+        except Exception as e:
+            log.warning(f"[Stage1] writing top-N full CSV failed: {e!r}")
 
     # protection: keep a slice of protected names (per-tier)
     top_main = scored[:keep]
