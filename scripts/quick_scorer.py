@@ -7,12 +7,12 @@ import numpy as np
 """
 New/updated ENV knobs this file now honors:
 
-# Weighting (lets you make technical valuation & risk matter more)
+# Weighting (so technical valuation & risk can matter more)
 QS_W_TREND_SMALL,  QS_W_MOMO_SMALL,  QS_W_STRUCT_SMALL,  QS_W_RISK_SMALL
 QS_W_TREND_LARGE,  QS_W_MOMO_LARGE,  QS_W_STRUCT_LARGE,  QS_W_RISK_LARGE
 QS_PE_WEIGHT, QS_PE_WEIGHT_SMALL, QS_PE_WEIGHT_LARGE
 
-# Anchor & structure shaping
+# Anchor & structure shaping (tier-aware via *_SMALL / *_LARGE)
 QS_USE_FVA=1|0
 QS_FVA_PEN_MAX           (default 12)   # max penalty when price > FVA
 QS_FVA_BONUS_MAX         (default 6)    # max bonus   when price < FVA
@@ -28,6 +28,24 @@ STAGE1_WRITE_TOPN_CSV=1|0
 STAGE1_TOPN_CSV          (default 2000)
 STAGE1_TOPN_PATH         (optional explicit output path)
 """
+
+# -------------------------------------------------------------------
+# EMBEDDED PLAN BUILDER SPEC (used by notify.py prompt)
+#
+# FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
+# - Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly if indicators clearly justify it.
+# - Tiny PE bias (only if PE_HINT present; always stay within the existing FVA clamp):
+#     • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
+#     • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
+# - Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence.
+# - Let EV = EXPECTED_VOLATILITY_PCT (from ATR%), clamped to 1–6.
+# - Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
+# - Stop loss = FVA × (1 − 2.0×EV/100)
+# - Profit target = FVA × (1 + 3.0×EV/100)
+# - Sanity: if stop ≥ buy_low, push stop to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
+#           if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
+# - Round all $ to 2 decimals; output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
+# -------------------------------------------------------------------
 
 _TIER_THR_LARGE_USD = None
 _TIER_THR_MID_USD   = None
@@ -51,6 +69,20 @@ def safe(x, d=0.0):
     except: return d
 
 def clamp(v, lo, hi): return max(lo, min(hi, v))
+
+def _env_tiered(base: str, tier: str, default: float) -> float:
+    """
+    Tier-aware env lookup: prefer BASE_SMALL/BASE_LARGE, fall back to BASE, else default.
+    """
+    tkey = f"{base}_{'SMALL' if tier == 'small' else 'LARGE'}"
+    try:
+        if os.getenv(tkey) is not None:
+            return float(os.getenv(tkey))
+        if os.getenv(base) is not None:
+            return float(os.getenv(base))
+    except Exception:
+        pass
+    return float(default)
 
 def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float, float]]:
     """Cross-sectional robust stats (median, MAD*1.4826; fallback to std)."""
@@ -276,7 +308,6 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
             return fallback
 
     if tier == "small":
-        # default (back-compatible), but overridable via env
         wt_trend  = _w("QS_W_TREND_SMALL", 0.44)
         wt_momo   = _w("QS_W_MOMO_SMALL",  0.30)
         wt_struct = _w("QS_W_STRUCT_SMALL",0.14)
@@ -433,8 +464,8 @@ def quick_score(
         if prem < 0:
             struct += clamp(abs(prem) * 20.0, 0.0, 6.0)
         else:
-            # stronger, env-capped penalty for premium above AVWAP
-            prem_cap = float(os.getenv("QS_STRUCT_PREM_CAP", "8"))
+            # stronger, env-capped penalty for premium above AVWAP (tier-aware)
+            prem_cap = _env_tiered("QS_STRUCT_PREM_CAP", tier, 8.0)
             struct -= clamp(prem * 25.0, 0.0, prem_cap)
     if (vsE50 is not None and vsE200 is not None):
         if vsE50 > 0 and vsE200 > 0:
@@ -442,26 +473,23 @@ def quick_score(
         elif vsE50 < 0 and vsE200 < 0:
             struct -= 2.0
 
-    # --- FVA anchor nudge (asymmetric) + KO for extreme premiums ---
+    # --- FVA anchor nudge (asymmetric) + KO for extreme premiums (tier-aware) ---
     if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
-        pen   = float(os.getenv("QS_FVA_PEN_MAX", "12"))   # max penalty when price > FVA
-        bonus = float(os.getenv("QS_FVA_BONUS_MAX", "6"))  # max bonus   when price < FVA
-        ko_pct = float(os.getenv("QS_FVA_KO_PCT", "35"))   # % above anchor to trigger KO
+        pen   = _env_tiered("QS_FVA_PEN_MAX",   tier, 12.0)  # penalty cap when price > FVA
+        bonus = _env_tiered("QS_FVA_BONUS_MAX", tier, 6.0)   # bonus cap   when price < FVA
+        ko_pct= _env_tiered("QS_FVA_KO_PCT",    tier, 35.0)  # % above FVA to trigger KO
 
         fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
 
         if (fva is not None) and (px is not None):
-            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means price below anchor
+            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means px below anchor
             if disc < 0:
-                # price ABOVE FVA → penalty up to env cap
                 struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
             elif disc > 0:
-                # price BELOW FVA → bonus up to env cap
                 struct += clamp(disc/20.0, 0.0, 1.0) * bonus
 
-            # KO gap for extended price far above anchor + technically extended
             if px > fva:
-                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0  # +% means price above anchor
+                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0  # +% means px above anchor
                 if gap >= ko_pct and ((rsi is not None and rsi >= 72) or (vsE50 is not None and vsE50 >= 40)):
                     struct -= min(40.0, (gap - ko_pct) * 0.6)
 
@@ -477,7 +505,6 @@ def quick_score(
         ps     = safe(feats.get("val_PS")        if feats.get("val_PS")        is not None else feats.get("PS"), None)
 
         pts = 0.0
-        # P/E (reward cheap; penalize only stretched, esp. if hot/extended)
         if pe and pe > 0:
             if pe <= 10: pts += 18
             elif pe <= 12: pts += 14
@@ -487,24 +514,14 @@ def quick_score(
                 hot = (safe(feats.get("RSI14"),0) >= 80 and safe(feats.get("vol_vs20"),0) >= 200)
                 pts -= (15 if hot else 10)
             pts = clamp(pts, -15, 20)
-
-        # PEG
         if peg is not None:
             pts += (6 if peg <= 1 else 4 if peg <= 1.5 else 1 if peg <= 2.5 else -4)
-
-        # FCF Yield (%)
         if fcfy is not None:
             pts += (10 if fcfy >= 6 else 6 if fcfy >= 3 else 2 if fcfy >= 1 else 0 if fcfy >= 0 else -6)
-
-        # EV/EBITDA
         if ev_eb is not None:
             pts += (8 if ev_eb <= 10 else 4 if ev_eb <= 15 else 0 if ev_eb <= 25 else -3 if ev_eb <= 30 else -6)
-
-        # EV/Revenue
         if ev_rev is not None:
             pts += (8 if ev_rev <= 2 else 5 if ev_rev <= 5 else 0 if ev_rev <= 10 else -4 if ev_rev <= 20 else -8)
-
-        # Price/Sales
         if ps is not None:
             pts += (6 if ps <= 2 else 3 if ps <= 5 else 0 if ps <= 10 else -3 if ps <= 15 else -5)
 
@@ -673,7 +690,6 @@ def rank_stage1(
 
         # fill remaining slots by best available regardless of tier
         remainder = keep - len(pick_small) - len(pick_large)
-        # FIX: avoid set() on tuples containing dicts (unhashable). Compare by ticker.
         taken_tickers = {r[0] for r in (pick_small + pick_large)}
         pool = [r for r in pre if r[0] not in taken_tickers]
         tail = pool[:remainder]

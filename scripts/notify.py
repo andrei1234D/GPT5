@@ -35,10 +35,9 @@ def need_env(name):
 
 OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
-# Optional separate webhook for debug; falls back to the main one:
 DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
 
-# ——— Strengthen system prompt ———
+# ——— Strengthened system prompt (adds strict PLAN rules) ———
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
 INPUT EXTRAS:
 - Each candidate block may include:
@@ -47,7 +46,7 @@ INPUT EXTRAS:
   • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
   • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities.
   • CATALYST_TIMING_HINTS: e.g., TECH_BREAKOUT=Today/None.
-  • EXPECTED_VOLATILITY_PCT: derived from ATR%.
+  • EXPECTED_VOLATILITY_PCT: derived from ATR% (already clipped on our side).
   • FVA_HINT: technical fair-value anchor seed, derived only from indicators.
   • PE_HINT: optional numeric P/E (trailing preferred; forward if trailing unavailable).
 
@@ -62,8 +61,30 @@ MANDATORY HANDLING:
     • TECH_BREAKDOWN (−1..−5) ⇒ −10, −20, −30, −45, −60
     • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15
   Timing multiplier applies for TECH_BREAKOUT timing: Today × 1.50.
-- P/E OVERLAY: apply only as specified in Technical Valuation & Risks sections; never use P/E to modify Market & Sector,
-  Quality (Tech Proxies), or Near-Term Catalysts.
+- P/E OVERLAY: apply only inside Technical Valuation & Risks; never touch Market & Sector, Quality (Tech Proxies), or Near-Term Catalysts.
+
+PLAN BUILDER (MANDATORY; DO NOT SKIP):
+- FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
+  1) Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly only if indicators clearly justify it.
+  2) Tiny PE bias (only if PE_HINT present; always stay within the global clamp below):
+     • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
+     • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
+  3) Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence. Treat as “very strong” only if:
+     TECH_BREAKOUT ≥ +4 AND RSI14 ≥ 75 AND vsSMA50 ≥ +20% AND Vol_vs_20d ≥ +150%. Otherwise honor the 20% clamp.
+  4) Let EV = EXPECTED_VOLATILITY_PCT, clamped to 1–6.
+  5) Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
+  6) Stop loss = FVA × (1 − 2.0×EV/100)
+  7) Profit target = FVA × (1 + 3.0×EV/100)
+  8) Sanity: if stop ≥ buy_low, push stop to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
+             if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
+  9) Rounding: round all $ to 2 decimals.
+ 10) Output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
+- GUARDS (avoid nonsensical plans):
+  • If after sanity Target ≤ CURRENT_PRICE → do NOT invent higher targets. Prefer: "No trade — extended; wait for pullback. (Anchor: $FVA)".
+  • If CURRENT_PRICE > buy_high but CURRENT_PRICE < Target → keep the standard plan text and append " (Wait for pullback into range.)".
+  • If CURRENT_PRICE < buy_low by more than ~2×EV% → append " (Accumulation zone)".
+
+Keep plans terse; do not explain math in prose; only the single-line plan plus the required summary fields.
 """
 
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
@@ -118,7 +139,7 @@ def main():
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
     # 1) Load universe
-    universe = load_universe()  # list of (ticker, company)
+    universe = load_universe()
     log(f"[INFO] Universe size: {len(universe)}")
 
     # 2) Features for all
@@ -126,7 +147,7 @@ def main():
     if not feats_map:
         return fail("No features computed (network/data)")
 
-    # 3) Trash filter (legacy fast filter)
+    # 3) Trash filter
     kept = []
     for t, name in universe:
         row = feats_map.get(t)
@@ -146,7 +167,7 @@ def main():
     if not kept2:
         return fail("All filtered by daily context")
 
-    # 5) Stage-1 — QUICK pass (resilient) -> pre_top200
+    # 5) Stage-1 — QUICK pass
     pre_top200, quick_scored, removed = rank_stage1(
         kept2,
         keep=int(os.getenv("STAGE1_KEEP", "200")),
@@ -156,9 +177,9 @@ def main():
     )
     log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
-    # ---- Optional: lightweight P/E refinement on a small pool (keeps runtime low)
+    # Optional: P/E refinement on a small pool
     if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"}:
-        pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))  # fetch PE for top-N from quick pass
+        pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))
         pool_tickers = [t for (t, _n, _f, _s, _m) in quick_scored[:pool_n]]
         try:
             from data_fetcher import fetch_pe_for_top
@@ -166,16 +187,12 @@ def main():
         except Exception as e:
             log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
             pe_map = {}
-
-        # Attach P/E only where we have it; missing stays neutral
         pre_top200_pe = []
         for (t, n, f, s, meta) in pre_top200:
             pe = pe_map.get(t)
             if pe is not None and pe > 0:
-                f["val_PE"] = pe  # quick_scorer will see this and apply a small tilt
+                f["val_PE"] = pe
             pre_top200_pe.append((t, n, f, s, meta))
-
-        # Rescore just the survivors (cheap) so the P/E tilt can move edges a bit
         rescored = []
         for (t, n, f, _s, _m) in pre_top200_pe:
             s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
@@ -184,10 +201,8 @@ def main():
         pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
         log("[INFO] Stage-1 P/E refine applied.")
 
-    # 6) Stage-2 — THOROUGH RobustRanker on those survivors -> resort -> Top-10
+    # 6) Stage-2 — RobustRanker
     ranker = RobustRanker()
-
-    # Enrich the Stage-1 survivors with valuation fields (batch)
     tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
     for (t, n, f, _score, _meta) in pre_top200:
@@ -199,24 +214,21 @@ def main():
         f["val_PEG"]       = v.get("PEG")
         f["val_FCF_YIELD"] = v.get("FCF_YIELD")
 
-    # >>> IMPORTANT: learn cross-section stats from the enriched feature set
     ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
 
-    # Now score thoroughly with the robust ranker
     thorough_ranked = []
     for (t, n, f, _score, _meta) in pre_top200:
         if ranker.should_drop(f):
             continue
         score, parts = ranker.composite_score(f)
         thorough_ranked.append((t, n, f, score))
-
     thorough_ranked.sort(key=lambda x: x[3], reverse=True)
     top200 = thorough_ranked[:200]
     if not top200:
         return fail("No candidates after Stage-2 robust scorer")
     log(f"[INFO] Stage-2 leader: {top200[0][0]}")
 
-    # 7) Prepare a stratified Top-10: 5 small, 5 large, and aim for at least 5 with P/E
+    # 7) Stratified Top-10
     top10 = pick_top_stratified(
         top200,
         total=10,
@@ -224,13 +236,10 @@ def main():
         min_large=int(os.getenv("STAGE2_MIN_LARGE", "5")),
         pe_min=int(os.getenv("STAGE2_MIN_PE", "5")),
     )
-
     tickers_top10 = [t for (t, _, _, _) in top10]
 
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
-
-    # Pull all valuations once for the batch (for prompt + debug)
     valuations_map = fetch_valuations_for_top(tickers_top10)
 
     blocks = []
@@ -256,7 +265,6 @@ def main():
         else:
             earn_sev = 0
 
-        # All valuation fields for the prompt/debug
         vals = (valuations_map.get(t) or {})
         pe_hint = vals.get("PE")
         fm = {
@@ -289,14 +297,13 @@ def main():
         dump_path = dump_blocks_pre_gpt(blocks, user_prompt, TZ, echo_stdout=echo)
         log(f"[INFO] Dumped pre-GPT blocks to {dump_path}")
 
-    # 8) GPT-5 adjudication
+    # 8) GPT adjudication
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # 9) Parse selected tickers from GPT output and post debug — STRICT + FILTERED
-    # Only line-1 picks like: "**KOD – Kodiak Sciences"
+    # 9) Parse selected tickers from GPT output and post debug
     RE_PICK_TICKER = re.compile(
         r"(?m)^\s*\*\*([A-Z]{1,10}(?:[.\-][A-Z0-9]{1,5})?)\s+[–—-]\s"
     )
@@ -304,10 +311,10 @@ def main():
         r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b"
     )
 
-    valid_set = set(debug_inputs.keys())  # the Top-10 we built blocks for
+    valid_set = set(debug_inputs.keys())
     a = RE_PICK_TICKER.findall(final_text)
     b = RE_FORECAST_TICK.findall(final_text)
-    raw = list(dict.fromkeys(a + b))  # unique, keep order
+    raw = list(dict.fromkeys(a + b))
     picked = [t for t in raw if t in valid_set]
     junk = [t for t in raw if t not in valid_set]
     if junk:
@@ -315,7 +322,7 @@ def main():
 
     force_debug = os.getenv("DEBUGGER_FORCE_POST", "1").lower() in {"1", "true", "yes"}
     if not picked and force_debug:
-        picked = tickers_top10[:]  # fallback to Stage-2 Top-10 only
+        picked = tickers_top10[:]
         log("[INFO] No valid tickers parsed; forcing debug post for Stage-2 Top-10.")
     elif picked:
         log(f"[INFO] Parsed tickers for debug: {', '.join(picked)}")

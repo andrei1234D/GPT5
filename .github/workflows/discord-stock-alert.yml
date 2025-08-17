@@ -2,11 +2,11 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: '0 4 * * *' # Runs every day at 04:00 UTC
-  workflow_dispatch: {} # Allows manual runs from the Actions tab
+    - cron: '0 4 * * *'   # Runs every day at 04:00 UTC.
+  workflow_dispatch:       # Allows manual runs from the Actions tab.
 
 permissions:
-  contents: write # Allows committing generated logs/CSVs back to the repo
+  contents: write
 
 jobs:
   send-alert:
@@ -15,39 +15,39 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: true # Keep the token so we can push later
-          fetch-depth: 0 # Full history so commits and diffs work cleanly
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Restore cached data (aliases, universe, etc.)
         uses: actions/cache@v4
         with:
-          path: data # Cache our data/ folder (universe, logs, caches)
-          key: universe-cache-${{ github.run_id }} # Unique per run to write
+          path: data
+          key: universe-cache-${{ github.run_id }}
           restore-keys: |
-            universe-cache- # Fallback to the most recent cache on misses
+            universe-cache-
 
       - name: Purge valuation caches
         run: |
-          rm -f data/pe_cache.json data/valuations_cache.json || true
+          rm -f data/pe_cache.json data/valuations_cache.json
 
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
             printf "numpy\npandas\nyfinance\nrequests\npytz\n" > requirements.txt
           fi
-          echo "Using requirements.txt:"
           cat requirements.txt
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # Fast and stable for numpy/pandas
-          cache-dependency-path: requirements.txt # Speed up installs via cache
+          python-version: '3.11'
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+          pip install --upgrade --upgrade-strategy eager numpy pandas yfinance requests pytz
 
       - name: Verify environment (debug)
         run: |
@@ -56,8 +56,8 @@ jobs:
 
       - name: Build universe.csv from Trading 212 (fallback to stale)
         env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }} # Broker API key to fetch the instrument list.
-          ALLOW_STALE: '1' # If fresh fetch fails, allow using the last good universe file.
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          ALLOW_STALE: '1'
         run: |
           python scripts/universe_from_trading_212.py || true
           ls -lah data || true
@@ -65,9 +65,9 @@ jobs:
 
       - name: Clean universe (fallback to stale)
         env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}    # Reuse broker key for any needed checks.
-          CLEAN_ALLOW_OFFLINE: '1'                     # Skip network validations to avoid failing offline.
-          ALLOW_STALE: '1'                             # Permit previous cleaned universe if fresh fails.
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          CLEAN_ALLOW_OFFLINE: '1'
+          ALLOW_STALE: '1'
         run: |
           python scripts/clean_universe.py || true
           wc -l data/universe_clean.csv || true
@@ -75,113 +75,106 @@ jobs:
 
       - name: Auto-build Yahoo aliases from last run’s rejects
         env:
-          ALIASES_FROM: data/universe_rejects.csv # Input of tickers that failed last run to try building aliases for.
-          ALIASES_OUT: data/aliases.csv          # Where to save the alias mapping results.
-          ALIASES_MAX_PER_RUN: '250'             # Caps how many alias attempts to keep runtime in check.
-          ALIAS_LOG_LEVEL: 'INFO'                # Verbosity for alias generation logs (INFO/DEBUG).
-          YF_TEST_PERIOD: '60d'                  # History length to test an alias resolves correctly.
-          YF_TEST_INTERVAL: '1d'                 # Granularity for the alias test download (lower = more calls).
+          ALIASES_FROM: data/universe_rejects.csv
+          ALIASES_OUT: data/aliases.csv
+          ALIASES_MAX_PER_RUN: '250'
+          ALIAS_LOG_LEVEL: 'INFO'
+          YF_TEST_PERIOD: '60d'
+          YF_TEST_INTERVAL: '1d'
         run: |
           python scripts/aliases_autobuild.py || true
 
       - name: Run notifier
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}          # Key for GPT calls to generate narratives and decisions.
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}# Webhook to post the final daily alert.
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
           # --- Logging ---
-          PYTHONUNBUFFERED: '1'     # Flush Python logs immediately so CI logs are live.
-          FEATURES_LOG_LEVEL: 'INFO'# Features pipeline verbosity (use DEBUG only for deep tracing).
-          FEATURES_VERBOSE: '0'     # Extra per-ticker prints in feature building (0=off).
-          FEATURES_LOG_EVERY: '500' # Progress heartbeat frequency when extracting features.
-          QUICK_LOG_LEVEL: 'INFO'   # Quick scorer verbosity (INFO for clean logs).
-          RANKER_LOG_LEVEL: 'DEBUG' # RobustRanker verbosity (DEBUG while tuning, INFO when stable).
-          RANKER_VERBOSE: '1'       # Enables additional breakdown prints from the ranker.
-          RANKER_LOG_EVERY: '300'   # Progress heartbeat for the ranker loop.
+          PYTHONUNBUFFERED: '1'
+          FEATURES_LOG_LEVEL: 'INFO'
+          FEATURES_VERBOSE: '0'
+          FEATURES_LOG_EVERY: '500'
+          RANKER_LOG_LEVEL: 'DEBUG'
+          RANKER_VERBOSE: '1'
+          RANKER_LOG_EVERY: '300'
+          QUICK_LOG_LEVEL: 'INFO'
 
-          # --- Dump top-N CSV with full features ---
-          STAGE1_WRITE_TOPN_CSV: '1'            # Write a CSV snapshot of the quick-sort output for analysis.
-          STAGE1_TOPN_CSV: '2000'               # How many names from Stage-1 to include in that CSV.
-          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv' # Where to write the CSV file.
+          # --- Quick-sort full dump (top 2000) ---
+          STAGE1_WRITE_TOPN_CSV: '1'
+          STAGE1_TOPN_CSV: '2000'
+          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
 
           # --- yfinance ---
-          YF_CHUNK_SIZE: '50'    # Batch size per download request (smaller reduces 404/rate-limit issues).
-          YF_MAX_RETRIES: '5'    # Number of retries for failed ticker downloads.
-          YF_RETRY_SLEEP: '2.5'  # Seconds to sleep between retries to be gentle on the API.
+          YF_CHUNK_SIZE: '50'
+          YF_MAX_RETRIES: '5'
+          YF_RETRY_SLEEP: '2.5'
 
           # --- Tiering ---
-          TIER_POLICY: 'TOPK_ADV'        # Tiering method (TOPK_ADV uses top ADV tickers as “large”).
-          TIER_TOPK_LARGE: '500'         # Count of tickers considered “large” by ADV ranking.
-          TIER_BACKFILL_UNKNOWN_AS: 'small' # What to assume when ADV is missing (small/large).
+          TIER_POLICY: 'TOPK_ADV'
+          TIER_TOPK_LARGE: '500'
+          TIER_BACKFILL_UNKNOWN_AS: 'small'
 
           # --- Stage-1 quick pass ---
-          STAGE1_MODE: 'strict'     # Scoring posture (strict/normal/loose) affecting risk caps.
-          STAGE1_KEEP: '200'        # How many tickers survive Stage-1 to feed Stage-2.
-          STAGE1_MIN_SMALL: '100'   # Minimum small-cap names to retain (enforces diversity).
-          STAGE1_MIN_LARGE: '100'   # Minimum large-cap names to retain (enforces diversity).
-          STAGE1_RESCUE_FRAC: '0'   # Fraction of borderline “protected” names to rescue (0 disables).
-          STAGE1_WRITE_CSV: '0'     # Write separate kept/removed CSVs (redundant if TopN CSV is on).
+          STAGE1_MODE: 'strict'
+          STAGE1_KEEP: '200'
+          STAGE1_MIN_SMALL: '100'
+          STAGE1_MIN_LARGE: '100'
+          STAGE1_RESCUE_FRAC: '0'
+          STAGE1_WRITE_CSV: '1'     # <-- write kept/removed CSVs so we can commit Top-200
 
-          # --- Stage-2 Top-10 (stratified) ---
-          STAGE2_MIN_SMALL: '5' # Minimum small-cap names in the final Top-10 selection.
-          STAGE2_MIN_LARGE: '5' # Minimum large-cap names in the final Top-10 selection.
-          STAGE2_MIN_PE: '5'    # Minimum count of names with positive P/E in the Top-10.
-          RANKER_PROFILE: 'C'   # A/B/C risk style: A=Aggressive, B=Balanced, C=Conservative (harsher heat/risk).
+          # --- Stage-2 profile ---
+          RANKER_PROFILE: 'C'
 
-          # --- Hard filters (TrashRanker) ---
-          HARD_DROP_MODE: 'strict' # How aggressively to hard-drop junk (off/loose/normal/strict).
-          HARD_GRACE_ATR: '0.5'    # Extra ATR tolerance for trend leaders (higher = more lenient).
+          # --- Hard filters ---
+          HARD_DROP_MODE: 'strict'
+          HARD_GRACE_ATR: '0.5'
 
-          # --- Quick scorer weighting: emphasize technical valuation (struct) + risk ---
-          QS_W_TREND_SMALL:  '0.28' # Small-cap trend weight (lower it to reduce trend influence).
-          QS_W_MOMO_SMALL:   '0.18' # Small-cap momentum weight (lower keeps momo in check).
-          QS_W_STRUCT_SMALL: '0.36' # Small-cap structural/technical valuation weight (raise to emphasize setups).
-          QS_W_RISK_SMALL:   '0.18' # Small-cap risk weight (raise to punish heat/vol more).
-          QS_W_TREND_LARGE:  '0.32' # Large-cap trend weight (slightly higher than small for stability).
-          QS_W_MOMO_LARGE:   '0.18' # Large-cap momentum weight (kept modest).
-          QS_W_STRUCT_LARGE: '0.38' # Large-cap structural/technical valuation weight (big driver of rank).
-          QS_W_RISK_LARGE:   '0.12' # Large-cap risk weight (increase if too many hot names leak through).
+          # --- Quick scorer weights (tech valuation & risk emphasized) ---
+          QS_W_TREND_SMALL: '0.28'
+          QS_W_MOMO_SMALL:  '0.18'
+          QS_W_STRUCT_SMALL:'0.36'
+          QS_W_RISK_SMALL:  '0.18'
 
-          # --- P/E tilt: keep ratios in the background so technicals drive ---
-          QS_PE_WEIGHT:       '0.02' # Global P/E weight share (lower to de-emphasize valuation ratios).
-          QS_PE_WEIGHT_LARGE: '0.03' # P/E weight when tier=large (slightly higher than small).
-          QS_PE_WEIGHT_SMALL: '0.01' # P/E weight when tier=small (very light).
+          QS_W_TREND_LARGE: '0.32'
+          QS_W_MOMO_LARGE:  '0.18'
+          QS_W_STRUCT_LARGE:'0.38'
+          QS_W_RISK_LARGE:  '0.12'
 
-          # --- Cross-sectional & Fair-Value Anchor (FVA) controls ---
-          QS_USE_XS: '1'           # Use cross-sectional z-scores to normalize signals (recommended).
-          QS_USE_FVA: '1'          # Enable FVA anchor nudge so stretched vs anchor gets penalized.
-          QS_FVA_PEN_MAX:   '25'   # Max penalty points added into “struct” when price >> FVA.
-          QS_FVA_BONUS_MAX: '6'    # Max bonus points when price << FVA (kept asymmetric/smaller).
-          QS_FVA_KO_PCT:    '28'   # % above FVA to trigger the extra KO haircut when extended.
-          QS_STRUCT_PREM_CAP: '12' # Cap on AVWAP premium headwind so structure doesn’t over-penalize.
+          # --- P/E tilt (low weight) ---
+          QS_PE_WEIGHT: '0.02'
+          QS_PE_WEIGHT_LARGE: '0.03'
+          QS_PE_WEIGHT_SMALL: '0.01'
 
-          # --- Optional valuation overlay into “struct” (only if code wired) ---
-          QS_VAL_OVERLAY:     '1'  # If supported, blends valuation overlay into structure scoring.
-          QS_VAL_OVERLAY_MAX: '16' # Upper cap for that valuation overlay contribution.
+          # --- FVA & AVWAP shaping (tier-aware) ---
+          QS_USE_FVA: '1'
+          QS_FVA_PEN_MAX_SMALL:   '14'
+          QS_FVA_PEN_MAX_LARGE:   '30'
+          QS_FVA_BONUS_MAX_SMALL: '6'
+          QS_FVA_BONUS_MAX_LARGE: '6'
+          QS_FVA_KO_PCT_SMALL:    '45'
+          QS_FVA_KO_PCT_LARGE:    '28'
+          QS_STRUCT_PREM_CAP:     '4'   # your global fallback
+          QS_STRUCT_PREM_CAP_SMALL:'6'
+          QS_STRUCT_PREM_CAP_LARGE:'8'
 
-          # --- Small-cap liquidity / price guards ---
-          QS_SMALL_PRICE_MAX:     '8'        # Small-cap if price <= this, which tightens risk heuristics.
-          QS_SMALL_LIQ_MAX:       '8000000'  # Small-cap if 20d ADV <= this USD, which tightens risk heuristics.
-          QS_MIN_DOLLAR_VOL_20D:  '3000000'  # Penalize small caps below this ADV floor to avoid illiquid traps.
-
-          # --- Optional P/E refine pass after Stage-1 ---
-          STAGE1_PE_RESCORE: '1'  # Re-score top pool using P/E hints where available (1=on).
-          STAGE1_PE_POOL:    '2000' # Number of names from Stage-1 to include in P/E refine.
+          # --- Valuation overlay into structure ---
+          QS_VAL_OVERLAY: '1'
+          QS_VAL_OVERLAY_MAX: '16'
 
           # --- ATH guard (RobustRanker) ---
-          ATH_GUARD: '1'          # Enable protection for names near 52w highs while very hot.
-          ATH_NEAR_PCT: '1.0'     # “Near ATH” threshold in % drawdown from the 52w high.
-          ATH_MIN_RSI: '80'       # RSI threshold above which the ATH guard starts to bite.
-          ATH_MIN_VS50: '25'      # vsEMA50 threshold indicating extension when near ATH.
-          ATH_VOL_RELIEF: '60'    # High participation volume reduces the ATH penalty when exceeded.
-          ATH_SCORE_HAIRCUT: '22' # Max headline score haircut at full ATH severity.
+          ATH_GUARD: '1'
+          ATH_NEAR_PCT: '1.0'
+          ATH_MIN_RSI: '80'
+          ATH_MIN_VS50: '25'
+          ATH_VOL_RELIEF: '60'
+          ATH_SCORE_HAIRCUT: '22'
 
-          # --- OpenAI call safety ---
-          OPENAI_TIMEOUT: '360'   # Seconds to wait for GPT before failing the step.
+          # --- OpenAI call timeout ---
+          OPENAI_TIMEOUT: '360'
 
-          # --- Audit: save exact GPT inputs ---
-          LOG_GPT_INPUT: '1'        # Write the exact per-ticker blocks sent to GPT to a file.
-          LOG_GPT_INPUT_STDOUT: '0' # Don’t spam the console with the raw blocks.
+          # --- Dump exact GPT inputs ---
+          LOG_GPT_INPUT: '1'
+          LOG_GPT_INPUT_STDOUT: '0'
         run: |
           python scripts/notify.py
 
@@ -228,10 +221,30 @@ jobs:
             git add "$FILE"
             if git diff --cached --quiet; then
               echo "No changes to commit for $FILE."
-            else
+            else:
               git commit -m "Add/update top2000 quick-sort CSV (run #${{ github.run_number }})"
               git push
             fi
           else
             echo "No $FILE produced."
           fi
+
+      - name: Commit top200 kept CSV to repo
+        shell: bash
+        run: |
+          set -e
+          FILE="data/stage1_kept.csv"
+          if [ -f "$FILE" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$FILE"
+            if git diff --cached --quiet; then
+              echo "No changes to commit for $FILE."
+            else
+              git commit -m "Add/update top200 kept CSV (run #${{ github.run_number }})"
+              git push
+            fi
+          else
+            echo "No $FILE produced (enable STAGE1_WRITE_CSV=1)."
+          fi
+      
