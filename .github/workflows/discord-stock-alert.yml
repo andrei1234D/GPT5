@@ -247,4 +247,21 @@ jobs:
           else
             echo "No $FILE produced (enable STAGE1_WRITE_CSV=1)."
           fi
-      
+      - name: Commit top200 kept CSV to repo
+        shell: bash
+        run: |
+          set -e
+          FILE="data/stage1_kept.csv"
+          if [ -f "$FILE" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$FILE"
+            if git diff --cached --quiet; then
+              echo "No changes to commit for $FILE."
+            else
+              git commit -m "Add/update top200 kept CSV (run #${{ github.run_number }})"
+              git push
+            fi
+          else
+            echo "No $FILE produced (enable STAGE1_WRITE_CSV=1)."
+          fi
