@@ -7,57 +7,6 @@ import os
 import logging
 import numpy as np
 
-# ---------- logging setup ----------
-def _maybe_configure_logging():
-    level_name = os.getenv("RANKER_LOG_LEVEL", "").upper().strip()
-    if not level_name:
-        return
-    level = getattr(logging, level_name, logging.INFO)
-    if not logging.getLogger().handlers:
-        logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-
-_maybe_configure_logging()
-logger = logging.getLogger("trash_ranker")
-
-# ---------- utilities ----------
-def safe(x, default=None):
-    try:
-        if x is None:
-            return default
-        xf = float(x)
-        if math.isnan(xf) or math.isinf(xf):
-            return default
-        return xf
-    except Exception:
-        return default
-
-def clamp(v: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, v))
-
-def tri_sweetspot(x: Optional[float], lo: float, mid_lo: float, mid_hi: float, hi: float) -> float:
-    """
-    0..1 score peaking in [mid_lo, mid_hi], linearly rising/falling, 0 outside [lo,hi].
-    """
-    if x is None:
-        return 0.5
-    try:
-        x = float(x)
-    except Exception:
-        return 0.5
-    if x <= lo or x >= hi:
-        return 0.0
-    if mid_lo <= x <= mid_hi:
-        return 1.0
-    if x < mid_lo:
-        return (x - lo) / max((mid_lo - lo), 1e-9)
-    return (hi - x) / max((hi - mid_hi), 1e-9)
-
-def bool01(x) -> Optional[float]:
-    if x is True:
-        return 1.0
-    if x is False:
-        return 0.0
-    return None
 
 # ---------- hard filters ----------
 @dataclass
@@ -182,15 +131,73 @@ class HardFilter:
         dropped, _ = self.why_garbage(feats)
         return dropped
 
+
+
+# ---------- logging setup ----------
+def _maybe_configure_logging():
+    level_name = os.getenv("RANKER_LOG_LEVEL", "").upper().strip()
+    if not level_name:
+        return
+    level = getattr(logging, level_name, logging.INFO)
+    if not logging.getLogger().handlers:
+        logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+
+_maybe_configure_logging()
+logger = logging.getLogger("trash_ranker")
+
+# ---------- utilities ----------
+def safe(x, default=None):
+    try:
+        if x is None:
+            return default
+        xf = float(x)
+        if math.isnan(xf) or math.isinf(xf):
+            return default
+        return xf
+    except Exception:
+        return default
+
+def clamp(v: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, v))
+
+def tri_sweetspot(x: Optional[float], lo: float, mid_lo: float, mid_hi: float, hi: float) -> float:
+    """
+    0..1 score peaking in [mid_lo, mid_hi], linearly rising/falling, 0 outside [lo,hi].
+    """
+    if x is None:
+        return 0.5
+    try:
+        x = float(x)
+    except Exception:
+        return 0.5
+    if x <= lo or x >= hi:
+        return 0.0
+    if mid_lo <= x <= mid_hi:
+        return 1.0
+    if x < mid_lo:
+        return (x - lo) / max((mid_lo - lo), 1e-9)
+    return (hi - x) / max((hi - mid_hi), 1e-9)
+
+def bool01(x) -> Optional[float]:
+    if x is True:
+        return 1.0
+    if x is False:
+        return 0.0
+    return None
+
+
 # ---------- composite score ----------
 @dataclass
 class RankerParams:
-    w_trend: float = 0.32
-    w_momo:  float = 0.28
+    # weights
+    w_trend: float = 0.28
+    w_momo: float = 0.26
     w_struct: float = 0.14
-    w_stab:  float = 0.14
+    w_stab: float = 0.12
     w_blowoff: float = 0.02
-    w_value: float = 0.10   # valuation tilt
+    w_value: float = 0.18
+
+    # soft caps used in stability penalties
     atr_soft_cap: float = 6.0
     vol20_soft_cap: float = 250.0
     dd_soft_cap: float = -35.0
@@ -208,18 +215,24 @@ class RobustRanker:
         logger.setLevel(level)
 
     def _robust_z(self, arr: List[float]) -> Tuple[float, float]:
-        a = np.array([x for x in arr if x is not None and not (isinstance(x, float) and (math.isnan(x) or math.isinf(x)))], dtype=float)
+        a = np.array(
+            [x for x in arr if x is not None and not (isinstance(x, float) and (math.isnan(x) or math.isinf(x)))],
+            dtype=float,
+        )
         if a.size == 0:
             return (0.0, 1.0)
         med = float(np.median(a))
         mad = float(np.median(np.abs(a - med)))
         scale = mad * 1.4826 if mad > 1e-12 else (float(np.std(a)) or 1.0)
-        if not (scale > 1e-9): scale = 1.0
+        if not (scale > 1e-9):
+            scale = 1.0
         return (med, scale)
 
     def fit_cross_section(self, feats_list: List[Dict]) -> None:
-        keys = ["vsSMA50","vsSMA200","d20","RSI14","MACD_hist","ATRpct","drawdown_pct","vol_vs20","r60","r120",
-                "vsEMA50","vsEMA200","EMA50_slope_5d"]
+        keys = [
+            "vsSMA50","vsSMA200","d20","RSI14","MACD_hist","ATRpct","drawdown_pct","vol_vs20","r60","r120",
+            "vsEMA50","vsEMA200","EMA50_slope_5d"
+        ]
         self.stats.clear()
         for k in keys:
             vals = [safe(f.get(k), None) for f in feats_list]
@@ -229,10 +242,13 @@ class RobustRanker:
             logger.info(f"[Ranker] fit_cross_section on {len(feats_list)} names")
 
     def _zs(self, k: str, x: Optional[float]) -> float:
-        if x is None: return 0.0
+        if x is None:
+            return 0.0
         med, scale = self.stats.get(k, (0.0, 1.0))
-        try: z = (float(x) - med) / (scale if scale != 0 else 1.0)
-        except: z = 0.0
+        try:
+            z = (float(x) - med) / (scale if scale != 0 else 1.0)
+        except Exception:
+            z = 0.0
         return float(clamp(z, -4.0, 4.0))
 
     def _value_tilt(self, feats: Dict) -> float:
@@ -336,8 +352,8 @@ class RobustRanker:
                 min_rsi    = float(os.getenv("ATH_MIN_RSI", "80"))     # RSI threshold
                 min_vs50   = float(os.getenv("ATH_MIN_VS50", "25"))    # vsEMA50 threshold
                 vol_relief = float(os.getenv("ATH_VOL_RELIEF", "60"))  # strong volume reduces penalty
-                dd0 = safe(feats.get("drawdown_pct"), None)
 
+                dd0 = safe(feats.get("drawdown_pct"), None)
                 if (dd0 is not None and dd0 >= -near_pct and
                     rsi is not None and rsi >= min_rsi and
                     vsem50 is not None and vsem50 >= min_vs50):
@@ -377,11 +393,39 @@ class RobustRanker:
                 if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
                     blow = -1.0
 
-            # Valuation tilt (−1..+1 → part)
+            # --- Valuation tilt (−1..+1) + FVA anchor effect ---
             value = self._value_tilt(feats)
 
-            parts = {"trend": trend, "momo": momo, "struct": struct, "stability": stability, "blowoff": blow, "value": value}
-            w = {"trend": P.w_trend, "momo": P.w_momo, "struct": P.w_struct, "stability": P.w_stab, "blowoff": P.w_blowoff, "value": P.w_value}
+            fva_term = 0.0
+            px = safe(feats.get("price"), None)
+            fva = safe(feats.get("fva_hint"), None)  # ensure notify.py passes this in
+            if fva and px:
+                disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means px below anchor
+                if disc < 0:
+                    # price ABOVE FVA → stronger penalty; map [0..-25]% to [0..-0.35]
+                    fva_term = -clamp(abs(disc)/25.0, 0.0, 1.0) * 0.35
+                elif disc > 0:
+                    # price BELOW FVA → modest bonus; map [0..+25]% to [0..+0.15]
+                    fva_term =  clamp(disc/25.0, 0.0, 1.0) * 0.15
+
+            value = clamp(value + fva_term, -1.0, 1.0)
+
+            parts = {
+                "trend": trend,
+                "momo": momo,
+                "struct": struct,
+                "stability": stability,
+                "blowoff": blow,
+                "value": value,
+            }
+            w = {
+                "trend": P.w_trend,
+                "momo": P.w_momo,
+                "struct": P.w_struct,
+                "stability": P.w_stab,
+                "blowoff": P.w_blowoff,
+                "value": P.w_value,
+            }
             active_w = sum(w.values()) or 1.0
             score_unit = sum(w[k]*v for k,v in parts.items())
             scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
@@ -393,13 +437,14 @@ class RobustRanker:
 
             if self.verbose and logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f (ath_sev=%.2f relief=%.2f)",
+                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f (ath_sev=%.2f relief=%.2f fva_term=%.3f)",
                     parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"],
-                    scr, ath_sev, ath_relief
+                    scr, ath_sev, ath_relief, fva_term
                 )
             return (scr, parts)
         except Exception as e:
-            if self.verbose: logger.exception(f"[Ranker] composite_score error: {e}")
+            if self.verbose:
+                logger.exception(f"[Ranker] composite_score error: {e}")
             return (-999.0, {"error": 1.0})
 
     def should_drop(self, feats: Dict) -> bool:

@@ -8,14 +8,14 @@ Do not fetch external data; use only what’s provided. Missing = neutral (basel
 
 CATEGORIES & RANGES (sum = BASE, clamp each range):
 
-1) Market & Sector (0–300)  Baseline = from BASELINE_HINTS (typ. 150)
+1) Market & Sector (0–220)  Baseline = from BASELINE_HINTS (typ. 110)
    Inputs: PROXIES.MARKET_TREND (−5..+5), REL_STRENGTH (−5..+5), BREADTH_VOLUME (−5..+5).
-   Scoring: +/−20 per MARKET_TREND step, +/−20 per REL_STRENGTH step, +/−10 per BREADTH step. Clamp 0–300.
+Scoring: ±16 per MARKET_TREND step, ±16 per REL_STRENGTH step, ±8 per BREADTH step. Clamp 0–220.
 
-2) Quality (Tech Proxies) (0–250)  Baseline = from BASELINE_HINTS (typ. 125)
+2) Quality (Tech Proxies) (0–260)  Baseline = from BASELINE_HINTS (typ. 130)
    Purpose: stand-in for fundamentals using tech-derived proxies ONLY.
    Inputs: PROXIES_FUNDAMENTALS {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} in −5..+5.
-   Scoring (per severity step): GROWTH×12, MARGIN×10, FCF×10, OP_EFF×6. Add to baseline; clamp 0–300.
+  Scoring (per step): GROWTH×12, MARGIN×10, FCF×10, OP_EFF×6. Clamp 0–260.
 
 3) Near-Term Catalysts (0–150)  Baseline = from BASELINE_HINTS (typ. 75)
    Inputs: PROXIES_CATALYSTS {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} (signed severities).
@@ -23,30 +23,39 @@ CATEGORIES & RANGES (sum = BASE, clamp each range):
    BREAKDOWN −10/−20/−30/−45/−60 by −1..−5; EARNINGS_SOON +5/+8/+10/+12/+15.
    If CATALYST_TIMING_HINTS says TECH_BREAKOUT=Today, multiply BREAKOUT contribution ×1.5. Clamp 0–150.
 
-4) Technical Valuation (0–150)  Baseline = from BASELINE_HINTS (typ. 75)
+4) Technical Valuation (0–220)  Baseline = from BASELINE_HINTS (typ. 110)
    Purpose: valuation from technical anchors + provided simple ratios. Treat missing as neutral (no impact).
    Inputs: PROXIES.VALUATION_HISTORY (−5..+5), FVA_HINT, CURRENT_PRICE, AVWAP252, SMA50,
            and (if present) PE_HINT, PS, EV_REV, EV_EBITDA, PEG, FCF_YIELD.
+
    Scoring components:
      • VALUATION_HISTORY: +/−10 per step (−5..+5 → −50..+50).
-     • Anchor discount vs price: disc% = (FVA_HINT − PRICE) / max(|FVA_HINT|, 1e−9) × 100.
-       Map disc% in [−20, +20] linearly to [−40, +40] (price far below anchor → positive).
-     • Structure sweeteners: if PRICE < AVWAP252 add +10; if PRICE < SMA50 add +5; if both above, subtract −10.
+
+     • Anchor discount vs price (ASyMmEtRiC):
+         disc% = (FVA_HINT − PRICE) / max(|FVA_HINT|, 1e−9) × 100, clamp to [−20, +20].
+         If disc% < 0 (price ABOVE FVA)   → map [−20..0] linearly to [−80..0].
+         If disc% > 0 (price BELOW FVA)  → map [0..+20] linearly to [0..+40].
+         (Heavier penalty above anchor than reward below. Do not reward beyond +20% or penalize beyond −20%.)
+
+     • Structure sweeteners: if PRICE < AVWAP252 add +12; if PRICE < SMA50 add +6; if both above, subtract −12.
+
      • Ratio overlay (apply ONLY when the metric is present; missing = 0 impact):
-         - **P/E premium (weights cheap heavily; never punish missing/negative EPS)**:
+         - **P/E premium (never punish missing/negative EPS)**:
              ≤ 10 → +18; 10–12 → +14; 12–18 → +8 (only if REL_STRENGTH ≥ +1 or VALUATION_HISTORY ≥ 0);
              30–40 → −4 (only if overbought: RSI14 ≥ 75 or vsSMA50 ≥ +20%);
              ≥ 50 → −10 (to −15 if RSI14 ≥ 80 and Vol_vs_20d ≥ 200).
-           Cap total P/E contribution to [−15, +20].
-         - **PEG**: ≤ 1.0 → +6; 1.0–1.5 → +4; 1.5–2.5 → +1; ≥ 2.5 → −4.
-         - **FCF_YIELD**: ≥ 6% → +10; 3–6% → +6; 1–3% → +2; 0–1% → 0; negative → −6.
-         - **EV/EBITDA**: ≤ 10 → +8; 10–15 → +4; 15–25 → 0; 25–30 → −3; > 30 → −6.
-         - **EV/Revenue (EV_REV)**: ≤ 2 → +8; 2–5 → +5; 5–10 → 0; 10–20 → −4; > 20 → −8.
-         - **Price/Sales (PS)**: ≤ 2 → +6; 2–5 → +3; 5–10 → 0; 10–15 → −3; > 15 → −5.
-       Cap the **combined ratios overlay** (PEG+FCF+EV/EBITDA+EV/REV+PS, excluding the P/E premium) to [−20, +20].
-   Sum all components with the baseline; clamp Technical Valuation to 0–150.
+           Cap total P/E contribution to [−20, +25].
 
-5) Risks (0–50)  Baseline = from BASELINE_HINTS (typ. 50) then deduct
+         - **PEG**: ≤ 1.0 → +8; 1.0–1.5 → +5; 1.5–2.5 → +1; ≥ 2.5 → −5.
+         - **FCF_YIELD**: ≥ 6% → +12; 3–6% → +8; 1–3% → +3; 0–1% → 0; negative → −8.
+         - **EV/EBITDA**: ≤ 10 → +10; 10–15 → +6; 15–25 → 0; 25–30 → −4; > 30 → −8.
+         - **EV/Revenue (EV_REV)**: ≤ 2 → +10; 2–5 → +6; 5–10 → 0; 10–20 → −5; > 20 → −10.
+         - **Price/Sales (PS)**: ≤ 2 → +8; 2–5 → +4; 5–10 → 0; 10–15 → −4; > 15 → −6.
+       Cap the **combined ratios overlay** (PEG+FCF+EV/EBITDA+EV/REV+PS, excluding the P/E premium) to [−30, +30].
+
+   Sum all components with the baseline; clamp Technical Valuation to 0–220.
+
+5) Risks (0–50)  Baseline = from BASELINE_HINTS (typ. 25) then deduct
    Inputs: PROXIES.RISK_VOLATILITY (1..5), RISK_DRAWDOWN (1..5), RSI14, ATR%, Vol_vs_20d, optional PE_HINT.
    Deduct: VOLATILITY −(4,8,12,16,20) by sev 1..5; DRAWDOWN −(4,8,12,16,20) by sev 1..5.
    Extra deductions: if RSI14 ≥ 85 → −10; if ATR% > 5 → −5 (and −10 if > 7);
@@ -69,14 +78,23 @@ FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
 - Round all $ to 2 decimals; output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
 
 CERTAINTY RULE :
-INDEPENDENT CERTAINTY (0–100):
+INDEPENDENT CERTAINTY (-100 - +100):
 - Ignore any previous formula. Think holistically with the info provided ONLY.
+- deeply analyze the the best practices and best way to interpret the given data before giving it a score (-100 - +100)
 - Consider: data coverage (how much is present vs missing), trend stability (ATR%, drawdown, blow-off signs),
   liquidity/participation (Vol_vs_20d), clarity of catalysts/timing, alignment of structure (SMA/AVWAP), and whether
   any valuation hints corroborate the technical picture. Missing data ≠ bad; treat unknown as neutral.
 - Calibrate roughly: 40=thin/incomplete/fragile; 55=okay; 70=good; 85=excellent; 95=near-certain.
 - Output a single integer percent (no decimals).
 - Add the certanty to the final score before writing it in "final base score"
+
+NEWS RULE : 
+   -Search the most recent news regarding the ticker and add or subtract based on the relative impact it would have on the general public(-50 - +50) 
+   -Then add that score to the final score before writing it in "final base score".
+   -It's perfectely fine for this value to be negative if the news are bad.
+   -It's perfectely find to not find any news.
+   -Look for news that are maximum a week old from this date. and reward the fresher good news and fresher bad news greater than older news.
+
 
 GENERAL RULES:
 - Treat missing/unknown as baseline (never as bad). Use ONLY supplied metrics.

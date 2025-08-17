@@ -285,11 +285,10 @@ def quick_score(
     Fast, resilient first-pass score ~[-100..+200] (then we sort).
     Cross-sectional z-scores optional. Tier-aware weights & thresholds.
     Includes a small P/E tilt iff P/E exists in feats.
+    Adds a light FVA anchor nudge (penalize above anchor > reward below).
     """
-    # Tier fallback if not supplied (kept for safety)
     tier = (tier or _tier_fallback_small_vs_large(feats))
 
-    # base P/E weight (can be overridden per-tier)
     pe_weight_base = float(os.getenv("QS_PE_WEIGHT", "0.06"))
     weights, pe_weight, atr_soft, vol_soft, dd_soft = _tier_params(tier, mode, pe_weight_base)
 
@@ -389,12 +388,27 @@ def quick_score(
             struct += clamp(abs(prem) * 20.0, 0.0, 6.0)
         else:
             struct -= clamp(prem * 25.0, 0.0, 8.0)
-    # EMA stack nudge
     if (vsE50 is not None and vsE200 is not None):
         if vsE50 > 0 and vsE200 > 0:
             struct += 3.0
         elif vsE50 < 0 and vsE200 < 0:
             struct -= 2.0
+
+    # --- NEW: light FVA anchor nudge (asymmetric) ---
+    if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
+        pen   = float(os.getenv("QS_FVA_PEN_MAX", "12"))   # max penalty when price > FVA
+        bonus = float(os.getenv("QS_FVA_BONUS_MAX", "6"))  # max bonus   when price < FVA
+
+        fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
+        if fva and px:
+            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0   # +% means price below anchor
+            if disc < 0:
+                # price ABOVE FVA → penalty up to env cap
+                struct += -clamp(abs(disc)/20.0, 0.0, 1.0) * pen
+            elif disc > 0:
+                # price BELOW FVA → bonus up to env cap
+                struct +=  clamp(disc/20.0, 0.0, 1.0) * bonus
+
 
     # risk (soft, tier-aware)
     risk_pen = 0.0
@@ -408,21 +422,18 @@ def quick_score(
             risk_pen -= min(8.0, (v20 - vol_soft) / 40.0)
     if dd < dd_soft:
         risk_pen -= min(8.0, (abs(dd) - abs(dd_soft)) / 4.0)
-    # froth/overbought
     if rsi is not None and rsi >= 85:
         risk_pen -= 8.0
     if rsi is not None and rsi >= 88 and d20 >= 150:
         risk_pen -= 10.0
     if rsi is not None and rsi >= 80 and v20 >= 200:
         risk_pen -= 6.0
-    # small-cap extras: thin tape and liquidity drought
     if tier == "small":
-        liq_min = float(os.getenv("QS_MIN_DOLLAR_VOL_20D", "2000000"))  # $2M
+        liq_min = float(os.getenv("QS_MIN_DOLLAR_VOL_20D", "2000000"))
         liq = safe(feats.get("avg_dollar_vol_20d"), None)
         if liq is not None and liq < liq_min:
-            # up to -10 for illiquidity; smooth scaling
             risk_pen -= clamp((liq_min - liq) / max(liq_min, 1.0), 0.0, 1.0) * 10.0
-        if v20 <= -40:  # today is unusually quiet vs avg
+        if v20 <= -40:
             risk_pen -= clamp(abs(v20 + 40.0) / 40.0, 0.0, 1.0) * 6.0
 
     # P/E tilt (neutral if missing)
@@ -437,7 +448,10 @@ def quick_score(
 
     return score, {
         "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,
-        "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier
+        "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier,
+        # optional introspection for anchor (present only if FVA seen)
+        "fva_hint": fva if 'fva' in locals() else None,
+        "price": px,
     }
 
 def rank_stage1(

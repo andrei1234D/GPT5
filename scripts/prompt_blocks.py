@@ -3,11 +3,11 @@ from typing import Tuple, Optional
 import math
 
 BASELINE_HINTS = {
-    "MKT_SECTOR": 150,
-    " Quality (Tech Proxies)": 125,
+    "MKT_SECTOR": 110,
+    " Quality (Tech Proxies)": 130,
     "Near-Term Catalysts": 75,
-    "Technical Valuation": 75,
-    "RISKS": 50,
+    "Technical Valuation": 110,
+    "RISKS": 25,
 }
 
 # -------- robust numeric helpers (handle numpy, Decimal, strings, NaN/inf) -------- #
