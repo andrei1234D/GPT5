@@ -131,6 +131,24 @@ class HardFilter:
         dropped, _ = self.why_garbage(feats)
         return dropped
 
+    def _apply_profile(self) -> None:
+        """
+        A = Aggressive, B = Balanced (default), C = Conservative.
+        Controlled by RANKER_PROFILE (or SELECTION_MODE) env.
+        """
+        prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
+        P = self.params
+        if prof == "A":
+            # More momentum/trend, looser stability
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.30, 0.30, 0.12, 0.08, 0.01, 0.19
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 6.5, 300.0, -40.0
+        elif prof == "C":
+            # Value/stability forward; harsher blowoff
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.24, 0.18, 0.16, 0.20, 0.04, 0.18
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 5.5, 220.0, -30.0
+        else:
+            # B = your current defaults (keep as-is)
+            pass
 
 
 # ---------- logging setup ----------
@@ -330,7 +348,14 @@ class RobustRanker:
                 if px > e50 > e200: align += 0.20
                 elif px < e50 < e200: align -= 0.18
             struct = clamp(align, -1.0, 1.0)
-
+             # AVWAP premium headwind (uses QS_STRUCT_PREM_CAP points on a 0..100 scale)
+            prem_cap_pts = float(os.getenv("QS_STRUCT_PREM_CAP", "0"))
+            if prem_cap_pts > 0 and px and avwap:
+                prem = (px / avwap) - 1.0  # >0 means above AVWAP
+                if prem > 0:
+                    # Map 0..+20% premium -> 0..(prem_cap_pts/100) negative on the -1..+1 struct scale
+                    prem_cap = prem_cap_pts / 100.0
+                    struct -= min(prem_cap, prem * (prem_cap / 0.20))
             atrp = safe(feats.get("ATRpct"), None)
             dd   = safe(feats.get("drawdown_pct"), None)
             v20  = safe(feats.get("vol_vs20"), None)
@@ -366,13 +391,14 @@ class RobustRanker:
 
             # include ATH component inside stability slightly
             ath_pen_stab = -0.6 * ath_sev * ath_relief if ath_sev > 0 else 0.0
-
+            ko_pen = locals().get("ko_pen", 0.0)
             stability = clamp(
                 0.45*atr_pen +
                 0.20*dd_pen  +
                 0.10*vol_pen +
                 0.10*ext_pen +
-                0.15*ath_pen_stab,
+                0.15*ath_pen_stab +
+                0.20*ko_pen,
                 -1.0, 0.0
             )
 
@@ -409,6 +435,19 @@ class RobustRanker:
                     fva_term =  clamp(disc/25.0, 0.0, 1.0) * 0.15
 
             value = clamp(value + fva_term, -1.0, 1.0)
+            # FVA KO haircut for far-above-anchor & technically extended
+            ko_pct = float(os.getenv("QS_FVA_KO_PCT", "0"))  # 0 disables
+            if ko_pct > 0 and (px is not None) and (fva is not None) and px > fva:
+                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
+                extended = ((rsi is not None and rsi >= 72) or
+                            (vsem50 is not None and vsem50 >= 40) or
+                            (d20 is not None and d20 >= 15))
+                if gap >= ko_pct and extended:
+                    # Push into stability as a negative (−1..0) term; up to −0.6
+                    # 1.2% of (gap over threshold) per 1% → 0.012 factor
+                    ko_pen = -min(0.6, max(0.0, gap - ko_pct) * 0.012)
+                    # Blend it in via stability directly (more conservative than docking only trend/momo)
+                    # We'll add this later when assembling 'stability'
 
             parts = {
                 "trend": trend,
@@ -454,6 +493,7 @@ class RobustRanker:
         return drop
 
     def score_universe(self, universe: List[Tuple[str, str, Dict]], context: Optional[Dict]=None):
+        self._apply_profile()
         feat_list = [f for _,_,f in universe]
         self.fit_cross_section(feat_list)
         ranked = []

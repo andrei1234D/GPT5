@@ -123,6 +123,31 @@ jobs:
           STAGE2_MIN_SMALL: '5'
           STAGE2_MIN_LARGE: '5'
           STAGE2_MIN_PE: '5'
+          RANKER_PROFILE: 'C'
+          # =============================================================================
+          # Ranking Profiles  (env: RANKER_PROFILE or SELECTION_MODE)  →  'A' | 'B' | 'C'
+          #
+          # A = Aggressive  (momentum/trend-forward; looser stability caps)
+          #   Weights:  w_trend=0.30, w_momo=0.30, w_struct=0.12, w_stab=0.08, w_blowoff=0.01, w_value=0.19
+          #   Soft caps: atr_soft_cap=6.5, vol20_soft_cap=300, dd_soft_cap=-40
+          #   Intent: chase strong trends and breakouts; tolerate more heat/volatility.
+          #
+          # B = Balanced (DEFAULT)  (your current defaults)
+          #   Weights:  w_trend=0.28, w_momo=0.26, w_struct=0.14, w_stab=0.12, w_blowoff=0.02, w_value=0.18
+          #   Soft caps: atr_soft_cap=6.0, vol20_soft_cap=250, dd_soft_cap=-35
+          #   Intent: even mix of trend/momentum, structure, stability, and value tilt.
+          #
+          # C = Conservative  (value/stability-forward; harsher on overheated names)
+          #   Weights:  w_trend=0.24, w_momo=0.18, w_struct=0.16, w_stab=0.20, w_blowoff=0.04, w_value=0.18
+          #   Soft caps: atr_soft_cap=5.5, vol20_soft_cap=220, dd_soft_cap=-30
+          #   Extras: a small guardrail trims ~8 pts when value is poor AND the chart is extended.
+          #           (AVWAP premium headwind + FVA KO haircut apply in all profiles.)
+          #
+          # How to use:
+          #   export RANKER_PROFILE=A   # Aggressive
+          #   export RANKER_PROFILE=B   # Balanced (default)
+          #   export RANKER_PROFILE=C   # Conservative
+          # =============================================================================
 
           # --- Hard filters ---
           HARD_DROP_MODE: 'normal' # tougher on junk; still not 'strict'
@@ -136,8 +161,11 @@ jobs:
           QS_USE_FVA: '1' # uses the anchor nudge we added
 
           # Optional (if you wired them in quick_scorer)
-          QS_FVA_PEN_MAX: '12' # max penalty when price >> FVA (pts inside struct)
-          QS_FVA_BONUS_MAX: '6' # max bonus when price << FVA
+          QS_FVA_PEN_MAX: '20' # was 12; stronger penalty when price >> FVA
+          QS_FVA_BONUS_MAX: '6' # bonus for price << FVA stays small/asymmetric
+          QS_FVA_KO_PCT: '35' # heavy penalty if >35% above anchor AND extended
+          QS_VAL_OVERLAY_MAX: '12' # cap for ratio overlay added into "struct"
+          QS_STRUCT_PREM_CAP: '12' # stronger AVWAP premium headwind for stretched names
 
           # --- Small-cap liquidity dampening ---
           QS_SMALL_PRICE_MAX: '8'

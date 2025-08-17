@@ -260,6 +260,8 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
         weights = dict(trend=0.50, momo=0.33, struct=0.11, risk=0.04)
     return weights, pe_w, atr_soft, vol_soft, dd_soft
 
+
+
 # ---- P/E tilt (optional; uses feats["val_PE"] or feats["PE"] if present) ----
 def _pe_tilt_points(pe: float|None, rsi: float|None, vol_vs20: float|None) -> float:
     if pe is None or pe <= 0:
@@ -394,21 +396,29 @@ def quick_score(
         elif vsE50 < 0 and vsE200 < 0:
             struct -= 2.0
 
-    # --- NEW: light FVA anchor nudge (asymmetric) ---
+    # --- FVA anchor nudge (asymmetric) ---
     if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
         pen   = float(os.getenv("QS_FVA_PEN_MAX", "12"))   # max penalty when price > FVA
         bonus = float(os.getenv("QS_FVA_BONUS_MAX", "6"))  # max bonus   when price < FVA
+        ko_pct = float(os.getenv("QS_FVA_KO_PCT", "35"))   # % above anchor to trigger KO
 
         fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
-        if fva and px:
-            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0   # +% means price below anchor
+
+        if (fva is not None) and (px is not None):
+            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means price below anchor
             if disc < 0:
                 # price ABOVE FVA → penalty up to env cap
-                struct += -clamp(abs(disc)/20.0, 0.0, 1.0) * pen
+                struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
             elif disc > 0:
                 # price BELOW FVA → bonus up to env cap
-                struct +=  clamp(disc/20.0, 0.0, 1.0) * bonus
+                struct += clamp(disc/20.0, 0.0, 1.0) * bonus
 
+            # --- KO gap for extended price far above anchor ---
+            if px > fva:
+                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0  # +% means price above anchor
+                if gap >= ko_pct and ((rsi is not None and rsi >= 72) or (vsE50 is not None and vsE50 >= 40)):
+                    # Extra haircut if both far above FVA and technically extended.
+                    struct -= min(40.0, (gap - ko_pct) * 0.6)
 
     # risk (soft, tier-aware)
     risk_pen = 0.0
