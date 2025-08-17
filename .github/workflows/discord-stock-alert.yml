@@ -120,7 +120,7 @@ jobs:
           STAGE1_MIN_SMALL: '100'
           STAGE1_MIN_LARGE: '100'
           STAGE1_RESCUE_FRAC: '0'
-          STAGE1_WRITE_CSV: '1'     # so we can commit Top-200 kept
+          STAGE1_WRITE_CSV: '1'     # write kept/removed CSVs so we can commit Top-200
 
           # --- Stage-2 profile ---
           RANKER_PROFILE: 'C'
@@ -152,7 +152,9 @@ jobs:
           QS_FVA_BONUS_MAX_LARGE: '6'
           QS_FVA_KO_PCT_SMALL:    '45'
           QS_FVA_KO_PCT_LARGE:    '28'
-          QS_STRUCT_PREM_CAP:     '4'   # global fallback; you said you'll set it to 4
+          QS_STRUCT_PREM_CAP:     '4'   # global fallback
+          QS_STRUCT_PREM_CAP_SMALL:'6'
+          QS_STRUCT_PREM_CAP_LARGE:'8'
 
           # --- Valuation overlay into structure ---
           QS_VAL_OVERLAY: '1'
