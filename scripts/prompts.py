@@ -8,7 +8,7 @@ Do not fetch external data; use only what’s provided. Missing = neutral (basel
 
 CATEGORIES & RANGES (sum = BASE, clamp each range):
 
-1) Market & Sector (0–300)  Baseline = from BASELINE_HINTS (typ. 200)
+1) Market & Sector (0–300)  Baseline = from BASELINE_HINTS (typ. 150)
    Inputs: PROXIES.MARKET_TREND (−5..+5), REL_STRENGTH (−5..+5), BREADTH_VOLUME (−5..+5).
    Scoring: +/−20 per MARKET_TREND step, +/−20 per REL_STRENGTH step, +/−10 per BREADTH step. Clamp 0–300.
 

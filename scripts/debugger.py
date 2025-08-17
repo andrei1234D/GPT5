@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 
 # Discord limits we care about
 _MAX_EMBEDS_PER_MESSAGE = 9          # hard cap is 10; keep 1 buffer
-_MAX_FIELD_VALUE = 1024              # per field value
+_MAX_FIELD_VALUE = 3754              # per field value
 _MAX_TITLE_LEN = 256
 
 def _fmt_num(x):
@@ -73,7 +73,7 @@ def post_debug_inputs_to_discord(picked: List[str], debug_inputs: Dict[str, Dict
         # Prompt preview (safe length; embed field value <= 1024)
         prompt_block = (d.get("PROMPT_BLOCK") or "").strip()
         if len(prompt_block) > 900:
-            prompt_block = prompt_block[:900] + " …(truncated)"
+            prompt_block = prompt_block[:3600] + " …(truncated)"
         prompt_field_val = f"```text\n{prompt_block}\n```"
         prompt_field_val = _truncate(prompt_field_val, _MAX_FIELD_VALUE)
 

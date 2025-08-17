@@ -134,9 +134,15 @@ jobs:
           STAGE1_PE_RESCORE: "1"
           STAGE1_PE_POOL: "2000"
 
-          # --- Ranker hard drops ---
+          # --- Trash Ranker hard drops ---
           HARD_DROP_MODE: "loose"
           HARD_GRACE_ATR: "2.0"
+          ATH_GUARD: "1"           # 0 to disable
+          ATH_NEAR_PCT: "1.0"      # within 1% of 52w high triggers
+          ATH_MIN_RSI: "80"        # RSI threshold
+          ATH_MIN_VS50: "25"       # vsEMA50 threshold
+          ATH_VOL_RELIEF: "60"     # Vol_vs_20d ≥ this halves the penalty
+          ATH_SCORE_HAIRCUT: "22"  # points off the final -100..100 score at max severity
 
           # --- OpenAI call timeout (seconds) ---
           OPENAI_TIMEOUT: "360"
