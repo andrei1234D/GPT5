@@ -21,7 +21,7 @@ def _maybe_configure_logging():
 _maybe_configure_logging()
 logger = logging.getLogger("data_fetcher")
 
-# ---------- symbol normalization (consistent with features.py) ----------
+# ---------- helpers ----------
 _YH_SUFFIXES = {
     "L","DE","F","SW","PA","AS","BR","LS","MC","MI","VI","ST","HE","CO","OL","WA","PR",
     "TO","V","AX","HK","T","SI","KS","KQ","NS","BO","JO","SA","MX","NZ","DU","AD","SR","TA",
@@ -53,10 +53,17 @@ def _safe_float(x) -> Optional[float]:
 def _fmt(x: Optional[float]) -> str:
     return "N/A" if x is None else f"{x:.2f}"
 
-# --------- cache helpers (PE only, kept for backward compatibility) ---------
-_PE_CACHE_PATH = os.getenv("PE_CACHE_PATH", "data/pe_cache.json")
-_PE_CACHE_TTL_S = int(os.getenv("PE_CACHE_TTL_S", "86400"))  # 1 day
+def _as_dict(obj) -> dict:
+    if isinstance(obj, dict): return obj
+    try:
+        return dict(obj)
+    except Exception:
+        return {}
 
+def _count_numeric(d: Dict[str, Optional[float]]) -> int:
+    return sum(1 for v in (d or {}).values() if _safe_float(v) is not None)
+
+# --------- cache helpers ---------
 def _load_cache(path: str) -> Dict[str, dict]:
     try:
         if os.path.exists(path):
@@ -88,17 +95,14 @@ def _put_cache(cache: Dict[str, dict], t: str, payload: dict) -> None:
 
 # ---------- price / size helpers ----------
 def _get_price_fast(tk: yf.Ticker) -> Optional[float]:
-    # fast_info
     try:
-        fi = getattr(tk, "fast_info", None)
-        if isinstance(fi, dict):
-            for k in ("lastPrice", "last_price", "last_close"):
-                p = _safe_float(fi.get(k))
-                if p is not None:
-                    return p
+        fi = _as_dict(getattr(tk, "fast_info", None))
+        for k in ("lastPrice", "last_price", "last_close", "last_close_price"):
+            p = _safe_float(fi.get(k))
+            if p is not None:
+                return p
     except Exception:
         pass
-    # history fallback
     try:
         h = tk.history(period="1d")
         if hasattr(h, "empty") and not h.empty:
@@ -108,32 +112,25 @@ def _get_price_fast(tk: yf.Ticker) -> Optional[float]:
     return None
 
 def _get_market_cap(tk: yf.Ticker, info: Optional[dict]) -> Optional[float]:
-    # fast_info first
     try:
-        fi = getattr(tk, "fast_info", None)
-        if isinstance(fi, dict):
-            mc = _safe_float(fi.get("market_cap"))
-            if mc: return mc
+        fi = _as_dict(getattr(tk, "fast_info", None))
+        mc = _safe_float(fi.get("market_cap"))
+        if mc: return mc
     except Exception:
         pass
     if isinstance(info, dict):
         mc = _safe_float(info.get("marketCap"))
         if mc: return mc
-        # compute fallback: price * sharesOutstanding
-        px = _safe_float(info.get("currentPrice"))
-        if px is None:
-            px = _get_price_fast(tk)
+        px = _safe_float(info.get("currentPrice")) or _get_price_fast(tk)
         shares = _safe_float(info.get("sharesOutstanding"))
         if px and shares:
             return px * shares
     return None
 
-def _get_enterprise_value(info: Optional[dict], tk: Optional[yf.Ticker]=None) -> Optional[float]:
-    # direct
+def _get_enterprise_value(info: Optional[dict]) -> Optional[float]:
     if isinstance(info, dict):
         ev = _safe_float(info.get("enterpriseValue"))
         if ev: return ev
-        # compute fallback: marketCap + totalDebt - cash
         mcap = _safe_float(info.get("marketCap"))
         total_debt = _safe_float(info.get("totalDebt"))
         cash = _safe_float(info.get("cash") or info.get("cashAndCashEquivalents"))
@@ -143,26 +140,19 @@ def _get_enterprise_value(info: Optional[dict], tk: Optional[yf.Ticker]=None) ->
 
 # ---------- PE (with EPS compute fallback) ----------
 def _extract_pe_with_compute(tk: yf.Ticker) -> Tuple[Optional[float], str]:
-    """
-    Try trailing PE, then forward PE, then compute from EPS if possible.
-    Returns (pe_value or None, source_tag).
-    """
-    # 1) direct from fast_info
     try:
-        fi = getattr(tk, "fast_info", None)
-        if isinstance(fi, dict):
-            for key in ("trailingPE", "trailing_pe", "pe_ratio"):
-                pe = _safe_float(fi.get(key))
-                if pe and pe > 0:
-                    return pe, "trailing"
-            for key in ("forwardPE", "forward_pe"):
-                pe = _safe_float(fi.get(key))
-                if pe and pe > 0:
-                    return pe, "forward"
+        fi = _as_dict(getattr(tk, "fast_info", None))
+        for key in ("trailingPE", "trailing_pe", "pe_ratio"):
+            pe = _safe_float(fi.get(key))
+            if pe and pe > 0:
+                return pe, "trailing"
+        for key in ("forwardPE", "forward_pe"):
+            pe = _safe_float(fi.get(key))
+            if pe and pe > 0:
+                return pe, "forward"
     except Exception:
         pass
 
-    # 2) from info/get_info
     info = None
     try:
         info = tk.get_info() if hasattr(tk, "get_info") else tk.info
@@ -172,34 +162,23 @@ def _extract_pe_with_compute(tk: yf.Ticker) -> Tuple[Optional[float], str]:
 
     if isinstance(info, dict):
         pe = _safe_float(info.get("trailingPE"))
-        if pe and pe > 0:
-            return pe, "trailing"
+        if pe and pe > 0: return pe, "trailing"
         pe = _safe_float(info.get("forwardPE"))
-        if pe and pe > 0:
-            return pe, "forward"
+        if pe and pe > 0: return pe, "forward"
 
-    # 3) compute from EPS if available (and positive)
     price = _get_price_fast(tk)
     if isinstance(info, dict) and price:
         teps = _safe_float(info.get("trailingEps"))
-        if teps and teps > 0:
-            return price / teps, "trailing_computed"
+        if teps and teps > 0: return price / teps, "trailing_computed"
         feps = _safe_float(info.get("forwardEps"))
-        if feps and feps > 0:
-            return price / feps, "forward_computed"
+        if feps and feps > 0: return price / feps, "forward_computed"
 
     return None, "none"
 
 # ---------- FCF Yield helper ----------
 def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[dict]) -> Optional[float]:
-    """
-    Return FCF yield in PERCENT (can be negative), or None if we really can't compute it.
-    Tries Yahoo info keys, then falls back to cashflow TTM, and computes market cap if missing.
-    """
-    # 1) FCF value
     fcf = _safe_float((info or {}).get("freeCashflow") or (info or {}).get("freeCashFlow") or (info or {}).get("freeCashFlowTTM"))
     if fcf is None:
-        # cashflow statement fallback
         try:
             cf = getattr(tk, "cashflow", None)
             if cf is not None and hasattr(cf, "index") and "Free Cash Flow" in cf.index:
@@ -209,13 +188,11 @@ def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[d
         except Exception:
             pass
 
-    # 2) market cap
     mcap = _get_market_cap(tk, info)
     if mcap is None:
-        # extra compute: price * sharesOutstanding if not done
         px = None
-        if isinstance(fi_dict, dict):
-            px = _safe_float(fi_dict.get("lastPrice") or fi_dict.get("last_price"))
+        fi = _as_dict(fi_dict)
+        px = _safe_float(fi.get("lastPrice") or fi.get("last_price") or fi.get("last_close"))
         if px is None:
             px = _get_price_fast(tk)
         shares = _safe_float((info or {}).get("sharesOutstanding"))
@@ -223,32 +200,14 @@ def _calc_fcf_yield_pct(tk: yf.Ticker, info: Optional[dict], fi_dict: Optional[d
             mcap = px * shares
 
     if (mcap is not None and mcap > 0) and (fcf is not None):
-        return 100.0 * (fcf / mcap)  # keep sign
+        return 100.0 * (fcf / mcap)
     return None
 
 # ---------- Full valuation extractor ----------
 def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[float]], Dict[str, str]]:
-    """
-    Pulls a set of valuation ratios with safe fallbacks and minimal compute:
-    - PE (trailing preferred, then forward, then EPS-computed)
-    - PS (price-to-sales TTM)
-    - EV_EBITDA
-    - EV_REV (EV/Revenue)
-    - PEG
-    - FCF_YIELD (as percent, e.g., 3.2 means 3.2%)
-    Returns (vals_dict, src_dict).
-    """
-    vals: Dict[str, Optional[float]] = {
-        "PE": None,
-        "PS": None,
-        "EV_EBITDA": None,
-        "EV_REV": None,
-        "PEG": None,
-        "FCF_YIELD": None,
-    }
+    vals: Dict[str, Optional[float]] = { "PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None }
     srcs: Dict[str, str] = {k: "none" for k in vals.keys()}
 
-    # Info (lots of fields live here)
     info = None
     try:
         info = tk.get_info() if hasattr(tk, "get_info") else tk.info
@@ -256,25 +215,18 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
         logger.debug("info fetch failed: %r", e)
         info = None
 
-    # fast_info snapshot (for price, etc.)
-    fi = getattr(tk, "fast_info", None)
-    if not isinstance(fi, dict):
-        fi = None
+    fi = _as_dict(getattr(tk, "fast_info", None))
 
-    # --- PE ---
+    # PE
     pe, pe_src = _extract_pe_with_compute(tk)
     vals["PE"], srcs["PE"] = pe, pe_src
 
-    # --- PS ---
+    # PS
     if isinstance(info, dict):
-        ps = _safe_float(
-            info.get("priceToSalesTrailing12Months") or
-            info.get("priceToSales")
-        )
+        ps = _safe_float(info.get("priceToSalesTrailing12Months") or info.get("priceToSales"))
         if ps and ps > 0:
             vals["PS"], srcs["PS"] = ps, "info"
         else:
-            # compute fallback: price / revenuePerShareTTM, or marketCap / totalRevenue
             price = _get_price_fast(tk)
             rps = _safe_float(info.get("revenuePerShareTTM") or info.get("revenuePerShare"))
             if price and rps and rps > 0:
@@ -285,135 +237,169 @@ def _extract_valuations_version_safe(tk: yf.Ticker) -> Tuple[Dict[str, Optional[
                 if mc and tot_rev and tot_rev > 0:
                     vals["PS"], srcs["PS"] = mc / tot_rev, "computed_mc_rev"
 
-    # --- EV/EBITDA ---
+    # EV/EBITDA
     if isinstance(info, dict):
         ev_ebitda = _safe_float(info.get("enterpriseToEbitda"))
         if ev_ebitda and ev_ebitda > 0:
             vals["EV_EBITDA"], srcs["EV_EBITDA"] = ev_ebitda, "info"
         else:
-            ev = _get_enterprise_value(info, tk)
+            ev = _get_enterprise_value(info)
             ebitda = _safe_float(info.get("ebitda"))
             if ev and ebitda and ebitda > 0:
                 vals["EV_EBITDA"], srcs["EV_EBITDA"] = ev / ebitda, "computed"
 
-    # --- EV/Revenue ---
+    # EV/Revenue
     if isinstance(info, dict):
         ev_rev = _safe_float(info.get("enterpriseToRevenue"))
         if ev_rev and ev_rev > 0:
             vals["EV_REV"], srcs["EV_REV"] = ev_rev, "info"
         else:
-            ev = _get_enterprise_value(info, tk)
+            ev = _get_enterprise_value(info)
             tot_rev = _safe_float(info.get("totalRevenue"))
             if ev and tot_rev and tot_rev > 0:
                 vals["EV_REV"], srcs["EV_REV"] = ev / tot_rev, "computed"
 
-    # --- PEG ---
+    # PEG
     if isinstance(info, dict):
         peg = _safe_float(info.get("pegRatio") or info.get("trailingPegRatio"))
         if peg and peg > 0:
             vals["PEG"], srcs["PEG"] = peg, "info"
 
-    # --- FCF Yield (FCF / MarketCap), robust fallback (keeps negative)
+    # FCF Yield
     vals["FCF_YIELD"] = _calc_fcf_yield_pct(tk, info, fi)
     srcs["FCF_YIELD"] = "computed" if vals["FCF_YIELD"] is not None else "none"
 
     return vals, srcs
 
-# ---------- Public: fetch just PE (back-compat) ----------
+# ---------- Public: fetch just PE ----------
+_PE_CACHE_PATH = os.getenv("PE_CACHE_PATH", "data/pe_cache.json")
+_PE_CACHE_TTL_S = int(os.getenv("PE_CACHE_TTL_S", "86400"))  # 1 day
+
 def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
-    """
-    Fetch trailing P/E (preferred) or forward P/E as a fallback.
-    Returns {ticker: pe or None}. Never throws.
-    """
     if os.getenv("DISABLE_PE_FETCH", "").strip().lower() in {"1","true","yes"}:
         return {t: None for t in tickers}
 
-    extra_aliases = {}
     try:
         extra_aliases = load_aliases_csv("data/aliases.csv")
     except Exception:
         extra_aliases = {}
 
     cache = _load_cache(_PE_CACHE_PATH)
+    logger.debug("PE_CACHE_PATH=%s", _PE_CACHE_PATH)
+
     out: Dict[str, Optional[float]] = {}
     delay = float(os.getenv("PE_FETCH_DELAY_S", "0.15"))
+    max_retries = int(os.getenv("YF_MAX_RETRIES", "3"))
+    retry_sleep = float(os.getenv("YF_RETRY_SLEEP", "2.5"))
 
     for t in tickers:
         cached = _from_cache(cache, t, _PE_CACHE_TTL_S)
         if cached is not None and "pe" in cached:
-            out[t] = _safe_float(cached.get("pe"))
-            logger.debug("[pe] cache %s -> %s (%s)", t, _fmt(out[t]), cached.get("source") or "unknown")
-            continue
+            pe_cached = _safe_float(cached.get("pe"))
+            if pe_cached and pe_cached > 0:
+                out[t] = pe_cached
+                logger.debug("[pe] cache %s -> %s (%s)", t, _fmt(out[t]), cached.get("source") or "unknown")
+                continue  # accept only positive numeric cache
+            else:
+                logger.debug("[pe] cache %s present but invalid (%s) -> refetch", t, cached.get("pe"))
 
-        ali = apply_alias(t, extra_aliases)
-        yh = _normalize_symbol_for_yahoo(ali)
+        yh = _normalize_symbol_for_yahoo(apply_alias(t, extra_aliases))
 
-        try:
-            tk = yf.Ticker(yh)
-            pe, src = _extract_pe_with_compute(tk)
-            out[t] = pe
+        pe, src = None, "none"
+        for attempt in range(1, max_retries + 1):
+            try:
+                tk = yf.Ticker(yh)
+                pe, src = _extract_pe_with_compute(tk)
+                if pe and pe > 0:
+                    break
+            except Exception as e:
+                msg = str(e)
+                if "Rate" in msg or "Too Many Requests" in msg:
+                    time.sleep(retry_sleep * attempt)
+                    continue
+            time.sleep(0.05)
+
+        out[t] = pe
+        # write cache only if we have a meaningful value
+        if pe and pe > 0:
             _put_cache(cache, t, {"pe": pe, "source": src})
-            logger.info("[pe] %s (%s) -> %s (%s)", t, yh, "N/A" if pe is None else f"{pe:.2f}", src)
-        except Exception as e:
-            out[t] = None
-            _put_cache(cache, t, {"pe": None, "source": "error"})
-            logger.warning("[pe] fetch fail %s (%s): %r", t, yh, e)
-
+        logger.info("[pe] %s (%s) -> %s (%s)", t, yh, "N/A" if pe is None else f"{pe:.2f}", src)
         time.sleep(delay)
 
     _save_cache(_PE_CACHE_PATH, cache)
     return out
 
-# ---------- NEW: Full valuations fetch ----------
+# ---------- Full valuations fetch ----------
 _VAL_CACHE_PATH = os.getenv("VAL_CACHE_PATH", "data/valuations_cache.json")
 _VAL_CACHE_TTL_S = int(os.getenv("VAL_CACHE_TTL_S", "86400"))  # 1 day
 
 def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
     """
-    Fetch a pack of valuation ratios:
-      PE, PS, EV_EBITDA, EV_REV, PEG, FCF_YIELD (percent)
-    Returns: {ticker: {field: value_or_None}}
+    Fetch: PE, PS, EV_EBITDA, EV_REV, PEG, FCF_YIELD (percent)
+    Cache is used only if it contains >= VAL_MIN_NUMERIC_CACHE numeric fields (default: 1).
     """
     if os.getenv("DISABLE_VAL_FETCH", "").strip().lower() in {"1","true","yes"}:
         return {t: {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None} for t in tickers}
 
-    extra_aliases = {}
     try:
         extra_aliases = load_aliases_csv("data/aliases.csv")
     except Exception:
         extra_aliases = {}
 
     cache = _load_cache(_VAL_CACHE_PATH)
+    logger.debug("VAL_CACHE_PATH=%s", _VAL_CACHE_PATH)
+
     out: Dict[str, Dict[str, Optional[float]]] = {}
     delay = float(os.getenv("VAL_FETCH_DELAY_S", os.getenv("PE_FETCH_DELAY_S", "0.15")))
+    min_numeric_cache = int(os.getenv("VAL_MIN_NUMERIC_CACHE", "1"))
+    max_retries = int(os.getenv("YF_MAX_RETRIES", "3"))
+    retry_sleep = float(os.getenv("YF_RETRY_SLEEP", "2.5"))
+
+    keys = ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]
 
     for t in tickers:
+        # --- read cache (accept only if it has enough numeric fields) ---
         cached = _from_cache(cache, t, _VAL_CACHE_TTL_S)
         if cached is not None and isinstance(cached.get("vals"), dict):
-            vals = cached["vals"]
-            out[t] = {k: _safe_float(vals.get(k)) for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]}
-            logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in out[t].items()})
-            continue
+            vals_raw = cached["vals"]
+            vals_norm = {k: _safe_float(vals_raw.get(k)) for k in keys}
+            if _count_numeric(vals_norm) >= min_numeric_cache:
+                out[t] = vals_norm
+                logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in out[t].items()})
+                continue
+            else:
+                logger.debug("[val] cache %s present but insufficient numeric fields -> refetch", t)
 
-        ali = apply_alias(t, extra_aliases)
-        yh = _normalize_symbol_for_yahoo(ali)
+        yh = _normalize_symbol_for_yahoo(apply_alias(t, extra_aliases))
 
-        try:
-            tk = yf.Ticker(yh)
-            vals, srcs = _extract_valuations_version_safe(tk)
-            out[t] = vals
-            _put_cache(cache, t, {"vals": vals, "sources": srcs})
-            logger.info(
-                "[val] %s (%s) -> PE=%s PS=%s EV/EBITDA=%s EV/REV=%s PEG=%s FCF_YIELD=%s%%",
-                t, yh,
-                _fmt(vals["PE"]), _fmt(vals["PS"]), _fmt(vals["EV_EBITDA"]), _fmt(vals["EV_REV"]),
-                _fmt(vals["PEG"]), _fmt(vals["FCF_YIELD"])
-            )
-        except Exception as e:
-            out[t] = {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None}
-            _put_cache(cache, t, {"vals": out[t], "sources": {"all": "error"}})
-            logger.warning("[val] fetch fail %s (%s): %r", t, yh, e)
+        vals, srcs = None, None
+        for attempt in range(1, max_retries + 1):
+            try:
+                tk = yf.Ticker(yh)
+                vals, srcs = _extract_valuations_version_safe(tk)
+                if _count_numeric(vals) >= 1:
+                    break  # good enough
+            except Exception as e:
+                msg = str(e)
+                if "Rate" in msg or "Too Many Requests" in msg:
+                    time.sleep(retry_sleep * attempt)  # backoff
+                    continue
+            time.sleep(0.05)
 
+        if vals is None:
+            vals = {k: None for k in keys}
+        out[t] = vals
+
+        # write cache only if we have at least one numeric value
+        if _count_numeric(vals) >= min_numeric_cache:
+            _put_cache(cache, t, {"vals": vals, "sources": (srcs or {})})
+
+        logger.info(
+            "[val] %s (%s) -> PE=%s PS=%s EV/EBITDA=%s EV/REV=%s PEG=%s FCF_YIELD=%s%%",
+            t, yh,
+            _fmt(vals.get("PE")), _fmt(vals.get("PS")), _fmt(vals.get("EV_EBITDA")), _fmt(vals.get("EV_REV")),
+            _fmt(vals.get("PEG")), _fmt(vals.get("FCF_YIELD"))
+        )
         time.sleep(delay)
 
     _save_cache(_VAL_CACHE_PATH, cache)
@@ -422,6 +408,6 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
 # simple CLIs
 if __name__ == "__main__":
     import sys, json as _json
-    tickers = sys.argv[1:] or ["AAPL", "MSFT", "KOD"]
+    tickers = sys.argv[1:] or ["AAPL", "MSFT", "KOD", "RDDT"]
     vals = fetch_valuations_for_top(tickers)
     print(_json.dumps(vals, indent=2))
