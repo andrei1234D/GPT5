@@ -2,8 +2,8 @@ name: Daily GPT-5 Stock Alert to Discord
 
 on:
   schedule:
-    - cron: '0 4 * * *'   # Runs every day at 04:00 UTC.
-  workflow_dispatch:       # Allows manual runs from the Actions tab.
+    - cron: '0 4 * * *' # Runs every day at 04:00 UTC.
+  workflow_dispatch: # Allows manual runs from the Actions tab.
 
 permissions:
   contents: write
@@ -120,7 +120,7 @@ jobs:
           STAGE1_MIN_SMALL: '100'
           STAGE1_MIN_LARGE: '100'
           STAGE1_RESCUE_FRAC: '0'
-          STAGE1_WRITE_CSV: '1'     # write kept/removed CSVs so we can commit Top-200
+          STAGE1_WRITE_CSV: '1' # so we can commit Top-200 kept
 
           # --- Stage-2 profile ---
           RANKER_PROFILE: 'C'
@@ -131,13 +131,13 @@ jobs:
 
           # --- Quick scorer weights (tech valuation & risk emphasized) ---
           QS_W_TREND_SMALL: '0.28'
-          QS_W_MOMO_SMALL:  '0.18'
-          QS_W_STRUCT_SMALL:'0.36'
-          QS_W_RISK_SMALL:  '0.18'
+          QS_W_MOMO_SMALL: '0.18'
+          QS_W_STRUCT_SMALL: '0.36'
+          QS_W_RISK_SMALL: '0.18'
           QS_W_TREND_LARGE: '0.32'
-          QS_W_MOMO_LARGE:  '0.18'
-          QS_W_STRUCT_LARGE:'0.38'
-          QS_W_RISK_LARGE:  '0.12'
+          QS_W_MOMO_LARGE: '0.18'
+          QS_W_STRUCT_LARGE: '0.38'
+          QS_W_RISK_LARGE: '0.12'
 
           # --- P/E tilt (low weight) ---
           QS_PE_WEIGHT: '0.02'
@@ -146,15 +146,13 @@ jobs:
 
           # --- FVA & AVWAP shaping (tier-aware) ---
           QS_USE_FVA: '1'
-          QS_FVA_PEN_MAX_SMALL:   '14'
-          QS_FVA_PEN_MAX_LARGE:   '30'
+          QS_FVA_PEN_MAX_SMALL: '14'
+          QS_FVA_PEN_MAX_LARGE: '30'
           QS_FVA_BONUS_MAX_SMALL: '6'
           QS_FVA_BONUS_MAX_LARGE: '6'
-          QS_FVA_KO_PCT_SMALL:    '45'
-          QS_FVA_KO_PCT_LARGE:    '28'
-          QS_STRUCT_PREM_CAP:     '4'   # global fallback
-          QS_STRUCT_PREM_CAP_SMALL:'6'
-          QS_STRUCT_PREM_CAP_LARGE:'8'
+          QS_FVA_KO_PCT_SMALL: '45'
+          QS_FVA_KO_PCT_LARGE: '28'
+          QS_STRUCT_PREM_CAP: '4' # global fallback; you said you'll set it to 4
 
           # --- Valuation overlay into structure ---
           QS_VAL_OVERLAY: '1'
