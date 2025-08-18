@@ -120,7 +120,7 @@ jobs:
           STAGE1_MIN_SMALL: '100'
           STAGE1_MIN_LARGE: '100'
           STAGE1_RESCUE_FRAC: '0'
-          STAGE1_WRITE_CSV: '1' # so we can commit Top-200 kept
+          STAGE1_WRITE_CSV: '1'
 
           # --- Stage-2 profile ---
           RANKER_PROFILE: 'C'
@@ -129,7 +129,7 @@ jobs:
           HARD_DROP_MODE: 'strict'
           HARD_GRACE_ATR: '0.5'
 
-          # --- Quick scorer weights (tech valuation & risk emphasized) ---
+          # --- Quick scorer weights (favor structure/risk) ---
           QS_W_TREND_SMALL: '0.28'
           QS_W_MOMO_SMALL: '0.18'
           QS_W_STRUCT_SMALL: '0.36'
@@ -152,7 +152,27 @@ jobs:
           QS_FVA_BONUS_MAX_LARGE: '6'
           QS_FVA_KO_PCT_SMALL: '45'
           QS_FVA_KO_PCT_LARGE: '28'
-          QS_STRUCT_PREM_CAP: '4' # global fallback; you said you'll set it to 4
+          QS_STRUCT_PREM_CAP: '4' # global fallback
+          QS_STRUCT_PREM_CAP_SMALL: '6'
+          QS_STRUCT_PREM_CAP_LARGE: '8'
+
+          # --- Anticipation (lead setup) bias ---
+          QS_SETUP_ATR_MAX: '6.0'
+          QS_SETUP_VS50_MIN: '-4'
+          QS_SETUP_VS50_MAX: '10'
+          QS_SETUP_VS200_MIN: '-2'
+          QS_SETUP_VOL_ABS_MAX: '60'
+          QS_SETUP_RSI_LO: '45'
+          QS_SETUP_RSI_HI: '62'
+          QS_SETUP_E50S_MIN: '0.5'
+          QS_SETUP_E50S_MAX: '8'
+          QS_SETUP_CAP_SMALL: '12'
+          QS_SETUP_CAP_LARGE: '14'
+
+          # --- Momentum “chase” penalty ---
+          QS_MOMO_CHASE_KNEE: '35'
+          QS_MOMO_CHASE_SLOPE: '0.6'
+          QS_MOMO_CHASE_PEN_MAX: '15'
 
           # --- Valuation overlay into structure ---
           QS_VAL_OVERLAY: '1'
@@ -218,7 +238,7 @@ jobs:
             git add "$FILE"
             if git diff --cached --quiet; then
               echo "No changes to commit for $FILE."
-            else
+            else:
               git commit -m "Add/update top2000 quick-sort CSV (run #${{ github.run_number }})"
               git push
             fi
@@ -237,7 +257,7 @@ jobs:
             git add "$FILE"
             if git diff --cached --quiet; then
               echo "No changes to commit for $FILE."
-            else
+            else:
               git commit -m "Add/update top200 kept CSV (run #${{ github.run_number }})"
               git push
             fi
