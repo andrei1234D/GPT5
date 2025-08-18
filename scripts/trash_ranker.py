@@ -27,6 +27,34 @@ class HardFilter:
     mode: str = field(default_factory=lambda: os.getenv("HARD_DROP_MODE", "loose").lower())
     grace_atr: float = field(default_factory=lambda: float(os.getenv("HARD_GRACE_ATR", "2.0")))
 
+    # --- early-turn detector (keeps candidates that are just starting to trend up) ---
+    def _is_early_turn(self, feats: Dict) -> bool:
+        rsi      = safe(feats.get("RSI14"), None)
+        e50s     = safe(feats.get("EMA50_slope_5d"), None)
+        v20      = safe(feats.get("vol_vs20"), None)
+        px       = safe(feats.get("price"), None)
+        e20      = safe(feats.get("EMA20"), None)
+        vsem200  = safe(feats.get("vsEMA200"), None)
+
+        if (rsi is None) or (e50s is None) or (px is None) or (e20 is None) or (vsem200 is None):
+            return False
+
+        rsi_lo   = float(os.getenv("EARLY_TURN_RSI_LO", "47.0"))
+        rsi_hi   = float(os.getenv("EARLY_TURN_RSI_HI", "63.0"))
+        slope_lo = float(os.getenv("EARLY_TURN_MIN_E50_SLOPE", "2.0"))
+        vs200_lo = float(os.getenv("EARLY_TURN_VS200_LO", "-12.0"))
+        vs200_hi = float(os.getenv("EARLY_TURN_VS200_HI", "8.0"))
+        vol_lo   = float(os.getenv("EARLY_TURN_VOL_LO", "110.0"))
+        vol_hi   = float(os.getenv("EARLY_TURN_VOL_HI", "220.0"))
+
+        rsi_ok   = rsi_lo <= rsi <= rsi_hi
+        slope_ok = e50s >= slope_lo            # rising 50EMA
+        vol_ok   = (v20 is None) or (vol_lo <= v20 <= vol_hi)  # modest participation, not a blowoff
+        px_ok    = px >= e20                    # price reclaimed short-term trend
+        near200  = vs200_lo <= vsem200 <= vs200_hi  # still near/just below long trend
+
+        return rsi_ok and slope_ok and vol_ok and px_ok and near200
+
     def _scaled(self):
         m = self.mode
         if m == "off":
@@ -83,19 +111,29 @@ class HardFilter:
 
         # Trend leaders get a little ATR grace
         trend_leader = (r60 is not None and r60 >= 20) and (vs200 is not None and vs200 >= 0)
+        early_turn = self._is_early_turn(feats)
 
         if (price is None) or (price < t["min_price"]):
             return True, f"price<{t['min_price']} (price={price})"
 
+        # ATR cap with relief for leaders and early turns
         if atrp is not None:
             lim = t["max_atr_pct"]
             if trend_leader:
                 lim += self.grace_atr
+            if early_turn:
+                lim += self.grace_atr  # +2% by default
             if atrp > lim:
-                return True, f"ATRpct>{lim} (atr={atrp}, leader={trend_leader})"
+                return True, f"ATRpct>{lim} (atr={atrp}, leader={trend_leader}, early={early_turn})"
 
-        if vs200 is not None and vs200 < t["max_vssma200_neg"]:
-            return True, f"vsSMA200<{t['max_vssma200_neg']} (vs200={vs200})"
+        # vs200 drop test (allow a bit more weakness if it's an early turn)
+        if vs200 is not None:
+            lim_200 = t["max_vssma200_neg"]
+            if early_turn:
+                lim_200 -= float(os.getenv("EARLY_TURN_VS200_PAD", "5.0"))
+            if vs200 < lim_200:
+                return True, f"vsSMA200<{lim_200} (vs200={vs200}, early={early_turn})"
+
         if dd is not None and dd < t["max_drawdown_neg"]:
             return True, f"drawdown<{t['max_drawdown_neg']} (dd={dd})"
 
@@ -117,14 +155,15 @@ class HardFilter:
                     return False, "valuation-blowoff-soft-keep"
                 return True, "valuation-blowoff (PE/PS/PEG extreme + RSI/vol spike)"
 
-        # Optional EMA rollover hard filter
+        # Optional EMA rollover hard filter — skip if it's an early turn
         if self.ema_rollover_drop:
             e50  = safe(feats.get("EMA50"), None)
             e200 = safe(feats.get("EMA200"), None)
             px   = safe(feats.get("price"), None)
             if e50 and e200 and px:
                 if (e50 < e200) and (px < e50) and self.mode in {"normal", "strict"}:
-                    return True, "ema_rollover (px<EMA50<EMA200)"
+                    if not early_turn:
+                        return True, "ema_rollover (px<EMA50<EMA200)"
         return False, ""
 
     def is_garbage(self, feats: Dict) -> bool:
@@ -319,7 +358,15 @@ class RobustRanker:
             r60  = safe(feats.get("r60"), 0.0)
             r120 = safe(feats.get("r120"), 0.0)
             is20h = feats.get("is_20d_high")
-            near20 = 1.0 if (is20h or (d20 is not None and d20 >= 8 and safe(feats.get("RSI14"), 50) <= 72)) else 0.0
+
+            # Expanded near20 logic to gently reward first higher-highs
+            near20 = 0.0
+            if is20h or (d20 is not None and d20 >= 8 and safe(feats.get("RSI14"), 50) <= 72):
+                near20 = 1.0
+            elif (d20 is not None and 3.0 <= d20 <= 7.0 and rsi is not None and rsi <= 65 and
+                  vsem200 is not None and vsem200 <= 10.0):
+                near20 = 0.6
+
             momo = (
                 0.35*(self._zs("d20",  d20) /4.0) +
                 0.27*(self._zs("r60",  r60) /4.0) +
@@ -348,7 +395,8 @@ class RobustRanker:
                 if px > e50 > e200: align += 0.20
                 elif px < e50 < e200: align -= 0.18
             struct = clamp(align, -1.0, 1.0)
-             # AVWAP premium headwind (uses QS_STRUCT_PREM_CAP points on a 0..100 scale)
+
+            # AVWAP premium headwind (uses QS_STRUCT_PREM_CAP points on a 0..100 scale)
             prem_cap_pts = float(os.getenv("QS_STRUCT_PREM_CAP", "0"))
             if prem_cap_pts > 0 and px and avwap:
                 prem = (px / avwap) - 1.0  # >0 means above AVWAP
@@ -356,6 +404,7 @@ class RobustRanker:
                     # Map 0..+20% premium -> 0..(prem_cap_pts/100) negative on the -1..+1 struct scale
                     prem_cap = prem_cap_pts / 100.0
                     struct -= min(prem_cap, prem * (prem_cap / 0.20))
+
             atrp = safe(feats.get("ATRpct"), None)
             dd   = safe(feats.get("drawdown_pct"), None)
             v20  = safe(feats.get("vol_vs20"), None)
@@ -435,6 +484,7 @@ class RobustRanker:
                     fva_term =  clamp(disc/25.0, 0.0, 1.0) * 0.15
 
             value = clamp(value + fva_term, -1.0, 1.0)
+
             # FVA KO haircut for far-above-anchor & technically extended
             ko_pct = float(os.getenv("QS_FVA_KO_PCT", "0"))  # 0 disables
             if ko_pct > 0 and (px is not None) and (fva is not None) and px > fva:
@@ -448,6 +498,36 @@ class RobustRanker:
                     ko_pen = -min(0.6, max(0.0, gap - ko_pct) * 0.012)
                     # Blend it in via stability directly (more conservative than docking only trend/momo)
                     # We'll add this later when assembling 'stability'
+
+            # --- Emerging-trend boosts (small, controlled) ---
+            em_trend_bonus   = float(os.getenv("EARLY_TURN_BONUS_TREND",  "0.18"))
+            em_momo_bonus    = float(os.getenv("EARLY_TURN_BONUS_MOMO",   "0.22"))
+            em_struct_bonus  = float(os.getenv("EARLY_TURN_BONUS_STRUCT", "0.12"))
+
+            em_early = 0.0
+            if (rsi is not None) and (e50s is not None) and (vsem200 is not None):
+                rsi_gate   = clamp((min(max(rsi, 47.0), 63.0) - 47.0) / (63.0 - 47.0), 0.0, 1.0)
+                slope_gate = clamp((e50s - 2.0) / 8.0, 0.0, 1.0)  # 2%..10% 5d slope -> 0..1
+                near200    = 1.0 if (-12.0 <= vsem200 <= 8.0) else 0.0
+                vol_gate   = 1.0 if (v20 is None or (110.0 <= v20 <= 220.0)) else 0.6
+                em_early   = rsi_gate * slope_gate * near200 * vol_gate  # 0..1
+
+            trend  = clamp(trend  + em_trend_bonus  * em_early, -1.0, 1.0)
+            momo   = clamp(momo   + em_momo_bonus   * em_early, -1.0, 1.0)
+            struct = clamp(struct + em_struct_bonus * em_early, -1.0, 1.0)
+
+            # AVWAP reclaim micro-bonus: price just above AVWAP but not >8% premium
+            if px and avwap:
+                prem = (px / avwap) - 1.0
+                reclaim_cap = float(os.getenv("AVWAP_RECLAIM_STRUCT_MAX", "0.18"))
+                reclaim_ceiling = float(os.getenv("AVWAP_RECLAIM_PREMIUM_CEIL", "0.08"))
+                if 0.0 < prem <= reclaim_ceiling and (rsi is not None and rsi <= 65) and (e50s is not None and e50s > 0):
+                    struct = clamp(struct + min(reclaim_cap, (prem / reclaim_ceiling) * reclaim_cap), -1.0, 1.0)
+
+            # “First higher-high” encouragement: modest 20d lift without hot RSI
+            first_hh_bonus = float(os.getenv("MOMO_FIRSTHH_BONUS", "0.08"))
+            if (d20 is not None) and (3.0 <= d20 <= 7.0) and (rsi is not None and rsi <= 65) and (vsem200 is not None and vsem200 <= 10.0):
+                momo = clamp(momo + first_hh_bonus, -1.0, 1.0)
 
             parts = {
                 "trend": trend,
@@ -476,9 +556,8 @@ class RobustRanker:
 
             if self.verbose and logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f (ath_sev=%.2f relief=%.2f fva_term=%.3f)",
-                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"],
-                    scr, ath_sev, ath_relief, fva_term
+                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f",
+                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr
                 )
             return (scr, parts)
         except Exception as e:
