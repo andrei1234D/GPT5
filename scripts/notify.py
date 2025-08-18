@@ -192,13 +192,21 @@ def main():
             if pe is not None and pe > 0:
                 f["val_PE"] = pe
             pre_top200_pe.append((t, n, f, s, meta))
-        rescored = []
-        for (t, n, f, _s, _m) in pre_top200_pe:
-            s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
-            rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
-        rescored.sort(key=lambda x: x[3], reverse=True)
-        pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
-        log("[INFO] Stage-1 P/E refine applied.")
+            rescored = []
+            for (t, n, f, _s, _m) in pre_top200_pe:
+                s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
+                rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
+                # preserve original meta fields (tier, ADV) to keep later logs/filters coherent
+                rescored.append((
+                    t, n, f, s2,
+                    {
+                        "parts": parts2, "tags": _m.get("tags", []),
+                        "tier": _m.get("tier"), "avg_dollar_vol_20d": _m.get("avg_dollar_vol_20d")
+                    }
+                ))
+            rescored.sort(key=lambda x: x[3], reverse=True)
+            pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
+            log("[INFO] Stage-1 P/E refine applied.")
 
     # 6) Stage-2 — RobustRanker
     ranker = RobustRanker()
