@@ -1,666 +1,503 @@
-# scripts/quick_scorer.py
-from __future__ import annotations
-from typing import Dict, List, Tuple, Optional
-import os, math, csv, logging
-import numpy as np
+# scripts/notify.py
+import os, re, sys, time, math, requests, pytz
+from datetime import datetime
+from pathlib import Path
+import numpy as np  # needed for valuation z-stats
 
-"""
-New/updated ENV knobs this file now honors:
+from universe import load_universe
+from features import build_features
+from filters import is_garbage, daily_index_filter
+from proxies import (
+    get_spy_ctx,
+    derive_proxies,
+    fund_proxies_from_feats,
+    catalyst_severity_from_feats,
+)
+from fundamentals import fetch_next_earnings_days
+from data_fetcher import fetch_valuations_for_top
+from prompt_blocks import BASELINE_HINTS, build_prompt_block
+from gpt_client import call_gpt5
+from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
+from time_utils import seconds_until_target_hour
+from debugger import post_debug_inputs_to_discord
 
-# Weighting (so technical valuation & risk can matter more)
-QS_W_TREND_SMALL,  QS_W_MOMO_SMALL,  QS_W_STRUCT_SMALL,  QS_W_RISK_SMALL
-QS_W_TREND_LARGE,  QS_W_MOMO_LARGE,  QS_W_STRUCT_LARGE,  QS_W_RISK_LARGE
-QS_PE_WEIGHT, QS_PE_WEIGHT_SMALL, QS_PE_WEIGHT_LARGE
+from trash_ranker import RobustRanker, pick_top_stratified
+from quick_scorer import rank_stage1, quick_score  # we rescore after adding PE
 
-# Anchor & structure shaping (tier-aware via *_SMALL / *_LARGE)
-QS_USE_FVA=1|0
-QS_FVA_PEN_MAX / QS_FVA_PEN_MAX_SMALL / QS_FVA_PEN_MAX_LARGE
-QS_FVA_BONUS_MAX / QS_FVA_BONUS_MAX_SMALL / QS_FVA_BONUS_MAX_LARGE
-QS_FVA_KO_PCT / QS_FVA_KO_PCT_SMALL / QS_FVA_KO_PCT_LARGE
-QS_STRUCT_PREM_CAP / QS_STRUCT_PREM_CAP_SMALL / QS_STRUCT_PREM_CAP_LARGE
+TZ = pytz.timezone("Europe/Bucharest")
 
-# Anticipation (lead setup) bias
-QS_SETUP_ATR_MAX (6.0), QS_SETUP_VS50_MIN (-4), QS_SETUP_VS50_MAX (10),
-QS_SETUP_VS200_MIN (-2), QS_SETUP_VOL_ABS_MAX (60),
-QS_SETUP_RSI_LO (45), QS_SETUP_RSI_HI (62),
-QS_SETUP_E50S_MIN (0.5), QS_SETUP_E50S_MAX (8),
-QS_SETUP_CAP_SMALL (12), QS_SETUP_CAP_LARGE (14)
+def log(m): print(m, flush=True)
 
-# Momentum “chase” penalty
-QS_MOMO_CHASE_KNEE (35), QS_MOMO_CHASE_SLOPE (0.6), QS_MOMO_CHASE_PEN_MAX (15)
+def need_env(name):
+    v = os.getenv(name)
+    if not v:
+        print(f"[ERROR] Missing env: {name}", flush=True); sys.exit(1)
+    return v
 
-# Valuation overlay into 'struct' (optional)
-QS_VAL_OVERLAY=1|0
-QS_VAL_OVERLAY_MAX (12)
+OPENAI_API_KEY = need_env("OPENAI_API_KEY")
+DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
+DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
+force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
 
-# CSV dump of top-N rows with all features
-STAGE1_WRITE_TOPN_CSV=1|0
-STAGE1_TOPN_CSV (2000)
-STAGE1_TOPN_PATH (path)
-"""
-
-# -------------------------------------------------------------------
-# EMBEDDED PLAN BUILDER SPEC (used by notify.py prompt)
-#
-# FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
-# - Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly if indicators clearly justify it.
-# - Tiny PE bias (only if PE_HINT present; always stay within the existing FVA clamp):
-#     • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
-#     • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
-# - Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence.
-# - Let EV = EXPECTED_VOLATILITY_PCT (from ATR%), clamped to 1–6.
-# - Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
-# - Stop loss = FVA × (1 − 2.0×EV/100)
-# - Profit target = FVA × (1 + 3.0×EV/100)
-# - Sanity: if stop ≥ buy_low, push stop to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
-#           if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
-# - Round all $ to 2 decimals; output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
-# -------------------------------------------------------------------
-
-_TIER_THR_LARGE_USD = None
-_TIER_THR_MID_USD   = None
-
-# -------- logging --------
-def _cfg_log():
-    lvl = (os.getenv("QUICK_LOG_LEVEL") or os.getenv("RANKER_LOG_LEVEL") or "INFO").upper()
-    if not logging.getLogger().handlers:
-        logging.basicConfig(level=getattr(logging, lvl, logging.INFO),
-                            format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-_cfg_log()
-log = logging.getLogger("quick_scorer")
-
-# -------- helpers --------
-def safe(x, d=0.0):
+# --- tiny safe() used locally (avoid importing from other modules)
+def safe(x, default=None):
     try:
-        if x is None: return d
+        if x is None: return default
         xf = float(x)
-        if math.isnan(xf) or math.isinf(xf): return d
+        if math.isnan(xf) or math.isinf(xf): return default
         return xf
-    except: return d
-
-def clamp(v, lo, hi): return max(lo, min(hi, v))
-
-def _env_tiered(base: str, tier: str, default: float) -> float:
-    """Tier-aware env lookup: prefer BASE_SMALL/BASE_LARGE, fall back to BASE, else default."""
-    tkey = f"{base}_{'SMALL' if tier == 'small' else 'LARGE'}"
-    try:
-        if os.getenv(tkey) is not None:
-            return float(os.getenv(tkey))
-        if os.getenv(base) is not None:
-            return float(os.getenv(base))
     except Exception:
-        pass
-    return float(default)
+        return default
 
-def _xs_stats(feats_list: List[Dict], keys: List[str]) -> Dict[str, Tuple[float, float]]:
-    """Cross-sectional robust stats (median, MAD*1.4826; fallback to std)."""
-    stats: Dict[str, Tuple[float, float]] = {}
-    for k in keys:
-        vals: List[float] = []
-        for f in feats_list:
-            v = f.get(k)
+# ——— Strengthened system prompt (adds strict PLAN rules + VAL_ZS/TREND_QUALITY hints) ———
+SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
+INPUT EXTRAS:
+- Each candidate block may include:
+  • BASELINE_HINTS: exact baselines for each category.
+  • PROXIES: price/volume proxies with severities (−5..+5) and directions (+/−).
+  • PROXIES_FUNDAMENTALS: {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} as signed severities (−5..+5).
+  • PROXIES_CATALYSTS: {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} with signed severities.
+  • CATALYST_TIMING_HINTS: e.g., TECH_BREAKOUT=Today/None.
+  • EXPECTED_VOLATILITY_PCT: derived from ATR% (clip to 1..6).
+  • FVA_HINT: technical fair-value anchor seed, derived only from indicators.
+  • PE_HINT: optional numeric P/E (trailing preferred; forward if trailing unavailable).
+  • VAL_ZS: per-metric z-scores {PE, PEG, EV_EBITDA, EV_REV, PS, FCF_YIELD} vs today’s Stage-2 pool (median/MAD scaled).
+  • TREND_QUALITY: compact summary (0..1) of RSI band, EMA alignment, participation, and extension (no blow-off).
+
+MANDATORY HANDLING:
+- If DATA_AVAILABILITY says a category is MISSING ⇒ set that category exactly to its BASELINE_HINTS value (do NOT set 0).
+- If PARTIAL ⇒ use only the provided PROXIES; keep unaddressed sub-factors at baseline.
+- Never assume unknown = bad; unknown = baseline.
+- PROXIES map 1–5 severity to the factor ranges you already have.
+- CATALYST PROXY MAPPING (apply to 'Near-Term Catalysts' base 100):
+    • TECH_BREAKOUT (+1..+5)  ⇒ +10, +20, +30, +45, +60
+    • DIP_REVERSAL (+1..+5)   ⇒ +8, +12, +18, +24, +30
+    • TECH_BREAKDOWN (−1..−5) ⇒ −10, −20, −30, −45, −60
+    • EARNINGS_SOON (+1..+5)  ⇒ +5, +8, +10, +12, +15
+  Timing multiplier applies for TECH_BREAKOUT timing: Today × 1.50.
+- P/E OVERLAY: apply only inside Technical Valuation & Risks; never touch Market & Sector, Quality (Tech Proxies), or Near-Term Catalysts.
+
+PLAN BUILDER (MANDATORY; DO NOT SKIP):
+- FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
+  1) Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly only if indicators clearly justify it.
+  2) Tiny PE bias (only if PE_HINT present; always stay within the global clamp below; VALUATION_HISTORY is the signed proxy −5..+5):
+     • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
+     • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
+  3) Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence. Treat as “very strong” only if
+     TECH_BREAKOUT ≥ +4 AND RSI14 ≥ 75 AND vsSMA50 ≥ +20% AND Vol_vs_20d% ≥ +150%. Otherwise honor the 20% clamp.
+  4) Let EV = EXPECTED_VOLATILITY_PCT, with EV := min(max(EV, 1), 6).
+  5) Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
+  6) Stop loss = FVA × (1 − 2.0×EV/100)
+  7) Profit target = FVA × (1 + 3.0×EV/100)
+  8) Sanity: if stop ≥ buy_low, push stop to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
+             if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
+  9) Rounding: round all $ to 2 decimals.
+ 10) Output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
+
+GUARDS (avoid nonsensical plans):
+  • If after sanity Target ≤ CURRENT_PRICE → do NOT invent higher targets. Prefer: "No trade — extended; wait for pullback. (Anchor: $FVA)".
+  • If CURRENT_PRICE > buy_high but CURRENT_PRICE < Target → keep the standard plan text and append " (Wait for pullback into range.)".
+  • If CURRENT_PRICE < buy_low by more than ~2×EV% → append " (Accumulation zone)".
+- Keep plans terse; do not explain math in prose; only the single-line plan plus the required summary fields.
+"""
+
+# ---------- Z-score helpers for valuation display ----------
+def _z(mu, sd, x):
+    if x is None: return None
+    try:
+        sd = sd if (sd and sd > 1e-12) else 1.0
+        z = (float(x) - float(mu)) / float(sd)
+        if math.isnan(z) or math.isinf(z): return None
+        return max(-6.0, min(6.0, z))
+    except Exception:
+        return None
+
+def compute_val_z_stats(vals_map):
+    # vals_map: {ticker: {"PE":..,"PS":..,"EV_REV":..,"EV_EBITDA":..,"PEG":..,"FCF_YIELD":..}}
+    keys = ["PE","PEG","EV_EBITDA","EV_REV","PS","FCF_YIELD"]
+    cols = {k: [] for k in keys}
+    for v in vals_map.values():
+        for k in keys:
+            x = v.get(k)
             try:
-                if v is not None:
-                    v = float(v)
-                    if not (math.isnan(v) or math.isinf(v)):
-                        vals.append(v)
+                if x is not None:
+                    fx = float(x)
+                    if not math.isnan(fx) and not math.isinf(fx):
+                        cols[k].append(fx)
             except Exception:
                 pass
-        if not vals:
+    stats = {}
+    for k, arr in cols.items():
+        if not arr:
             stats[k] = (0.0, 1.0)
-            continue
-        arr = np.array(vals, dtype=float)
-        med = float(np.median(arr))
-        mad = float(np.median(np.abs(arr - med)))
-        scale = mad * 1.4826 if mad > 1e-12 else float(np.std(arr) or 1.0)
-        if not (scale > 1e-9): scale = 1.0
-        stats[k] = (med, scale)
+        else:
+            mu = float(np.median(arr))
+            mad = float(np.median(np.abs(np.array(arr) - mu)))
+            sd = mad * 1.4826 if mad > 1e-12 else (float(np.std(arr)) or 1.0)
+            stats[k] = (mu, sd if sd > 1e-9 else 1.0)
     return stats
 
-def _auto_liq_thresholds(universe, p_large=80, p_mid=40):
-    """Infer LARGE/MID cutoffs from cross-section percentiles of avg_dollar_vol_20d."""
-    advs = []
-    for (_t, _n, f) in universe:
-        a = f.get("avg_dollar_vol_20d")
-        try:
-            if a is None:
-                continue
-            a = float(a)
-            if a > 0 and not math.isinf(a) and not math.isnan(a):
-                advs.append(a)
-        except Exception:
-            pass
-    if len(advs) >= 30:
-        arr = np.array(advs, dtype=float)
-        thr_large = float(np.percentile(arr, p_large))
-        thr_mid   = float(np.percentile(arr, p_mid))
-    else:
-        thr_large = 50_000_000.0
-        thr_mid   = 10_000_000.0
-    return thr_large, thr_mid
+def _trend_quality_from_feats(f):
+    """0..1 score + components: RSI band, EMA alignment, participation, extension."""
+    rsi    = safe(f.get("RSI14"), None)
+    vsem50 = safe(f.get("vsEMA50"), None)
+    vsem200= safe(f.get("vsEMA200"), None)
+    px     = safe(f.get("price"), None)
+    e50    = safe(f.get("EMA50"), None)
+    e200   = safe(f.get("EMA200"), None)
+    vol20  = safe(f.get("vol_vs20"), None)
 
-def _compute_and_set_tier_thresholds(universe):
-    """Populate module-level thresholds using env overrides if provided, else auto-derive."""
-    global _TIER_THR_LARGE_USD, _TIER_THR_MID_USD
-    env_large = os.getenv("TIER_LARGE_USD", "").strip()
-    env_mid   = os.getenv("TIER_MEDIUM_USD", "").strip()
-    if env_large and env_mid:
-        try:
-            _TIER_THR_LARGE_USD = float(env_large)
-            _TIER_THR_MID_USD   = float(env_mid)
-        except Exception:
-            _TIER_THR_LARGE_USD, _TIER_THR_MID_USD = _auto_liq_thresholds(universe)
-    else:
-        _TIER_THR_LARGE_USD, _TIER_THR_MID_USD = _auto_liq_thresholds(universe)
+    # RSI band 45..70 good
+    if rsi is None: rsi_band = 0.5
+    elif rsi <= 35 or rsi >= 80: rsi_band = 0.1
+    elif 45 <= rsi <= 70: rsi_band = 1.0
+    else: rsi_band = 0.6
 
-# ---- TIERING POLICY ------------------------------------------------
-def _tier_from_thresholds(feats: Dict) -> str:
-    """Map ADV to 'large'/'mid'/'small' using global thresholds; missing -> 'small'."""
-    adv = feats.get("avg_dollar_vol_20d")
-    try:
-        a = float(adv) if adv is not None else None
-    except Exception:
-        a = None
-    if a is None or _TIER_THR_LARGE_USD is None or _TIER_THR_MID_USD is None:
-        return "small"
-    if a >= _TIER_THR_LARGE_USD: return "large"
-    if a >= _TIER_THR_MID_USD:   return "mid"
-    return "small"
+    # EMA alignment
+    ema_align = 1.0 if (px and e50 and e200 and px>e50>e200) else (0.6 if (e50 and e200 and e50>e200) else 0.2)
 
-def _tier_fallback_small_vs_large(feats: Dict) -> str:
-    """Legacy fallback: classify small vs large by cap/liquidity/price when no policy applies."""
-    def _safe_float(x):
-        try: return float(x)
-        except Exception: return None
-    cap = _safe_float(feats.get("market_cap"))
-    liq = _safe_float(feats.get("avg_dollar_vol_20d"))
-    price = _safe_float(feats.get("price"))
-    cap_cut = float(os.getenv("QS_SMALL_CAP_MAX", "2000000000"))   # $2B default
-    liq_cut = float(os.getenv("QS_SMALL_LIQ_MAX", "10000000"))     # $10M avg $vol
-    px_cut  = float(os.getenv("QS_SMALL_PRICE_MAX", "12"))
-    if cap is not None:   return "small" if cap <= cap_cut else "large"
-    if liq is not None:   return "small" if liq <= liq_cut else "large"
-    if price is not None: return "small" if price <= px_cut else "large"
-    return "large"
+    # Volume participation (not blow-off)
+    if vol20 is None: vol_part = 0.6
+    elif vol20 < 40: vol_part = 0.4
+    elif 60 <= vol20 <= 180: vol_part = 1.0
+    elif 180 < vol20 <= 260: vol_part = 0.7
+    else: vol_part = 0.3
 
-def _tier_map_for_universe(universe: List[Tuple[str,str,Dict]]) -> Dict[str, str]:
-    """Return {ticker: 'small'|'large'} by policy."""
-    policy = (os.getenv("TIER_POLICY", "THRESH") or "THRESH").upper()
-    backfill_unknown = (os.getenv("TIER_BACKFILL_UNKNOWN_AS", "small") or "small").lower()
-    if backfill_unknown not in {"small","large"}: backfill_unknown = "small"
-    tier_map: Dict[str, str] = {}
-    if policy == "TOPK_ADV":
-        pairs = []
-        for (t, _n, f) in universe:
-            adv = f.get("avg_dollar_vol_20d")
-            try: adv = float(adv) if adv is not None else None
-            except Exception: adv = None
-            pairs.append((t, adv))
-        valid = [(t, a) for (t, a) in pairs if a is not None]
-        valid.sort(key=lambda x: x[1], reverse=True)
-        K = int(os.getenv("TIER_TOPK_LARGE", "500"))
-        large_set = set([t for (t, _a) in valid[:K]])
-        for (t, a) in pairs:
-            if t in large_set: tier_map[t] = "large"
-            else: tier_map[t] = backfill_unknown if a is None else "small"
-        log.info(f"[Stage1] TIER_POLICY=TOPK_ADV: large={len(large_set)} (K={K}), backfill_unknown_as={backfill_unknown}")
-        return tier_map
-    _compute_and_set_tier_thresholds(universe)
-    if _TIER_THR_LARGE_USD is not None and _TIER_THR_MID_USD is not None:
-        log.info(f"[Stage1] TIER_POLICY=THRESH thresholds: LARGE≥{_TIER_THR_LARGE_USD:,.0f} USD, MID≥{_TIER_THR_MID_USD:,.0f} USD")
-    for (t, _n, f) in universe:
-        pre = (f.get("liq_tier") or "").upper()
-        if pre in {"LARGE","MID","SMALL"}:
-            tier_map[t] = "large" if pre in {"LARGE","MID"} else "small"
-        else:
-            tri = _tier_from_thresholds(f)
-            tier_map[t] = "large" if tri in {"large","mid"} else "small"
-    return tier_map
+    # Extension penalty from vsEMA50
+    if vsem50 is None: ext_pen = 0.0
+    elif vsem50 <= 15: ext_pen = 0.0
+    elif vsem50 <= 30: ext_pen = 0.15
+    elif vsem50 <= 45: ext_pen = 0.30
+    else: ext_pen = 0.45
 
-# ---- scoring pieces ------------------------------------------------
-def _z(xs: Dict[str, Tuple[float,float]], key: str, x: float|None, lo=-4.0, hi=4.0) -> float:
-    if x is None: return 0.0
-    med, scale = xs.get(key, (0.0, 1.0))
-    try: z = (float(x) - med) / (scale if scale != 0 else 1.0)
-    except: z = 0.0
-    return float(clamp(z, lo, hi))
-
-def _rsi_band_val(rsi: float|None) -> float:
-    """Sweet-spot band shaping for RSI; returns 0..1."""
-    if rsi is None: return 0.0
-    r = float(rsi)
-    if 47 <= r <= 68: return 1.0
-    if 40 <= r < 47:  return (r - 40) / 7.0
-    if 68 < r <= 75:  return (75 - r) / 7.0
-    return 0.0
-
-# --- lead/anticipation setup points (favor coils likely to break) ---
-def _lead_setup_points(vs50, vs200, r60, rsi, atr, v20, vsE50, vsE200, e50s, tier: str) -> float:
-    """
-    Reward tight, aligned bases likely to break soon (not already extended).
-    Controlled by QS_SETUP_* envs (see header). Returns capped points (±cap).
-    """
-    def g(name, default):
-        try: return float(os.getenv(name, str(default)))
-        except Exception: return default
-
-    atr_max   = g("QS_SETUP_ATR_MAX",   6.0)
-    vs50_max  = g("QS_SETUP_VS50_MAX", 10.0)
-    vs50_min  = g("QS_SETUP_VS50_MIN", -4.0)
-    vs200_min = g("QS_SETUP_VS200_MIN",-2.0)
-    vabs_max  = g("QS_SETUP_VOL_ABS_MAX", 60.0)
-    rsi_lo    = g("QS_SETUP_RSI_LO",   45.0)
-    rsi_hi    = g("QS_SETUP_RSI_HI",   62.0)
-    e50s_lo   = g("QS_SETUP_E50S_MIN", 0.5)
-    e50s_hi   = g("QS_SETUP_E50S_MAX", 8.0)
-
-    pts = 0.0
-    # coil / tightness near trend
-    if (vs200 is not None and vs200 >= vs200_min) and (vs50_min <= vs50 <= vs50_max):
-        if (atr is not None and atr <= atr_max) and (v20 is not None and abs(v20) <= vabs_max):
-            pts += 10.0
-    # alignment + early RSI
-    if (vsE50 is not None and vsE200 is not None):
-        if vsE50 > -5 and vsE200 >= -3 and (rsi is not None and rsi_lo <= rsi <= rsi_hi):
-            pts += 6.0
-    # early slope
-    if e50s is not None and e50s_lo <= e50s <= e50s_hi:
-        pts += 4.0
-    # haircut if already chase-y
-    if (vs50 is not None and vs50 > 20) or (rsi is not None and rsi > 75):
-        pts -= 8.0
-
-    cap = float(os.getenv(
-        "QS_SETUP_CAP_SMALL" if tier == "small" else "QS_SETUP_CAP_LARGE",
-        os.getenv("QS_SETUP_CAP", "12" if tier == "small" else "14")
-    ))
-    return clamp(pts, -cap * 0.5, cap)
-
-def _tags(feats: Dict) -> List[str]:
-    """Lightweight protections to avoid cutting winners too soon + coil protect."""
-    t: List[str] = []
-    rsi = safe(feats.get("RSI14"), None)
-    vs200 = safe(feats.get("vsSMA200"), 0.0)
-    vs50  = safe(feats.get("vsSMA50"), 0.0)
-    r60   = safe(feats.get("r60"), 0.0)
-    d20   = safe(feats.get("d20"), 0.0)
-    v20   = safe(feats.get("vol_vs20"), 0.0)
-    atr   = safe(feats.get("ATRpct"), 0.0)
-    is20h = bool(feats.get("is_20d_high"))
-
-    if r60 >= 20 and vs200 >= 0: t.append("RS_trend_protect")
-    if is20h and (rsi is not None and 55 <= rsi <= 85): t.append("breakout_protect")
-    if (0 <= vs50 <= 12) and (5 <= r60 <= 40) and (rsi is not None and 45 <= rsi <= 70): t.append("pullback_protect")
-    if v20 >= 180 and rsi is not None and rsi >= 78 and d20 >= 12: t.append("pump_risk")
-    if v20 <= -60: t.append("low_liquidity_today")
-
-    # coil/setup protector (keeps a few early setups from being cut at the line)
-    try: setup_atr = float(os.getenv("QS_SETUP_ATR_MAX", "6.0"))
-    except Exception: setup_atr = 6.0
-    if (-4 <= vs50 <= 10) and (vs200 >= -2) and (rsi is not None and 45 <= rsi <= 62) and (atr <= setup_atr) and (-60 <= v20 <= 40):
-        t.append("setup_protect")
-
-    return t
-
-def _tier_params(tier: str, mode: str, pe_weight_base: float):
-    """Return (weights, pe_weight, atr_soft, vol_soft, dd_soft)."""
-    def _w(env_name: str, fallback: float) -> float:
-        try: return float(os.getenv(env_name, str(fallback)))
-        except Exception: return fallback
-    if tier == "small":
-        wt_trend  = _w("QS_W_TREND_SMALL", 0.44)
-        wt_momo   = _w("QS_W_MOMO_SMALL",  0.30)
-        wt_struct = _w("QS_W_STRUCT_SMALL",0.14)
-        wt_risk   = _w("QS_W_RISK_SMALL",  0.12)
-        weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
-        pe_w = float(os.getenv("QS_PE_WEIGHT_SMALL", str(pe_weight_base)))
-        if mode == "strict":   atr_soft, vol_soft, dd_soft = 5.0, 200, -42
-        elif mode == "normal": atr_soft, vol_soft, dd_soft = 5.5, 220, -45
-        else:                  atr_soft, vol_soft, dd_soft = 6.0, 240, -48
-    else:
-        wt_trend  = _w("QS_W_TREND_LARGE", 0.50)
-        wt_momo   = _w("QS_W_MOMO_LARGE",  0.33)
-        wt_struct = _w("QS_W_STRUCT_LARGE",0.11)
-        wt_risk   = _w("QS_W_RISK_LARGE",  0.04)
-        weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
-        pe_w = float(os.getenv("QS_PE_WEIGHT_LARGE", str(pe_weight_base + 0.02)))
-        if mode == "strict":   atr_soft, vol_soft, dd_soft = 5.5, 240, -42
-        elif mode == "normal": atr_soft, vol_soft, dd_soft = 6.0, 280, -45
-        else:                  atr_soft, vol_soft, dd_soft = 6.5, 300, -50
-    return weights, pe_w, atr_soft, vol_soft, dd_soft
-
-# ---- P/E tilt ----
-def _pe_tilt_points(pe: float|None, rsi: float|None, vol_vs20: float|None) -> float:
-    if pe is None or pe <= 0: return 0.0
-    if pe <= 10: base = 20.0
-    elif pe <= 15: base = 12.0 - (pe - 10) * (4.0 / 5.0)
-    elif pe <= 25: base = 6.0 - (pe - 15) * 0.6
-    elif pe <= 40: base = 0.0 - (pe - 25) * 0.4
-    else: base = -8.0
-    rsi = None if rsi is None else float(rsi)
-    vol_vs20 = None if vol_vs20 is None else float(vol_vs20)
-    if base < 0 and not ((rsi is not None and rsi >= 75) or (vol_vs20 is not None and vol_vs20 >= 200)):
-        base *= 0.5
-    return float(clamp(base, -20.0, 20.0))
-
-def quick_score(
-    feats: Dict,
-    mode: str = "loose",
-    xs: Dict[str, Tuple[float, float]] | None = None,
-    tier: Optional[str] = None
-) -> Tuple[float, Dict]:
-    """Fast, resilient first-pass score with anticipation bias and tier-aware anchors."""
-    tier = (tier or _tier_fallback_small_vs_large(feats))
-
-    pe_weight_base = float(os.getenv("QS_PE_WEIGHT", "0.06"))
-    weights, pe_weight, atr_soft, vol_soft, dd_soft = _tier_params(tier, mode, pe_weight_base)
-
-    w_trend, w_momo, w_struct, w_risk = weights["trend"], weights["momo"], weights["struct"], weights["risk"]
-    rem = max(1e-9, (w_trend + w_momo + w_struct + w_risk))
-    scale = max(0.0, 1.0 - pe_weight) / rem
-    w_trend  *= scale; w_momo *= scale; w_struct *= scale; w_risk *= scale
-    w_pe = pe_weight
-
-    vs50  = safe(feats.get("vsSMA50"), 0.0)
-    vs200 = safe(feats.get("vsSMA200"), 0.0)
-    r60   = safe(feats.get("r60"), 0.0)
-    r120  = safe(feats.get("r120"), 0.0)
-    d20   = safe(feats.get("d20"), 0.0)
-    rsi   = safe(feats.get("RSI14"), None)
-    macd  = safe(feats.get("MACD_hist"), 0.0)
-    atr   = safe(feats.get("ATRpct"), 0.0)
-    dd    = safe(feats.get("drawdown_pct"), 0.0)
-    v20   = safe(feats.get("vol_vs20"), 0.0)
-    px    = safe(feats.get("price"), 0.0)
-    sma50 = safe(feats.get("SMA50"), None)
-    avwap = safe(feats.get("AVWAP252"), None)
-    vsE50  = safe(feats.get("vsEMA50"), None)
-    vsE200 = safe(feats.get("vsEMA200"), None)
-    e50s   = safe(feats.get("EMA50_slope_5d"), None)
-
-    pe_val = None
-    for k in ("val_PE", "PE", "pe", "pe_hint"):
-        if feats.get(k) is not None:
-            try: pe_val = float(feats.get(k))
-            except Exception: pass
-            break
-
-    # cross-sectional z
-    use_xs = xs is not None and os.getenv("QS_USE_XS", "1").lower() in {"1", "true", "yes"}
-    if use_xs:
-        z_vs200 = _z(xs, "vsSMA200", vs200); z_vs50  = _z(xs, "vsSMA50",  vs50)
-        z_r60   = _z(xs, "r60",      r60);   z_r120  = _z(xs, "r120",     r120)
-        z_d20   = _z(xs, "d20",      d20);   z_atr   = _z(xs, "ATRpct",   atr)
-        z_v20   = _z(xs, "vol_vs20", v20);   z_vsE50 = _z(xs, "vsEMA50",  vsE50)
-        z_vsE200= _z(xs, "vsEMA200", vsE200);z_e50s  = _z(xs, "EMA50_slope_5d", e50s)
-    else:
-        z_vs200 = clamp(vs200, -40, 80) / 20.0
-        z_vs50  = clamp(vs50,  -40, 80) / 20.0
-        z_r60   = clamp(r60,   -40, 80) / 20.0
-        z_r120  = clamp(r120,  -40, 80) / 20.0
-        z_d20   = clamp(d20,   -25, 40) / 10.0
-        z_atr   = (atr - 6.0) / 2.0
-        z_v20   = (v20 - 200.0) / 80.0
-        z_vsE50 = (0.0 if vsE50  is None else clamp(vsE50,  -40, 80) / 20.0)
-        z_vsE200= (0.0 if vsE200 is None else clamp(vsE200, -40, 80) / 20.0)
-        z_e50s  = (0.0 if e50s   is None else clamp(e50s,   -20, 30) / 10.0)
-
-    # trend (EMA alignment + RSI band)
-    rsi_band = _rsi_band_val(rsi)
-    trend = (
-        0.40 * clamp(z_vs200/4.0, -1, 1) +
-        0.25 * clamp(z_vs50/4.0,  -1, 1) +
-        0.15 * clamp(z_vsE200/4.0,-1, 1) +
-        0.10 * clamp(z_vsE50/4.0, -1, 1) +
-        0.10 * clamp(macd/1.5,    -1, 1)
-    ) * 100.0 + 8.0 * rsi_band
-
-    # momentum (EMA50 slope) + chase penalty
-    momo = (
-        0.36 * clamp(z_r60/4.0,   -1, 1) +
-        0.27 * clamp(z_r120/4.0,  -1, 1) +
-        0.22 * clamp(z_d20/4.0,   -1, 1) +
-        0.15 * clamp(z_e50s/4.0,  -1, 1)
-    ) * 100.0
-    try:
-        knee  = float(os.getenv("QS_MOMO_CHASE_KNEE", "35"))
-        slope = float(os.getenv("QS_MOMO_CHASE_SLOPE","0.6"))
-        cap   = float(os.getenv("QS_MOMO_CHASE_PEN_MAX","15"))
-    except Exception:
-        knee, slope, cap = 35.0, 0.6, 15.0
-    if r60 is not None and r60 > knee:
-        momo -= min(cap, (r60 - knee) * slope)
-
-    # structure (AVWAP, MAs, FVA penalties/bonuses, valuation overlay)
-    struct = 0.0
-    if sma50 and avwap:
-        if px > sma50 > avwap: struct += 12.0
-        elif px < sma50 < avwap: struct -= 8.0
-        else: struct += 3.0 if px > avwap else -2.0
-    if avwap:
-        prem = (px / avwap) - 1.0
-        if prem < 0: struct += clamp(abs(prem) * 20.0, 0.0, 6.0)
-        else:
-            prem_cap = _env_tiered("QS_STRUCT_PREM_CAP", tier, 8.0)
-            struct -= clamp(prem * 25.0, 0.0, prem_cap)
-    if (vsE50 is not None and vsE200 is not None):
-        if vsE50 > 0 and vsE200 > 0: struct += 3.0
-        elif vsE50 < 0 and vsE200 < 0: struct -= 2.0
-
-    if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
-        pen   = _env_tiered("QS_FVA_PEN_MAX",   tier, 12.0)
-        bonus = _env_tiered("QS_FVA_BONUS_MAX", tier, 6.0)
-        ko_pct= _env_tiered("QS_FVA_KO_PCT",    tier, 35.0)
-        fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
-        if (fva is not None) and (px is not None):
-            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0
-            if disc < 0:  struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
-            elif disc > 0: struct += clamp(disc/20.0, 0.0, 1.0) * bonus
-            if px > fva:
-                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
-                if gap >= ko_pct and ((rsi is not None and rsi >= 72) or (vsE50 is not None and vsE50 >= 40)):
-                    struct -= min(40.0, (gap - ko_pct) * 0.6)
-
-    if os.getenv("QS_VAL_OVERLAY", "1").lower() in {"1","true","yes"}:
-        cap_overlay = float(os.getenv("QS_VAL_OVERLAY_MAX", "12"))
-        pe     = safe(feats.get("val_PE")        if feats.get("val_PE")        is not None else feats.get("PE"), None)
-        peg    = safe(feats.get("val_PEG")       if feats.get("val_PEG")       is not None else feats.get("PEG"), None)
-        fcfy   = safe(feats.get("val_FCF_YIELD") if feats.get("val_FCF_YIELD") is not None else feats.get("FCF_YIELD"), None)
-        ev_eb  = safe(feats.get("val_EV_EBITDA") if feats.get("val_EV_EBITDA") is not None else feats.get("EV_EBITDA"), None)
-        ev_rev = safe(feats.get("val_EV_REV")    if feats.get("val_EV_REV")    is not None else feats.get("EV_REV"), None)
-        ps     = safe(feats.get("val_PS")        if feats.get("val_PS")        is not None else feats.get("PS"), None)
-        pts = 0.0
-        if pe and pe > 0:
-            if pe <= 10: pts += 18
-            elif pe <= 12: pts += 14
-            elif pe <= 18 and (safe(feats.get("REL_STRENGTH"),0) >= 1 or safe(feats.get("VALUATION_HISTORY"),0) >= 0): pts += 8
-            elif 30 <= pe <= 40 and ((safe(feats.get("RSI14"),0) >= 75) or (safe(feats.get("vsSMA50"),0) >= 20)): pts -= 4
-            elif pe >= 50:
-                hot = (safe(feats.get("RSI14"),0) >= 80 and safe(feats.get("vol_vs20"),0) >= 200)
-                pts -= (15 if hot else 10)
-            pts = clamp(pts, -15, 20)
-        if peg is not None:   pts += (6 if peg <= 1 else 4 if peg <= 1.5 else 1 if peg <= 2.5 else -4)
-        if fcfy is not None:  pts += (10 if fcfy >= 6 else 6 if fcfy >= 3 else 2 if fcfy >= 1 else 0 if fcfy >= 0 else -6)
-        if ev_eb is not None: pts += (8 if ev_eb <= 10 else 4 if ev_eb <= 15 else 0 if ev_eb <= 25 else -3 if ev_eb <= 30 else -6)
-        if ev_rev is not None:pts += (8 if ev_rev <= 2 else 5 if ev_rev <= 5 else 0 if ev_rev <= 10 else -4 if ev_rev <= 20 else -8)
-        if ps is not None:    pts += (6 if ps <= 2 else 3 if ps <= 5 else 0 if ps <= 10 else -3 if ps <= 15 else -5)
-        struct += clamp(pts, -cap_overlay, cap_overlay)
-
-    # anticipation boost (favor tight coils about to go)
-    struct += _lead_setup_points(vs50, vs200, r60, rsi, atr, v20, vsE50, vsE200, e50s, tier)
-
-    # risk (soft, tier-aware)
-    risk_pen = 0.0
-    if use_xs:
-        risk_pen -= clamp(max(0.0, z_atr), 0.0, 3.0) * 3.5
-        risk_pen -= clamp(max(0.0, z_v20), 0.0, 3.0) * 2.0
-    else:
-        if atr > atr_soft:  risk_pen -= min(12.0, (atr - atr_soft) * 1.5)
-        if v20 > vol_soft:  risk_pen -= min(8.0, (v20 - vol_soft) / 40.0)
-    if dd < dd_soft: risk_pen -= min(8.0, (abs(dd) - abs(dd_soft)) / 4.0)
-    if rsi is not None and rsi >= 85: risk_pen -= 8.0
-    if rsi is not None and rsi >= 88 and d20 >= 150: risk_pen -= 10.0
-    if rsi is not None and rsi >= 80 and v20 >= 200: risk_pen -= 6.0
-    if tier == "small":
-        liq_min = float(os.getenv("QS_MIN_DOLLAR_VOL_20D", "2000000"))
-        liq = safe(feats.get("avg_dollar_vol_20d"), None)
-        if liq is not None and liq < liq_min:
-            risk_pen -= clamp((liq_min - liq) / max(liq_min, 1.0), 0.0, 1.0) * 10.0
-        if v20 <= -40:
-            risk_pen -= clamp(abs(v20 + 40.0) / 40.0, 0.0, 1.0) * 6.0
-
-    pe_points_raw = _pe_tilt_points(pe_val, rsi, v20)  # [-20..+20]
-    pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0
-
-    score = (w_trend  * trend +
-             w_momo   * momo +
-             w_struct * struct +
-             w_risk   * risk_pen +
-             w_pe     * pe_score)
-
-    return score, {
-        "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,
-        "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier,
-        "fva_hint": fva if 'fva' in locals() else None,
-        "price": px,
+    score = max(0.0, min(1.0, 0.35*rsi_band + 0.35*ema_align + 0.30*vol_part - ext_pen))
+    return {
+        "score": round(score, 2),
+        "rsi_band": round(rsi_band, 2),
+        "ema_align": round(ema_align, 2),
+        "vol_part": round(vol_part, 2),
+        "ext_pen": round(ext_pen, 2),
     }
 
-def rank_stage1(
-    universe: List[Tuple[str, str, Dict]],
-    keep: int = 200,
-    mode: str = None,
-    rescue_frac: float = None,
-    log_dir: str = "data"
-) -> Tuple[List[Tuple[str,str,Dict,float,Dict]], List[Tuple[str,str,Dict,float,Dict]], List[Tuple]]:
-    """Run Stage-1 quick pass with tiering, protection rescue and CSV logs."""
-    mode = (mode or os.getenv("STAGE1_MODE", "loose")).lower()
-    keep = int(os.getenv("STAGE1_KEEP", str(keep)))
-    rescue_frac = float(os.getenv("STAGE1_RESCUE_FRAC", str(rescue_frac if rescue_frac is not None else 0.15)))
-    write_csv = os.getenv("STAGE1_WRITE_CSV", "1").lower() in {"1","true","yes"}
-    os.makedirs(log_dir, exist_ok=True)
+# ---------- Dump exact GPT inputs ----------
+def dump_blocks_pre_gpt(
+    blocks: list[str],
+    user_prompt: str | None,
+    tz,
+    out_dir: str = "data/logs",
+    preview_lines: int = 12,
+    echo_stdout: bool = False,
+) -> str:
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(tz).strftime("%Y%m%d-%H%M%S")
+    path = os.path.join(out_dir, f"blocks_to_gpt_{ts}.txt")
 
-    feat_list = [f for (_t, _n, f) in universe]
-    xs_keys = ["vsSMA50","vsSMA200","d20","r60","r120","ATRpct","vol_vs20","vsEMA50","vsEMA200","EMA50_slope_5d"]
-    xs = _xs_stats(feat_list, xs_keys)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("=== 10 BLOCKS SENT TO GPT ===\n")
+        for i, b in enumerate(blocks, 1):
+            f.write(f"\n--- BLOCK {i}/{len(blocks)} ---\n")
+            f.write(b.rstrip() + "\n")
+        if user_prompt is not None:
+            f.write("\n=== FULL USER PROMPT (for reproducibility) ===\n")
+            f.write(user_prompt.rstrip() + "\n")
 
-    tier_map = _tier_map_for_universe(universe)
+    if echo_stdout:
+        print(f"[DEBUG] Wrote GPT input blocks to {path}")
+        for i, b in enumerate(blocks, 1):
+            head = "\n".join(b.splitlines()[:preview_lines])
+            print(f"\n[DEBUG] BLOCK {i} preview:\n{head}\n... (truncated)")
 
-    scored: List[Tuple[str,str,Dict,float,Dict]] = []
-    removed: List[Tuple] = []
-    protected_bucket_small: List[Tuple[str,str,Dict,float,Dict]] = []
-    protected_bucket_large: List[Tuple[str,str,Dict,float,Dict]] = []
+    return path
 
-    for (t, n, f) in universe:
-        tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
-        f["liq_tier"] = tier
-        s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
-        tags = _tags(f)
-        meta = {"parts": parts, "tags": tags, "tier": tier, "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d")}
-        row = (t, n, f, s, meta)
-        scored.append(row)
+def fail(msg: str):
+    log(f"[ERROR] {msg}")
+    try:
+        requests.post(
+            DISCORD_WEBHOOK_URL,
+            json={"username": "Daily Stock Alert", "content": f"⚠️ {msg}"},
+            timeout=60,
+        )
+    except Exception:
+        pass
 
-    scored.sort(key=lambda x: x[3], reverse=True)
+def main():
+    now = datetime.now(TZ)
+    log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
-    # optional top-N full-features CSV
-    if (os.getenv("STAGE1_WRITE_TOPN_CSV", "0").lower() in {"1", "true", "yes"}):
-        topn = int(os.getenv("STAGE1_TOPN_CSV", "2000"))
-        rows = scored[:topn]
-        feat_keys = sorted({k for (_t, _n, f, _s, _m) in rows for k in f.keys()})
-        out_path = (os.getenv("STAGE1_TOPN_PATH") or os.path.join(log_dir, f"stage1_top{topn}_full.csv"))
+    # 1) Load universe
+    universe = load_universe()
+    log(f"[INFO] Universe size: {len(universe)}")
+
+    # 2) Features for all
+    feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
+    if not feats_map:
+        return fail("No features computed (network/data)")
+
+    # 3) Trash filter
+    kept = []
+    for t, name in universe:
+        row = feats_map.get(t)
+        if not row:
+            continue
+        feats = row["features"]
+        if not is_garbage(feats):
+            kept.append((t, name, feats))
+    log(f"[INFO] After trash filter: {len(kept)} remain")
+    if not kept:
+        return fail("All filtered in trash stage")
+
+    # 4) Daily index filter (placeholder)
+    today_context = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
+    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_context)]
+    log(f"[INFO] After daily index filter: {len(kept2)} remain")
+    if not kept2:
+        return fail("All filtered by daily context")
+
+    # 5) Stage-1 — QUICK pass
+    pre_top200, quick_scored, removed = rank_stage1(
+        kept2,
+        keep=int(os.getenv("STAGE1_KEEP", "200")),
+        mode=os.getenv("STAGE1_MODE", "loose"),
+        rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
+        log_dir="data"
+    )
+    log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
+
+    # Optional: P/E refinement on a small pool (FIXED indentation & dedupe)
+    if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"}:
+        pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))
+        pool_tickers = [t for (t, _n, _f, _s, _m) in quick_scored[:pool_n]]
         try:
-            with open(out_path, "w", newline="", encoding="utf-8") as fcsv:
-                w = csv.writer(fcsv)
-                header = ["ticker", "company", "score", "tier"] + feat_keys
-                w.writerow(header)
-                for (t, n, feats, s, meta) in rows:
-                    tier = meta.get("tier") or feats.get("liq_tier") or ""
-                    row = [t, n, f"{s:.4f}", tier] + [feats.get(k, "") for k in feat_keys]
-                    w.writerow(row)
-            log.info(f"[Stage1] wrote top-N full CSV: {len(rows)} rows -> {out_path}")
+            from data_fetcher import fetch_pe_for_top
+            pe_map = fetch_pe_for_top(pool_tickers)
         except Exception as e:
-            log.warning(f"[Stage1] writing top-N full CSV failed: {e!r}")
+            log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
+            pe_map = {}
 
-    # rescue some protected setups on the borderline
-    top_main = scored[:keep]
-    borderline = scored[keep:]
-    for r in borderline:
-        tier = r[4].get("tier")
-        if any(tag.endswith("_protect") for tag in r[4]["tags"]):
-            (protected_bucket_small if tier == "small" else protected_bucket_large).append(r)
+        pre_top200_pe = []
+        for (t, n, f, s, meta) in pre_top200:
+            pe = pe_map.get(t)
+            if pe is not None and pe > 0:
+                f["val_PE"] = pe
+            pre_top200_pe.append((t, n, f, s, meta))
 
-    max_rescue = max(0, int(keep * rescue_frac))
-    small_ct = sum(1 for (_t,_n,_f,_s,m) in scored if m["tier"]=="small")
-    large_ct = len(scored) - small_ct
-    small_ct = max(1, small_ct); large_ct = max(1, large_ct)
-    small_quota = int(max_rescue * (small_ct / (small_ct + large_ct)))
-    large_quota = max_rescue - small_quota
-    rescued = protected_bucket_small[:small_quota] + protected_bucket_large[:large_quota]
+        rescored = []
+        for (t, n, f, _s, _m) in pre_top200_pe:
+            s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
+            rescored.append((
+                t, n, f, s2,
+                {
+                    "parts": parts2,
+                    "tags": _m.get("tags", []),
+                    "tier": _m.get("tier"),
+                    "avg_dollar_vol_20d": _m.get("avg_dollar_vol_20d"),
+                }
+            ))
+        rescored.sort(key=lambda x: x[3], reverse=True)
+        pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
+        log("[INFO] Stage-1 P/E refine applied.")
 
-    pre = (top_main + rescued)
-    pre.sort(key=lambda x: x[3], reverse=True)
-    pre = pre[:keep]
+    # 6) Stage-2 — RobustRanker
+    ranker = RobustRanker()
+    tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
+    vals_pre = fetch_valuations_for_top(tickers_pre)
 
-    # tier quotas merge (final stratification)
-    min_small = int(os.getenv("STAGE1_MIN_SMALL", "0"))
-    min_large = int(os.getenv("STAGE1_MIN_LARGE", "0"))
-    if min_small + min_large > keep:
-        over = min_small + min_large - keep
-        if min_small >= min_large: min_small = max(0, min_small - over)
-        else:                      min_large = max(0, min_large - over)
+    for (t, n, f, _score, _meta) in pre_top200:
+        v = (vals_pre.get(t) or {})
+        f["val_PE"]        = v.get("PE")
+        f["val_PS"]        = v.get("PS")
+        f["val_EV_REV"]    = v.get("EV_REV")
+        f["val_EV_EBITDA"] = v.get("EV_EBITDA")
+        f["val_PEG"]       = v.get("PEG")
+        f["val_FCF_YIELD"] = v.get("FCF_YIELD")
 
-    if (min_small + min_large) > 0:
-        small_sorted = [r for r in pre if r[4]["tier"] == "small"]
-        large_sorted = [r for r in pre if r[4]["tier"] == "large"]
-        pick_small = small_sorted[:min_small]
-        pick_large = large_sorted[:min_large]
-        remainder = keep - len(pick_small) - len(pick_large)
-        taken_tickers = {r[0] for r in (pick_small + pick_large)}
-        pool = [r for r in pre if r[0] not in taken_tickers]
-        tail = pool[:remainder]
-        pre_topK = (pick_small + pick_large + tail)
-        pre_topK.sort(key=lambda x: x[3], reverse=True)
+    ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
+
+    thorough_ranked = []
+    for (t, n, f, _score, _meta) in pre_top200:
+        if ranker.should_drop(f):
+            continue
+        score, parts = ranker.composite_score(f)
+        thorough_ranked.append((t, n, f, score))
+    thorough_ranked.sort(key=lambda x: x[3], reverse=True)
+    top200 = thorough_ranked[:200]
+    if not top200:
+        return fail("No candidates after Stage-2 robust scorer")
+    log(f"[INFO] Stage-2 leader: {top200[0][0]}")
+
+    # 7) Stratified Top-10
+    top10 = pick_top_stratified(
+        top200,
+        total=10,
+        min_small=int(os.getenv("STAGE2_MIN_SMALL", "5")),
+        min_large=int(os.getenv("STAGE2_MIN_LARGE", "5")),
+        pe_min=int(os.getenv("STAGE2_MIN_PE", "5")),
+    )
+    tickers_top10 = [t for (t, _, _, _) in top10]
+
+    # 7.1) Valuation Z-stats pool (optional, for the model’s sector/size-relative use)
+    val_z_enable = os.getenv("VAL_ZS_ENABLE", "1").lower() in {"1","true","yes"}
+    val_z_pool = (os.getenv("VAL_ZS_POOL", "stage2") or "stage2").lower()
+    if val_z_enable:
+        if val_z_pool == "top10":
+            vals_for_stats = fetch_valuations_for_top(tickers_top10)
+            z_stats = compute_val_z_stats(vals_for_stats)
+            log("[INFO] VAL_ZS: computed over Top-10 pool")
+        else:
+            # stage2 default
+            z_stats = compute_val_z_stats(vals_pre)
+            log("[INFO] VAL_ZS: computed over Stage-2 pool")
     else:
-        pre_topK = pre
+        z_stats = None
+        log("[INFO] VAL_ZS disabled")
 
-    # removed diagnostics
-    kept_set = {t for (t, _n, _f, _s, _m) in pre_topK}
-    for (t, n, f, s, meta) in scored:
-        if t not in kept_set:
-            reason = "below_cutoff"
-            if "pump_risk" in meta["tags"]: reason = "below_cutoff_pump_risk"
-            removed.append((t, n, s,
-                            f.get("price"), f.get("vsSMA50"), f.get("vsSMA200"),
-                            f.get("RSI14"), f.get("ATRpct"), f.get("r60"),
-                            f.get("vol_vs20"), f.get("drawdown_pct"),
-                            meta.get("tier"), f.get("avg_dollar_vol_20d"),
-                            ";".join(meta["tags"]), reason))
+    spy_ctx = get_spy_ctx()
+    earn_days_map = fetch_next_earnings_days(tickers_top10)
+    valuations_map = fetch_valuations_for_top(tickers_top10)
 
-    if write_csv:
-        try:
-            path_kept = os.path.join(log_dir, "stage1_kept.csv")
-            with open(path_kept, "w", newline="", encoding="utf-8") as f:
-                w = csv.writer(f)
-                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
-                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
-                            "vol_vs20","drawdown%","tags"])
-                for (t, n, feats, s, meta) in pre_topK:
-                    w.writerow([t, n, f"{s:.2f}", meta.get("tier"), feats.get("avg_dollar_vol_20d"),
-                                feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
-                                feats.get("RSI14"), feats.get("ATRpct"), feats.get("r60"),
-                                feats.get("vol_vs20"), feats.get("drawdown_pct"),
-                                ";".join(meta["tags"])] )
-            log.info(f"[Stage1] kept={len(pre_topK)} -> {path_kept}")
+    blocks = []
+    debug_inputs = {}
+    baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
 
-            path_removed = os.path.join(log_dir, "stage1_removed.csv")
-            with open(path_removed, "w", newline="", encoding="utf-8") as f:
-                w = csv.writer(f)
-                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
-                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
-                            "vol_vs20","drawdown%","tags","reason"])
-                for row in removed:
-                    w.writerow(row)
-            log.info(f"[Stage1] removed={len(removed)} -> {path_removed}")
-        except Exception as e:
-            log.warning(f"[Stage1] CSV logging failed: {e!r}")
+    def _zs_line(vals: dict) -> str:
+        if not z_stats: return ""
+        keys = ["PE","PEG","EV_EBITDA","EV_REV","PS","FCF_YIELD"]
+        parts = []
+        for k in keys:
+            v = vals.get(k)
+            mu, sd = z_stats.get(k, (0.0, 1.0))
+            z = _z(mu, sd, v)
+            parts.append(f"{k}={('N/A' if z is None else f'{z:+.2f}')}")
+        return "VAL_ZS: " + ", ".join(parts)
 
-    return pre_topK, scored, removed
+    def _trend_line(f) -> str:
+        tq = _trend_quality_from_feats(f)
+        return f"TREND_QUALITY: {tq['score']:.2f} (rsi={tq['rsi_band']:.2f}, ema={tq['ema_align']:.2f}, vol={tq['vol_part']:.2f}, ext={tq['ext_pen']:.2f})", tq
+
+    for (t, name, feats, _score) in top10:
+        proxies = derive_proxies(feats, spy_ctx)
+        fund_proxy = fund_proxies_from_feats(feats)
+        cat = catalyst_severity_from_feats(feats)
+
+        earn_days = earn_days_map.get(t)
+        if earn_days is None:
+            earn_sev = 0
+        elif earn_days <= 0:
+            earn_sev = 5
+        elif earn_days <= 3:
+            earn_sev = 4
+        elif earn_days <= 7:
+            earn_sev = 3
+        elif earn_days <= 14:
+            earn_sev = 2
+        else:
+            earn_sev = 0
+
+        vals = (valuations_map.get(t) or {})
+        pe_hint = vals.get("PE")
+        fm = {
+            "PE":        vals.get("PE"),
+            "PS":        vals.get("PS"),
+            "EV_EBITDA": vals.get("EV_EBITDA"),
+            "EV_REV":    vals.get("EV_REV"),
+            "PEG":       vals.get("PEG"),
+            "FCF_YIELD": vals.get("FCF_YIELD"),
+        }
+
+        block_text, debug_dict = build_prompt_block(
+            t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
+            cat=cat, earn_sev=earn_sev, fm=fm,
+            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
+            pe_hint=pe_hint
+        )
+
+        # Append optional helpers the prompt can use (documented in SYSTEM_PROMPT_TOP20_EXT)
+        extra_lines = []
+        zsline = _zs_line(fm)
+        if zsline: extra_lines.append(zsline)
+        tline, tq = _trend_line(feats)
+        extra_lines.append(tline)
+
+        block_text = (block_text.rstrip() + "\n" + "\n".join(extra_lines)).rstrip()
+        blocks.append(block_text)
+
+        debug_dict["VAL_ZS"] = zsline
+        debug_dict["TREND_QUALITY"] = tq
+        debug_inputs[t] = debug_dict
+
+    blocks_text = "\n\n".join(blocks)
+    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
+        today=now.strftime("%b %d"),
+        blocks=blocks_text,
+    )
+
+    # Log the exact inputs we’re about to send to GPT
+    if os.getenv("LOG_GPT_INPUT", "1").lower() in {"1", "true", "yes"}:
+        echo = os.getenv("LOG_GPT_INPUT_STDOUT", "0").lower() in {"1", "true", "yes"}
+        dump_path = dump_blocks_pre_gpt(blocks, user_prompt, TZ, echo_stdout=echo)
+        log(f"[INFO] Dumped pre-GPT blocks to {dump_path}")
+
+    # 8) GPT adjudication
+    try:
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
+    except Exception as e:
+        return fail(f"GPT-5 failed: {repr(e)}")
+
+    # 9) Parse selected tickers from GPT output and post debug
+    RE_PICK_TICKER = re.compile(
+        r"(?m)^\s*\*\*([A-Z]{1,10}(?:[.\-][A-Z0-9]{1,5})?)\s+[–—-]\s"
+    )
+    RE_FORECAST_TICK = re.compile(
+        r"(?im)Forecast\s+image\s+URL:\s*https?://[^/]+/stocks/([A-Z0-9.\-]+)/forecast\b"
+    )
+
+    valid_set = set(debug_inputs.keys())
+    a = RE_PICK_TICKER.findall(final_text)
+    b = RE_FORECAST_TICK.findall(final_text)
+    raw = list(dict.fromkeys(a + b))
+    picked = [t for t in raw if t in valid_set]
+    junk = [t for t in raw if t not in valid_set]
+    if junk:
+        log(f"[INFO] Ignored non-ticker matches: {junk}")
+
+    force_debug = os.getenv("DEBUGGER_FORCE_POST", "1").lower() in {"1", "true", "yes"}
+    if not picked and force_debug:
+        picked = tickers_top10[:]
+        log("[INFO] No valid tickers parsed; forcing debug post for Stage-2 Top-10.")
+    elif picked:
+        log(f"[INFO] Parsed tickers for debug: {', '.join(picked)}")
+    else:
+        log("[WARN] No tickers parsed and DEBUGGER_FORCE_POST=0; will skip debug post.")
+
+    try:
+        if picked:
+            post_debug_inputs_to_discord(picked, debug_inputs, DISCORD_DEBUG_WEBHOOK_URL)
+            log(f"[INFO] Posted debug embeds for: {', '.join(picked)}")
+    except Exception as e:
+        log(f"[WARN] Debug post failed: {e!r}")
+
+    # 10) Save & (optionally) wait until 08:00
+    with open("daily_pick.txt", "w", encoding="utf-8") as f:
+        f.write(final_text)
+    log("[INFO] Draft saved to daily_pick.txt")
+
+    if not force:
+        wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
+        log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
+        if wait_s > 0:
+            time.sleep(wait_s)
+
+    # 11) Send to Discord
+    embed = {
+        "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
+        "description": final_text,
+    }
+    payload = {"username": "Daily Stock Alert", "embeds": [embed]}
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=60).raise_for_status()
+        log("[INFO] Posted alert to Discord ✅")
+    except Exception as e:
+        log(f"[ERROR] Discord webhook error: {repr(e)}")
+
+if __name__ == "__main__":
+    main()

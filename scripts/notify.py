@@ -1,6 +1,5 @@
 # scripts/notify.py
-import os, re, sys, time, requests, pytz, math
-import numpy as np
+import os, re, sys, time, requests, pytz
 from datetime import datetime
 from pathlib import Path
 
@@ -21,7 +20,7 @@ from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
 
-from trash_ranker import RobustRanker, pick_top_stratified, safe
+from trash_ranker import RobustRanker, pick_top_stratified
 from quick_scorer import rank_stage1, quick_score  # we rescore after adding PE
 
 TZ = pytz.timezone("Europe/Bucharest")
@@ -87,7 +86,6 @@ GUARDS (avoid nonsensical plans):
   • If CURRENT_PRICE < buy_low by more than ~2×EV% → append " (Accumulation zone)".
 - Keep plans terse; do not explain math in prose; only the single-line plan plus the required summary fields.
 """
-
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
 
 def fail(msg: str):
@@ -101,8 +99,6 @@ def fail(msg: str):
     except Exception:
         pass
 
-# ---------- NEW: valuation Z-stats & trend-quality helpers ----------
-
 def _z(mu, sd, x):
     if x is None: return None
     try:
@@ -114,10 +110,7 @@ def _z(mu, sd, x):
         return None
 
 def compute_val_z_stats(vals_map):
-    """
-    vals_map: {ticker: {"PE":..,"PS":..,"EV_REV":..,"EV_EBITDA":..,"PEG":..,"FCF_YIELD":..}}
-    Returns {field: (median, robust_sd)} using MAD->SD scaling for robustness.
-    """
+    # vals_map: {ticker: {"PE":..,"PS":..,"EV_REV":..,"EV_EBITDA":..,"PEG":..,"FCF_YIELD":..}}
     keys = ["PE","PEG","EV_EBITDA","EV_REV","PS","FCF_YIELD"]
     cols = {k: [] for k in keys}
     for v in vals_map.values():
@@ -135,36 +128,32 @@ def compute_val_z_stats(vals_map):
         if not arr:
             stats[k] = (0.0, 1.0)
         else:
-            a = np.array(arr, dtype=float)
-            mu = float(np.median(a))
-            mad = float(np.median(np.abs(a - mu)))
-            sd = mad * 1.4826 if mad > 1e-12 else (float(np.std(a)) or 1.0)
+            mu = float(np.median(arr))
+            mad = float(np.median(np.abs(np.array(arr) - mu)))
+            sd = mad * 1.4826 if mad > 1e-12 else (float(np.std(arr)) or 1.0)
             stats[k] = (mu, sd if sd > 1e-9 else 1.0)
     return stats
 
 def trend_quality_from_feats(f):
-    """
-    0..1 score: banded RSI, EMA alignment, non-manic participation, and low extension.
-    Also returns the component breakdown the prompt can use.
-    """
-    rsi    = safe(f.get("RSI14"), None)
-    vsem50 = safe(f.get("vsEMA50"), None)
-    vsem200= safe(f.get("vsEMA200"), None)
-    px     = safe(f.get("price"), None)
-    e50    = safe(f.get("EMA50"), None)
-    e200   = safe(f.get("EMA200"), None)
-    vol20  = safe(f.get("vol_vs20"), None)
+    # 0..1 score: banded RSI, EMA alignment, non-manic participation, and low extension
+    rsi   = safe(f.get("RSI14"), None)
+    vsem50= safe(f.get("vsEMA50"), None)
+    vsem200=safe(f.get("vsEMA200"), None)
+    px    = safe(f.get("price"), None)
+    e50   = safe(f.get("EMA50"), None)
+    e200  = safe(f.get("EMA200"), None)
+    vol20 = safe(f.get("vol_vs20"), None)
 
-    # RSI band
+    # RSI band 45..70 good
     if rsi is None: rsi_band = 0.5
     elif rsi <= 35 or rsi >= 80: rsi_band = 0.1
     elif 45 <= rsi <= 70: rsi_band = 1.0
     else: rsi_band = 0.6
 
     # EMA alignment
-    ema_align = 1.0 if (px and e50 and e200 and px > e50 > e200) else (0.6 if (e50 and e200 and e50 > e200) else 0.2)
+    ema_align = 1.0 if (px and e50 and e200 and px>e50>e200) else (0.6 if (e50 and e200 and e50>e200) else 0.2)
 
-    # Volume participation (avoid blow-off)
+    # Volume participation (not blow-off)
     if vol20 is None: vol_part = 0.6
     elif vol20 < 40: vol_part = 0.4
     elif 60 <= vol20 <= 180: vol_part = 1.0
@@ -178,6 +167,7 @@ def trend_quality_from_feats(f):
     elif vsem50 <= 45: ext_pen = 0.30
     else: ext_pen = 0.45
 
+    # Combine (subtract extension)
     score = max(0.0, min(1.0, 0.35*rsi_band + 0.35*ema_align + 0.30*vol_part - ext_pen))
     return {
         "score": round(score, 2),
@@ -187,7 +177,7 @@ def trend_quality_from_feats(f):
         "ext_pen": round(ext_pen, 2),
     }
 
-# ---------- logging exact GPT input ----------
+
 
 def dump_blocks_pre_gpt(
     blocks: list[str],
@@ -222,8 +212,6 @@ def dump_blocks_pre_gpt(
             print(f"\n[DEBUG] BLOCK {i} preview:\n{head}\n... (truncated)")
 
     return path
-
-# ---------- main pipeline ----------
 
 def main():
     now = datetime.now(TZ)
@@ -268,7 +256,7 @@ def main():
     )
     log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
-    # Optional: P/E refinement on a small pool (bugfix: avoid double-append)
+    # Optional: P/E refinement on a small pool
     if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"}:
         pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))
         pool_tickers = [t for (t, _n, _f, _s, _m) in quick_scored[:pool_n]]
@@ -278,36 +266,33 @@ def main():
         except Exception as e:
             log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
             pe_map = {}
-
         pre_top200_pe = []
         for (t, n, f, s, meta) in pre_top200:
             pe = pe_map.get(t)
             if pe is not None and pe > 0:
                 f["val_PE"] = pe
             pre_top200_pe.append((t, n, f, s, meta))
-
-        rescored = []
-        for (t, n, f, _s, _m) in pre_top200_pe:
-            s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
-            rescored.append((
-                t, n, f, s2,
-                {
-                    "parts": parts2,
-                    "tags": _m.get("tags", []),
-                    "tier": _m.get("tier"),
-                    "avg_dollar_vol_20d": _m.get("avg_dollar_vol_20d"),
-                }
-            ))
-        rescored.sort(key=lambda x: x[3], reverse=True)
-        pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
-        log("[INFO] Stage-1 P/E refine applied.")
+            rescored = []
+            for (t, n, f, _s, _m) in pre_top200_pe:
+                s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
+                rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
+                # preserve original meta fields (tier, ADV) to keep later logs/filters coherent
+                rescored.append((
+                    t, n, f, s2,
+                    {
+                        "parts": parts2, "tags": _m.get("tags", []),
+                        "tier": _m.get("tier"), "avg_dollar_vol_20d": _m.get("avg_dollar_vol_20d")
+                    }
+                ))
+            rescored.sort(key=lambda x: x[3], reverse=True)
+            pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
+            log("[INFO] Stage-1 P/E refine applied.")
 
     # 6) Stage-2 — RobustRanker
     ranker = RobustRanker()
     tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
 
-    # Attach fundamentals to feats so ranker can use them
     for (t, n, f, _score, _meta) in pre_top200:
         v = (vals_pre.get(t) or {})
         f["val_PE"]        = v.get("PE")
@@ -317,7 +302,6 @@ def main():
         f["val_PEG"]       = v.get("PEG")
         f["val_FCF_YIELD"] = v.get("FCF_YIELD")
 
-    # Fit cross-sectional stats then compute Stage-2 ranking
     ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
 
     thorough_ranked = []
@@ -345,9 +329,6 @@ def main():
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
     valuations_map = fetch_valuations_for_top(tickers_top10)
-
-    # ---- NEW: compute valuation Z-stats across Stage-2 pool
-    val_stats = compute_val_z_stats(vals_pre)
 
     blocks = []
     debug_inputs = {}
@@ -383,40 +364,12 @@ def main():
             "FCF_YIELD": vals.get("FCF_YIELD"),
         }
 
-        # ---- NEW: per-ticker valuation Z-scores (relative within Stage-2 pool)
-        vz = {}
-        for key in ["PE", "PEG", "EV_EBITDA", "EV_REV", "PS", "FCF_YIELD"]:
-            mu, sd = val_stats.get(key, (0.0, 1.0))
-            vz[key] = _z(mu, sd, fm.get(key))
-
-        # ---- NEW: trend-quality hint for anchor softening in the prompt
-        tq = trend_quality_from_feats(feats)
-
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
             cat=cat, earn_sev=earn_sev, fm=fm,
             baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
             pe_hint=pe_hint
         )
-
-        # ---- NEW: append VAL_ZS and TREND_QUALITY lines the prompt can consume
-        block_text += "\nVAL_ZS: " + "; ".join([
-            f"PE_Z={vz.get('PE') if vz.get('PE') is not None else 'N/A'}",
-            f"PEG_Z={vz.get('PEG') if vz.get('PEG') is not None else 'N/A'}",
-            f"EV_EBITDA_Z={vz.get('EV_EBITDA') if vz.get('EV_EBITDA') is not None else 'N/A'}",
-            f"EV_REV_Z={vz.get('EV_REV') if vz.get('EV_REV') is not None else 'N/A'}",
-            f"PS_Z={vz.get('PS') if vz.get('PS') is not None else 'N/A'}",
-            f"FCFY_Z={vz.get('FCF_YIELD') if vz.get('FCF_YIELD') is not None else 'N/A'}",
-        ])
-
-        block_text += "\nTREND_QUALITY: " + "; ".join([
-            f"score={tq['score']}",
-            f"rsi_band={tq['rsi_band']}",
-            f"ema_align={tq['ema_align']}",
-            f"vol_part={tq['vol_part']}",
-            f"ext_pen={tq['ext_pen']}",
-        ])
-
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 

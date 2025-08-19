@@ -176,7 +176,7 @@ jobs:
           QS_FVA_KO_PCT_LARGE: '28'
           QS_STRUCT_PREM_CAP: '0' # neutral; gentle reclaims rewarded by AVWAP_RECLAIM_*
 
-          # --- RobustRanker FVA KO haircut (new, global) ---
+          # --- RobustRanker FVA KO haircut (global threshold) ---
           QS_FVA_KO_PCT: '12'
 
           # --- Valuation overlay into structure ---
@@ -191,12 +191,27 @@ jobs:
           ATH_VOL_RELIEF: '60'
           ATH_SCORE_HAIRCUT: '22'
 
-          # --- OpenAI call timeout ---
+          # --- Valuation Z-scores in prompt blocks (enable & pool) ---
+          VAL_ZS_ENABLE: '1'
+          VAL_ZS_POOL: 'stage2' # 'stage2' (default) or 'top10'
+
+          # --- OpenAI call knobs ---
           OPENAI_TIMEOUT: '360'
+          OPENAI_MAX_TOKENS: '13000'
+          # OPENAI_MODEL: 'gpt-5'   # optional override
 
           # --- Dump exact GPT inputs ---
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
+          # DEBUGGER_FORCE_POST: '1' # uncomment to always post debug embeds if parsing fails
+
+          # --- Prompt floors & knobs (documentary; enforced in prompt logic) ---
+          TECH_VAL_FLOOR_PCT: '0.30'
+          TECH_VAL_STRONG_FLOOR_PCT: '0.45'
+          RISK_FLOOR_PCT: '0.30'
+          NEWS_DELTA_MAX: '25'
+          FVA_TREND_SOFTEN_MAX: '0.35'
+          PEG_PROXY_BONUS: '3'
         run: |
           python scripts/notify.py
 
