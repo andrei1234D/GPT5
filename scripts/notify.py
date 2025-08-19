@@ -99,86 +99,6 @@ def fail(msg: str):
     except Exception:
         pass
 
-def _z(mu, sd, x):
-    if x is None: return None
-    try:
-        sd = sd if (sd and sd > 1e-12) else 1.0
-        z = (float(x) - float(mu)) / float(sd)
-        if math.isnan(z) or math.isinf(z): return None
-        return max(-6.0, min(6.0, z))
-    except Exception:
-        return None
-
-def compute_val_z_stats(vals_map):
-    # vals_map: {ticker: {"PE":..,"PS":..,"EV_REV":..,"EV_EBITDA":..,"PEG":..,"FCF_YIELD":..}}
-    keys = ["PE","PEG","EV_EBITDA","EV_REV","PS","FCF_YIELD"]
-    cols = {k: [] for k in keys}
-    for v in vals_map.values():
-        for k in keys:
-            x = v.get(k)
-            try:
-                if x is not None:
-                    fx = float(x)
-                    if not math.isnan(fx) and not math.isinf(fx):
-                        cols[k].append(fx)
-            except Exception:
-                pass
-    stats = {}
-    for k, arr in cols.items():
-        if not arr:
-            stats[k] = (0.0, 1.0)
-        else:
-            mu = float(np.median(arr))
-            mad = float(np.median(np.abs(np.array(arr) - mu)))
-            sd = mad * 1.4826 if mad > 1e-12 else (float(np.std(arr)) or 1.0)
-            stats[k] = (mu, sd if sd > 1e-9 else 1.0)
-    return stats
-
-def trend_quality_from_feats(f):
-    # 0..1 score: banded RSI, EMA alignment, non-manic participation, and low extension
-    rsi   = safe(f.get("RSI14"), None)
-    vsem50= safe(f.get("vsEMA50"), None)
-    vsem200=safe(f.get("vsEMA200"), None)
-    px    = safe(f.get("price"), None)
-    e50   = safe(f.get("EMA50"), None)
-    e200  = safe(f.get("EMA200"), None)
-    vol20 = safe(f.get("vol_vs20"), None)
-
-    # RSI band 45..70 good
-    if rsi is None: rsi_band = 0.5
-    elif rsi <= 35 or rsi >= 80: rsi_band = 0.1
-    elif 45 <= rsi <= 70: rsi_band = 1.0
-    else: rsi_band = 0.6
-
-    # EMA alignment
-    ema_align = 1.0 if (px and e50 and e200 and px>e50>e200) else (0.6 if (e50 and e200 and e50>e200) else 0.2)
-
-    # Volume participation (not blow-off)
-    if vol20 is None: vol_part = 0.6
-    elif vol20 < 40: vol_part = 0.4
-    elif 60 <= vol20 <= 180: vol_part = 1.0
-    elif 180 < vol20 <= 260: vol_part = 0.7
-    else: vol_part = 0.3
-
-    # Extension penalty from vsEMA50
-    if vsem50 is None: ext_pen = 0.0
-    elif vsem50 <= 15: ext_pen = 0.0
-    elif vsem50 <= 30: ext_pen = 0.15
-    elif vsem50 <= 45: ext_pen = 0.30
-    else: ext_pen = 0.45
-
-    # Combine (subtract extension)
-    score = max(0.0, min(1.0, 0.35*rsi_band + 0.35*ema_align + 0.30*vol_part - ext_pen))
-    return {
-        "score": round(score, 2),
-        "rsi_band": round(rsi_band, 2),
-        "ema_align": round(ema_align, 2),
-        "vol_part": round(vol_part, 2),
-        "ext_pen": round(ext_pen, 2),
-    }
-
-
-
 def dump_blocks_pre_gpt(
     blocks: list[str],
     user_prompt: str | None,
@@ -292,7 +212,6 @@ def main():
     ranker = RobustRanker()
     tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
     vals_pre = fetch_valuations_for_top(tickers_pre)
-
     for (t, n, f, _score, _meta) in pre_top200:
         v = (vals_pre.get(t) or {})
         f["val_PE"]        = v.get("PE")
