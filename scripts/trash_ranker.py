@@ -1,324 +1,744 @@
 # scripts/trash_ranker.py
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List, Tuple, Dict, Optional
-import os, math, logging
+from typing import Dict, List, Tuple, Optional
+import math
+import os
+import logging
 import numpy as np
 
-logger = logging.getLogger("trash_ranker")
-if not logger.handlers:
-    logging.basicConfig(level=getattr(logging, (os.getenv("RANKER_LOG_LEVEL") or "INFO").upper(), logging.INFO),
-                        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+# ---------- logging setup ----------
+def _maybe_configure_logging():
+    level_name = os.getenv("RANKER_LOG_LEVEL", "").upper().strip()
+    if not level_name:
+        return
+    level = getattr(logging, level_name, logging.INFO)
+    if not logging.getLogger().handlers:
+        logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
-# ----------------- helpers -----------------
-def safe(x, d=0.0):
+_maybe_configure_logging()
+logger = logging.getLogger("trash_ranker")
+
+
+# ---------- utilities ----------
+def safe(x, default=None):
     try:
-        if x is None: return d
+        if x is None:
+            return default
         xf = float(x)
-        if math.isnan(xf) or math.isinf(xf): return d
+        if math.isnan(xf) or math.isinf(xf):
+            return default
         return xf
     except Exception:
-        return d
+        return default
 
 def clamp(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
 
-def bool01(x) -> int:
-    return 1 if bool(x) else 0
-
 def tri_sweetspot(x: Optional[float], lo: float, mid_lo: float, mid_hi: float, hi: float) -> float:
-    """0..1 ramp in [lo..mid_lo], 1 in [mid_lo..mid_hi], down to 0 at hi."""
-    if x is None: return 0.0
-    x = float(x)
-    if x <= lo: return 0.0
-    if x >= hi: return 0.0
-    if x < mid_lo:
-        return (x - lo) / max(1e-9, (mid_lo - lo))
-    if x <= mid_hi:
+    """
+    0..1 score peaking in [mid_lo, mid_hi], linearly rising/falling, 0 outside [lo,hi].
+    """
+    if x is None:
+        return 0.0
+    try:
+        x = float(x)
+    except Exception:
+        return 0.0
+    if x <= lo or x >= hi:
+        return 0.0
+    if mid_lo <= x <= mid_hi:
         return 1.0
-    return (hi - x) / max(1e-9, (hi - mid_hi))
+    if x < mid_lo:
+        return (x - lo) / max((mid_lo - lo), 1e-9)
+    return (hi - x) / max((hi - mid_hi), 1e-9)
 
-# --------------- dataclasses ---------------
-@dataclass
-class RankerParams:
-    total: int = 30
-    min_small: int = 15
-    min_large: int = 15
-    require_pe_min: int = 8  # at least this many with PE present
-    chase_pen_r60_knee: float = float(os.getenv("TR_CHASE_KNEE", "40"))
-    chase_pen_slope: float = float(os.getenv("TR_CHASE_SLOPE", "0.7"))
-    chase_pen_cap: float = float(os.getenv("TR_CHASE_MAX", "18"))
-    blowoff_rsi: float = 80.0
-    blowoff_vol: float = 220.0
-    earnings_blackout_days: int = int(os.getenv("TR_EARN_BLACKOUT_DAYS", "1"))  # skip same-day prints if desired
-    verbose: bool = os.getenv("RANKER_VERBOSE", "").strip().lower() in {"1","true","yes"}
+def bool01(x) -> Optional[float]:
+    if x is True:
+        return 1.0
+    if x is False:
+        return 0.0
+    return None
 
+
+# ---------- hard filters ----------
 @dataclass
 class HardFilter:
-    earnings_blackout_days: int = 0
-    min_price: float = 1.0
-    min_adv20: float = 0.0
-    allow_otc: bool = False
+    # base thresholds
+    min_price: float = 3.0
+    max_atr_pct: float = 12.0
+    max_vssma200_neg: float = -45.0
+    max_drawdown_neg: float = -70.0
+    pump_rsi: float = 83.0
+    pump_vol_vs20: float = 400.0
+    pump_d5: float = 18.0
 
-    def why_garbage(self, row) -> Optional[str]:
-        t, n, feats, s, meta = row
-        px = safe(feats.get("price"), None)
-        if px is not None and px < self.min_price:
-            return "too_cheap_price"
-        adv = safe(feats.get("avg_dollar_vol_20d"), None)
-        if adv is not None and adv < self.min_adv20:
-            return "too_illiquid"
-        if not self.allow_otc and str(feats.get("exchange","")).upper() in {"OTC","PINK"}:
-            return "otc_blocked"
-        dse = feats.get("days_since_earnings")
+    # EMA-specific soft hardening
+    ema_rollover_drop: int = field(default_factory=lambda: int(os.getenv("HARD_EMA_ROLLOVER", "1")))
+
+    # strictness mode
+    mode: str = field(default_factory=lambda: os.getenv("HARD_DROP_MODE", "loose").lower())
+    grace_atr: float = field(default_factory=lambda: float(os.getenv("HARD_GRACE_ATR", "2.0")))
+
+    # Optional: ignore tickers right on earnings day to reduce whipsaw risk
+    earnings_blackout_days: int = field(default_factory=lambda: int(os.getenv("TR_EARN_BLACKOUT_DAYS", "0")))
+
+    # --- early-turn detector (keeps candidates that are just starting to trend up) ---
+    def _is_early_turn(self, feats: Dict) -> bool:
+        rsi      = safe(feats.get("RSI14"), None)
+        e50s     = safe(feats.get("EMA50_slope_5d"), None)
+        v20      = safe(feats.get("vol_vs20"), None)
+        px       = safe(feats.get("price"), None)
+        e20      = safe(feats.get("EMA20"), None)
+        vsem200  = safe(feats.get("vsEMA200"), None)
+
+        if (rsi is None) or (e50s is None) or (px is None) or (e20 is None) or (vsem200 is None):
+            return False
+
+        rsi_lo   = float(os.getenv("EARLY_TURN_RSI_LO", "47.0"))
+        rsi_hi   = float(os.getenv("EARLY_TURN_RSI_HI", "63.0"))
+        slope_lo = float(os.getenv("EARLY_TURN_MIN_E50_SLOPE", "2.0"))
+        vs200_lo = float(os.getenv("EARLY_TURN_VS200_LO", "-12.0"))
+        vs200_hi = float(os.getenv("EARLY_TURN_VS200_HI", "8.0"))
+        vol_lo   = float(os.getenv("EARLY_TURN_VOL_LO", "110.0"))
+        vol_hi   = float(os.getenv("EARLY_TURN_VOL_HI", "220.0"))
+
+        rsi_ok   = rsi_lo <= rsi <= rsi_hi
+        slope_ok = e50s >= slope_lo            # rising 50EMA
+        vol_ok   = (v20 is None) or (vol_lo <= v20 <= vol_hi)  # modest participation, not a blowoff
+        px_ok    = px >= e20                    # price reclaimed short-term trend
+        near200  = vs200_lo <= vsem200 <= vs200_hi  # still near/just below long trend
+
+        return rsi_ok and slope_ok and vol_ok and px_ok and near200
+
+    def why_garbage(self, feats: Dict) -> Tuple[bool, str]:
+        # Earnings blackout (if provided); feats['days_since_earnings'] should be integer days
         try:
-            if dse is not None and int(dse) <= self.earnings_blackout_days:
-                return "earnings_blackout"
+            dse = feats.get("days_since_earnings")
+            if (dse is not None) and (int(dse) <= self.earnings_blackout_days):
+                return True, "earnings_blackout"
         except Exception:
             pass
-        return None
 
-    def is_garbage(self, row) -> bool:
-        return self.why_garbage(row) is not None
+        t = self._scaled()
+        price = safe(feats.get("price"), None)
+        atrp  = safe(feats.get("ATRpct"), None)
+        vs200 = safe(feats.get("vsSMA200"), None)
+        dd    = safe(feats.get("drawdown_pct"), None)
+        rsi   = safe(feats.get("RSI14"), None)
+        v20   = safe(feats.get("vol_vs20"), None)
+        d5    = safe(feats.get("d5"), None)
+        r60   = safe(feats.get("r60"), 0.0)
 
-# ---------------- Ranker -------------------
+        # Trend leaders get a little ATR grace
+        trend_leader = (r60 is not None and r60 >= 20) and (vs200 is not None and vs200 >= 0)
+        early_turn = self._is_early_turn(feats)
+
+        if (price is None) or (price < t["min_price"]):
+            return True, f"price<{t['min_price']} (price={price})"
+
+        # ATR cap with relief for leaders and early turns
+        if atrp is not None:
+            lim = t["max_atr_pct"]
+            if trend_leader:
+                lim += self.grace_atr
+            if early_turn:
+                lim += self.grace_atr  # +2% by default
+            if atrp > lim:
+                return True, f"ATRpct>{lim} (atr={atrp}, leader={trend_leader}, early={early_turn})"
+
+        # vs200 drop test (allow a bit more weakness if it's an early turn)
+        if vs200 is not None:
+            lim_200 = t["max_vssma200_neg"]
+            if early_turn:
+                lim_200 -= float(os.getenv("EARLY_TURN_VS200_PAD", "5.0"))
+            if vs200 < lim_200:
+                return True, f"vsSMA200<{lim_200} (vs200={vs200}, early={early_turn})"
+
+        if dd is not None and dd < t["max_drawdown_neg"]:
+            return True, f"drawdown<{t['max_drawdown_neg']} (dd={dd})"
+
+        # Pump-and-dump pattern
+        if (rsi is not None and rsi >= t["pump_rsi"]) and \
+           (v20 is not None and v20 >= t["pump_vol_vs20"]) and \
+           (d5  is not None and d5  >= t["pump_d5"]):
+            if self.mode in {"off", "loose"} and trend_leader:
+                return False, "pump_pattern_soft_keep"
+            return True, "pump pattern (RSI/vol/d5)"
+
+        # Valuation blow-off only if mania momentum present
+        pe  = safe(feats.get("val_PE"), None)
+        ps  = safe(feats.get("val_PS"), None)
+        peg = safe(feats.get("val_PEG"), None)
+        if ((pe is not None and pe >= 80) or (ps is not None and ps >= 40) or (peg is not None and peg >= 5.0)):
+            if (rsi is not None and rsi >= t["pump_rsi"]) and (v20 is not None and v20 >= t["pump_vol_vs20"]) and (d5 is not None and d5 >= t["pump_d5"]):
+                if self.mode in {"off", "loose"} and trend_leader:
+                    return False, "valuation-blowoff-soft-keep"
+                return True, "valuation-blowoff (PE/PS/PEG extreme + RSI/vol spike)"
+
+        # Optional EMA rollover hard filter — skip if it's an early turn
+        if self.ema_rollover_drop:
+            e50  = safe(feats.get("EMA50"), None)
+            e200 = safe(feats.get("EMA200"), None)
+            px   = safe(feats.get("price"), None)
+            if e50 and e200 and px:
+                if (e50 < e200) and (px < e50) and self.mode in {"normal", "strict"}:
+                    if not early_turn:
+                        return True, "ema_rollover (px<EMA50<EMA200)"
+        return False, ""
+
+    def is_garbage(self, feats: Dict) -> bool:
+        dropped, _ = self.why_garbage(feats)
+        return dropped
+
+    def _scaled(self):
+        m = self.mode
+        if m == "off":
+            return dict(
+                min_price=self.min_price,
+                max_atr_pct=self.max_atr_pct + 999,
+                max_vssma200_neg=self.max_vssma200_neg - 999,
+                max_drawdown_neg=self.max_drawdown_neg - 999,
+                pump_rsi=self.pump_rsi + 999,
+                pump_vol_vs20=self.pump_vol_vs20 + 999,
+                pump_d5=self.pump_d5 + 999,
+            )
+        if m == "strict":
+            return dict(
+                min_price=self.min_price,
+                max_atr_pct=self.max_atr_pct - 2.0,
+                max_vssma200_neg=self.max_vssma200_neg + 5.0,
+                max_drawdown_neg=self.max_drawdown_neg + 5.0,
+                pump_rsi=self.pump_rsi - 2.0,
+                pump_vol_vs20=self.pump_vol_vs20 - 50.0,
+                pump_d5=self.pump_d5 - 2.0,
+            )
+        if m == "normal":
+            return dict(
+                min_price=self.min_price,
+                max_atr_pct=self.max_atr_pct - 1.0,
+                max_vssma200_neg=self.max_vssma200_neg + 2.0,
+                max_drawdown_neg=self.max_drawdown_neg + 2.0,
+                pump_rsi=self.pump_rsi - 1.0,
+                pump_vol_vs20=self.pump_vol_vs20 - 25.0,
+                pump_d5=self.pump_d5 - 1.0,
+            )
+        # loose default
+        return dict(
+            min_price=self.min_price,
+            max_atr_pct=self.max_atr_pct + 1.5,
+            max_vssma200_neg=self.max_vssma200_neg - 2.0,
+            max_drawdown_neg=self.max_drawdown_neg - 2.0,
+            pump_rsi=self.pump_rsi + 1.5,
+            pump_vol_vs20=self.pump_vol_vs20 + 50.0,
+            pump_d5=self.pump_d5 + 2.0,
+        )
+
+
+# ---------- composite score ----------
+@dataclass
+class RankerParams:
+    # weights (keep valuation relatively small to avoid cheap/expensive bias)
+    w_trend: float = 0.30
+    w_momo: float = 0.32
+    w_struct: float = 0.14
+    w_stab: float = 0.14
+    w_blowoff: float = 0.02
+    w_value: float = 0.08  # was 0.18 — reduce valuation influence
+
+    # soft caps used in stability penalties
+    atr_soft_cap: float = 6.0
+    vol20_soft_cap: float = 250.0
+    dd_soft_cap: float = -35.0
+
+
+@dataclass
 class RobustRanker:
-    def __init__(self, params: Optional[RankerParams] = None):
-        self.params = params or RankerParams()
-        self.stats: Dict[str, Tuple[float,float]] = {}
-        self.verbose = self.params.verbose
+    params: RankerParams = field(default_factory=RankerParams)
+    hard: HardFilter = field(default_factory=HardFilter)
+    stats: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    verbose: bool = field(default_factory=lambda: os.getenv("RANKER_VERBOSE", "").strip().lower() in {"1","true","yes"})
+    log_every: int = field(default_factory=lambda: int(os.getenv("RANKER_LOG_EVERY", "500")))
 
-    # cross-sectional robust stats
-    def _robust(self, arr: List[float]) -> Tuple[float,float]:
-        a = np.array([x for x in arr if x is not None and not (isinstance(x, float) and (math.isnan(x) or math.isinf(x)))], dtype=float)
-        if a.size == 0: return (0.0, 1.0)
+    def set_verbose(self, enabled: bool, level: int = logging.INFO):
+        self.verbose = bool(enabled)
+        logger.setLevel(level)
+
+    def _robust_z(self, arr: List[float]) -> Tuple[float, float]:
+        a = np.array(
+            [x for x in arr if x is not None and not (isinstance(x, float) and (math.isnan(x) or math.isinf(x)))],
+            dtype=float,
+        )
+        if a.size == 0:
+            return (0.0, 1.0)
         med = float(np.median(a))
         mad = float(np.median(np.abs(a - med)))
-        scale = mad * 1.4826 if mad > 1e-12 else float(np.std(a) or 1.0)
-        if not (scale > 1e-9): scale = 1.0
+        scale = mad * 1.4826 if mad > 1e-12 else (float(np.std(a)) or 1.0)
+        if not (scale > 1e-9):
+            scale = 1.0
         return (med, scale)
 
-    def fit_cross_section(self, ranked: List[Tuple[str,str,Dict,float,Dict]]):
-        keys = ["vsSMA50","vsSMA200","r60","r120","d20","RSI14","ATRpct","vol_vs20","EMA50_slope_5d","vsEMA50","vsEMA200","drawdown_pct"]
-        data: Dict[str, List[float]] = {k: [] for k in keys}
-        for (_t,_n,f,_s,_m) in ranked:
-            for k in keys:
-                x = f.get(k)
-                try:
-                    if x is not None:
-                        xv = float(x)
-                        if not (math.isnan(xv) or math.isinf(xv)):
-                            data[k].append(xv)
-                except Exception:
-                    pass
-        self.stats = {k: self._robust(v) for k,v in data.items()}
+    def fit_cross_section(self, feats_list: List[Dict]) -> None:
+        keys = [
+            "vsSMA50","vsSMA200","d20","RSI14","MACD_hist","ATRpct","drawdown_pct","vol_vs20","r60","r120",
+            "vsEMA50","vsEMA200","EMA50_slope_5d"
+        ]
+        self.stats.clear()
+        for k in keys:
+            vals = [safe(f.get(k), None) for f in feats_list]
+            med, scale = self._robust_z(vals)
+            self.stats[k] = (med, scale)
+        if self.verbose:
+            logger.info(f"[Ranker] fit_cross_section on {len(feats_list)} names")
 
-    def _z(self, key: str, x: float|None, lo=-4.0, hi=4.0) -> float:
-        if x is None: return 0.0
-        med, scale = self.stats.get(key, (0.0, 1.0))
+    def _zs(self, k: str, x: Optional[float]) -> float:
+        if x is None:
+            return 0.0
+        med, scale = self.stats.get(k, (0.0, 1.0))
         try:
             z = (float(x) - med) / (scale if scale != 0 else 1.0)
         except Exception:
             z = 0.0
-        return float(clamp(z, lo, hi))
+        return float(clamp(z, -4.0, 4.0))
 
-    def composite_score(self, feats: Dict) -> Tuple[float, Dict[str,float]]:
+    def _value_tilt(self, feats: Dict) -> float:
+        """
+        -1..+1 valuation score from optional fields (missing ~ neutral).
+        """
+        pe     = safe(feats.get("val_PE"), None)
+        ps     = safe(feats.get("val_PS"), None)
+        evrev  = safe(feats.get("val_EV_REV"), None)
+        ebitda = safe(feats.get("val_EV_EBITDA"), None)
+        peg    = safe(feats.get("val_PEG"), None)
+        fcfy   = safe(feats.get("val_FCF_YIELD"), None)  # percent
+
+        def to_pm01(u: float) -> float:
+            return clamp(u * 2.0 - 1.0, -1.0, 1.0)
+
+        s = 0.0
+        s += 0.25 * to_pm01(tri_sweetspot(pe,     lo=5.0,  mid_lo=10.0, mid_hi=25.0, hi=60.0))
+        s += 0.15 * to_pm01(tri_sweetspot(ps,     lo=0.5,  mid_lo=2.0,  mid_hi=10.0, hi=30.0))
+        s += 0.15 * to_pm01(tri_sweetspot(evrev,  lo=0.5,  mid_lo=2.0,  mid_hi=10.0, hi=30.0))
+        s += 0.15 * to_pm01(tri_sweetspot(ebitda, lo=5.0,  mid_lo=8.0,  mid_hi=20.0, hi=40.0))
+        s += 0.15 * to_pm01(tri_sweetspot(peg,    lo=0.3,  mid_lo=0.8,  mid_hi=1.8,  hi=4.0))
+        s += 0.15 * to_pm01(tri_sweetspot(fcfy,   lo=-5.0, mid_lo=1.0,  mid_hi=8.0,  hi=20.0))
+        return clamp(s, -1.0, 1.0)
+
+    def composite_score(self, feats: Dict, context: Optional[Dict]=None) -> Tuple[float, Dict[str, float]]:
         P = self.params
-        vs50  = safe(feats.get("vsSMA50"), 0.0)
-        vs200 = safe(feats.get("vsSMA200"), 0.0)
-        r60   = safe(feats.get("r60"), 0.0)
-        r120  = safe(feats.get("r120"), 0.0)
-        d20   = safe(feats.get("d20"), 0.0)
-        rsi   = safe(feats.get("RSI14"), None)
-        macd  = safe(feats.get("MACD_hist"), 0.0)
-        atr   = safe(feats.get("ATRpct"), 0.0)
-        v20   = safe(feats.get("vol_vs20"), 0.0)
-        dd    = safe(feats.get("drawdown_pct"), 0.0)
-        px    = safe(feats.get("price"), 0.0)
-        avwap = safe(feats.get("AVWAP252"), None)
-        vsem50= safe(feats.get("vsEMA50"), None)
-        vsem200=safe(feats.get("vsEMA200"), None)
-        e50s  = safe(feats.get("EMA50_slope_5d"), None)
-        pe    = None
-        for k in ("val_PE","PE","pe","pe_hint"):
-            if feats.get(k) is not None:
-                try: pe = float(feats.get(k)); break
-                except Exception: pass
-
-        # z-scores
-        z_vs50  = self._z("vsSMA50", vs50);     z_vs200 = self._z("vsSMA200", vs200)
-        z_r60   = self._z("r60", r60);          z_r120  = self._z("r120", r120)
-        z_d20   = self._z("d20", d20);          z_atr   = self._z("ATRpct", atr)
-        z_v20   = self._z("vol_vs20", v20);     z_e50s  = self._z("EMA50_slope_5d", e50s)
-
-        # parts
-        rsi_band = tri_sweetspot(rsi, lo=40, mid_lo=52, mid_hi=68, hi=75)
-        trend = (
-            0.32 * clamp(z_vs200/4.0, -1, 1) +
-            0.20 * clamp(z_vs50/4.0,  -1, 1) +
-            0.10 * clamp((vsem200 or 0)/20.0, -1, 1) +
-            0.10 * clamp((vsem50 or 0)/20.0,  -1, 1) +
-            0.08 * clamp(macd/1.5,           -1, 1)
-        ) * 100.0 + 8.0 * rsi_band
-
-        momo = (
-            0.36 * clamp(z_r60/4.0,  -1, 1) +
-            0.26 * clamp(z_r120/4.0, -1, 1) +
-            0.22 * clamp(z_d20/4.0,  -1, 1) +
-            0.16 * clamp(z_e50s/4.0, -1, 1)
-        ) * 100.0
-
-        # chase penalty
-        if r60 is not None and r60 > P.chase_pen_r60_knee:
-            momo -= min(P.chase_pen_cap, (r60 - P.chase_pen_r60_knee) * P.chase_pen_slope)
-
-        # acceleration & continuation bonuses (prefer beginning/continuation, not exhaustion)
         try:
-            accel = clamp(((z_r60 - z_r120) / 2.0), -1.0, 1.0)
-        except Exception:
-            accel = 0.0
-        momo += 8.0 * accel
-        continuation = 0.0
-        if (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and (vsem200 is not None and vsem200 >= -2.0) and \
-           (rsi is not None and 52.0 <= rsi <= 68.0) and (e50s is not None and e50s > 0.0):
-            if (v20 is None) or (-20.0 <= v20 <= 180.0):
-                continuation = 8.0
-        momo += continuation
+            # trend inputs
+            vs50  = safe(feats.get("vsSMA50"), 0.0)
+            vs200 = safe(feats.get("vsSMA200"), 0.0)
+            macd  = safe(feats.get("MACD_hist"), 0.0)
+            rsi   = safe(feats.get("RSI14"),   None)
+            rsi_band = tri_sweetspot(rsi, lo=40, mid_lo=52, mid_hi=68, hi=75)
 
-        # structure
-        struct = 0.0
-        if avwap:
-            prem = (px/avwap) - 1.0
-            if prem < 0: struct += clamp(abs(prem)*20.0, 0.0, 6.0)
-            else:        struct -= clamp(prem*25.0, 0.0, 8.0)
-        if vsem50 and vsem200:
-            if vsem50 > 0 and vsem200 > 0: struct += 3.0
-            elif vsem50 < 0 and vsem200 < 0: struct -= 2.0
+            # EMA-based fields
+            vsem50  = safe(feats.get("vsEMA50"), None)
+            vsem200 = safe(feats.get("vsEMA200"), None)
+            e50s    = safe(feats.get("EMA50_slope_5d"), None)
 
-        # stability (inverse risk)
-        stability = 0.0
-        if atr is not None: stability += clamp((6.0 - atr)/6.0, -1.0, 1.0) * 10.0
-        if dd is not None and dd > -50: stability += clamp((50.0 + dd)/50.0, 0.0, 1.0) * 4.0
+            # Fair value & anchor calculations first (fixes prior ordering bug)
+            px = safe(feats.get("price"), None)
+            fva = safe(feats.get("fva_hint"), None)
+            value = self._value_tilt(feats)
 
-        # blowoff/late-stage penalty
-        blow = 0.0
-        if (rsi is not None and rsi >= P.blowoff_rsi) and (v20 is not None and v20 >= P.blowoff_vol):
-            blow -= 12.0
-        if rsi is not None and rsi >= 88 and v20 >= 250:
-            blow -= 8.0
-        # stall penalties
-        stall = 0.0
-        if accel < -0.25:    stall -= min(8.0, (abs(accel) - 0.25) * 20.0)
-        if e50s is not None and e50s <= 0.0: stall -= 5.0
-        if (rsi is not None and 55 <= rsi <= 75) and (macd < 0.0) and (vs50 > 0.0): stall -= 8.0
-        if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0.0) and (v20 is not None and v20 <= -20): stall -= 4.0
+            fva_term = 0.0
+            if fva and px:
+                disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means px below anchor
+                if disc < 0:
+                    # price ABOVE FVA → stronger penalty; map [0..-25]% to [0..-0.35]
+                    fva_term = -clamp(abs(disc)/25.0, 0.0, 1.0) * 0.35
+                elif disc > 0:
+                    # price BELOW FVA → modest bonus; map [0..+25]% to [0..+0.15]
+                    fva_term =  clamp(disc/25.0, 0.0, 1.0) * 0.15
 
-        # tiny valuation tilt
-        val = 0.0
-        if pe is not None and pe > 0:
-            if pe <= 10: val += 8.0
-            elif 10 < pe <= 18: val += 4.0
-            elif 30 <= pe <= 40: val -= 2.0
-            elif pe >= 50: val -= 6.0
+            ko_pen = 0.0
+            ko_pct = float(os.getenv("QS_FVA_KO_PCT", "0"))  # 0 disables
+            if ko_pct > 0 and (px is not None) and (fva is not None) and px > fva:
+                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
+                extended = ((rsi is not None and rsi >= 72) or
+                            (vsem50 is not None and vsem50 >= 40) or
+                            (safe(feats.get("d20"), 0.0) is not None and safe(feats.get("d20"), 0.0) >= 15))
+                if gap >= ko_pct and extended:
+                    ko_pen = -min(0.6, max(0.0, gap - ko_pct) * 0.012)  # −1..0 contribution inside stability
 
-        parts = {
-            "trend": trend, "momo": momo, "struct": struct, "stability": stability,
-            "blowoff": blow, "stall": stall, "value": val, "accel": accel, "continuation": continuation
-        }
-        # weights
-        wt_trend, wt_momo, wt_struct, wt_stab, wt_blow, wt_stall, wt_val = 0.34, 0.34, 0.12, 0.06, 0.06, 0.06, 0.02
-        score = (wt_trend*trend + wt_momo*momo + wt_struct*struct + wt_stab*stability +
-                 wt_blow*blow + wt_stall*stall + wt_val*val)
-        return (float(clamp(score, -100.0, 100.0)), parts)
+            # Now trend score
+            trend = (
+                0.28*(self._zs("vsSMA200", vs200)/4.0) +
+                0.20*(self._zs("vsSMA50",  vs50) /4.0) +
+                0.20*(self._zs("vsEMA200", vsem200)/4.0) +
+                0.17*(self._zs("vsEMA50",  vsem50) /4.0) +
+                0.15*(clamp(macd,-1.5,1.5)/1.5) +
+                0.10*rsi_band
+            )
+            trend = clamp(trend, -1.0, 1.0)
+
+            # momentum inputs
+            d20  = safe(feats.get("d20"), 0.0)
+            r60  = safe(feats.get("r60"), 0.0)
+            r120 = safe(feats.get("r120"), 0.0)
+            is20h = feats.get("is_20d_high")
+
+            # Expanded near20 logic to gently reward first higher-highs
+            near20 = 0.0
+            if is20h or (d20 is not None and d20 >= 8 and safe(feats.get("RSI14"), 50) <= 72):
+                near20 = 1.0
+            elif (d20 is not None and 3.0 <= d20 <= 7.0 and rsi is not None and rsi <= 65 and
+                  vsem200 is not None and vsem200 <= 10.0):
+                near20 = 0.6
+
+            # acceleration (prefer speeding up over slowing)
+            z_r60  = self._zs("r60", r60)
+            z_r120 = self._zs("r120", r120)
+            accel_z = clamp(((z_r60 - z_r120) / 2.0), -1.0, 1.0)
+
+            momo = (
+                0.33*(self._zs("r60",  r60) /4.0) +
+                0.25*(self._zs("r120", r120)/4.0) +
+                0.24*(self._zs("d20",  d20) /4.0) +
+                0.10*(self._zs("EMA50_slope_5d", e50s)/4.0) +
+                0.05*near20 +
+                0.08*accel_z
+            )
+
+            # chase penalty (scale ~ -0.00..-0.18 on -1..+1 mom scale)
+            try:
+                knee  = float(os.getenv("TR_CHASE_KNEE", "35"))
+                slope = float(os.getenv("TR_CHASE_SLOPE","0.006"))   # per 1% RS over knee
+                cap   = float(os.getenv("TR_CHASE_MAX","0.18"))
+            except Exception:
+                knee, slope, cap = 35.0, 0.006, 0.18
+            if r60 is not None and r60 > knee:
+                momo -= min(cap, (r60 - knee) * slope)
+
+            momo = clamp(momo, -1.0, 1.0)
+
+            # structure
+            sma50 = safe(feats.get("SMA50"), None)
+            sma200= safe(feats.get("SMA200"), None)
+            avwap = safe(feats.get("AVWAP252"), None)
+            e50   = safe(feats.get("EMA50"), None)
+            e200  = safe(feats.get("EMA200"), None)
+
+            align = 0.0
+            if sma50 is not None and sma200 is not None:
+                align += 0.5 if (sma50 > sma200) else -0.2
+            if e50 and e200:
+                align += 0.6 if (e50 > e200) else -0.25
+            if px and e50:
+                align += 0.25 if (px > e50) else -0.15
+            if px and avwap:
+                align += 0.25 if (px > avwap) else -0.10
+            if px and e50 and e200:
+                if px > e50 > e200: align += 0.20
+                elif px < e50 < e200: align -= 0.18
+            struct = clamp(align, -1.0, 1.0)
+
+            # AVWAP premium headwind (uses QS_STRUCT_PREM_CAP points on a 0..100 scale)
+            prem_cap_pts = float(os.getenv("QS_STRUCT_PREM_CAP", "0"))
+            if prem_cap_pts > 0 and px and avwap:
+                prem = (px / avwap) - 1.0  # >0 means above AVWAP
+                if prem > 0:
+                    # Map 0..+20% premium -> 0..(prem_cap_pts/100) negative on the -1..+1 struct scale
+                    prem_cap = prem_cap_pts / 100.0
+                    struct -= min(prem_cap, prem * (prem_cap / 0.20))
+
+            # continuation boost (in motion but not extended)
+            if (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and (vsem200 is not None and vsem200 >= -2.0) and \
+               (rsi is not None and 52.0 <= rsi <= 68.0) and (e50s is not None and e50s > 0.0):
+                if (safe(feats.get("vol_vs20"), 0.0) is None) or (-20.0 <= safe(feats.get("vol_vs20"), 0.0) <= 180.0):
+                    struct = clamp(struct + 0.08, -1.0, 1.0)
+
+            # stability (inverse risk)
+            atrp = safe(feats.get("ATRpct"), None)
+            dd   = safe(feats.get("drawdown_pct"), None)
+            v20  = safe(feats.get("vol_vs20"), None)
+            atr_pen = 0.0 if atrp is None else (-clamp((atrp - P.atr_soft_cap)/P.atr_soft_cap, 0.0, 1.0))
+            dd_pen  = 0.0 if dd   is None else (-clamp((abs(min(dd,0.0)) - abs(P.dd_soft_cap))/25.0, 0.0, 1.0))
+            vol_pen = 0.0 if v20  is None else (-clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0))
+
+            # Mean-reversion risk if far above EMA50
+            ext_pen = 0.0
+            if vsem50 is not None and vsem50 >= 20:
+                ext_pen = -clamp((vsem50 - 20)/40.0, 0.0, 0.3)  # up to -0.3
+
+            # ATH guard (near 52w high + very hot)
+            ath_guard = int(os.getenv("ATH_GUARD", "1")) != 0
+            ath_sev = 0.0
+            ath_relief = 1.0
+            if ath_guard:
+                near_pct   = float(os.getenv("ATH_NEAR_PCT", "1.0"))   # within 1% of 52w high
+                min_rsi    = float(os.getenv("ATH_MIN_RSI", "80"))     # RSI threshold
+                min_vs50   = float(os.getenv("ATH_MIN_VS50", "25"))    # vsEMA50 threshold
+                vol_relief = float(os.getenv("ATH_VOL_RELIEF", "60"))  # strong volume reduces penalty
+
+                dd0 = safe(feats.get("drawdown_pct"), None)
+                if (dd0 is not None and dd0 >= -near_pct and
+                    rsi is not None and rsi >= min_rsi and
+                    vsem50 is not None and vsem50 >= min_vs50):
+                    ath_sev = clamp(
+                        0.5 * ((rsi - min_rsi) / 10.0) + 0.5 * ((vsem50 - min_vs50) / 25.0),
+                        0.0, 1.0
+                    )
+                    if v20 is not None and v20 >= vol_relief:
+                        ath_relief = 0.5  # participation halves the penalty
+
+            # distribution / stall penalties
+            stall_pen = 0.0
+            if accel_z < -0.25:
+                stall_pen -= min(0.08, (abs(accel_z) - 0.25) * 0.10)
+            if (rsi is not None and 55 <= rsi <= 75) and (macd < 0.0) and (vs50 > 0.0):
+                stall_pen -= 0.08
+            if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0.0) and (v20 is not None and v20 <= -20):
+                stall_pen -= 0.04
+
+            # stability aggregates (include ko_pen here — this fixes prior bug where ko_pen was ignored)
+            stability = clamp(
+                0.45*atr_pen +
+                0.20*dd_pen  +
+                0.10*vol_pen +
+                0.10*ext_pen +
+                0.10*stall_pen +
+                0.15*(-ath_sev * ath_relief) +
+                0.20*ko_pen,
+                -1.0, 0.0
+            )
+
+            # Blowoff detector (EMA-aware)
+            blow = 0.0
+            if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
+                blow = -1.0
+            elif (rsi is not None and rsi >= 85):
+                blow = -0.7
+            if vsem50 is not None and vsem50 >= 25 and blow < 0:
+                blow = min(-1.0, blow - 0.2)
+
+            # Harsher blowoffs under extreme valuations
+            pe  = safe(feats.get("val_PE"), None)
+            ps  = safe(feats.get("val_PS"), None)
+            peg = safe(feats.get("val_PEG"), None)
+            if ((pe is not None and pe >= 60) or (ps is not None and ps >= 30) or (peg is not None and peg >= 4.0)):
+                if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
+                    blow = -1.0
+
+            # finalize valuation with FVA term (kept small by weight)
+            value = clamp(value + fva_term, -1.0, 1.0)
+
+            parts = {
+                "trend": trend,
+                "momo": momo,
+                "struct": struct,
+                "stability": stability,
+                "blowoff": blow,
+                "value": value,
+                "accel_z": accel_z,
+                "ko_pen": ko_pen,
+            }
+            w = {
+                "trend": P.w_trend,
+                "momo": P.w_momo,
+                "struct": P.w_struct,
+                "stability": P.w_stab,
+                "blowoff": P.w_blowoff,
+                "value": P.w_value,
+            }
+            active_w = sum(w.values()) or 1.0
+            score_unit = sum(w[k]*v for k,v in parts.items())
+            scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
+
+            # Final ATH haircut so the effect is material on the headline score
+            if ath_sev > 0:
+                haircut = float(os.getenv("ATH_SCORE_HAIRCUT", "22"))  # points on -100..+100 scale
+                scr = clamp(scr - haircut * ath_sev * ath_relief, -100.0, 100.0)
+
+            if self.verbose and logger.isEnabledFor(logging.DEBUG):
+                logger.debug(
+                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f",
+                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr
+                )
+            return (scr, parts)
+        except Exception as e:
+            if self.verbose:
+                logger.exception(f"[Ranker] composite_score error: {e}")
+            return (-999.0, {"error": 1.0})
 
     def should_drop(self, feats: Dict) -> bool:
-        # Hard disqualifiers for safety: extreme ATR, huge drawdown, absurd extension over AVWAP
-        atr = safe(feats.get("ATRpct"), 0.0)
-        dd  = safe(feats.get("drawdown_pct"), 0.0)
-        px  = safe(feats.get("price"), 0.0)
-        avwap = safe(feats.get("AVWAP252"), None)
-        if atr is not None and atr >= 12.0: return True
-        if dd is not None and dd <= -75.0:  return True
-        if avwap and px and px > avwap * 1.8: return True
+        drop, reason = self.hard.why_garbage(feats)
+        if drop and self.verbose:
+            logger.info(f"[Ranker] drop: {reason}")
+        return drop
+
+    def _apply_profile(self) -> None:
+        """
+        A = Aggressive, B = Balanced (default), C = Conservative.
+        Controlled by RANKER_PROFILE (or SELECTION_MODE) env.
+        """
+        prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
+        P = self.params
+        if prof == "A":
+            # More momentum/trend, looser stability
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.32, 0.36, 0.14, 0.10, 0.02, 0.06
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 6.8, 300.0, -40.0
+        elif prof == "C":
+            # Value/stability forward; harsher blowoff
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.24, 0.24, 0.16, 0.24, 0.04, 0.08
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 5.5, 220.0, -30.0
+        else:
+            # B = defaults already set in dataclass
+            pass
+
+    def score_universe(self, universe: List[Tuple[str, str, Dict]], context: Optional[Dict]=None):
+        """
+        Input: universe as iterable of (ticker, name, feats)
+        Output: ranked list of (ticker, name, feats, score, parts)
+        """
+        self._apply_profile()
+        feat_list = [f for _,_,f in universe]
+        self.fit_cross_section(feat_list)
+        ranked = []
+        for i, (t, n, f) in enumerate(universe, 1):
+            if self.should_drop(f):
+                continue
+            score, parts = self.composite_score(f, context)
+            ranked.append((t, n, f, score, parts))
+            if self.verbose and self.log_every and (i % self.log_every == 0):
+                logger.info(f"[Ranker] progress: {i} processed, {len(ranked)} kept")
+        ranked.sort(key=lambda x: x[3], reverse=True)
+        if self.verbose and ranked:
+            logger.info(f"[Ranker] done: kept {len(ranked)} / {len(universe)} ; leader={ranked[0][0]} score={ranked[0][3]:.2f}")
+        return ranked
+
+
+# --- Stratified top-N selector (5 small + 5 large with >=5 P/E present) ---
+def _tier_of_row(row):
+    """
+    Determine tier of a ranked row. Expects row = (t, n, f, score[, parts]).
+    Uses feats['liq_tier'] if present. Accepts 'small'/'SMALL' and 'large'/'LARGE'.
+    """
+    f = row[2]
+    tier_raw = f.get("liq_tier")
+    if not tier_raw:
+        return "unknown"
+    tier = str(tier_raw).lower()
+    if tier in {"small", "large"}:
+        return tier
+    if tier in {"sm", "s"}:
+        return "small"
+    if tier in {"lg", "l", "big"}:
+        return "large"
+    return "unknown"
+
+def _has_pe(row):
+    """
+    True if row has a positive, finite val_PE or PE proxy.
+    """
+    f = row[2]
+    pe = (f.get("val_PE") if f.get("val_PE") is not None else f.get("PE"))
+    try:
+        if pe is None:
+            return False
+        pef = float(pe)
+        return (pef > 0) and (not math.isinf(pef)) and (not math.isnan(pef))
+    except Exception:
         return False
 
-    def score_universe(self, ranked: List[Tuple[str,str,Dict,float,Dict]]):
-        # Compute and attach stage2 scores + parts + tags
-        self.fit_cross_section(ranked)
-        scored = []
-        for row in ranked:
-            t, n, f, s1, meta = row
-            if self.should_drop(f):  # hard safety
-                continue
-            s2, parts = self.composite_score(f)
-            tags = list(meta.get("tags", []))
-            # derive stall tag again for visibility
-            rsi = safe(f.get("RSI14"), None); vs50 = safe(f.get("vsSMA50"), 0.0)
-            v20 = safe(f.get("vol_vs20"), 0.0); macd = safe(f.get("MACD_hist"), 0.0)
-            r60 = safe(f.get("r60"), 0.0); r120 = safe(f.get("r120"), 0.0)
-            accel = ((r60 - r120) / 20.0) if (r60 is not None and r120 is not None) else 0.0
-            if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0) and (((v20 or 0) <= -20) or (macd < 0)):
-                if "stall_risk" not in tags: tags.append("stall_risk")
-            meta2 = dict(meta)
-            meta2["parts_s2"] = parts
-            meta2["tags"] = tags
-            scored.append((t, n, f, s2, meta2))
-        scored.sort(key=lambda x: x[3], reverse=True)
-        return scored
-
-def _has_pe(row) -> bool:
-    feats = row[2]
-    for k in ("val_PE","PE","pe","pe_hint"):
-        try:
-            if feats.get(k) is not None and float(feats.get(k)) > 0: return True
-        except Exception:
-            pass
-    return False
-
-def _tier_of_row(row) -> str:
-    feats = row[2]
-    t = (feats.get("liq_tier") or "").lower()
-    if t in {"small","large"}: return t
-    adv = safe(feats.get("avg_dollar_vol_20d"), None)
-    if adv is None: return "small"
-    return "large" if adv >= float(os.getenv("TR_LARGE_ADV_USD", "30000000")) else "small"
-
 def pick_top_stratified(
-    ranked: List[Tuple[str,str,Dict,float,Dict]],
-    total: int = 30,
-    min_small: int = 15,
-    min_large: int = 15,
-    pe_min: int = 8
-) -> List[Tuple[str,str,Dict,float,Dict]]:
+    ranked: List[Tuple],
+    total: int = 10,
+    min_small: int = 5,
+    min_large: int = 5,
+    pe_min: int = 5,
+) -> List[Tuple]:
     """
-    Stage-2: stratified pick from Stage-1 'ranked' (t, name, feats, score, meta).
-    Preserves pipeline expectations and quotas. Applies small late-stage/ stall protections.
+    Select 'total' rows from a ranked list, aiming for:
+      - at least 'min_small' small-cap names
+      - at least 'min_large' large-cap names
+      - at least 'pe_min' names with val_PE present (>0)
+    Preserves score order as much as possible; falls back gracefully.
     """
-    P = RankerParams(total=total, min_small=min_small, min_large=min_large, require_pe_min=pe_min)
-    ranker = RobustRanker(P)
-    scored = ranker.score_universe(ranked)
+    if total <= 0:
+        return []
 
-    # enforce quotas
-    small = [r for r in scored if _tier_of_row(r) == "small"]
-    large = [r for r in scored if _tier_of_row(r) == "large"]
+    # Clamp impossible quotas
+    if min_small + min_large > total:
+        over = (min_small + min_large) - total
+        if min_small >= min_large:
+            min_small = max(0, min_small - over)
+        else:
+            min_large = max(0, min_large - over)
 
-    pick_s = small[:min_small]
-    pick_l = large[:min_large]
+    # Partition the ranked pool
+    small = [r for r in ranked if _tier_of_row(r) == "small"]
+    large = [r for r in ranked if _tier_of_row(r) == "large"]
 
-    taken = set([r[0] for r in (pick_s + pick_l)])
-    remainder = [r for r in scored if r[0] not in taken]
-    tail = remainder[:max(0, total - len(pick_s) - len(pick_l))]
-    picked = (pick_s + pick_l + tail)[:total]
+    # Start with quotas (truncate if not enough in a bucket)
+    pick_small = small[:min_small]
+    pick_large = large[:min_large]
+    picked = pick_small + pick_large
+    picked_ids = {r[0] for r in picked}  # ticker set
 
-    # PE presence floor; if insufficient, swap in more with PE from remainder
-    if pe_min and sum(1 for r in picked if _has_pe(r)) < pe_min:
-        need = pe_min - sum(1 for r in picked if _has_pe(r))
-        pool = [r for r in remainder if _has_pe(r) and r[0] not in {x[0] for x in picked}]
-        picked += pool[:max(0, need)]
-        # trim if exceeded total
-        picked = picked[:total]
+    # Helpers
+    def pool_not_picked():
+        return [r for r in ranked if r[0] not in picked_ids]
+
+    def count_pe(rows):
+        return sum(1 for r in rows if _has_pe(r))
+
+    # Fill the rest, biasing toward meeting pe_min
+    while len(picked) < total:
+        remaining = pool_not_picked()
+        if not remaining:
+            break
+        need_pe = max(0, pe_min - count_pe(picked))
+        if need_pe > 0:
+            next_with_pe = next((r for r in remaining if _has_pe(r)), None)
+            if next_with_pe is not None:
+                picked.append(next_with_pe)
+                picked_ids.add(next_with_pe[0])
+                continue
+        nxt = remaining[0]
+        picked.append(nxt)
+        picked_ids.add(nxt[0])
+
+    # Improve PE coverage with swaps while honoring tier quotas
+    pe_have = count_pe(picked)
+    if pe_have < pe_min:
+        insertables = [r for r in ranked if (r[0] not in picked_ids) and _has_pe(r)]
+
+        def tier_counts(rows):
+            s = sum(1 for r in rows if _tier_of_row(r) == "small")
+            l = sum(1 for r in rows if _tier_of_row(r) == "large")
+            return s, l
+
+        picks_sorted_lo = sorted(picked, key=lambda x: x[3])  # lowest score first
+        ins_idx = 0
+        while (pe_have < pe_min) and (ins_idx < len(insertables)):
+            incoming = insertables[ins_idx]
+            ins_idx += 1
+            removed_any = False
+            for cand_out in list(picks_sorted_lo):
+                if _has_pe(cand_out):
+                    continue
+                tmp = [r for r in picked if r[0] != cand_out[0]]
+                s_cnt, l_cnt = tier_counts(tmp)
+                if (s_cnt >= min_small) and (l_cnt >= min_large):
+                    picked = tmp + [incoming]
+                    picked_ids = {r[0] for r in picked}
+                    picks_sorted_lo = sorted(picked, key=lambda x: x[3])
+                    pe_have = count_pe(picked)
+                    removed_any = True
+                    break
+            if not removed_any:
+                continue
 
     picked.sort(key=lambda x: x[3], reverse=True)
-    return picked
+    return picked[:total]
 
-__all__ = ["RankerParams","HardFilter","RobustRanker","pick_top_stratified"]
+__all__ = [
+    "HardFilter",
+    "RankerParams",
+    "RobustRanker",
+    "pick_top_stratified",
+]
