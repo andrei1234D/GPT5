@@ -176,37 +176,37 @@ def main():
     )
     log(f"[INFO] Stage-1 survivors for Stage-2: {len(pre_top200)}")
 
-    # Optional: P/E refinement on a small pool
-    if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"}:
+    # --- Optional: P/E refinement on the Stage-1 pool (fixed & simplified) ---
+    if os.getenv("STAGE1_PE_RESCORE", "1").lower() in {"1", "true", "yes"} and pre_top200:
         pool_n = int(os.getenv("STAGE1_PE_POOL", "2000"))
         pool_tickers = [t for (t, _n, _f, _s, _m) in quick_scored[:pool_n]]
+        pe_map = {}
         try:
             from data_fetcher import fetch_pe_for_top
-            pe_map = fetch_pe_for_top(pool_tickers)
+            pe_map = fetch_pe_for_top(pool_tickers) or {}
         except Exception as e:
             log(f"[WARN] Stage-1 P/E refine skipped (fetch error): {e!r}")
-            pe_map = {}
-        pre_top200_pe = []
-        for (t, n, f, s, meta) in pre_top200:
+
+        # Inject P/E and rescore once, preserving meta
+        rescored = []
+        mode = os.getenv("STAGE1_MODE", "loose")
+        for (t, n, f, _s, m) in pre_top200:
             pe = pe_map.get(t)
             if pe is not None and pe > 0:
                 f["val_PE"] = pe
-            pre_top200_pe.append((t, n, f, s, meta))
-            rescored = []
-            for (t, n, f, _s, _m) in pre_top200_pe:
-                s2, parts2 = quick_score(f, mode=os.getenv("STAGE1_MODE", "loose"))
-                rescored.append((t, n, f, s2, {"parts": parts2, "tags": _m.get("tags", [])}))
-                # preserve original meta fields (tier, ADV) to keep later logs/filters coherent
-                rescored.append((
-                    t, n, f, s2,
-                    {
-                        "parts": parts2, "tags": _m.get("tags", []),
-                        "tier": _m.get("tier"), "avg_dollar_vol_20d": _m.get("avg_dollar_vol_20d")
-                    }
-                ))
-            rescored.sort(key=lambda x: x[3], reverse=True)
-            pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
-            log("[INFO] Stage-1 P/E refine applied.")
+            s2, parts2 = quick_score(f, mode=mode)
+            # Preserve important meta fields
+            meta2 = {
+                "parts": parts2,
+                "tags": m.get("tags", []),
+                "tier": m.get("tier"),
+                "avg_dollar_vol_20d": m.get("avg_dollar_vol_20d"),
+            }
+            rescored.append((t, n, f, s2, meta2))
+
+        rescored.sort(key=lambda x: x[3], reverse=True)
+        pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
+        log("[INFO] Stage-1 P/E refine applied.")
 
     # 6) Stage-2 — RobustRanker
     ranker = RobustRanker()
@@ -214,12 +214,12 @@ def main():
     vals_pre = fetch_valuations_for_top(tickers_pre)
     for (t, n, f, _score, _meta) in pre_top200:
         v = (vals_pre.get(t) or {})
-        f["val_PE"]        = v.get("PE")
-        f["val_PS"]        = v.get("PS")
-        f["val_EV_REV"]    = v.get("EV_REV")
-        f["val_EV_EBITDA"] = v.get("EV_EBITDA")
-        f["val_PEG"]       = v.get("PEG")
-        f["val_FCF_YIELD"] = v.get("FCF_YIELD")
+        f["val_PE"]        = v.get("PE")        if v.get("PE")        is not None else f.get("val_PE")
+        f["val_PS"]        = v.get("PS")        if v.get("PS")        is not None else f.get("val_PS")
+        f["val_EV_REV"]    = v.get("EV_REV")    if v.get("EV_REV")    is not None else f.get("val_EV_REV")
+        f["val_EV_EBITDA"] = v.get("EV_EBITDA") if v.get("EV_EBITDA") is not None else f.get("val_EV_EBITDA")
+        f["val_PEG"]       = v.get("PEG")       if v.get("PEG")       is not None else f.get("val_PEG")
+        f["val_FCF_YIELD"] = v.get("FCF_YIELD") if v.get("FCF_YIELD") is not None else f.get("val_FCF_YIELD")
 
     ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
 

@@ -358,9 +358,10 @@ class RobustRanker:
             ko_pct = float(os.getenv("QS_FVA_KO_PCT", "0"))  # 0 disables
             if ko_pct > 0 and (px is not None) and (fva is not None) and px > fva:
                 gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
+                d20_for_ko = safe(feats.get("d20"), None)
                 extended = ((rsi is not None and rsi >= 72) or
                             (vsem50 is not None and vsem50 >= 40) or
-                            (safe(feats.get("d20"), 0.0) is not None and safe(feats.get("d20"), 0.0) >= 15))
+                            (d20_for_ko is not None and d20_for_ko >= 15))
                 if gap >= ko_pct and extended:
                     ko_pen = -min(0.6, max(0.0, gap - ko_pct) * 0.012)  # −1..0 contribution inside stability
 
@@ -446,9 +447,10 @@ class RobustRanker:
                     struct -= min(prem_cap, prem * (prem_cap / 0.20))
 
             # continuation boost (in motion but not extended)
+            v20_for_boost = safe(feats.get("vol_vs20"), None)
             if (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and (vsem200 is not None and vsem200 >= -2.0) and \
                (rsi is not None and 52.0 <= rsi <= 68.0) and (e50s is not None and e50s > 0.0):
-                if (safe(feats.get("vol_vs20"), 0.0) is None) or (-20.0 <= safe(feats.get("vol_vs20"), 0.0) <= 180.0):
+                if (v20_for_boost is None) or (-20.0 <= v20_for_boost <= 180.0):
                     struct = clamp(struct + 0.08, -1.0, 1.0)
 
             # stability (inverse risk)
@@ -494,7 +496,7 @@ class RobustRanker:
             if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0.0) and (v20 is not None and v20 <= -20):
                 stall_pen -= 0.04
 
-            # stability aggregates (include ko_pen here — this fixes prior bug where ko_pen was ignored)
+            # stability aggregates (include ko_pen here)
             stability = clamp(
                 0.45*atr_pen +
                 0.20*dd_pen  +
@@ -533,6 +535,7 @@ class RobustRanker:
                 "stability": stability,
                 "blowoff": blow,
                 "value": value,
+                # debug extras (not weighted)
                 "accel_z": accel_z,
                 "ko_pen": ko_pen,
             }
@@ -544,8 +547,9 @@ class RobustRanker:
                 "blowoff": P.w_blowoff,
                 "value": P.w_value,
             }
+            # sum ONLY weighted keys to avoid KeyError on debug fields
             active_w = sum(w.values()) or 1.0
-            score_unit = sum(w[k]*v for k,v in parts.items())
+            score_unit = sum(w[k] * parts[k] for k in w.keys())
             scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
 
             # Final ATH haircut so the effect is material on the headline score
@@ -555,8 +559,9 @@ class RobustRanker:
 
             if self.verbose and logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f",
-                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr
+                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f (accel=%.3f ko=%.3f)",
+                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr,
+                    parts["accel_z"], parts["ko_pen"]
                 )
             return (scr, parts)
         except Exception as e:

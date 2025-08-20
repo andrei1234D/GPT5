@@ -3,11 +3,12 @@ import os
 from typing import Tuple, Optional
 import math
 
+# Nudge GPT toward early-stage, in-motion setups (no cheap/expensive bias).
 BASELINE_HINTS = {
     "MKT_SECTOR": 110,
     " Quality (Tech Proxies)": 130,  # (kept as-is to avoid downstream diffs)
-    "Near-Term Catalysts": 75,
-    "Technical Valuation": 110,
+    "Near-Term Catalysts": 90,       # ↑ favor imminent/ongoing moves
+    "Technical Valuation": 125,      # ↑ trend/structure over raw “cheapness”
     "RISKS": 25,
 }
 
@@ -28,6 +29,96 @@ def _fmt_pct(x):
     return "N/A" if xf is None else f"{xf:.2f}%"
 # ---------------------------------------------------------------------------------- #
 
+def _flag_early_turn(feats: dict) -> Tuple[bool, dict]:
+    """
+    Mirror of the 'early turn' idea used in ranking:
+      - RSI 47..63
+      - EMA50 5d slope >= 2
+      - modest participation (vol_vs20 ~110..220) if present
+      - price >= EMA20
+      - vsEMA200 in a 'near/just below' band [-12..+8]
+    """
+    rsi      = _to_float(feats.get("RSI14"))
+    e50s     = _to_float(feats.get("EMA50_slope_5d"))
+    v20      = _to_float(feats.get("vol_vs20"))
+    px       = _to_float(feats.get("price"))
+    e20      = _to_float(feats.get("EMA20"))
+    vsem200  = _to_float(feats.get("vsEMA200"))
+
+    lo_rsi   = float(os.getenv("EARLY_TURN_RSI_LO", "47.0"))
+    hi_rsi   = float(os.getenv("EARLY_TURN_RSI_HI", "63.0"))
+    min_slope= float(os.getenv("EARLY_TURN_MIN_E50_SLOPE", "2.0"))
+    lo_v200  = float(os.getenv("EARLY_TURN_VS200_LO", "-12.0"))
+    hi_v200  = float(os.getenv("EARLY_TURN_VS200_HI", "8.0"))
+    lo_vol   = float(os.getenv("EARLY_TURN_VOL_LO", "110.0"))
+    hi_vol   = float(os.getenv("EARLY_TURN_VOL_HI", "220.0"))
+
+    rsi_ok   = (rsi is not None) and (lo_rsi <= rsi <= hi_rsi)
+    slope_ok = (e50s is not None) and (e50s >= min_slope)
+    vol_ok   = (v20 is None) or (lo_vol <= v20 <= hi_vol)
+    px_ok    = (px is not None) and (e20 is not None) and (px >= e20)
+    near200  = (vsem200 is not None) and (lo_v200 <= vsem200 <= hi_v200)
+
+    ok = bool(rsi_ok and slope_ok and vol_ok and px_ok and near200)
+    dbg = {
+        "RSI14": rsi, "EMA50_slope_5d": e50s, "vol_vs20": v20,
+        "price": px, "EMA20": e20, "vsEMA200": vsem200,
+        "rsi_gate": rsi_ok, "slope_gate": slope_ok, "vol_gate": vol_ok,
+        "px_gate": px_ok, "near200_gate": near200,
+    }
+    return ok, dbg
+
+def _flag_coil_setup(feats: dict) -> Tuple[bool, dict]:
+    """
+    Coil/setup similar to the “setup_protect” tag in the scorer:
+      - vsSMA50 in [-4, 10], vsSMA200 >= -2
+      - RSI in [45, 62]
+      - ATRpct <= QS_SETUP_ATR_MAX (default 6)
+      - vol_vs20 in [-60, 40]
+    """
+    vs50 = _to_float(feats.get("vsSMA50"))
+    vs200= _to_float(feats.get("vsSMA200"))
+    rsi  = _to_float(feats.get("RSI14"))
+    atr  = _to_float(feats.get("ATRpct"))
+    v20  = _to_float(feats.get("vol_vs20"))
+
+    atr_max = float(os.getenv("QS_SETUP_ATR_MAX", "6.0"))
+
+    ok = (
+        (vs50 is not None and -4.0 <= vs50 <= 10.0) and
+        (vs200 is not None and vs200 >= -2.0) and
+        (rsi is not None and 45.0 <= rsi <= 62.0) and
+        (atr is not None and atr <= atr_max) and
+        (v20 is None or -60.0 <= v20 <= 40.0)
+    )
+    dbg = {"vsSMA50": vs50, "vsSMA200": vs200, "RSI14": rsi, "ATRpct": atr, "vol_vs20": v20, "ATR_max": atr_max}
+    return bool(ok), dbg
+
+def _flag_continuation(feats: dict) -> Tuple[bool, dict]:
+    """
+    In-motion but not extended:
+      - vsEMA50 in [3, 18], vsEMA200 >= -2
+      - RSI in [52, 68]
+      - EMA50_slope_5d > 0
+      - vol_vs20 <= 180 (if present)
+    """
+    vsem50 = _to_float(feats.get("vsEMA50"))
+    vsem200= _to_float(feats.get("vsEMA200"))
+    rsi    = _to_float(feats.get("RSI14"))
+    e50s   = _to_float(feats.get("EMA50_slope_5d"))
+    v20    = _to_float(feats.get("vol_vs20"))
+
+    ok = (
+        (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and
+        (vsem200 is not None and vsem200 >= -2.0) and
+        (rsi is not None and 52.0 <= rsi <= 68.0) and
+        (e50s is not None and e50s > 0.0) and
+        (v20 is None or v20 <= 180.0)
+    )
+    dbg = {"vsEMA50": vsem50, "vsEMA200": vsem200, "RSI14": rsi, "EMA50_slope_5d": e50s, "vol_vs20": v20}
+    return bool(ok), dbg
+
+
 def build_prompt_block(
     t: str, name: str, feats: dict, proxies: dict, fund_proxy: dict,
     cat: dict, earn_sev: int, fm: dict, baseline_hints: dict, baseline_str: str,
@@ -35,6 +126,7 @@ def build_prompt_block(
 ) -> Tuple[str, dict]:
     """
     Builds the per-ticker block for GPT and returns (block_text, debug_dict).
+    - Keeps the line/label format unchanged.
     - Fills valuation fields from feats['val_*'] when fm is missing entries.
     - Uses robust formatting so numpy.float64 etc. don't print as N/A.
     """
@@ -74,15 +166,12 @@ def build_prompt_block(
     has_val_tech = (proxies.get("fva_hint") is not None) or (proxies.get("valuation_history") not in (None, 0))
     valuation_availability = "VALUATION=PARTIAL" if (val_present_ct > 0 or has_val_tech) else "VALUATION=MISSING"
 
-    # ---------- CATALYSTS AVAILABILITY (fix: zeros ≠ missing) ----------
-    # Treat “keys present but all zero” as PARTIAL (we *do* have data; it says no active signals now).
-    # Only mark MISSING if we truly lack the keys *and* have no timing/earnings hints.
+    # ---------- CATALYSTS AVAILABILITY ----------
     cat_keys = ("TECH_BREAKOUT", "TECH_BREAKDOWN", "DIP_REVERSAL")
     has_any_cat_key = any(k in cat for k in cat_keys)
     has_nonzero_cat = any((cat.get(k) or 0) != 0 for k in cat_keys)
     has_earn_hint = (earn_sev or 0) != 0
     has_breakout_timing_source = feats.get("is_20d_high") is not None  # we *can* infer timing context
-
     force_partial = os.getenv("FORCE_CATALYSTS_PARTIAL", "1").lower() in {"1", "true", "yes"}
     if has_any_cat_key or has_earn_hint or has_breakout_timing_source or force_partial:
         catalysts_availability = "CATALYSTS=PARTIAL"
@@ -90,7 +179,7 @@ def build_prompt_block(
         catalysts_availability = "CATALYSTS=MISSING"
     # -------------------------------------------------------------------
 
-    # --- Valuation fields line ---
+    # --- Valuation fields line (labels must remain unchanged) ---
     val_fields = (
         "VALUATION_FIELDS: "
         f"PE={_fmt_num(fm.get('PE'))}; "
@@ -115,6 +204,7 @@ def build_prompt_block(
     )
 
     # --------- Compose prompt block text (all values formatted) ----------
+    # (Line/label order intentionally unchanged)
     block_text = (
         "TICKER: {t}\n"
         "COMPANY: {name}\n"
@@ -179,7 +269,7 @@ def build_prompt_block(
         bon=proxies.get("suggested_bonuses", "NONE"),
     )
 
-    # --------- Debug payload ----------
+    # --------- Debug payload (expanded) ----------
     proxies_catalysts_full = {**cat, "EARNINGS_SOON": earn_sev}
     catalyst_timing_hints = {
         "TECH_BREAKOUT": ("Today" if (cat.get("TECH_BREAKOUT", 0) > 0 and feats.get("is_20d_high")) else "None")
@@ -193,6 +283,8 @@ def build_prompt_block(
         "PS": fm.get("PS"),
         "FCF_YIELD_pct": fm.get("FCF_YIELD"),
         "PEG": fm.get("PEG"),
+        "VAL_FIELDS_PRESENT_COUNT": val_present_ct,
+        "PE_PRESENT_BOOL": (fm.get("PE") is not None and fm.get("PE") > 0),
     }
     indicators_dict = {
         "vsSMA20_pct": feats.get("vsSMA20"),
@@ -215,6 +307,11 @@ def build_prompt_block(
         "vsEMA200_pct": feats.get("vsEMA200"),
         "EMA50_slope_5d_pct": feats.get("EMA50_slope_5d"),
     }
+
+    # Derived setup flags for the debugger
+    early_ok, early_dbg = _flag_early_turn(feats)
+    coil_ok,  coil_dbg  = _flag_coil_setup(feats)
+    cont_ok,  cont_dbg  = _flag_continuation(feats)
 
     debug_dict = {
         "TICKER": t,
@@ -248,6 +345,17 @@ def build_prompt_block(
             "catalysts": catalysts_availability,
             "valuation": valuation_availability,
             "has_nonzero_catalyst": has_nonzero_cat,
+        },
+
+        # Extra, helpful introspection (not consumed by GPT):
+        "RANKING_TIER": feats.get("liq_tier"),
+        "SETUP_FLAGS": {
+            "EARLY_TURN": early_ok,
+            "EARLY_TURN_DEBUG": early_dbg,
+            "COIL_SETUP": coil_ok,
+            "COIL_SETUP_DEBUG": coil_dbg,
+            "CONTINUATION_OK": cont_ok,
+            "CONTINUATION_DEBUG": cont_dbg,
         },
 
         "PROMPT_BLOCK": block_text,
