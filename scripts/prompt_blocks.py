@@ -1,10 +1,11 @@
 # scripts/prompt_blocks.py
+import os
 from typing import Tuple, Optional
 import math
 
 BASELINE_HINTS = {
     "MKT_SECTOR": 110,
-    " Quality (Tech Proxies)": 130,
+    " Quality (Tech Proxies)": 130,  # (kept as-is to avoid downstream diffs)
     "Near-Term Catalysts": 75,
     "Technical Valuation": 110,
     "RISKS": 25,
@@ -73,12 +74,21 @@ def build_prompt_block(
     has_val_tech = (proxies.get("fva_hint") is not None) or (proxies.get("valuation_history") not in (None, 0))
     valuation_availability = "VALUATION=PARTIAL" if (val_present_ct > 0 or has_val_tech) else "VALUATION=MISSING"
 
-    has_cat_signal = (
-        any(abs(cat.get(k, 0)) > 0 for k in ("TECH_BREAKOUT", "TECH_BREAKDOWN", "DIP_REVERSAL")) or
-        (earn_sev or 0) > 0 or
-        bool(feats.get("is_20d_high"))
-    )
-    catalysts_availability = "CATALYSTS=PARTIAL" if has_cat_signal else "CATALYSTS=MISSING"
+    # ---------- CATALYSTS AVAILABILITY (fix: zeros ≠ missing) ----------
+    # Treat “keys present but all zero” as PARTIAL (we *do* have data; it says no active signals now).
+    # Only mark MISSING if we truly lack the keys *and* have no timing/earnings hints.
+    cat_keys = ("TECH_BREAKOUT", "TECH_BREAKDOWN", "DIP_REVERSAL")
+    has_any_cat_key = any(k in cat for k in cat_keys)
+    has_nonzero_cat = any((cat.get(k) or 0) != 0 for k in cat_keys)
+    has_earn_hint = (earn_sev or 0) != 0
+    has_breakout_timing_source = feats.get("is_20d_high") is not None  # we *can* infer timing context
+
+    force_partial = os.getenv("FORCE_CATALYSTS_PARTIAL", "1").lower() in {"1", "true", "yes"}
+    if has_any_cat_key or has_earn_hint or has_breakout_timing_source or force_partial:
+        catalysts_availability = "CATALYSTS=PARTIAL"
+    else:
+        catalysts_availability = "CATALYSTS=MISSING"
+    # -------------------------------------------------------------------
 
     # --- Valuation fields line ---
     val_fields = (
@@ -232,6 +242,13 @@ def build_prompt_block(
         "PROXIES_FUNDAMENTALS_BLOCK": fund_proxy,
         "PROXIES_CATALYSTS_BLOCK": proxies_catalysts_full,
         "CATALYST_TIMING_HINTS_BLOCK": catalyst_timing_hints,
+
+        "DATA_AVAILABILITY_FLAGS": {
+            "fundamentals": fundamentals_availability,
+            "catalysts": catalysts_availability,
+            "valuation": valuation_availability,
+            "has_nonzero_catalyst": has_nonzero_cat,
+        },
 
         "PROMPT_BLOCK": block_text,
     }
