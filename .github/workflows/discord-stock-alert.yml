@@ -84,6 +84,9 @@ jobs:
         run: |
           python scripts/aliases_autobuild.py || true
 
+      - name: Prepare logs dir (for Stage-1 TopN CSV)
+        run: mkdir -p logs
+
       - name: Run notifier
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -121,15 +124,17 @@ jobs:
           STAGE1_MIN_LARGE: '100'
           STAGE1_RESCUE_FRAC: '0'
           STAGE1_WRITE_CSV: '1' # so we can commit Top-200 kept
+          QS_USE_XS: '1' # use cross-sectional z-scoring in the scorer
 
           # --- Stage-2 profile ---
           RANKER_PROFILE: 'C'
 
           # --- Hard filters ---
           HARD_DROP_MODE: 'strict'
-          HARD_GRACE_ATR: '2.0' # was 0.5; give early turns room
+          HARD_GRACE_ATR: '2.0' # give early turns room
+          TR_EARN_BLACKOUT_DAYS: '0' # optional earnings blackout window
 
-          # --- Early-turn detector (new) ---
+          # --- Early-turn detector (shared: ranker + prompts) ---
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
           EARLY_TURN_RSI_LO: '47.0'
           EARLY_TURN_RSI_HI: '63.0'
@@ -139,17 +144,28 @@ jobs:
           EARLY_TURN_VOL_HI: '220.0'
           EARLY_TURN_VS200_PAD: '5.0'
 
-          # --- Early-turn scoring bonuses (new) ---
-          EARLY_TURN_BONUS_TREND: '0.18'
-          EARLY_TURN_BONUS_MOMO: '0.22'
-          EARLY_TURN_BONUS_STRUCT: '0.12'
+          # --- Lead/anticipation setup (quick_scorer) ---
+          QS_SETUP_ATR_MAX: '6.0'
+          QS_SETUP_VS50_MIN: '-4'
+          QS_SETUP_VS50_MAX: '10'
+          QS_SETUP_VS200_MIN: '-2'
+          QS_SETUP_VOL_ABS_MAX: '60'
+          QS_SETUP_RSI_LO: '45'
+          QS_SETUP_RSI_HI: '62'
+          QS_SETUP_E50S_MIN: '0.5'
+          QS_SETUP_E50S_MAX: '8'
+          QS_SETUP_CAP_SMALL: '12'
+          QS_SETUP_CAP_LARGE: '14'
 
-          # --- AVWAP gentle reclaim bonus (new) ---
-          AVWAP_RECLAIM_STRUCT_MAX: '0.18'
-          AVWAP_RECLAIM_PREMIUM_CEIL: '0.08'
+          # --- Momentum “chase” penalty (quick_scorer) ---
+          QS_MOMO_CHASE_KNEE: '35'
+          QS_MOMO_CHASE_SLOPE: '0.6'
+          QS_MOMO_CHASE_PEN_MAX: '15'
 
-          # --- “First higher-high” nudge (new) ---
-          MOMO_FIRSTHH_BONUS: '0.08'
+          # --- Momo chase (trash_ranker) ---
+          TR_CHASE_KNEE: '35'
+          TR_CHASE_SLOPE: '0.006'
+          TR_CHASE_MAX: '0.18'
 
           # --- Quick scorer weights (tech valuation & risk emphasized) ---
           QS_W_TREND_SMALL: '0.28'
@@ -174,14 +190,24 @@ jobs:
           QS_FVA_BONUS_MAX_LARGE: '6'
           QS_FVA_KO_PCT_SMALL: '45'
           QS_FVA_KO_PCT_LARGE: '28'
-          QS_STRUCT_PREM_CAP: '0' # neutral; gentle reclaims rewarded by AVWAP_RECLAIM_*
+          QS_STRUCT_PREM_CAP: '0' # neutral; use KO + ATH + stall for extension control
 
-          # --- RobustRanker FVA KO haircut (new, global) ---
+          # --- RobustRanker FVA KO haircut (global) ---
           QS_FVA_KO_PCT: '12'
 
           # --- Valuation overlay into structure ---
           QS_VAL_OVERLAY: '1'
           QS_VAL_OVERLAY_MAX: '16'
+
+          # ---- Blowoff probe controls (shared) ----
+          ALLOW_BLOWOFF_PROBE: '1' # enable/disable the probe path
+          PROBE_MIN_EV: '4' # EV floor (%) for probe band width
+          PROBE_MAX_VOL_SPIKE: '150' # disallow probes if Vol_vs_20d% ≥ this
+
+          # Overheat gates (raise if you get too many probes)
+          OVERHEAT_A_RSI: '78'
+          OVERHEAT_B_RSI: '83'
+          OVERHEAT_C_RSI: '87'
 
           # --- ATH guard (RobustRanker) ---
           ATH_GUARD: '1'
@@ -190,6 +216,9 @@ jobs:
           ATH_MIN_VS50: '25'
           ATH_VOL_RELIEF: '60'
           ATH_SCORE_HAIRCUT: '22'
+
+          # --- Prompt plumbing ---
+          FORCE_CATALYSTS_PARTIAL: '1' # expose catalysts=PARTIAL for timing hints
 
           # --- OpenAI call timeout ---
           OPENAI_TIMEOUT: '360'

@@ -12,27 +12,27 @@ OPTIONAL INPUTS (use if present, else ignore):
 - TREND_QUALITY: a 0..1 score + components (rsi_band, ema_align, vol_part, ext_pen) describing trend health.
 - DATA_AVAILABILITY: {FUNDAMENTALS=..., CATALYSTS=..., VALUATION=..., RISKS=...} with states MISSING|PARTIAL|FULL.
 
-CATEGORIES & RANGES (sum = BASE; start from BASELINE_HINTS; floor by design to avoid unrealistic 0s):
+CATEGORIES & RANGES  (sum = BASE, 0–1000 total):
 
-1) Market & Sector (0–270)  Baseline from BASELINE_HINTS (typ. 135)
+1) Market & Sector (0–240)  Baseline from BASELINE_HINTS (typ. 110)
    Inputs: PROXIES.MARKET_TREND (−5..+5), REL_STRENGTH (−5..+5), BREADTH_VOLUME (−5..+5).
    Scoring: ±16 per MARKET_TREND step, ±16 per REL_STRENGTH step, ±8 per BREADTH step.
-   Floor: max(24, 0.20×baseline). Clamp 0–270.
+   Floor: max(24, 0.20×baseline). Clamp 0–240.
 
-2) Quality (Tech Proxies) (0–260)  Baseline from BASELINE_HINTS (typ. 130)
+2) Quality (Tech Proxies) (0–240)  Baseline from BASELINE_HINTS (typ. 130)
    Stand-in for fundamentals using tech proxies ONLY.
    Inputs: PROXIES_FUNDAMENTALS {GROWTH_TECH, MARGIN_TREND_TECH, FCF_TREND_TECH, OP_EFF_TREND_TECH} in −5..+5.
    Scoring (per step): GROWTH×12, MARGIN×10, FCF×10, OP_EFF×6.
-   Floor: max(36, 0.25×baseline). Clamp 0–260.
+   Floor: max(36, 0.25×baseline). Clamp 0–240.
 
-3) Near-Term Catalysts (0–150)  Baseline from BASELINE_HINTS (typ. 75)
+3) Near-Term Catalysts (0–160)  Baseline from BASELINE_HINTS (typ. 90)
    Inputs: PROXIES_CATALYSTS {TECH_BREAKOUT, TECH_BREAKDOWN, DIP_REVERSAL, EARNINGS_SOON} (signed).
    Mapping (add to baseline): BREAKOUT +10/+20/+30/+45/+60 by +1..+5; DIP_REVERSAL +8/+12/+18/+24/+30;
                               BREAKDOWN −10/−20/−30/−45/−60 by −1..−5; EARNINGS_SOON +5/+8/+10/+12/+15.
    If CATALYST_TIMING_HINTS says TECH_BREAKOUT=Today, multiply BREAKOUT ×1.5.
-   Floor: max(20, 0.20×baseline). Clamp 0–150.
+   Floor: max(20, 0.20×baseline). Clamp 0–160.
 
-4) Technical Valuation (0–220)  Baseline from BASELINE_HINTS (typ. 110)
+4) Technical Valuation (0–260)  Baseline from BASELINE_HINTS (typ. 125)
    Goal: weigh technical anchors + ratios without over-penalizing valid trends.
    Inputs: PROXIES.VALUATION_HISTORY (−5..+5), FVA_HINT, CURRENT_PRICE, AVWAP252, SMA50,
            optional PE_HINT, PS, EV_REV, EV_EBITDA, PEG, FCF_YIELD, EXPECTED_VOLATILITY_PCT (EV),
@@ -77,28 +77,30 @@ CATEGORIES & RANGES (sum = BASE; start from BASELINE_HINTS; floor by design to a
      • Unless DATA_AVAILABILITY.VALUATION=MISSING, floor Tech Val at max(round(0.30×baseline), 22).
      • If REL_STRENGTH ≥ +4 or TECH_BREAKOUT ≥ +2, raise floor to round(0.45×baseline).
      • If multiple red flags align (price > FVA by ≥20% AND RSI14 ≥ 78 AND vsEMA50 ≥ +30% AND Vol_vs_20d ≥ 220),
-       floors may be ignored (allow very low scores). Finally clamp to 0–220.
+       floors may be ignored (allow very low scores). Clamp 0–260.
 
-5) Risks & Stability (0–50)  Baseline from BASELINE_HINTS (typ. 25) — higher is better (more stable).
+5) Risks & Stability (0–100)  Baseline from BASELINE_HINTS (typ. 25) — higher is better (more stable).
    Start from baseline, then deductions AND add-backs:
 
    Deductions:
-     • VOLATILITY sev 1..5: −(2,5,8,12,16)
-     • DRAWDOWN  sev 1..5: −(2,5,8,12,16)
-     • Extras: if RSI14 ≥ 85 → −8; if ATR% >5 → −4 (and −8 if >7);
-               if Vol_vs_20d ≥ 200 AND RSI14 ≥ 80 → −8;
-               P/E froth if PE_HINT ≥ 40 and (RSI14 ≥ 75 or vsSMA50 ≥ +20%) → −4 (to −8 if Vol_vs_20d ≥ 200).
+     • VOLATILITY sev 1..5 → −(3,7,12,18,24)
+     • DRAWDOWN  sev 1..5 → −(3,7,12,18,24)
+     • Extras: if RSI14 ≥ 85 → −10; if ATR% >5 → −6 (and −10 if >7);
+               if Vol_vs_20d ≥ 200 AND RSI14 ≥ 80 → −10;
+               P/E froth if PE_HINT ≥ 40 and (RSI14 ≥ 75 or vsSMA50 ≥ +20%) → −6 (to −10 if Vol_vs_20d ≥ 200).
+     • ATH/extension guard: if within ~1% of 52w high AND RSI≥80 AND vsEMA50≥25, apply −(6..16) scaled by severity.
 
    Add-backs (stability bonuses):
-     • ATR% ≤4 → +6; 4–5 → +3.
-     • Vol_vs_20d in 60–180 → +4.
-     • vsSMA50 in [−5%, +15%] → +4.
-     • DIP_REVERSAL ≥ +2 → +3.
+     • ATR% ≤4 → +8; 4–5 → +4.
+     • Vol_vs_20d in 60–180 → +6.
+     • vsSMA50 in [−5%, +15%] → +6.
+     • DIP_REVERSAL ≥ +2 → +4.
+     • Fair-value KO relief not triggered (price≤FVA or gap<FVA_KO_PCT) → +4.
 
    Floors & red-flag override:
-     • Unless DATA_AVAILABILITY.RISKS=MISSING, floor at max(8, round(0.30×baseline)).
-     • If multiple red flags (same as above) → floor may be ignored.
-     • Clamp 0–50.
+     • Unless DATA_AVAILABILITY.RISKS=MISSING, floor at max(12, round(0.30×baseline)).
+     • If the red-flag bundle (price>FVA by ≥20%, RSI≥78, vsEMA50≥30%, Vol_vs_20d≥220) is present → floor may be ignored.
+     • Clamp 0–100.
 
 FAIR-VALUE ANCHOR & PLAN (tech-first with tiny PE tilt):
 - Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly if indicators clearly justify it.
@@ -119,7 +121,7 @@ CERTAINTY (independent 0–100):
 - Consider: coverage, trend stability (ATR%, drawdown, blow-off), participation (Vol_vs_20d), catalysts timing,
   structure (SMA/AVWAP), and whether valuation corroborates the technical picture.
 - Output a single integer percent (no decimals).
-- Add the certainty to the base score (BASE + Certainty) before writing "final base score".
+- Add the certainty to BASE before writing "final base score".
 
 NEWS:
 - Do NOT search online. If the block provides news lines, summarize 1–2 bullets and you MAY apply a small news delta
@@ -139,10 +141,10 @@ Hold
 
 OUTPUT (exactly 11 lines per pick, in order):
 1) **TICKER – Company**
-2) Base Scores: Market & Sector: <0–300>, Quality (Tech Proxies): <0–300>, Near-Term Catalysts: <0–150>, Technical Valuation: <0–150>, Risks: <0–50>
+2) Base Scores: Market & Sector: <0–240>, Quality (Tech Proxies): <0–240>, Near-Term Catalysts: <0–160>, Technical Valuation: <0–260>, Risks: <0–100>
 3) News: (1–2 short bullets, each ends with a date like '(Aug 10)'; if no news, write 'N/A')
 4) Plan: Buy range; Stop loss; Profit target; Max hold time: ≤ 1 year (Anchor: $FVA)
-5) Final base score: <0–1000>
+5) Final base score: <0–1100>
 6) Personal adjusted score:
 7) P/E Ratio: <value with '(trailing)' or '(forward)' if known; else N/A>
 8) Certainty: <0–100%>
