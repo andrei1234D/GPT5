@@ -294,6 +294,14 @@ def _tags(feats: Dict) -> List[str]:
     if v20 >= 180 and rsi is not None and rsi >= 78 and d20 >= 12: t.append("pump_risk")
     if v20 <= -60: t.append("low_liquidity_today")
 
+    # slowdown / distribution hint: uptrend but MACD<0 or volume soft while RSI mid-high
+    try:
+        macd = float(feats.get("MACD_hist")) if feats.get("MACD_hist") is not None else None
+    except Exception:
+        macd = None
+    if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0) and (((v20 or 0) <= -20) or (macd is not None and macd < 0)):
+        t.append("stall_risk")
+
     # coil/setup protector (keeps a few early setups from being cut at the line)
     try: setup_atr = float(os.getenv("QS_SETUP_ATR_MAX", "6.0"))
     except Exception: setup_atr = 6.0
@@ -431,6 +439,26 @@ def quick_score(
     if r60 is not None and r60 > knee:
         momo -= min(cap, (r60 - knee) * slope)
 
+    # --- NEW: momentum acceleration & continuation bonus ---
+    # accel_z: recent acceleration (r60 vs r120). Positive = speeding up; negative = slowing.
+    try:
+        if use_xs:
+            accel_z = clamp(((z_r60 - z_r120) / 2.0), -1.0, 1.0)
+        else:
+            accel_z = clamp(((r60 - r120) / 20.0), -1.0, 1.0)
+    except Exception:
+        accel_z = 0.0
+    momo += 8.0 * accel_z  # small but meaningful boost for acceleration
+
+    # continuation bonus (already in motion but not extended/overbought)
+    continuation = 0.0
+    if (vsE50 is not None and 3.0 <= vsE50 <= 18.0) and (vsE200 is not None and vsE200 >= -2.0) and \
+       (rsi is not None and 52.0 <= rsi <= 68.0) and (e50s is not None and e50s > 0.0):
+        # prefer healthy participation, not blowoff
+        if (v20 is None) or (-20.0 <= v20 <= 180.0):
+            continuation = 8.0
+    momo += continuation
+
     # structure (AVWAP, MAs, FVA penalties/bonuses, valuation overlay)
     struct = 0.0
     if sma50 and avwap:
@@ -508,6 +536,29 @@ def quick_score(
             risk_pen -= clamp((liq_min - liq) / max(liq_min, 1.0), 0.0, 1.0) * 10.0
         if v20 <= -40:
             risk_pen -= clamp(abs(v20 + 40.0) / 40.0, 0.0, 1.0) * 6.0
+
+    # --- NEW: stall / deceleration penalties (avoid names that are rolling over) ---
+    try:
+        if 'accel_z' in locals() and accel_z < -0.25:
+            risk_pen -= min(8.0, (abs(accel_z) - 0.25) * 20.0)
+    except Exception:
+        pass
+    try:
+        if e50s is not None and e50s <= 0.0:
+            risk_pen -= 5.0
+    except Exception:
+        pass
+    try:
+        macd_loc = float(macd) if macd is not None else None
+        if (macd_loc is not None and macd_loc < 0.0) and (rsi is not None and 55.0 <= rsi <= 75.0) and (vs50 is not None and vs50 > 0.0):
+            risk_pen -= min(10.0, abs(macd_loc) * 2.0)
+    except Exception:
+        pass
+    try:
+        if (rsi is not None and 55.0 <= rsi <= 70.0) and (vs50 is not None and vs50 > 0.0) and (v20 is not None and v20 <= -20.0):
+            risk_pen -= 4.0
+    except Exception:
+        pass
 
     pe_points_raw = _pe_tilt_points(pe_val, rsi, v20)  # [-20..+20]
     pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0
