@@ -5,9 +5,9 @@ import os, math, csv, logging
 import numpy as np
 
 """
-New/updated ENV knobs this file now honors:
+ENV knobs this scorer honors (new ones marked ★):
 
-# Weighting (so technical valuation & risk can matter more)
+# Weighting (tier-aware)
 QS_W_TREND_SMALL,  QS_W_MOMO_SMALL,  QS_W_STRUCT_SMALL,  QS_W_RISK_SMALL
 QS_W_TREND_LARGE,  QS_W_MOMO_LARGE,  QS_W_STRUCT_LARGE,  QS_W_RISK_LARGE
 QS_PE_WEIGHT, QS_PE_WEIGHT_SMALL, QS_PE_WEIGHT_LARGE
@@ -26,42 +26,30 @@ QS_SETUP_RSI_LO (45), QS_SETUP_RSI_HI (62),
 QS_SETUP_E50S_MIN (0.5), QS_SETUP_E50S_MAX (8),
 QS_SETUP_CAP_SMALL (12), QS_SETUP_CAP_LARGE (14)
 
-# Early-turn tiny boosts (NEW)
-QS_ET_BONUS_TREND (6), QS_ET_BONUS_MOMO (8), QS_ET_BONUS_STRUCT (5)
-
 # Momentum “chase” penalty
 QS_MOMO_CHASE_KNEE (35), QS_MOMO_CHASE_SLOPE (0.6), QS_MOMO_CHASE_PEN_MAX (15)
 
-# KO 'extended' gates (NEW)
-KO_RSI_MIN (78), KO_VS50_MIN (50), KO_D20_MIN (20)
-
-# Valuation overlay into 'struct' (optional)
+# Valuation overlay into 'struct'
 QS_VAL_OVERLAY=1|0
 QS_VAL_OVERLAY_MAX (12)
 
-# CSV dump of top-N rows with all features
-STAGE1_WRITE_TOPN_CSV=1|0
-STAGE1_TOPN_CSV (2000)
-STAGE1_TOPN_PATH (path)
-"""
+# ★ Overheat-but-allow-probe path (lets strong names remain actionable with controlled haircut)
+ALLOW_BLOWOFF_PROBE=1|0          (default 1)
+PROBE_MIN_EV=4                   (ATR% threshold to allow probes)
+PROBE_MAX_VOL_SPIKE=150          (max Vol_vs_20d% to still allow a probe)
+OVERHEAT_A_RSI=78  OVERHEAT_B_RSI=83  OVERHEAT_C_RSI=87
+OVERHEAT_A_VS50=20 OVERHEAT_B_VS50=35 OVERHEAT_C_VS50=50
+PROBE_ADD_BACK_A=4  PROBE_ADD_BACK_B=7  PROBE_ADD_BACK_C=10   (points given back split into struct/risk)
+PROBE_STRUCT_SHARE=0.45                                         (share of add-back that goes to struct)
 
-# -------------------------------------------------------------------
-# EMBEDDED PLAN BUILDER SPEC (used by notify.py prompt)
-#
-# FAIR-VALUE ANCHOR & PLAN (tech first with tiny PE tilt):
-# - Compute a single $FVA for TODAY. Start from FVA_HINT and adjust modestly if indicators clearly justify it.
-# - Tiny PE bias (only if PE_HINT present; always stay within the existing FVA clamp):
-#     • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
-#     • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
-# - Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence.
-# - Let EV = EXPECTED_VOLATILITY_PCT (from ATR%), clamped to 1–6.
-# - Buy range = FVA × (1 − 0.8×EV/100) … FVA × (1 + 0.8×EV/100)
-# - Stop loss = FVA × (1 − 2.0×EV/100)
-# - Profit target = FVA × (1 + 3.0×EV/100)
-# - Sanity: if stop ≥ buy_low, push stop to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
-#           if target ≤ buy_high, push target to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
-# - Round all $ to 2 decimals; output exactly: "Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA)".
-# -------------------------------------------------------------------
+# ★ Momentum-carry discount on FVA-KO penalty
+KO_MOMO_DISCOUNT=0.50           (reduce FVA KO haircut when accel is positive & trend strong)
+KO_MOMO_DISCOUNT_STRONG=0.35    (even stronger discount when accel is very positive)
+
+# Stage-1 CSV dumps
+STAGE1_WRITE_TOPN_CSV=1|0  STAGE1_TOPN_CSV (2000)  STAGE1_TOPN_PATH
+STAGE1_WRITE_CSV=1|0
+"""
 
 _TIER_THR_LARGE_USD = None
 _TIER_THR_MID_USD   = None
@@ -85,6 +73,10 @@ def safe(x, d=0.0):
     except: return d
 
 def clamp(v, lo, hi): return max(lo, min(hi, v))
+
+def _env_float(name: str, default: float) -> float:
+    try: return float(os.getenv(name, str(default)))
+    except Exception: return float(default)
 
 def _env_tiered(base: str, tier: str, default: float) -> float:
     """Tier-aware env lookup: prefer BASE_SMALL/BASE_LARGE, fall back to BASE, else default."""
@@ -244,11 +236,10 @@ def _rsi_band_val(rsi: float|None) -> float:
 def _lead_setup_points(vs50, vs200, r60, rsi, atr, v20, vsE50, vsE200, e50s, tier: str) -> float:
     """
     Reward tight, aligned bases likely to break soon (not already extended).
-    Controlled by QS_SETUP_* envs (see header). Returns capped points (±cap).
+    Returns capped points (±cap).
     """
     def g(name, default):
-        try: return float(os.getenv(name, str(default)))
-        except Exception: return default
+        return _env_float(name, default)
 
     atr_max   = g("QS_SETUP_ATR_MAX",   6.0)
     vs50_max  = g("QS_SETUP_VS50_MAX", 10.0)
@@ -276,56 +267,55 @@ def _lead_setup_points(vs50, vs200, r60, rsi, atr, v20, vsE50, vsE200, e50s, tie
     if (vs50 is not None and vs50 > 20) or (rsi is not None and rsi > 75):
         pts -= 8.0
 
-    cap = float(os.getenv(
+    cap = _env_float(
         "QS_SETUP_CAP_SMALL" if tier == "small" else "QS_SETUP_CAP_LARGE",
-        os.getenv("QS_SETUP_CAP", "12" if tier == "small" else "14")
-    ))
+        _env_float("QS_SETUP_CAP", 12.0 if tier == "small" else 14.0)
+    )
     return clamp(pts, -cap * 0.5, cap)
 
-# --- Early-turn detection & micro-boosts (NEW) ----------------------
-def _early_turn_ok(feats: Dict) -> bool:
-    """RSI 47..63, EMA50_slope>=2, price>=EMA20, vsEMA200 in [-12..+8], vol 110..220 if present."""
-    def g(name, default):
-        try: return float(os.getenv(name, str(default)))
-        except Exception: return float(default)
-    rsi      = safe(feats.get("RSI14"), None)
-    e50s     = safe(feats.get("EMA50_slope_5d"), None)
-    v20      = safe(feats.get("vol_vs20"), None)
-    px       = safe(feats.get("price"), None)
-    e20      = safe(feats.get("EMA20"), None)
-    vsem200  = safe(feats.get("vsEMA200"), None)
+# --- overheat / blowoff probe --------------------------------------
+def _overheat_level(rsi: Optional[float], vs50: Optional[float]) -> int:
+    """0 = none, 1/2/3 = A/B/C levels of overheat."""
+    if rsi is None or vs50 is None: return 0
+    A_RSI = _env_float("OVERHEAT_A_RSI", 78.0)
+    B_RSI = _env_float("OVERHEAT_B_RSI", 83.0)
+    C_RSI = _env_float("OVERHEAT_C_RSI", 87.0)
+    A_V50 = _env_float("OVERHEAT_A_VS50", 20.0)
+    B_V50 = _env_float("OVERHEAT_B_VS50", 35.0)
+    C_V50 = _env_float("OVERHEAT_C_VS50", 50.0)
+    if rsi >= C_RSI and vs50 >= C_V50: return 3
+    if rsi >= B_RSI and vs50 >= B_V50: return 2
+    if rsi >= A_RSI and vs50 >= A_V50: return 1
+    return 0
 
-    lo_rsi   = g("EARLY_TURN_RSI_LO", 47.0)
-    hi_rsi   = g("EARLY_TURN_RSI_HI", 63.0)
-    min_slope= g("EARLY_TURN_MIN_E50_SLOPE", 2.0)
-    lo_v200  = g("EARLY_TURN_VS200_LO", -12.0)
-    hi_v200  = g("EARLY_TURN_VS200_HI", 8.0)
-    lo_vol   = g("EARLY_TURN_VOL_LO", 110.0)
-    hi_vol   = g("EARLY_TURN_VOL_HI", 220.0)
+def _apply_probe_path(rsi, vs50, v20, atr, struct, risk_pen) -> Tuple[float, float, bool, int]:
+    """
+    If ALLOW_BLOWOFF_PROBE and conditions OK (ATR high enough, vol spike not crazy),
+    give back part of the penalties to keep a controlled 'probe' alive.
+    Returns (struct, risk_pen, probe_ok, level)
+    """
+    allow = (os.getenv("ALLOW_BLOWOFF_PROBE", "1").lower() in {"1","true","yes"})
+    lvl = _overheat_level(rsi, vs50)
+    if not allow or lvl == 0:
+        return struct, risk_pen, False, 0
 
-    rsi_ok   = (rsi is not None) and (lo_rsi <= rsi <= hi_rsi)
-    slope_ok = (e50s is not None) and (e50s >= min_slope)
-    vol_ok   = (v20 is None) or (lo_vol <= v20 <= hi_vol)
-    px_ok    = (px is not None and e20 is not None and px >= e20)
-    near200  = (vsem200 is not None) and (lo_v200 <= vsem200 <= hi_v200)
-    return bool(rsi_ok and slope_ok and vol_ok and px_ok and near200)
+    ev_ok   = (atr is not None) and (atr >= _env_float("PROBE_MIN_EV", 4.0))
+    vol_ok  = (v20 is None) or (v20 <= _env_float("PROBE_MAX_VOL_SPIKE", 150.0))
+    if not (ev_ok and vol_ok):
+        return struct, risk_pen, False, lvl
 
-def _early_turn_points(feats: Dict, tier: str) -> Tuple[float, float, float]:
-    """Small additive nudges when an early-turn is detected: (trend_pts, momo_pts, struct_pts)."""
-    if not _early_turn_ok(feats):
-        return (0.0, 0.0, 0.0)
-    def g(n, d):
-        try: return float(os.getenv(n, str(d)))
-        except Exception: return d
-    tr  = g("QS_ET_BONUS_TREND",  6.0)
-    mo  = g("QS_ET_BONUS_MOMO",   8.0)
-    st  = g("QS_ET_BONUS_STRUCT", 5.0)
-    if tier == "small":  # smalls tend to move earlier
-        tr *= 1.05; mo *= 1.10; st *= 1.05
-    return (tr, mo, st)
+    # distribute add-back between struct and risk
+    add_A = _env_float("PROBE_ADD_BACK_A", 4.0)
+    add_B = _env_float("PROBE_ADD_BACK_B", 7.0)
+    add_C = _env_float("PROBE_ADD_BACK_C", 10.0)
+    add = add_A if lvl == 1 else add_B if lvl == 2 else add_C
+    share = _env_float("PROBE_STRUCT_SHARE", 0.45)   # remainder goes to risk
+    struct += add * share
+    risk_pen += add * (1.0 - share)  # risk_pen is negative; adding back makes it less punitive
+    return struct, risk_pen, True, lvl
 
 def _tags(feats: Dict) -> List[str]:
-    """Lightweight protections to avoid cutting winners too soon + coil protect."""
+    """Lightweight protections & risk flags."""
     t: List[str] = []
     rsi = safe(feats.get("RSI14"), None)
     vs200 = safe(feats.get("vsSMA200"), 0.0)
@@ -342,7 +332,7 @@ def _tags(feats: Dict) -> List[str]:
     if v20 >= 180 and rsi is not None and rsi >= 78 and d20 >= 12: t.append("pump_risk")
     if v20 <= -60: t.append("low_liquidity_today")
 
-    # slowdown / distribution hint
+    # distribution / stall hints
     try:
         macd = float(feats.get("MACD_hist")) if feats.get("MACD_hist") is not None else None
     except Exception:
@@ -351,20 +341,15 @@ def _tags(feats: Dict) -> List[str]:
         t.append("stall_risk")
 
     # coil/setup protector
-    try: setup_atr = float(os.getenv("QS_SETUP_ATR_MAX", "6.0"))
+    try: setup_atr = _env_float("QS_SETUP_ATR_MAX", 6.0)
     except Exception: setup_atr = 6.0
     if (-4 <= vs50 <= 10) and (vs200 >= -2) and (rsi is not None and 45 <= rsi <= 62) and (atr <= setup_atr) and (-60 <= v20 <= 40):
         t.append("setup_protect")
 
-    # early-turn protector (NEW)
-    try:
-        px  = safe(feats.get("price"), None)
-        e20 = safe(feats.get("EMA20"), None)
-        if _early_turn_ok(feats) and (px is not None and e20 is not None and px >= e20):
-            t.append("early_turn_protect")
-    except Exception:
-        pass
-
+    # overheat flag (for visibility)
+    lvl = _overheat_level(rsi, vs50)
+    if lvl >= 1:
+        t.append(f"overheat_L{lvl}")
     return t
 
 def _tier_params(tier: str, mode: str, pe_weight_base: float):
@@ -378,7 +363,7 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
         wt_struct = _w("QS_W_STRUCT_SMALL",0.14)
         wt_risk   = _w("QS_W_RISK_SMALL",  0.12)
         weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
-        pe_w = float(os.getenv("QS_PE_WEIGHT_SMALL", str(pe_weight_base)))
+        pe_w = _env_float("QS_PE_WEIGHT_SMALL", pe_weight_base)
         if mode == "strict":   atr_soft, vol_soft, dd_soft = 5.0, 200, -42
         elif mode == "normal": atr_soft, vol_soft, dd_soft = 5.5, 220, -45
         else:                  atr_soft, vol_soft, dd_soft = 6.0, 240, -48
@@ -388,7 +373,7 @@ def _tier_params(tier: str, mode: str, pe_weight_base: float):
         wt_struct = _w("QS_W_STRUCT_LARGE",0.11)
         wt_risk   = _w("QS_W_RISK_LARGE",  0.04)
         weights = dict(trend=wt_trend, momo=wt_momo, struct=wt_struct, risk=wt_risk)
-        pe_w = float(os.getenv("QS_PE_WEIGHT_LARGE", str(pe_weight_base + 0.02)))
+        pe_w = _env_float("QS_PE_WEIGHT_LARGE", pe_weight_base + 0.02)
         if mode == "strict":   atr_soft, vol_soft, dd_soft = 5.5, 240, -42
         elif mode == "normal": atr_soft, vol_soft, dd_soft = 6.0, 280, -45
         else:                  atr_soft, vol_soft, dd_soft = 6.5, 300, -50
@@ -414,10 +399,10 @@ def quick_score(
     xs: Dict[str, Tuple[float, float]] | None = None,
     tier: Optional[str] = None
 ) -> Tuple[float, Dict]:
-    """Fast, resilient first-pass score with anticipation bias and tier-aware anchors."""
+    """Fast, resilient first-pass score with anticipation bias, overheat probe, and tier-aware anchors."""
     tier = (tier or _tier_fallback_small_vs_large(feats))
 
-    pe_weight_base = float(os.getenv("QS_PE_WEIGHT", "0.06"))
+    pe_weight_base = _env_float("QS_PE_WEIGHT", 0.06)
     weights, pe_weight, atr_soft, vol_soft, dd_soft = _tier_params(tier, mode, pe_weight_base)
 
     w_trend, w_momo, w_struct, w_risk = weights["trend"], weights["momo"], weights["struct"], weights["risk"]
@@ -488,9 +473,9 @@ def quick_score(
         0.15 * clamp(z_e50s/4.0,  -1, 1)
     ) * 100.0
     try:
-        knee  = float(os.getenv("QS_MOMO_CHASE_KNEE", "35"))
-        slope = float(os.getenv("QS_MOMO_CHASE_SLOPE","0.6"))
-        cap   = float(os.getenv("QS_MOMO_CHASE_PEN_MAX","15"))
+        knee  = _env_float("QS_MOMO_CHASE_KNEE", 35.0)
+        slope = _env_float("QS_MOMO_CHASE_SLOPE", 0.6)
+        cap   = _env_float("QS_MOMO_CHASE_PEN_MAX", 15.0)
     except Exception:
         knee, slope, cap = 35.0, 0.6, 15.0
     if r60 is not None and r60 > knee:
@@ -513,7 +498,7 @@ def quick_score(
             continuation = 8.0
     momo += continuation
 
-    # structure (AVWAP, MAs, FVA, overlay)
+    # structure (AVWAP/MAs, FVA, valuation overlay)
     struct = 0.0
     if sma50 and avwap:
         if px > sma50 > avwap: struct += 12.0
@@ -529,7 +514,7 @@ def quick_score(
         if vsE50 > 0 and vsE200 > 0: struct += 3.0
         elif vsE50 < 0 and vsE200 < 0: struct -= 2.0
 
-    # FVA discounts/bonuses + KO with 'extended' gates
+    # FVA discounts/penalties with momentum-carry discount on KO
     fva = None
     if os.getenv("QS_USE_FVA", "1").lower() in {"1","true","yes"}:
         pen   = _env_tiered("QS_FVA_PEN_MAX",   tier, 12.0)
@@ -538,24 +523,28 @@ def quick_score(
         fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
         if (fva is not None) and (px is not None):
             disc = (fva - px) / max(abs(fva), 1e-9) * 100.0
-            if disc < 0:  struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
-            elif disc > 0: struct += clamp(disc/20.0, 0.0, 1.0) * bonus
+            if disc < 0:
+                struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
+            elif disc > 0:
+                struct += clamp(disc/20.0, 0.0, 1.0) * bonus
             if px > fva:
                 gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
-                # Require genuine extension to trigger KO (NEW)
-                rsi_min  = float(os.getenv("KO_RSI_MIN",  "78"))
-                vs50_min = float(os.getenv("KO_VS50_MIN", "50"))
-                d20_min  = float(os.getenv("KO_D20_MIN",  "20"))
-                extended = ((rsi  is not None and rsi  >= rsi_min) or
-                            (vs50 is not None and vs50 >= vs50_min) or
-                            (d20  is not None and d20  >= d20_min))
-                if gap >= ko_pct and extended:
-                    # gentler slope/cap
-                    struct -= min(28.0, (gap - ko_pct) * 0.45)
+                if gap >= ko_pct:
+                    # base KO penalty
+                    ko_pen = min(40.0, (gap - ko_pct) * 0.6)
+                    # discount if momentum is genuinely carrying
+                    strong_trend = (r60 is not None and r60 >= 30) and (vs50 is not None and vs50 >= 15)
+                    discount = 1.0
+                    if strong_trend and accel_z > 0.10:
+                        discount = _env_float("KO_MOMO_DISCOUNT", 0.50)
+                        if accel_z >= 0.35:
+                            discount = _env_float("KO_MOMO_DISCOUNT_STRONG", 0.35)
+                    struct -= ko_pen * discount
+                    # (if not strong-trend, discount=1.0 → full penalty)
 
     # Valuation overlay (optional)
     if os.getenv("QS_VAL_OVERLAY", "1").lower() in {"1","true","yes"}:
-        cap_overlay = float(os.getenv("QS_VAL_OVERLAY_MAX", "12"))
+        cap_overlay = _env_float("QS_VAL_OVERLAY_MAX", 12.0)
         pe     = safe(feats.get("val_PE")        if feats.get("val_PE")        is not None else feats.get("PE"), None)
         peg    = safe(feats.get("val_PEG")       if feats.get("val_PEG")       is not None else feats.get("PEG"), None)
         fcfy   = safe(feats.get("val_FCF_YIELD") if feats.get("val_FCF_YIELD") is not None else feats.get("FCF_YIELD"), None)
@@ -582,12 +571,6 @@ def quick_score(
     # anticipation boost
     struct += _lead_setup_points(vs50, vs200, r60, rsi, atr, v20, vsE50, vsE200, e50s, tier)
 
-    # Early-turn tiny adders (NEW)
-    et_tr, et_mo, et_st = _early_turn_points(feats, tier)
-    trend  += et_tr
-    momo   += et_mo
-    struct += et_st
-
     # risk (soft, tier-aware)
     risk_pen = 0.0
     if use_xs:
@@ -601,7 +584,7 @@ def quick_score(
     if rsi is not None and rsi >= 88 and d20 >= 150: risk_pen -= 10.0
     if rsi is not None and rsi >= 80 and v20 >= 200: risk_pen -= 6.0
     if tier == "small":
-        liq_min = float(os.getenv("QS_MIN_DOLLAR_VOL_20D", "2000000"))
+        liq_min = _env_float("QS_MIN_DOLLAR_VOL_20D", 2_000_000.0)
         liq = safe(feats.get("avg_dollar_vol_20d"), None)
         if liq is not None and liq < liq_min:
             risk_pen -= clamp((liq_min - liq) / max(liq_min, 1.0), 0.0, 1.0) * 10.0
@@ -631,6 +614,10 @@ def quick_score(
     except Exception:
         pass
 
+    # ★ Overheat probe: give back some points to keep “probe-sized” trades alive
+    struct, risk_pen, probe_ok, probe_lvl = _apply_probe_path(rsi, vs50, v20, atr, struct, risk_pen)
+
+    # P/E overlay
     pe_points_raw = _pe_tilt_points(pe_val, rsi, v20)  # [-20..+20]
     pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0
 
@@ -643,8 +630,10 @@ def quick_score(
     return score, {
         "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,
         "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier,
-        "fva_hint": fva if 'fva' in locals() else None,
-        "price": px,
+        "fva_hint": fva, "price": px,
+        "accel_z": accel_z,            # helps downstream diagnostics
+        "probe_ok": bool(probe_ok),    # for tagging in Stage-1
+        "probe_lvl": int(probe_lvl),
     }
 
 def rank_stage1(
@@ -654,7 +643,7 @@ def rank_stage1(
     rescue_frac: float = None,
     log_dir: str = "data"
 ) -> Tuple[List[Tuple[str,str,Dict,float,Dict]], List[Tuple[str,str,Dict,float,Dict]], List[Tuple]]:
-    """Run Stage-1 quick pass with tiering, protection rescue and CSV logs."""
+    """Run Stage-1 quick pass with tiering, probe-aware protection rescue and CSV logs."""
     mode = (mode or os.getenv("STAGE1_MODE", "loose")).lower()
     keep = int(os.getenv("STAGE1_KEEP", str(keep)))
     rescue_frac = float(os.getenv("STAGE1_RESCUE_FRAC", str(rescue_frac if rescue_frac is not None else 0.15)))
@@ -677,6 +666,8 @@ def rank_stage1(
         f["liq_tier"] = tier
         s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
         tags = _tags(f)
+        if parts.get("probe_ok"):
+            tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
         meta = {"parts": parts, "tags": tags, "tier": tier, "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d")}
         row = (t, n, f, s, meta)
         scored.append(row)
@@ -702,12 +693,12 @@ def rank_stage1(
         except Exception as e:
             log.warning(f"[Stage1] writing top-N full CSV failed: {e!r}")
 
-    # rescue some protected setups on the borderline
+    # rescue some protected setups on the borderline (includes probe_ok & coil protects)
     top_main = scored[:keep]
     borderline = scored[keep:]
     for r in borderline:
         tier = r[4].get("tier")
-        if any(tag.endswith("_protect") for tag in r[4]["tags"]):
+        if any(tag.endswith("_protect") or tag.startswith("probe_ok") for tag in r[4]["tags"]):
             (protected_bucket_small if tier == "small" else protected_bucket_large).append(r)
 
     max_rescue = max(0, int(keep * rescue_frac))

@@ -143,10 +143,15 @@ jobs:
           QS_FVA_KO_PCT_LARGE: '35' # <- was 28
 
           # --- Hard filters (looser) ---
-          HARD_DROP_MODE: 'loose' # <- was normal
+          HARD_DROP_MODE: 'normal'
           HARD_GRACE_ATR: '3.0' # <- was 2.0
           HARD_EMA_ROLLOVER: '0' # allow early-turns through
           TR_EARN_BLACKOUT_DAYS: '0'
+          R2_ENABLE_DECILE_GATE: '1'
+          R2_MIN_TREND_PCTILE: ''
+          R2_MIN_COMBO_PCTILE: ''
+          R2_MIN_STAB_PCTILE: ''
+          R2_ELITE_MIN_KEEP_FRAC: ''
 
           # --- Early-turn detector (unchanged; good) ---
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
