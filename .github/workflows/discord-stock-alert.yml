@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0
+          fetch-depth: '0'
 
       - name: Restore cached data (aliases, universe, etc.)
         uses: actions/cache@v4
