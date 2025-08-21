@@ -148,9 +148,9 @@ def _flag_continuation(feats: dict) -> Tuple[bool, dict]:
     v20    = _to_float(feats.get("vol_vs20"))
 
     ok = (
-        (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and
+        (vsem50 is not None and 3.0 <= vsem50 <= 24.0) and
         (vsem200 is not None and vsem200 >= -2.0) and
-        (rsi is not None and 52.0 <= rsi <= 68.0) and
+        (rsi is not None and 52.0 <= rsi <= 72.0) and
         (e50s is not None and e50s > 0.0) and
         (v20 is None or v20 <= 180.0)
     )
@@ -344,7 +344,7 @@ def build_prompt_block(
         "RISK_GUARDS: ATH_GUARD_ACTIVE={ath_active}; ATH_TRIGGERED={ath_trig}; PROBE_ELIGIBLE={probe_ok}; PROBE_LEVEL={probe_lvl}\n"
         "KO_CONTEXT: GAP_PCT={ko_gap}; EXTENDED={ko_ext}\n"
         # ---- explicit plan contract (one line; LLM uses this strictly) ----
-        "PLAN_SPEC: Use FVA as anchor (|FVA-PRICE| ≤ 20% unless very strong tech). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).\n"
+        "PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).\n"
     ).format(
         t=t, name=name,
         price=_fmt_num(feats.get("price")),

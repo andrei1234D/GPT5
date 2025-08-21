@@ -18,7 +18,7 @@ News:
 
 Certainty:
 - Rate certainty (0–100) using structure, volume, volatility, and catalyst timing.
-- Scale: 40 = weak/partial; 55 = decent; 70 = strong; 85 = high-conviction; 95 = rare perfect setup.
+- Scale: 40 = weak/partial; 55 = decent; 62 = strong; 72 = high-conviction; 95 = rare perfect setup.
 - Add Certainty to BASE score before final score is given.
 
 Advice Rule:

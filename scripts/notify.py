@@ -103,6 +103,13 @@ PLAN BUILDER (MANDATORY; DO NOT SKIP):
 """
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
 
+def _to_float(x, default=0.0):
+    try:
+        return float(x)
+    except Exception:
+        return default
+
+
 def fail(msg: str):
     log(f"[ERROR] {msg}")
     try:
@@ -357,6 +364,35 @@ def main():
             log(f"[INFO] Posted debug embeds for: {', '.join(picked)}")
     except Exception as e:
         log(f"[WARN] Debug post failed: {e!r}")
+
+    for t in picked:
+        dbg = debug_inputs.get(t)
+        if not dbg:
+            continue
+        is_probe = dbg.get("RISK_GUARDS", {}).get("PROBE_ELIGIBLE") == "Yes"
+        plan_re = re.search(rf"\*\*{t}\s+–\s.*?^Plan:\s+(Buy|No trade).*?\(Anchor: \$([0-9.]+)\)", final_text, re.MULTILINE | re.DOTALL)
+        certainty_re = re.search(rf"\*\*{t}\s+–\s.*?Certainty: (\d+)%", final_text, re.IGNORECASE)
+        if plan_re and certainty_re:
+            action = plan_re.group(1)
+            certainty = int(certainty_re.group(1))
+            if action == "No trade" and certainty >= 80 and is_probe:
+                fva = float(plan_re.group(2))
+                price = _to_float(dbg["CURRENT_PRICE"])
+                ev = max(_to_float(dbg["PROXIES_BLOCK"]["EXPECTED_VOLATILITY_PCT"]), 4)
+                anchor = max(min(fva, price * 1.02), price * 0.97)
+                buy_lo = round(price * (1 - 0.005 * ev), 2)
+                buy_hi = round(price * (1 + 0.002 * ev), 2)
+                stop = round(max(price * (1 - 0.022 * ev),
+                                 dbg["INDICATORS_BLOCK"]["EMA20"] * 0.995 if dbg["INDICATORS_BLOCK"]["EMA20"] < price else price), 2)
+                target = round(price * (1 + 0.038 * ev), 2)
+                replacement = f"Probe buy {buy_lo}–{buy_hi}; Stop {stop}; Target {target}; Max hold time: ≤ 6 months (Anchor: ${anchor:.2f}) (Parabolic risk)"
+                final_text = re.sub(
+                    rf"(?<=\*\*{t}\s+–\s).*?No trade.*?\(Anchor: \$[0-9.]+\)",
+                    replacement,
+                    final_text,
+                    flags=re.DOTALL
+                )
+                log(f"[INFO] Overrode no-trade for {t} → PROBE BUY ⚡")
 
     # 10) Save & (optionally) wait until 08:00
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
