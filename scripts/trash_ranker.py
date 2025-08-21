@@ -7,53 +7,196 @@ import os
 import logging
 import numpy as np
 
-"""
-New/updated ENV knobs (★ = new here, aligned with quick_scorer):
+# --- BEGIN: env loader for local testing -------------------------------------
+import os, sys, re, io
 
-# Hard filter controls
-HARD_DROP_MODE=off|loose|normal|strict
-HARD_GRACE_ATR=2.0
-HARD_EMA_ROLLOVER=1
-TR_EARN_BLACKOUT_DAYS=0
+def _apply_kv_cli_overrides(argv: list) -> list:
+    """
+    Consume bare KEY=VALUE tokens from argv and set os.environ.
+    Return argv with those tokens removed.
+    """
+    out = [argv[0]]
+    for tok in argv[1:]:
+        if "=" in tok and not tok.startswith("--"):
+            k, v = tok.split("=", 1)
+            k = k.strip()
+            if k:
+                os.environ[k] = v
+            continue
+        out.append(tok)
+    return out
 
-# Early turn detector bands
-EARLY_TURN_RSI_LO=47.0  EARLY_TURN_RSI_HI=63.0
-EARLY_TURN_MIN_E50_SLOPE=2.0
-EARLY_TURN_VS200_LO=-12.0 EARLY_TURN_VS200_HI=8.0
-EARLY_TURN_VOL_LO=110.0 EARLY_TURN_VOL_HI=220.0
-EARLY_TURN_VS200_PAD=5.0
+def _to_percent_points(x: Optional[float], *thresholds: float) -> Optional[float]:
+    """
+    Normalize possibly-fractional inputs to percentage points.
+    If thresholds are clearly in percent space (>2), and |x|<=2, treat x as a fraction and *100.
+    """
+    if x is None:
+        return None
+    try:
+        xv = float(x)
+    except Exception:
+        return None
+    # Heuristic: only rescale when thresholds look like percent points (e.g., 20/35/50)
+    if thresholds and max(thresholds) > 2.0 and abs(xv) <= 2.0:
+        return xv * 100.0
+    return xv
 
-# Composite weights/stability caps profile via RANKER_PROFILE=A|B|C (or SELECTION_MODE)
-# (Base weights in RankerParams; profile tweaks in _apply_profile)
 
-# FVA KO threshold (0 disables)
-QS_FVA_KO_PCT=35
+def _parse_gha_env_from_text(yml_text: str, step_name: str | None) -> dict:
+    """
+    Best-effort extraction of the 'env:' mapping from a GitHub Actions step.
 
-# ★ Overheat / probe path (keep hot leaders with controlled haircut)
-ALLOW_BLOWOFF_PROBE=1
-PROBE_MIN_EV=4                 # ATR% min to allow probe
-PROBE_MAX_VOL_SPIKE=150        # vol_vs20 max to allow probe
-OVERHEAT_A_RSI=78 OVERHEAT_B_RSI=83 OVERHEAT_C_RSI=87
-OVERHEAT_A_VS50=20 OVERHEAT_B_VS50=35 OVERHEAT_C_VS50=50
-PROBE_ADD_BACK_A=4 PROBE_ADD_BACK_B=7 PROBE_ADD_BACK_C=10  # points (of 100) given back
-PROBE_STRUCT_SHARE=0.45        # fraction to struct (rest to stability)
+    Strategy:
+    1) With PyYAML: search ALL jobs. If step_name is given, return that step's env
+       merged with the job's env. Otherwise, pick the step with the largest
+       (job_env ∪ step_env).
+    2) Fallback (no PyYAML): scan the file for ALL 'env:' blocks and pick the largest.
+       If step_name is given, prefer the first env: that appears under that step.
+    """
+    # ------------ Preferred path: structured parse ------------
+    try:
+        import yaml  # type: ignore
+        doc = yaml.safe_load(yml_text) or {}
+        jobs = (doc or {}).get("jobs", {}) or {}
 
-# ★ Momentum-carry discount for FVA KO penalty
-KO_MOMO_DISCOUNT=0.50
-KO_MOMO_DISCOUNT_STRONG=0.35
+        # If exact step requested: search all jobs
+        if step_name:
+            for job_id, job in jobs.items():
+                job_env = (job or {}).get("env") or {}
+                for st in ((job or {}).get("steps") or []) or []:
+                    if ((st or {}).get("name") or "").strip() == step_name:
+                        step_env = (st or {}).get("env") or {}
+                        merged = {**job_env, **step_env}
+                        return {str(k): "" if v is None else str(v) for k, v in merged.items()}
 
-# ATH guard (keep existing)
-ATH_GUARD=1
-ATH_NEAR_PCT=1.0
-ATH_MIN_RSI=80
-ATH_MIN_VS50=25
-ATH_VOL_RELIEF=60
-ATH_SCORE_HAIRCUT=22
+        # Otherwise: pick the largest merged env across all jobs/steps
+        best = {}
+        for job_id, job in jobs.items():
+            job_env = (job or {}).get("env") or {}
+            for st in ((job or {}).get("steps") or []) or []:
+                step_env = (st or {}).get("env") or {}
+                merged = {**job_env, **step_env}
+                if len(merged) > len(best):
+                    best = merged
+        if best:
+            return {str(k): "" if v is None else str(v) for k, v in best.items()}
+    except Exception:
+        pass  # fall through to text scan
 
-RANKER_VERBOSE=1|0
-RANKER_LOG_EVERY=500
-RANKER_LOG_LEVEL=INFO|DEBUG|...
-"""
+    # ------------ Fallback: plain text scan ------------
+    import re
+    lines = yml_text.splitlines()
+
+    def _grab_env_block(start_idx: int) -> dict:
+        """Given index of a line that is exactly 'env:', capture its indented block."""
+        env_line = lines[start_idx]
+        env_indent = len(env_line) - len(env_line.lstrip(" "))
+        out = {}
+        for j in range(start_idx + 1, len(lines)):
+            raw = lines[j]
+            if not raw.strip():
+                continue
+            ind = len(raw) - len(raw.lstrip(" "))
+            if ind <= env_indent:
+                break
+            m = re.match(r"^\s*([A-Za-z0-9_]+)\s*:\s*(.*)\s*$", raw)
+            if not m:
+                continue
+            k = m.group(1)
+            v = m.group(2).strip()
+            if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')):
+                v = v[1:-1]
+            out[k] = v
+        return out
+
+    # If a step name was requested, find that step then the next env: under it
+    if step_name:
+        name_pat = re.compile(r"^\s*name\s*:\s*(.+?)\s*$")
+        step_idx = -1
+        for i, ln in enumerate(lines):
+            m = name_pat.match(ln)
+            if m and m.group(1).strip() == step_name:
+                step_idx = i
+                break
+        if step_idx >= 0:
+            # find first subsequent 'env:' line
+            for i in range(step_idx + 1, len(lines)):
+                if re.match(r"^\s*env\s*:\s*$", lines[i]):
+                    blk = _grab_env_block(i)
+                    if blk:
+                        return blk
+
+    # Otherwise, examine ALL env blocks and pick the largest
+    best = {}
+    for i, ln in enumerate(lines):
+        if re.match(r"^\s*env\s*:\s*$", ln):
+            blk = _grab_env_block(i)
+            if len(blk) > len(best):
+                best = blk
+    return best
+
+def _apply_gha_env(path: str, step_name: str | None) -> dict:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            txt = f.read()
+    except Exception as e:
+        print(f"[env] Could not read YAML at {path}: {e}", flush=True)
+        return {}
+    env_map = _parse_gha_env_from_text(txt, step_name)
+    for k, v in env_map.items():
+        os.environ[k] = v
+    if env_map:
+        print(f"[env] Loaded {len(env_map)} vars from '{os.path.basename(path)}'"
+              + (f" step '{step_name}'" if step_name else ""), flush=True)
+    else:
+        print(f"[env] No env block found in '{os.path.basename(path)}'", flush=True)
+    return env_map
+
+def _consume_env_flags(argv: list) -> list:
+    """
+    Supports:
+      --gha-env PATH
+      --gha-step NAME
+    Removes those flags from argv after applying.
+    """
+    out = [argv[0]]
+    i = 1
+    gha_path = None
+    gha_step = None
+    while i < len(argv):
+        tok = argv[i]
+        if tok.startswith("--gha-env="):
+            gha_path = tok.split("=", 1)[1]
+            i += 1
+            continue
+        if tok == "--gha-env" and (i + 1) < len(argv):
+            gha_path = argv[i + 1]
+            i += 2
+            continue
+        if tok.startswith("--gha-step="):
+            gha_step = tok.split("=", 1)[1]
+            i += 1
+            continue
+        if tok == "--gha-step" and (i + 1) < len(argv):
+            gha_step = argv[i + 1]
+            i += 2
+            continue
+        out.append(tok)
+        i += 1
+    # env file via flag takes precedence
+    if gha_path:
+        _apply_gha_env(gha_path, gha_step or None)
+    # also honor an environment variable GHA_ENV_YML if set
+    elif os.getenv("GHA_ENV_YML"):
+        _apply_gha_env(os.getenv("GHA_ENV_YML"), os.getenv("GHA_ENV_STEP") or None)
+    return out
+
+# run loaders before the rest of the script sees argv
+sys.argv = _apply_kv_cli_overrides(sys.argv)
+sys.argv = _consume_env_flags(sys.argv)
+# --- END: env loader for local testing ---------------------------------------
+
 
 # ---------- logging setup ----------
 def _maybe_configure_logging():
@@ -120,9 +263,6 @@ def _env_bool(name: str, default: bool = False) -> bool:
 
 # ---------- overheat / probe helpers ----------
 def _overheat_level(rsi: Optional[float], vs50: Optional[float]) -> int:
-    """
-    0 = none, 1/2/3 = A/B/C levels of overheat based on RSI and vsSMA50.
-    """
     if rsi is None or vs50 is None:
         return 0
     A_RSI = _env_float("OVERHEAT_A_RSI", 78.0)
@@ -131,34 +271,48 @@ def _overheat_level(rsi: Optional[float], vs50: Optional[float]) -> int:
     A_V50 = _env_float("OVERHEAT_A_VS50", 20.0)
     B_V50 = _env_float("OVERHEAT_B_VS50", 35.0)
     C_V50 = _env_float("OVERHEAT_C_VS50", 50.0)
-    r, v = float(rsi), float(vs50)
+
+    r = float(rsi)
+    # normalize vsSMA50 to percentage points if it was provided as a fraction
+    v = _to_percent_points(vs50, A_V50, B_V50, C_V50)
+
+    if v is None:
+        return 0
     if r >= C_RSI and v >= C_V50: return 3
     if r >= B_RSI and v >= B_V50: return 2
     if r >= A_RSI and v >= A_V50: return 1
     return 0
 
 def _probe_gate(feats: Dict) -> Tuple[bool, int]:
-    """
-    Check whether the "probe" path should be allowed for this name now.
-    Conditions:
-      - ALLOW_BLOWOFF_PROBE=1
-      - ATR% >= PROBE_MIN_EV
-      - vol_vs20 <= PROBE_MAX_VOL_SPIKE
-      - meets overheat A/B/C bands
-    """
     if not _env_bool("ALLOW_BLOWOFF_PROBE", True):
         return False, 0
     rsi  = safe(feats.get("RSI14"), None)
-    vs50 = safe(feats.get("vsSMA50"), None)
+    vs50_raw = safe(feats.get("vsSMA50"), None)
     atr  = safe(feats.get("ATRpct"), None)
     v20  = safe(feats.get("vol_vs20"), None)
 
-    lvl = _overheat_level(rsi, vs50)
-    if lvl == 0:
-        return False, 0
-
+    lvl = _overheat_level(rsi, vs50_raw)
     ev_ok  = (atr is not None) and (atr >= _env_float("PROBE_MIN_EV", 4.0))
     vol_ok = (v20 is None) or (v20 <= _env_float("PROBE_MAX_VOL_SPIKE", 150.0))
+
+    if _env_bool("RANKER_DEBUG_PROBE", False):
+        # Also show the normalized vs50 used for gating:
+        A_V50 = _env_float("OVERHEAT_A_VS50", 20.0)
+        B_V50 = _env_float("OVERHEAT_B_VS50", 35.0)
+        C_V50 = _env_float("OVERHEAT_C_VS50", 50.0)
+        vs50_pp = _to_percent_points(vs50_raw, A_V50, B_V50, C_V50)
+        logger.info(
+            "[probe] rsi=%.2f vs50=%.4f (pp=%.2f) atr=%.2f v20=%.2f | lvl=%d ev_ok=%s vol_ok=%s allow=%s",
+            (rsi if rsi is not None else float('nan')),
+            (vs50_raw if vs50_raw is not None else float('nan')),
+            (vs50_pp if vs50_pp is not None else float('nan')),
+            (atr if atr is not None else float('nan')),
+            (v20 if v20 is not None else float('nan')),
+            lvl, ev_ok, vol_ok, _env_bool("ALLOW_BLOWOFF_PROBE", True)
+        )
+
+    if lvl == 0:
+        return False, 0
     if ev_ok and vol_ok:
         return True, lvl
     return False, lvl
@@ -354,10 +508,10 @@ class RankerParams:
     # weights (keep valuation relatively small to avoid cheap/expensive bias)
     w_trend: float = 0.30
     w_momo: float = 0.32
-    w_struct: float = 0.14
-    w_stab: float = 0.14
+    w_struct: float = 0.16  # a touch more structure to surface "buys"
+    w_stab: float = 0.12    # slightly less stability headwind to avoid over-pruning
     w_blowoff: float = 0.02
-    w_value: float = 0.08  # reduced valuation influence
+    w_value: float = 0.08   # reduced valuation influence
 
     # soft caps used in stability penalties
     atr_soft_cap: float = 6.0
@@ -713,14 +867,14 @@ class RobustRanker:
         P = self.params
         if prof == "A":
             # More momentum/trend, looser stability
-            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.32, 0.36, 0.14, 0.10, 0.02, 0.06
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.32, 0.36, 0.16, 0.10, 0.02, 0.04
             P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 6.8, 300.0, -40.0
         elif prof == "C":
             # Value/stability forward; harsher blowoff
-            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.24, 0.24, 0.16, 0.24, 0.04, 0.08
+            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.26, 0.28, 0.16, 0.22, 0.04, 0.04
             P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 5.5, 220.0, -30.0
         else:
-            # B = defaults already set in dataclass
+            # B = defaults set in dataclass
             pass
 
     def score_universe(self, universe: List[Tuple[str, str, Dict]], context: Optional[Dict]=None):

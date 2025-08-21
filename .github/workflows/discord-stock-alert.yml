@@ -117,24 +117,34 @@ jobs:
           TIER_TOPK_LARGE: '500'
           TIER_BACKFILL_UNKNOWN_AS: 'small'
 
-          # --- Stage-1 quick pass ---
-          STAGE1_MODE: 'strict'
-          STAGE1_KEEP: '200'
-          STAGE1_MIN_SMALL: '100'
-          STAGE1_MIN_LARGE: '100'
-          STAGE1_RESCUE_FRAC: '0'
-          STAGE1_WRITE_CSV: '1' # so we can commit Top-200 kept
-          QS_USE_XS: '1' # use cross-sectional z-scoring in the scorer
+          # --- Stage-1 quick pass (looser to surface more buys) ---
+          STAGE1_MODE: 'loose'          # <- was normal
+          STAGE1_KEEP: '350'            # <- was 300
+          STAGE1_MIN_SMALL: '130'
+          STAGE1_MIN_LARGE: '130'
+          STAGE1_RESCUE_FRAC: '0.25'    # <- was 0.15
+          QS_USE_XS: '1'
 
-          # --- Stage-2 profile ---
-          RANKER_PROFILE: 'C'
+          # --- Stage-2 profile (more aggressive) ---
+          RANKER_PROFILE: 'A'           # <- was B
 
-          # --- Hard filters ---
-          HARD_DROP_MODE: 'strict'
-          HARD_GRACE_ATR: '2.0' # give early turns room
-          TR_EARN_BLACKOUT_DAYS: '0' # optional earnings blackout window
+          # --- Early-turn tiny boosts (OK to leave) ---
+          QS_ET_BONUS_TREND: '6'
+          QS_ET_BONUS_MOMO: '8'
+          QS_ET_BONUS_STRUCT: '5'
 
-          # --- Early-turn detector (shared: ranker + prompts) ---
+          # --- FVA KO tuning (require more extension before KO) ---
+          # Tier-aware (quick_scorer uses *_SMALL/LARGE if present)
+          QS_FVA_KO_PCT_SMALL: '50'     # <- was 45
+          QS_FVA_KO_PCT_LARGE: '35'     # <- was 28
+
+          # --- Hard filters (looser) ---
+          HARD_DROP_MODE: 'loose'       # <- was normal
+          HARD_GRACE_ATR: '3.0'         # <- was 2.0
+          HARD_EMA_ROLLOVER: '0'        # allow early-turns through
+          TR_EARN_BLACKOUT_DAYS: '0'
+
+          # --- Early-turn detector (unchanged; good) ---
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
           EARLY_TURN_RSI_LO: '47.0'
           EARLY_TURN_RSI_HI: '63.0'
@@ -144,81 +154,89 @@ jobs:
           EARLY_TURN_VOL_HI: '220.0'
           EARLY_TURN_VS200_PAD: '5.0'
 
-          # --- Lead/anticipation setup (quick_scorer) ---
-          QS_SETUP_ATR_MAX: '6.0'
-          QS_SETUP_VS50_MIN: '-4'
-          QS_SETUP_VS50_MAX: '10'
-          QS_SETUP_VS200_MIN: '-2'
-          QS_SETUP_VOL_ABS_MAX: '60'
+          # --- Lead/anticipation setup (a bit wider, higher cap) ---
+          QS_SETUP_ATR_MAX: '6.5'       # <- was 6.0
+          QS_SETUP_VS50_MIN: '-5'       # <- was -4
+          QS_SETUP_VS50_MAX: '12'       # <- was 10
+          QS_SETUP_VS200_MIN: '-3'      # <- was -2
+          QS_SETUP_VOL_ABS_MAX: '70'    # <- was 60
           QS_SETUP_RSI_LO: '45'
-          QS_SETUP_RSI_HI: '62'
+          QS_SETUP_RSI_HI: '64'         # <- was 62
           QS_SETUP_E50S_MIN: '0.5'
-          QS_SETUP_E50S_MAX: '8'
-          QS_SETUP_CAP_SMALL: '12'
-          QS_SETUP_CAP_LARGE: '14'
+          QS_SETUP_E50S_MAX: '9'        # <- was 8
+          QS_SETUP_CAP_SMALL: '14'      # <- was 12
+          QS_SETUP_CAP_LARGE: '16'      # <- was 14
 
-          # --- Momentum “chase” penalty (quick_scorer) ---
-          QS_MOMO_CHASE_KNEE: '35'
-          QS_MOMO_CHASE_SLOPE: '0.6'
-          QS_MOMO_CHASE_PEN_MAX: '15'
+          # --- Momentum “chase” penalty (lighter) ---
+          QS_MOMO_CHASE_KNEE: '40'      # <- was 35
+          QS_MOMO_CHASE_SLOPE: '0.45'   # <- was 0.6
+          QS_MOMO_CHASE_PEN_MAX: '8'    # <- was 15
 
           # --- Momo chase (trash_ranker) ---
-          TR_CHASE_KNEE: '35'
-          TR_CHASE_SLOPE: '0.006'
-          TR_CHASE_MAX: '0.18'
+          TR_CHASE_KNEE: '40'           # <- was 35
+          TR_CHASE_SLOPE: '0.004'       # <- was 0.006
+          TR_CHASE_MAX: '0.12'          # <- was 0.18 (cap is fraction)
 
-          # --- Quick scorer weights (tech valuation & risk emphasized) ---
-          QS_W_TREND_SMALL: '0.28'
-          QS_W_MOMO_SMALL: '0.18'
-          QS_W_STRUCT_SMALL: '0.36'
-          QS_W_RISK_SMALL: '0.18'
-          QS_W_TREND_LARGE: '0.32'
-          QS_W_MOMO_LARGE: '0.18'
-          QS_W_STRUCT_LARGE: '0.38'
-          QS_W_RISK_LARGE: '0.12'
+          # --- Quick scorer weights (more structure, less risk headwind) ---
+          QS_W_TREND_SMALL: '0.26'
+          QS_W_MOMO_SMALL:  '0.20'
+          QS_W_STRUCT_SMALL: '0.40'
+          QS_W_RISK_SMALL:   '0.14'
+          QS_W_TREND_LARGE:  '0.30'
+          QS_W_MOMO_LARGE:   '0.20'
+          QS_W_STRUCT_LARGE: '0.40'
+          QS_W_RISK_LARGE:   '0.10'
 
-          # --- P/E tilt (low weight) ---
-          QS_PE_WEIGHT: '0.02'
-          QS_PE_WEIGHT_LARGE: '0.03'
-          QS_PE_WEIGHT_SMALL: '0.01'
+          # --- P/E tilt (keep tiny to avoid suppressing growth) ---
+          QS_PE_WEIGHT: '0.015'  # <- was 0.02
+          QS_PE_WEIGHT_LARGE:  '0.02'   # <- was 0.03
+          QS_PE_WEIGHT_SMALL:  '0.005'  # <- was 0.01
 
-          # --- FVA & AVWAP shaping (tier-aware) ---
+          # --- FVA & AVWAP shaping (ease penalties, keep rewards) ---
           QS_USE_FVA: '1'
-          QS_FVA_PEN_MAX_SMALL: '14'
-          QS_FVA_PEN_MAX_LARGE: '30'
-          QS_FVA_BONUS_MAX_SMALL: '6'
-          QS_FVA_BONUS_MAX_LARGE: '6'
-          QS_FVA_KO_PCT_SMALL: '45'
-          QS_FVA_KO_PCT_LARGE: '28'
-          QS_STRUCT_PREM_CAP: '0' # neutral; use KO + ATH + stall for extension control
+          QS_FVA_PEN_MAX_SMALL:  '12'   # <- was 14
+          QS_FVA_PEN_MAX_LARGE:  '20'   # <- was 30
+          QS_FVA_BONUS_MAX_SMALL:'8'    # <- was 6
+          QS_FVA_BONUS_MAX_LARGE:'8'    # <- was 6
+          QS_STRUCT_PREM_CAP: '0'       # keep neutral
 
-          # --- RobustRanker FVA KO haircut (global) ---
-          QS_FVA_KO_PCT: '12'
-
-          # --- Valuation overlay into structure ---
+          # --- Valuation overlay into structure (slightly higher cap) ---
           QS_VAL_OVERLAY: '1'
-          QS_VAL_OVERLAY_MAX: '16'
+          QS_VAL_OVERLAY_MAX: '20'      # <- was 16
 
-          # ---- Blowoff probe controls (shared) ----
-          ALLOW_BLOWOFF_PROBE: '1' # enable/disable the probe path
-          PROBE_MIN_EV: '4' # EV floor (%) for probe band width
-          PROBE_MAX_VOL_SPIKE: '150' # disallow probes if Vol_vs_20d% ≥ this
+          # ---- Blowoff probe controls (easier but still sane) ----
+          ALLOW_BLOWOFF_PROBE: '1'
+          PROBE_MIN_EV: '2.2'           # sweet spot; 1.8 was very loose
+          PROBE_MAX_VOL_SPIKE: '200'    # block true blow-offs
 
-          # Overheat gates (raise if you get too many probes)
-          OVERHEAT_A_RSI: '78'
-          OVERHEAT_B_RSI: '83'
-          OVERHEAT_C_RSI: '87'
+          # Overheat gates (easier than 78/83/87; include vs50 gates)
+          OVERHEAT_A_RSI: '76'
+          OVERHEAT_B_RSI: '82'
+          OVERHEAT_C_RSI: '86'
+          OVERHEAT_A_VS50: '18'
+          OVERHEAT_B_VS50: '32'
+          OVERHEAT_C_VS50: '45'
 
-          # --- ATH guard (RobustRanker) ---
+          # Probe rebate (small but helpful)
+          PROBE_ADD_BACK_A: '6'         # <- was 5
+          PROBE_ADD_BACK_B: '9'         # <- was 8
+          PROBE_ADD_BACK_C: '12'
+          PROBE_STRUCT_SHARE: '0.50'
+
+          # Momentum-carry discount on FVA KO penalty (more forgiving)
+          KO_MOMO_DISCOUNT: '0.35'          # <- was 0.40
+          KO_MOMO_DISCOUNT_STRONG: '0.25'   # <- was 0.30
+
+          # --- ATH guard (lighter trigger & haircut) ---
           ATH_GUARD: '1'
-          ATH_NEAR_PCT: '1.0'
-          ATH_MIN_RSI: '80'
-          ATH_MIN_VS50: '25'
-          ATH_VOL_RELIEF: '60'
-          ATH_SCORE_HAIRCUT: '22'
+          ATH_NEAR_PCT: '0.8'           # fewer names flagged as "near ATH"
+          ATH_MIN_RSI:  '82'            # stronger condition to trigger
+          ATH_MIN_VS50: '28'
+          ATH_VOL_RELIEF: '40'          # relief kicks in more often
+          ATH_SCORE_HAIRCUT: '16'       # smaller haircut
 
           # --- Prompt plumbing ---
-          FORCE_CATALYSTS_PARTIAL: '1' # expose catalysts=PARTIAL for timing hints
+          FORCE_CATALYSTS_PARTIAL: '1'
 
           # --- OpenAI call timeout ---
           OPENAI_TIMEOUT: '360'
