@@ -270,7 +270,8 @@ class HardFilter:
             # If probe path is allowed, keep with tag; otherwise apply old rule
             if probe_ok:
                 return False, f"probe_keep_L{probe_lvl}"
-            if self.mode in {"off", "loose"} and trend_leader:
+            if self.mode in {"off", "loose", "normal"} and (trend_leader or early_turn):
+
                 return False, "pump_pattern_soft_keep"
             return True, "pump pattern (RSI/vol/d5)"
 
@@ -285,7 +286,7 @@ class HardFilter:
             if hot:
                 if probe_ok:
                     return False, f"valuation_probe_keep_L{probe_lvl}"
-                if self.mode in {"off", "loose"} and trend_leader:
+                if self.mode in {"off", "loose"} and trend_leader :
                     return False, "valuation-blowoff-soft-keep"
                 return True, "valuation-blowoff (PE/PS/PEG extreme + RSI/vol spike)"
 

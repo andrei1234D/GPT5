@@ -96,6 +96,153 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
+          # ─── LOGGING AND DEBUG ──────────────────────────────
+          PYTHONUNBUFFERED: '1'
+          FEATURES_LOG_LEVEL: 'INFO'
+          FEATURES_VERBOSE: '0'
+          FEATURES_LOG_EVERY: '500'
+          RANKER_LOG_LEVEL: 'DEBUG'
+          RANKER_VERBOSE: '1'
+          RANKER_LOG_EVERY: '300'
+          QUICK_LOG_LEVEL: 'INFO'
+
+          # ─── FILE DUMP SETTINGS ─────────────────────────────
+          STAGE1_WRITE_TOPN_CSV: '1'
+          STAGE1_TOPN_CSV: '2000'
+          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
+
+          # ─── YFINANCE SETTINGS ──────────────────────────────
+          YF_CHUNK_SIZE: '50'
+          YF_MAX_RETRIES: '5'
+          YF_RETRY_SLEEP: '2.5'
+
+          # ─── TIERING LOGIC ──────────────────────────────────
+          TIER_POLICY: 'TOPK_ADV'
+          TIER_TOPK_LARGE: '500'
+          TIER_BACKFILL_UNKNOWN_AS: 'small'
+
+          # ─── STAGE-1 FILTERING ──────────────────────────────
+          STAGE1_MODE: 'loose'
+          STAGE1_KEEP: '350'
+          STAGE1_MIN_SMALL: '130'
+          STAGE1_MIN_LARGE: '130'
+          STAGE1_RESCUE_FRAC: '0.25'
+          QS_USE_XS: '1'
+
+          # ─── STAGE-2 PROFILE ────────────────────────────────
+          RANKER_PROFILE: 'A'
+
+          # ─── SCORER BONUSES ─────────────────────────────────
+          QS_ET_BONUS_TREND: '6'
+          QS_ET_BONUS_MOMO: '8'
+          QS_ET_BONUS_STRUCT: '5'
+
+          # ─── VALUATION FILTERS (FVA, PE, STRUCTURE) ─────────
+          QS_USE_FVA: '1'
+          QS_FVA_KO_PCT_SMALL: '50'
+          QS_FVA_KO_PCT_LARGE: '35'
+          QS_FVA_PEN_MAX_SMALL: '12'
+          QS_FVA_PEN_MAX_LARGE: '20'
+          QS_FVA_BONUS_MAX_SMALL: '8'
+          QS_FVA_BONUS_MAX_LARGE: '8'
+          QS_STRUCT_PREM_CAP: '0'
+          QS_VAL_OVERLAY: '1'
+          QS_VAL_OVERLAY_MAX: '20'
+          QS_PE_WEIGHT: '0.015'
+          QS_PE_WEIGHT_LARGE: '0.02'
+          QS_PE_WEIGHT_SMALL: '0.005'
+
+          # ─── HARD FILTERS ───────────────────────────────────
+          HARD_DROP_MODE: 'loose'
+          HARD_GRACE_ATR: '3.0'
+          HARD_EMA_ROLLOVER: '0'
+          TR_EARN_BLACKOUT_DAYS: '0'
+
+          # ─── EARLY-TURN DETECTOR ────────────────────────────
+          EARLY_TURN_MIN_E50_SLOPE: '2.0'
+          EARLY_TURN_RSI_LO: '47.0'
+          EARLY_TURN_RSI_HI: '63.0'
+          EARLY_TURN_VS200_LO: '-12.0'
+          EARLY_TURN_VS200_HI: '8.0'
+          EARLY_TURN_VOL_LO: '110.0'
+          EARLY_TURN_VOL_HI: '220.0'
+          EARLY_TURN_VS200_PAD: '5.0'
+
+          # ─── ANTICIPATION & LEAD SETUPS ─────────────────────
+          QS_SETUP_ATR_MAX: '6.5'
+          QS_SETUP_VS50_MIN: '0'
+          QS_SETUP_VS50_MAX: '12'
+          QS_SETUP_VS200_MIN: '-3'
+          QS_SETUP_VOL_ABS_MAX: '70'
+          QS_SETUP_RSI_LO: '50'
+          QS_SETUP_RSI_HI: '70'
+          QS_SETUP_E50S_MIN: '2.0'
+          QS_SETUP_E50S_MAX: '9'
+          QS_SETUP_CAP_SMALL: '14'
+          QS_SETUP_CAP_LARGE: '16'
+
+          # ─── MOMENTUM CHASE (QS + TRASH RANKER) ─────────────
+          QS_MOMO_CHASE_KNEE: '45'
+          QS_MOMO_CHASE_SLOPE: '0.45'
+          QS_MOMO_CHASE_PEN_MAX: '10'
+          TR_CHASE_KNEE: '40'
+          TR_CHASE_SLOPE: '0.004'
+          TR_CHASE_MAX: '0.12'
+
+          # ─── SCORER WEIGHTS ─────────────────────────────────
+          QS_W_TREND_SMALL: '0.26'
+          QS_W_MOMO_SMALL: '0.25'
+          QS_W_STRUCT_SMALL: '0.40'
+          QS_W_RISK_SMALL: '0.09'
+          QS_W_TREND_LARGE: '0.30'
+          QS_W_MOMO_LARGE: '0.25'
+          QS_W_STRUCT_LARGE: '0.40'
+          QS_W_RISK_LARGE: '0.05'
+
+          # ─── BLOWOFF PROBE + ATH GUARD ──────────────────────
+          ALLOW_BLOWOFF_PROBE: '1'
+          PROBE_MIN_EV: '3.5'
+          PROBE_MAX_VOL_SPIKE: '180'
+          PROBE_ADD_BACK_A: '5'
+          PROBE_ADD_BACK_B: '8'
+          PROBE_ADD_BACK_C: '12'
+          PROBE_STRUCT_SHARE: '0.45'
+          ATH_GUARD: '1'
+          ATH_NEAR_PCT: '0.8'
+          ATH_MIN_RSI: '82'
+          ATH_MIN_VS50: '28'
+          ATH_VOL_RELIEF: '40'
+          ATH_SCORE_HAIRCUT: '22'
+
+          # ─── OVERHEAT GUARD RANGES ──────────────────────────
+          OVERHEAT_A_RSI: '78'
+          OVERHEAT_B_RSI: '83'
+          OVERHEAT_C_RSI: '87'
+          OVERHEAT_A_VS50: '15'
+          OVERHEAT_B_VS50: '30'
+          OVERHEAT_C_VS50: '45'
+
+          # ─── STRONG BUY ENHANCER ────────────────────────────
+          QS_STRONG_BUY_BONUS: '1'
+          QS_MIN_BREAKOUT_VS50: '10'
+          QS_MIN_EMA_SLOPE: '2.0'
+          QS_MIN_RSI_BREAKOUT: '60'
+          QS_RECENT_GAIN_20D: '20'
+          QS_RECENT_GAIN_60D: '40'
+
+          # ─── MOMO-CARRY DISCOUNT (FVA KO TUNING) ────────────
+          KO_MOMO_DISCOUNT: '0.50'
+          KO_MOMO_DISCOUNT_STRONG: '0.35'
+
+          # ─── PROMPT + GPT SYSTEM ────────────────────────────
+          FORCE_CATALYSTS_PARTIAL: '1'
+          OPENAI_TIMEOUT: '360'
+          LOG_GPT_INPUT: '1'
+          LOG_GPT_INPUT_STDOUT: '0'
+
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
           # --- Logging ---
           PYTHONUNBUFFERED: '1'
           FEATURES_LOG_LEVEL: 'INFO'
@@ -231,6 +378,13 @@ jobs:
           PROBE_ADD_BACK_B: '9' # <- was 8
           PROBE_ADD_BACK_C: '12'
           PROBE_STRUCT_SHARE: '0.50'
+          # --- Buy Now enhanced scorer controls ---
+          QS_STRONG_BUY_BONUS: '1' # activates enhance_score_for_strong_buy
+          QS_MIN_BREAKOUT_VS50: '10'
+          QS_MIN_EMA_SLOPE: '2.0'
+          QS_MIN_RSI_BREAKOUT: '60'
+          QS_RECENT_GAIN_20D: '20'
+          QS_RECENT_GAIN_60D: '40'
 
           # Momentum-carry discount on FVA KO penalty (more forgiving)
           KO_MOMO_DISCOUNT: '0.35' # <- was 0.40

@@ -778,3 +778,42 @@ def rank_stage1(
             log.warning(f"[Stage1] CSV logging failed: {e!r}")
 
     return pre_topK, scored, removed
+
+
+
+# === CUSTOM MODIFICATION START ===
+# Injecting strong buy prioritization into quick score logic
+
+def enhance_score_for_strong_buy(feats: Dict[str, float], base_score: float) -> float:
+    # Key metrics for momentum and breakouts
+    vsSMA20 = feats.get("vsSMA20", 0)
+    vsSMA50 = feats.get("vsSMA50", 0)
+    vsEMA50 = feats.get("vsEMA50", 0)
+    EMA50_slope_5d = feats.get("EMA50_slope_5d%", 0)
+    RSI14 = feats.get("RSI14", 50)
+    recent_gain_20d = feats.get("20d%", 0)
+    recent_gain_60d = feats.get("60d%", 0)
+    MACD_hist = feats.get("MACD_hist", 0)
+    catalyst_hint = feats.get("CATALYST_TIMING_HINTS", "")
+
+    # Define aggressive entry criteria
+    breakout_bonus = 0
+    if vsSMA20 > 5 and vsSMA50 > 10:
+        breakout_bonus += 15
+    if vsEMA50 > 10 and EMA50_slope_5d > 2:
+        breakout_bonus += 20
+    if recent_gain_20d > 20 or recent_gain_60d > 40:
+        breakout_bonus += 20
+    if 60 <= RSI14 <= 75:
+        breakout_bonus += 10
+    if MACD_hist > 0:
+        breakout_bonus += 5
+    if "TECH_BREAKOUT" in catalyst_hint or "EARNINGS_SOON" in catalyst_hint:
+        breakout_bonus += 10
+
+    # Penalize neutral/no-move zones
+    if -3 < vsSMA20 < 3 and -5 < vsSMA50 < 5 and EMA50_slope_5d < 1:
+        breakout_bonus -= 20  # penalize middling flat names
+
+    return base_score + breakout_bonus
+# === CUSTOM MODIFICATION END ===
