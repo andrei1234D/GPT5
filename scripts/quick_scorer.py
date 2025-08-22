@@ -433,7 +433,17 @@ def quick_score(
         if feats.get(k) is not None:
             try: pe_val = float(feats.get(k))
             except Exception: pass
-            break
+
+    # --- In-motion bonus: Reward near-breakout momentum with strong structure ---
+    in_motion_bonus = 0
+    if vs50 >= 10 and e50s is not None and e50s >= 2.0 and dd >= -20:
+        if vs50 >= 14 and e50s >= 3:
+            in_motion_bonus = 12
+        elif vs50 >= 12 and e50s >= 2.5:
+            in_motion_bonus = 9
+        else:
+            in_motion_bonus = 7
+
 
     # cross-sectional z
     use_xs = xs is not None and os.getenv("QS_USE_XS", "1").lower() in {"1", "true", "yes"}
@@ -621,11 +631,14 @@ def quick_score(
     pe_points_raw = _pe_tilt_points(pe_val, rsi, v20)  # [-20..+20]
     pe_score = clamp(pe_points_raw / 20.0, -1.0, 1.0) * 100.0
 
-    score = (w_trend  * trend +
-             w_momo   * momo +
-             w_struct * struct +
-             w_risk   * risk_pen +
-             w_pe     * pe_score)
+    score = (
+    w_trend  * trend +
+    w_momo   * momo +
+    w_struct * struct +
+    w_risk   * risk_pen +
+    in_motion_bonus +
+    w_pe     * pe_score
+)
 
     return score, {
         "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,

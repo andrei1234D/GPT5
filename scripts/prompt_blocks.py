@@ -5,10 +5,10 @@ import math
 
 # Nudge GPT toward early-stage, in-motion setups (no cheap/expensive bias).
 BASELINE_HINTS = {
-    "MKT_SECTOR": 110,
-    " Quality (Tech Proxies)": 130,  # (kept as-is to avoid downstream diffs)
-    "Near-Term Catalysts": 90,       # ↑ favor imminent/ongoing moves
-    "Technical Valuation": 125,      # ↑ trend/structure over raw “cheapness”
+    "MKT_SECTOR": 105,
+    " Quality (Tech Proxies)": 115,
+    "Near-Term Catalysts": 90,
+    "Technical Valuation": 90,
     "RISKS": 25,
 }
 
@@ -344,7 +344,7 @@ def build_prompt_block(
         "RISK_GUARDS: ATH_GUARD_ACTIVE={ath_active}; ATH_TRIGGERED={ath_trig}; PROBE_ELIGIBLE={probe_ok}; PROBE_LEVEL={probe_lvl}\n"
         "KO_CONTEXT: GAP_PCT={ko_gap}; EXTENDED={ko_ext}\n"
         # ---- explicit plan contract (one line; LLM uses this strictly) ----
-        "PLAN_SPEC: Use FVA as anchor (|FVA-PRICE| ≤ 20% unless very strong tech). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).\n"
+        "PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).\n"
     ).format(
         t=t, name=name,
         price=_fmt_num(feats.get("price")),
