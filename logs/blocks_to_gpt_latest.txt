@@ -391,7 +391,7 @@ KO_CONTEXT: GAP_PCT=43.12%; EXTENDED=No
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 === FULL USER PROMPT (for reproducibility) ===
-TODAY is Aug 23. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.
+TODAY is Aug 24. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.
 
 Return ALL picks that meet the >720 point system; otherwise return only the single highest-scoring pick.
 
