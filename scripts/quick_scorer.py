@@ -678,6 +678,7 @@ def rank_stage1(
         tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
         f["liq_tier"] = tier
         s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
+        s = enhance_score_for_strong_buy(f, s)  # <--- inject enhancement here
         tags = _tags(f)
         if parts.get("probe_ok"):
             tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
@@ -798,35 +799,87 @@ def rank_stage1(
 # Injecting strong buy prioritization into quick score logic
 
 def enhance_score_for_strong_buy(feats: Dict[str, float], base_score: float) -> float:
-    # Key metrics for momentum and breakouts
-    vsSMA20 = feats.get("vsSMA20", 0)
-    vsSMA50 = feats.get("vsSMA50", 0)
-    vsEMA50 = feats.get("vsEMA50", 0)
-    EMA50_slope_5d = feats.get("EMA50_slope_5d%", 0)
-    RSI14 = feats.get("RSI14", 50)
-    recent_gain_20d = feats.get("20d%", 0)
-    recent_gain_60d = feats.get("60d%", 0)
-    MACD_hist = feats.get("MACD_hist", 0)
-    catalyst_hint = feats.get("CATALYST_TIMING_HINTS", "")
+    bonus = 0.0
 
-    # Define aggressive entry criteria
-    breakout_bonus = 0
-    if vsSMA20 > 5 and vsSMA50 > 10:
-        breakout_bonus += 15
-    if vsEMA50 > 10 and EMA50_slope_5d > 2:
-        breakout_bonus += 20
-    if recent_gain_20d > 20 or recent_gain_60d > 40:
-        breakout_bonus += 20
+    vsSMA20 = safe(feats.get("vsSMA20"))
+    vsSMA50 = safe(feats.get("vsSMA50"))
+    vsSMA200 = safe(feats.get("vsSMA200"))
+    vsEMA50 = safe(feats.get("vsEMA50"))
+    EMA50_slope_5d = safe(feats.get("EMA50_slope_5d%"))
+    RSI14 = safe(feats.get("RSI14"))
+    recent_gain_20d = safe(feats.get("20d%"))
+    recent_gain_60d = safe(feats.get("60d%"))
+    MACD_hist = safe(feats.get("MACD_hist"))
+    vol_vs20 = safe(feats.get("vol_vs20"))
+    drawdown_pct = safe(feats.get("drawdown_pct"))
+    price = safe(feats.get("price"))
+    AVWAP252 = safe(feats.get("AVWAP252"))
+    SMA50 = safe(feats.get("SMA50"))
+    REL_STRENGTH = safe(feats.get("REL_STRENGTH"))
+    CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
+
+    # 1. Momentum breakout
+    if vsSMA50 > 10 and vsEMA50 > 10 and EMA50_slope_5d > 2:
+        bonus += 20
+
+    # 2. Multi-timeframe trend strength
+    if vsSMA20 > 8 and vsSMA50 > 12 and vsSMA200 > 8:
+        bonus += 15
+
+    # 3. Recent gains confirmation
+    if recent_gain_20d >= 20 and recent_gain_60d >= 40:
+        bonus += 20
+
+    # 4. RSI sweet spot
     if 60 <= RSI14 <= 75:
-        breakout_bonus += 10
+        bonus += 10
+
+    # 5. MACD positive crossover
     if MACD_hist > 0:
-        breakout_bonus += 5
-    if "TECH_BREAKOUT" in catalyst_hint or "EARNINGS_SOON" in catalyst_hint:
-        breakout_bonus += 10
+        bonus += 5
 
-    # Penalize neutral/no-move zones
-    if -3 < vsSMA20 < 3 and -5 < vsSMA50 < 5 and EMA50_slope_5d < 1:
-        breakout_bonus -= 20  # penalize middling flat names
+    # 6. AVWAP + SMA structure
+    if price > SMA50 > AVWAP252:
+        bonus += 10
 
-    return base_score + breakout_bonus
-# === CUSTOM MODIFICATION END ===
+    # 7. Relative strength confirmation
+    if REL_STRENGTH >= 1.2:
+        bonus += 6
+
+    # 8. Catalyst presence
+    if any(x in CATALYST_HINT for x in ["EARNINGS_SOON", "TECH_BREAKOUT", "EVENT_NEAR", "FDA"]):
+        bonus += 10
+
+    # 9. Flat base compression
+    if -3 < vsSMA20 < 3 and -5 < vsSMA50 < 5 and EMA50_slope_5d < 1 and drawdown_pct > -10:
+        bonus += 12
+
+    # 10. Low volatility breakout
+    if vol_vs20 < 30 and recent_gain_20d > 10 and EMA50_slope_5d > 1:
+        bonus += 8
+
+    # 11. AVWAP reclaim
+    if price > AVWAP252 and vsSMA200 < 0:
+        bonus += 7
+
+    # 12. Recovery from drawdown
+    if drawdown_pct > -15 and recent_gain_20d > 15:
+        bonus += 6
+
+    # 13. RSI emerging from oversold
+    if 45 < RSI14 < 55 and recent_gain_20d > 10:
+        bonus += 5
+
+    # 14. High volume breakout
+    if vol_vs20 > 180 and vsSMA50 > 8 and RSI14 > 60:
+        bonus += 10
+
+    # 15. EMA alignment & strength
+    if vsEMA50 > 5 and vsSMA200 > 0 and REL_STRENGTH >= 1:
+        bonus += 6
+
+    # Mild penalty for flat nothingness
+    if -3 < vsSMA20 < 3 and -3 < vsSMA50 < 3 and EMA50_slope_5d < 0.5 and MACD_hist < 0.1:
+        bonus -= 12
+
+    return base_score + bonus
