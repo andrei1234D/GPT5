@@ -678,11 +678,16 @@ def rank_stage1(
         tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
         f["liq_tier"] = tier
         s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
-        s = enhance_score_for_strong_buy(f, s)  # <--- inject enhancement here
+        s, bonus = enhance_score_for_strong_buy(f, s, parts)  # <-- now returns (score, bonus)
+
         tags = _tags(f)
         if parts.get("probe_ok"):
             tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
-        meta = {"parts": parts, "tags": tags, "tier": tier, "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d")}
+        meta = {
+            "parts": parts, "tags": tags, "tier": tier,
+            "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
+            "enhancer_bonus": bonus
+}
         row = (t, n, f, s, meta)
         scored.append(row)
 
@@ -790,6 +795,24 @@ def rank_stage1(
             log.info(f"[Stage1] removed={len(removed)} -> {path_removed}")
         except Exception as e:
             log.warning(f"[Stage1] CSV logging failed: {e!r}")
+    # Write enhancer bonuses CSV
+    try:
+        path_bonus = os.path.join(log_dir, "stage1_enhancer_bonus.csv")
+        with open(path_bonus, "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["ticker","company","score","base_parts_trend","base_parts_struct","base_parts_risk",
+                        "enhancer_bonus","final_score","tags"])
+            for (t, n, feats, s, meta) in pre_topK:
+                parts = meta.get("parts", {})
+                w.writerow([
+                    t, n, f"{s:.2f}",
+                    parts.get("trend"), parts.get("struct"), parts.get("risk_pen"),
+                    meta.get("enhancer_bonus", 0.0), f"{s:.2f}",
+                    ";".join(meta["tags"])
+                ])
+        log.info(f"[Stage1] enhancer bonuses written -> {path_bonus}")
+    except Exception as e:
+        log.warning(f"[Stage1] enhancer bonus CSV failed: {e!r}")
 
     return pre_topK, scored, removed
 
@@ -798,7 +821,15 @@ def rank_stage1(
 # === CUSTOM MODIFICATION START ===
 # Injecting strong buy prioritization into quick score logic
 
-def enhance_score_for_strong_buy(feats: Dict[str, float], base_score: float) -> float:
+def enhance_score_for_strong_buy(
+    feats: Dict[str, float],
+    base_score: float,
+    parts: Dict
+) -> Tuple[float, float]:
+    """
+    Returns (enhanced_score, bonus_points).
+    Bonus can be positive or negative.
+    """
     bonus = 0.0
 
     vsSMA20 = safe(feats.get("vsSMA20"))
@@ -807,79 +838,47 @@ def enhance_score_for_strong_buy(feats: Dict[str, float], base_score: float) -> 
     vsEMA50 = safe(feats.get("vsEMA50"))
     EMA50_slope_5d = safe(feats.get("EMA50_slope_5d%"))
     RSI14 = safe(feats.get("RSI14"))
-    recent_gain_20d = safe(feats.get("20d%"))
-    recent_gain_60d = safe(feats.get("60d%"))
+    r20 = safe(feats.get("20d%"))
+    r60 = safe(feats.get("60d%"))
     MACD_hist = safe(feats.get("MACD_hist"))
     vol_vs20 = safe(feats.get("vol_vs20"))
-    drawdown_pct = safe(feats.get("drawdown_pct"))
-    price = safe(feats.get("price"))
-    AVWAP252 = safe(feats.get("AVWAP252"))
-    SMA50 = safe(feats.get("SMA50"))
+    drawdown_pct = safe(feats.get("drawdown%"))
     REL_STRENGTH = safe(feats.get("REL_STRENGTH"))
     CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
 
-    # 1. Momentum breakout
-    if vsSMA50 > 10 and vsEMA50 > 10 and EMA50_slope_5d > 2:
-        bonus += 20
+    # Internals
+    trend, struct, risk_pen = parts.get("trend", 0), parts.get("struct", 0), parts.get("risk_pen", 0)
 
-    # 2. Multi-timeframe trend strength
-    if vsSMA20 > 8 and vsSMA50 > 12 and vsSMA200 > 8:
-        bonus += 15
+    # === Positives ===
+    if trend > 60 and struct > 0 and risk_pen > -5:
+        if 2 < vsEMA50 < 18 and 52 <= RSI14 <= 68 and EMA50_slope_5d > 1.5:
+            bonus += 15
+        if -4 <= vsSMA50 <= 10 and r20 > 5 and vol_vs20 < 40:
+            bonus += 10
+        if r60 < 90 and EMA50_slope_5d > 2 and REL_STRENGTH >= 1:
+            bonus += 8
+        if "EARNINGS_SOON" in CATALYST_HINT or "TECH_BREAKOUT" in CATALYST_HINT:
+            bonus += 10
+        if MACD_hist > 0 and drawdown_pct > -10:
+            bonus += 5
 
-    # 3. Recent gains confirmation
-    if recent_gain_20d >= 20 and recent_gain_60d >= 40:
-        bonus += 20
+    # === Blowoff guards ===
+    if RSI14 >= 88 and vsSMA50 > 25:
+        bonus -= 25
+    if r60 > 150 or r20 > 70:
+        bonus -= 20
+    if vol_vs20 > 150 and RSI14 > 75:
+        bonus -= 15
+    if vsSMA50 > 40 or vsEMA50 > 40:
+        bonus -= 10
+    if RSI14 > 65 and MACD_hist < 0:
+        bonus -= 10
 
-    # 4. RSI sweet spot
-    if 60 <= RSI14 <= 75:
-        bonus += 10
+    # === Weak base penalty ===
+    if EMA50_slope_5d < 1 and vol_vs20 > 60 and MACD_hist < 0:
+        bonus -= 8
 
-    # 5. MACD positive crossover
-    if MACD_hist > 0:
-        bonus += 5
+    # Clamp
+    bonus = max(min(bonus, 40), -40)
 
-    # 6. AVWAP + SMA structure
-    if price > SMA50 > AVWAP252:
-        bonus += 10
-
-    # 7. Relative strength confirmation
-    if REL_STRENGTH >= 1.2:
-        bonus += 6
-
-    # 8. Catalyst presence
-    if any(x in CATALYST_HINT for x in ["EARNINGS_SOON", "TECH_BREAKOUT", "EVENT_NEAR", "FDA"]):
-        bonus += 10
-
-    # 9. Flat base compression
-    if -3 < vsSMA20 < 3 and -5 < vsSMA50 < 5 and EMA50_slope_5d < 1 and drawdown_pct > -10:
-        bonus += 12
-
-    # 10. Low volatility breakout
-    if vol_vs20 < 30 and recent_gain_20d > 10 and EMA50_slope_5d > 1:
-        bonus += 8
-
-    # 11. AVWAP reclaim
-    if price > AVWAP252 and vsSMA200 < 0:
-        bonus += 7
-
-    # 12. Recovery from drawdown
-    if drawdown_pct > -15 and recent_gain_20d > 15:
-        bonus += 6
-
-    # 13. RSI emerging from oversold
-    if 45 < RSI14 < 55 and recent_gain_20d > 10:
-        bonus += 5
-
-    # 14. High volume breakout
-    if vol_vs20 > 180 and vsSMA50 > 8 and RSI14 > 60:
-        bonus += 10
-
-    # 15. EMA alignment & strength
-    if vsEMA50 > 5 and vsSMA200 > 0 and REL_STRENGTH >= 1:
-        bonus += 6
-
-    # Mild penalty for flat nothingness
-    if -3 < vsSMA20 < 3 and -3 < vsSMA50 < 3 and EMA50_slope_5d < 0.5 and MACD_hist < 0.1:
-        bonus -= 12
-
-    return base_score + bonus
+    return base_score + bonus, bonus
