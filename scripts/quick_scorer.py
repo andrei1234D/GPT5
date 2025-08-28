@@ -677,41 +677,30 @@ def rank_stage1(
     for (t, n, f) in universe:
         tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
         f["liq_tier"] = tier
-        s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
-        s, bonus = enhance_score_for_strong_buy(f, s, parts)
+
+        # --- base score ---
+        base_score, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
+
+        # --- enhancer applied ---
+        final_score, bonus = enhance_score_for_strong_buy(f, base_score, parts)
+
         tags = _tags(f)
         if parts.get("probe_ok"):
-                tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
+            tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
+
         meta = {
-                "parts": parts, "tags": tags, "tier": tier,
-                "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
-                "enhancer_bonus": bonus   # <-- store bonus
-            }
-        row = (t, n, f, s, meta)
+            "parts": parts, "tags": tags, "tier": tier,
+            "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
+            "enhancer_bonus": bonus,
+            "base_score": base_score,
+            "final_score": final_score
+        }
+        row = (t, n, f, final_score, meta)
         scored.append(row)
 
     scored.sort(key=lambda x: x[3], reverse=True)
 
-    # optional top-N full-features CSV
-    if (os.getenv("STAGE1_WRITE_TOPN_CSV", "0").lower() in {"1", "true", "yes"}):
-        topn = int(os.getenv("STAGE1_TOPN_CSV", "2000"))
-        rows = scored[:topn]
-        feat_keys = sorted({k for (_t, _n, f, _s, _m) in rows for k in f.keys()})
-        out_path = (os.getenv("STAGE1_TOPN_PATH") or os.path.join(log_dir, f"stage1_top{topn}_full.csv"))
-        try:
-            with open(out_path, "w", newline="", encoding="utf-8") as fcsv:
-                w = csv.writer(fcsv)
-                header = ["ticker", "company", "score", "tier"] + feat_keys
-                w.writerow(header)
-                for (t, n, feats, s, meta) in rows:
-                    tier = meta.get("tier") or feats.get("liq_tier") or ""
-                    row = [t, n, f"{s:.4f}", tier] + [feats.get(k, "") for k in feat_keys]
-                    w.writerow(row)
-            log.info(f"[Stage1] wrote top-N full CSV: {len(rows)} rows -> {out_path}")
-        except Exception as e:
-            log.warning(f"[Stage1] writing top-N full CSV failed: {e!r}")
-
-    # rescue some protected setups on the borderline (includes probe_ok & coil protects)
+    # rescue logic unchanged...
     top_main = scored[:keep]
     borderline = scored[keep:]
     for r in borderline:
@@ -731,96 +720,49 @@ def rank_stage1(
     pre.sort(key=lambda x: x[3], reverse=True)
     pre = pre[:keep]
 
-    # tier quotas merge (final stratification)
-    min_small = int(os.getenv("STAGE1_MIN_SMALL", "0"))
-    min_large = int(os.getenv("STAGE1_MIN_LARGE", "0"))
-    if min_small + min_large > keep:
-        over = min_small + min_large - keep
-        if min_small >= min_large: min_small = max(0, min_small - over)
-        else:                      min_large = max(0, min_large - over)
-
-    if (min_small + min_large) > 0:
-        small_sorted = [r for r in pre if r[4]["tier"] == "small"]
-        large_sorted = [r for r in pre if r[4]["tier"] == "large"]
-        pick_small = small_sorted[:min_small]
-        pick_large = large_sorted[:min_large]
-        remainder = keep - len(pick_small) - len(pick_large)
-        taken_tickers = {r[0] for r in (pick_small + pick_large)}
-        pool = [r for r in pre if r[0] not in taken_tickers]
-        tail = pool[:remainder]
-        pre_topK = (pick_small + pick_large + tail)
-        pre_topK.sort(key=lambda x: x[3], reverse=True)
-    else:
-        pre_topK = pre
-
-    # removed diagnostics
-    kept_set = {t for (t, _n, _f, _s, _m) in pre_topK}
-    removed: List[Tuple] = []
-    for (t, n, f, s, meta) in scored:
-        if t not in kept_set:
-            reason = "below_cutoff"
-            if "pump_risk" in meta["tags"]: reason = "below_cutoff_pump_risk"
-            removed.append((t, n, s,
-                            f.get("price"), f.get("vsSMA50"), f.get("vsSMA200"),
-                            f.get("RSI14"), f.get("ATRpct"), f.get("r60"),
-                            f.get("vol_vs20"), f.get("drawdown_pct"),
-                            meta.get("tier"), f.get("avg_dollar_vol_20d"),
-                            ";".join(meta["tags"]), reason))
-
+    # --- CSV logs ---
     if write_csv:
         try:
             path_kept = os.path.join(log_dir, "stage1_kept.csv")
             with open(path_kept, "w", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
                 w.writerow([
-                    "ticker","company","score","enhancer_bonus","tier","avg_dollar_vol_20d",
+                    "ticker","company","final_score","enhancer_bonus","tier","avg_dollar_vol_20d",
                     "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
                     "vol_vs20","drawdown%","tags"
                 ])
-                for (t, n, feats, s, meta) in pre_topK:
+                for (t, n, feats, s, meta) in pre:
                     w.writerow([
                         t, n, f"{s:.2f}",
-                        f"{meta.get('enhancer_bonus', 0.0):.2f}",  # new column
+                        f"{meta.get('enhancer_bonus', 0.0):.2f}",
                         meta.get("tier"), feats.get("avg_dollar_vol_20d"),
                         feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
                         feats.get("RSI14"), feats.get("ATRpct"), feats.get("r60"),
                         feats.get("vol_vs20"), feats.get("drawdown_pct"),
                         ";".join(meta["tags"])
                     ])
+            log.info(f"[Stage1] kept={len(pre)} -> {path_kept}")
 
-            log.info(f"[Stage1] kept={len(pre_topK)} -> {path_kept}")
-
-            path_removed = os.path.join(log_dir, "stage1_removed.csv")
-            with open(path_removed, "w", newline="", encoding="utf-8") as f:
+            path_bonus = os.path.join(log_dir, "stage1_enhancer_bonus.csv")
+            with open(path_bonus, "w", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
-                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
-                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
-                            "vol_vs20","drawdown%","tags","reason"])
-                for row in removed:
-                    w.writerow(row)
-            log.info(f"[Stage1] removed={len(removed)} -> {path_removed}")
+                w.writerow([
+                    "ticker","company","base_score","trend","struct","risk_pen",
+                    "enhancer_bonus","final_score","tags"
+                ])
+                for (t, n, feats, s, meta) in pre:
+                    parts = meta.get("parts", {})
+                    w.writerow([
+                        t, n, f"{meta.get('base_score', 0.0):.2f}",
+                        parts.get("trend"), parts.get("struct"), parts.get("risk_pen"),
+                        f"{meta.get('enhancer_bonus', 0.0):.2f}", f"{s:.2f}",
+                        ";".join(meta["tags"])
+                    ])
+            log.info(f"[Stage1] enhancer bonuses written -> {path_bonus}")
         except Exception as e:
             log.warning(f"[Stage1] CSV logging failed: {e!r}")
-    # Write enhancer bonuses CSV
-    try:
-        path_bonus = os.path.join(log_dir, "stage1_enhancer_bonus.csv")
-        with open(path_bonus, "w", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
-            w.writerow(["ticker","company","score","base_parts_trend","base_parts_struct","base_parts_risk",
-                        "enhancer_bonus","final_score","tags"])
-            for (t, n, feats, s, meta) in pre_topK:
-                parts = meta.get("parts", {})
-                w.writerow([
-                    t, n, f"{s:.2f}",
-                    parts.get("trend"), parts.get("struct"), parts.get("risk_pen"),
-                    meta.get("enhancer_bonus", 0.0), f"{s:.2f}",
-                    ";".join(meta["tags"])
-                ])
-        log.info(f"[Stage1] enhancer bonuses written -> {path_bonus}")
-    except Exception as e:
-        log.warning(f"[Stage1] enhancer bonus CSV failed: {e!r}")
 
-    return pre_topK, scored, removed
+    return pre, scored, removed
 
 
 
@@ -870,23 +812,24 @@ def enhance_score_for_strong_buy(
         if MACD_hist > 0 and drawdown_pct > -10:
             bonus += 5
 
-    # === Blowoff / overheat guards (graduated) ===
+    # === Blowoff / overheat guards (tightened) ===
     if RSI14 is not None and vsSMA50 is not None:
-        if RSI14 > 75 and vsSMA50 > 20:
-            bonus -= 10   # light overheat
-        if RSI14 > 80 and vsSMA50 > 25:
-            bonus -= 20   # medium overheat
-        if RSI14 > 85 and vsSMA50 > 30:
-            bonus -= 30   # heavy overheat
-        if RSI14 >= 90 and vsSMA50 > 35:
-            bonus -= 40   # extreme parabolic
+        if RSI14 > 70 and vsSMA50 > 20:
+            bonus -= 10   # already overheating
+        if RSI14 > 72 and vsSMA50 > 30:
+            bonus -= 20   # medium blowoff
+        if RSI14 > 74 and vsSMA50 > 40:
+            bonus -= 30   # heavy blowoff
+        if RSI14 >= 78 and vsSMA50 > 50:
+            bonus -= 40   # parabolic
 
+    # Extra red flags
     if r60 > 150 or r20 > 70:
         bonus -= 20
-    if vol_vs20 > 150 and RSI14 > 75:
+    if vol_vs20 > 150 and RSI14 > 70:
         bonus -= 15
     if RSI14 > 65 and MACD_hist < 0:
-        bonus -= 10  # divergence
+        bonus -= 10  # bearish divergence
 
     # === Weak base penalty ===
     if EMA50_slope_5d < 1 and vol_vs20 > 60 and MACD_hist < 0:
