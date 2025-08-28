@@ -780,22 +780,25 @@ def enhance_score_for_strong_buy(
     """
     bonus = 0.0
 
-    vsSMA20 = safe(feats.get("vsSMA20"))
-    vsSMA50 = safe(feats.get("vsSMA50"))
-    vsSMA200 = safe(feats.get("vsSMA200"))
-    vsEMA50 = safe(feats.get("vsEMA50"))
-    EMA50_slope_5d = safe(feats.get("EMA50_slope_5d%"))
-    RSI14 = safe(feats.get("RSI14"))
-    r20 = safe(feats.get("20d%"))
-    r60 = safe(feats.get("60d%"))
-    MACD_hist = safe(feats.get("MACD_hist"))
-    vol_vs20 = safe(feats.get("vol_vs20"))
-    drawdown_pct = safe(feats.get("drawdown%"))
-    REL_STRENGTH = safe(feats.get("REL_STRENGTH"))
+    # === Align keys with quick_score ===
+    vsSMA20       = safe(feats.get("vsSMA20"))
+    vsSMA50       = safe(feats.get("vsSMA50"))
+    vsSMA200      = safe(feats.get("vsSMA200"))
+    vsEMA50       = safe(feats.get("vsEMA50"))
+    EMA50_slope_5d= safe(feats.get("EMA50_slope_5d"))   # fixed
+    RSI14         = safe(feats.get("RSI14"))
+    r20           = safe(feats.get("r20"))              # fixed
+    r60           = safe(feats.get("r60"))              # fixed
+    MACD_hist     = safe(feats.get("MACD_hist"))
+    vol_vs20      = safe(feats.get("vol_vs20"))
+    drawdown_pct  = safe(feats.get("drawdown_pct"))     # fixed
+    REL_STRENGTH  = safe(feats.get("REL_STRENGTH"))
     CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
 
     # Internals from quick_score
-    trend, struct, risk_pen = parts.get("trend", 0), parts.get("struct", 0), parts.get("risk_pen", 0)
+    trend     = parts.get("trend", 0)
+    struct    = parts.get("struct", 0)
+    risk_pen  = parts.get("risk_pen", 0)
 
     # === Positives: early/healthy setups ===
     if trend > 60 and struct > 0 and risk_pen > -5:
