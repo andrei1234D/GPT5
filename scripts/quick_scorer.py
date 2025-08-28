@@ -678,16 +678,15 @@ def rank_stage1(
         tier = tier_map.get(t) or _tier_fallback_small_vs_large(f)
         f["liq_tier"] = tier
         s, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
-        s, bonus = enhance_score_for_strong_buy(f, s, parts)  # <-- now returns (score, bonus)
-
+        s, bonus = enhance_score_for_strong_buy(f, s, parts)
         tags = _tags(f)
         if parts.get("probe_ok"):
-            tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
+                tags.append(f"probe_ok_L{parts.get('probe_lvl', 0)}")
         meta = {
-            "parts": parts, "tags": tags, "tier": tier,
-            "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
-            "enhancer_bonus": bonus
-}
+                "parts": parts, "tags": tags, "tier": tier,
+                "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
+                "enhancer_bonus": bonus   # <-- store bonus
+            }
         row = (t, n, f, s, meta)
         scored.append(row)
 
@@ -773,15 +772,22 @@ def rank_stage1(
             path_kept = os.path.join(log_dir, "stage1_kept.csv")
             with open(path_kept, "w", newline="", encoding="utf-8") as f:
                 w = csv.writer(f)
-                w.writerow(["ticker","company","score","tier","avg_dollar_vol_20d",
-                            "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
-                            "vol_vs20","drawdown%","tags"])
+                w.writerow([
+                    "ticker","company","score","enhancer_bonus","tier","avg_dollar_vol_20d",
+                    "price","vsSMA50","vsSMA200","RSI14","ATR%","r60",
+                    "vol_vs20","drawdown%","tags"
+                ])
                 for (t, n, feats, s, meta) in pre_topK:
-                    w.writerow([t, n, f"{s:.2f}", meta.get("tier"), feats.get("avg_dollar_vol_20d"),
-                                feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
-                                feats.get("RSI14"), feats.get("ATRpct"), feats.get("r60"),
-                                feats.get("vol_vs20"), feats.get("drawdown_pct"),
-                                ";".join(meta["tags"])] )
+                    w.writerow([
+                        t, n, f"{s:.2f}",
+                        f"{meta.get('enhancer_bonus', 0.0):.2f}",  # new column
+                        meta.get("tier"), feats.get("avg_dollar_vol_20d"),
+                        feats.get("price"), feats.get("vsSMA50"), feats.get("vsSMA200"),
+                        feats.get("RSI14"), feats.get("ATRpct"), feats.get("r60"),
+                        feats.get("vol_vs20"), feats.get("drawdown_pct"),
+                        ";".join(meta["tags"])
+                    ])
+
             log.info(f"[Stage1] kept={len(pre_topK)} -> {path_kept}")
 
             path_removed = os.path.join(log_dir, "stage1_removed.csv")
@@ -828,7 +834,7 @@ def enhance_score_for_strong_buy(
 ) -> Tuple[float, float]:
     """
     Returns (enhanced_score, bonus_points).
-    Bonus can be positive or negative.
+    Enhances early-stage strong buy setups, penalizes mid/late blowoffs.
     """
     bonus = 0.0
 
@@ -846,39 +852,47 @@ def enhance_score_for_strong_buy(
     REL_STRENGTH = safe(feats.get("REL_STRENGTH"))
     CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
 
-    # Internals
+    # Internals from quick_score
     trend, struct, risk_pen = parts.get("trend", 0), parts.get("struct", 0), parts.get("risk_pen", 0)
 
-    # === Positives ===
+    # === Positives: early/healthy setups ===
     if trend > 60 and struct > 0 and risk_pen > -5:
         if 2 < vsEMA50 < 18 and 52 <= RSI14 <= 68 and EMA50_slope_5d > 1.5:
-            bonus += 15
+            bonus += 15  # early breakout
         if -4 <= vsSMA50 <= 10 and r20 > 5 and vol_vs20 < 40:
-            bonus += 10
+            bonus += 10  # pullback entry
+        if 10 < vsSMA50 < 25 and 55 <= RSI14 <= 70 and EMA50_slope_5d > 1.5:
+            bonus += 10  # continuation, not overextended
         if r60 < 90 and EMA50_slope_5d > 2 and REL_STRENGTH >= 1:
-            bonus += 8
+            bonus += 8   # early momentum
         if "EARNINGS_SOON" in CATALYST_HINT or "TECH_BREAKOUT" in CATALYST_HINT:
             bonus += 10
         if MACD_hist > 0 and drawdown_pct > -10:
             bonus += 5
 
-    # === Blowoff guards ===
-    if RSI14 >= 88 and vsSMA50 > 25:
-        bonus -= 25
+    # === Blowoff / overheat guards (graduated) ===
+    if RSI14 is not None and vsSMA50 is not None:
+        if RSI14 > 75 and vsSMA50 > 20:
+            bonus -= 10   # light overheat
+        if RSI14 > 80 and vsSMA50 > 25:
+            bonus -= 20   # medium overheat
+        if RSI14 > 85 and vsSMA50 > 30:
+            bonus -= 30   # heavy overheat
+        if RSI14 >= 90 and vsSMA50 > 35:
+            bonus -= 40   # extreme parabolic
+
     if r60 > 150 or r20 > 70:
         bonus -= 20
     if vol_vs20 > 150 and RSI14 > 75:
         bonus -= 15
-    if vsSMA50 > 40 or vsEMA50 > 40:
-        bonus -= 10
     if RSI14 > 65 and MACD_hist < 0:
-        bonus -= 10
+        bonus -= 10  # divergence
 
     # === Weak base penalty ===
     if EMA50_slope_5d < 1 and vol_vs20 > 60 and MACD_hist < 0:
         bonus -= 8
 
-    # Clamp
+    # Clamp to range
     bonus = max(min(bonus, 40), -40)
 
     return base_score + bonus, bonus
