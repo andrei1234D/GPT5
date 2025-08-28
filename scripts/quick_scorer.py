@@ -682,7 +682,8 @@ def rank_stage1(
         base_score, parts = quick_score(f, mode=mode, xs=xs, tier=tier)
 
         # --- enhancer applied ---
-        final_score, bonus = enhance_score_for_strong_buy(f, base_score, parts)
+        final_score, bonus, reason_log, phase = enhance_score_for_strong_buy(f, base_score, parts)
+
 
         tags = _tags(f)
         if parts.get("probe_ok"):
@@ -693,8 +694,11 @@ def rank_stage1(
             "avg_dollar_vol_20d": f.get("avg_dollar_vol_20d"),
             "enhancer_bonus": bonus,
             "base_score": base_score,
-            "final_score": final_score
+            "final_score": final_score,
+            "enhancer_reason": reason_log,
+            "phase": phase
         }
+
         row = (t, n, f, final_score, meta)
         scored.append(row)
 
@@ -773,13 +777,15 @@ def enhance_score_for_strong_buy(
     feats: Dict[str, float],
     base_score: float,
     parts: Dict
-) -> Tuple[float, float, str]:
+) -> Tuple[float, float, str, str]:
     """
-    Returns (enhanced_score, bonus_points, reason_log).
-    Enhances early-stage strong buy setups, penalizes mid/late blowoffs.
+    Returns (enhanced_score, bonus_points, reason_log, phase).
+    Enhances early-stage strong buy setups, penalizes mid/late breakouts,
+    but still rewards extended names if supported well.
     """
     bonus = 0.0
     reason_log = []
+    phase = "Neutral"  # Default
 
     # === Align keys with quick_score ===
     vsSMA20       = safe(feats.get("vsSMA20"))
@@ -801,41 +807,47 @@ def enhance_score_for_strong_buy(
     struct    = parts.get("struct", 0)
     risk_pen  = parts.get("risk_pen", 0)
 
-    # === Positives: early/healthy setups ===
-    if trend > 60 and struct > 0 and risk_pen > -20:   # Loosened threshold
+    # === Phase 1: Early setups (reward) ===
+    if trend > 60 and struct > 0 and risk_pen > -8:
+        phase = "Early"
         if 2 < vsEMA50 < 18 and 52 <= RSI14 <= 68 and EMA50_slope_5d > 1.5:
-            bonus += 15
-            reason_log.append("Early breakout")
+            bonus += 15; reason_log.append("Early breakout setup")
         if -4 <= vsSMA50 <= 10 and r20 > 5 and vol_vs20 < 40:
-            bonus += 10
-            reason_log.append("Pullback entry")
+            bonus += 10; reason_log.append("Healthy pullback entry")
         if 10 < vsSMA50 < 25 and 55 <= RSI14 <= 70 and EMA50_slope_5d > 1.5:
-            bonus += 10
-            reason_log.append("Healthy continuation")
+            bonus += 10; reason_log.append("Continuation (not extended)")
         if r60 < 90 and EMA50_slope_5d > 2 and REL_STRENGTH >= 1:
-            bonus += 8
-            reason_log.append("Early momentum")
+            bonus += 8; reason_log.append("Early momentum")
         if "EARNINGS_SOON" in CATALYST_HINT or "TECH_BREAKOUT" in CATALYST_HINT:
-            bonus += 10
-            reason_log.append("Catalyst hint")
+            bonus += 10; reason_log.append("Catalyst hint")
         if MACD_hist > 0 and drawdown_pct > -10:
-            bonus += 5
-            reason_log.append("Positive MACD with shallow DD")
+            bonus += 5; reason_log.append("Positive MACD with shallow DD")
     else:
         if trend <= 60: reason_log.append("Blocked: weak trend")
         if struct <= 0: reason_log.append("Blocked: no structure")
-        if risk_pen <= -20: reason_log.append("Blocked: risk_pen too low")
+        if risk_pen <= -8: reason_log.append("Blocked: extended risk_pen")
 
-    # === Blowoff / overheat guards ===
+    # === Phase 2: Breakout / extended (penalize gradually) ===
     if RSI14 is not None and vsSMA50 is not None:
         if RSI14 > 70 and vsSMA50 > 20:
-            bonus -= 10; reason_log.append("Overheating")
-        if RSI14 > 72 and vsSMA50 > 30:
-            bonus -= 20; reason_log.append("Medium blowoff")
-        if RSI14 > 74 and vsSMA50 > 40:
-            bonus -= 30; reason_log.append("Heavy blowoff")
-        if RSI14 >= 78 and vsSMA50 > 50:
-            bonus -= 40; reason_log.append("Parabolic")
+            phase = "Extended"
+            penalty = min((vsSMA50 // 10) * 10, 40)   # scale penalty
+            bonus -= penalty
+            reason_log.append(f"Extended breakout penalty -{penalty}")
+
+    # === Phase 3: Extended but supported (soften penalty) ===
+    if struct > 10 and -12 < risk_pen < -5:
+        phase = "Supported-Extended"
+        bonus += 5
+        reason_log.append("Extended but strong support → softened")
+
+    # === Blowoff / overheat guards ===
+    if RSI14 > 72 and vsSMA50 > 30:
+        bonus -= 20; reason_log.append("Medium blowoff")
+    if RSI14 > 74 and vsSMA50 > 40:
+        bonus -= 30; reason_log.append("Heavy blowoff")
+    if RSI14 >= 78 and vsSMA50 > 50:
+        bonus -= 40; reason_log.append("Parabolic")
 
     if r60 > 150 or r20 > 70:
         bonus -= 20; reason_log.append("Excessive r20/r60")
@@ -851,4 +863,4 @@ def enhance_score_for_strong_buy(
     # Clamp to range
     bonus = max(min(bonus, 40), -40)
 
-    return base_score + bonus, bonus, "; ".join(reason_log)
+    return base_score + bonus, bonus, "; ".join(reason_log), phase
