@@ -773,25 +773,26 @@ def enhance_score_for_strong_buy(
     feats: Dict[str, float],
     base_score: float,
     parts: Dict
-) -> Tuple[float, float]:
+) -> Tuple[float, float, str]:
     """
-    Returns (enhanced_score, bonus_points).
+    Returns (enhanced_score, bonus_points, reason_log).
     Enhances early-stage strong buy setups, penalizes mid/late blowoffs.
     """
     bonus = 0.0
+    reason_log = []
 
     # === Align keys with quick_score ===
     vsSMA20       = safe(feats.get("vsSMA20"))
     vsSMA50       = safe(feats.get("vsSMA50"))
     vsSMA200      = safe(feats.get("vsSMA200"))
     vsEMA50       = safe(feats.get("vsEMA50"))
-    EMA50_slope_5d= safe(feats.get("EMA50_slope_5d"))   # fixed
+    EMA50_slope_5d= safe(feats.get("EMA50_slope_5d"))
     RSI14         = safe(feats.get("RSI14"))
-    r20           = safe(feats.get("r20"))              # fixed
-    r60           = safe(feats.get("r60"))              # fixed
+    r20           = safe(feats.get("r20"))
+    r60           = safe(feats.get("r60"))
     MACD_hist     = safe(feats.get("MACD_hist"))
     vol_vs20      = safe(feats.get("vol_vs20"))
-    drawdown_pct  = safe(feats.get("drawdown_pct"))     # fixed
+    drawdown_pct  = safe(feats.get("drawdown_pct"))
     REL_STRENGTH  = safe(feats.get("REL_STRENGTH"))
     CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
 
@@ -801,44 +802,53 @@ def enhance_score_for_strong_buy(
     risk_pen  = parts.get("risk_pen", 0)
 
     # === Positives: early/healthy setups ===
-    if trend > 60 and struct > 0 and risk_pen > -5:
+    if trend > 60 and struct > 0 and risk_pen > -20:   # Loosened threshold
         if 2 < vsEMA50 < 18 and 52 <= RSI14 <= 68 and EMA50_slope_5d > 1.5:
-            bonus += 15  # early breakout
+            bonus += 15
+            reason_log.append("Early breakout")
         if -4 <= vsSMA50 <= 10 and r20 > 5 and vol_vs20 < 40:
-            bonus += 10  # pullback entry
+            bonus += 10
+            reason_log.append("Pullback entry")
         if 10 < vsSMA50 < 25 and 55 <= RSI14 <= 70 and EMA50_slope_5d > 1.5:
-            bonus += 10  # continuation, not overextended
+            bonus += 10
+            reason_log.append("Healthy continuation")
         if r60 < 90 and EMA50_slope_5d > 2 and REL_STRENGTH >= 1:
-            bonus += 8   # early momentum
+            bonus += 8
+            reason_log.append("Early momentum")
         if "EARNINGS_SOON" in CATALYST_HINT or "TECH_BREAKOUT" in CATALYST_HINT:
             bonus += 10
+            reason_log.append("Catalyst hint")
         if MACD_hist > 0 and drawdown_pct > -10:
             bonus += 5
+            reason_log.append("Positive MACD with shallow DD")
+    else:
+        if trend <= 60: reason_log.append("Blocked: weak trend")
+        if struct <= 0: reason_log.append("Blocked: no structure")
+        if risk_pen <= -20: reason_log.append("Blocked: risk_pen too low")
 
-    # === Blowoff / overheat guards (tightened) ===
+    # === Blowoff / overheat guards ===
     if RSI14 is not None and vsSMA50 is not None:
         if RSI14 > 70 and vsSMA50 > 20:
-            bonus -= 10   # already overheating
+            bonus -= 10; reason_log.append("Overheating")
         if RSI14 > 72 and vsSMA50 > 30:
-            bonus -= 20   # medium blowoff
+            bonus -= 20; reason_log.append("Medium blowoff")
         if RSI14 > 74 and vsSMA50 > 40:
-            bonus -= 30   # heavy blowoff
+            bonus -= 30; reason_log.append("Heavy blowoff")
         if RSI14 >= 78 and vsSMA50 > 50:
-            bonus -= 40   # parabolic
+            bonus -= 40; reason_log.append("Parabolic")
 
-    # Extra red flags
     if r60 > 150 or r20 > 70:
-        bonus -= 20
+        bonus -= 20; reason_log.append("Excessive r20/r60")
     if vol_vs20 > 150 and RSI14 > 70:
-        bonus -= 15
+        bonus -= 15; reason_log.append("Volume + RSI overheat")
     if RSI14 > 65 and MACD_hist < 0:
-        bonus -= 10  # bearish divergence
+        bonus -= 10; reason_log.append("Bearish divergence")
 
     # === Weak base penalty ===
     if EMA50_slope_5d < 1 and vol_vs20 > 60 and MACD_hist < 0:
-        bonus -= 8
+        bonus -= 8; reason_log.append("Weak base penalty")
 
     # Clamp to range
     bonus = max(min(bonus, 40), -40)
 
-    return base_score + bonus, bonus
+    return base_score + bonus, bonus, "; ".join(reason_log)
