@@ -330,3 +330,4 @@ jobs:
             fi
           else
             echo "No $FILE produced (check rank_stage1 logging)."
+          fi
