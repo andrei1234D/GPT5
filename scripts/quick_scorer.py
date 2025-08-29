@@ -490,8 +490,10 @@ def quick_score(
             trend *= damp
 
 
-
-
+    early_turn = 0.0
+    if rsi is not None and 45 <= rsi <= 60 and e50s is not None and e50s > 1.5 and vs200 > -10 and vs200 < 10:
+        early_turn = 6.0
+    
     # momentum (EMA50 slope) + chase penalty
     momo_raw = (
         0.36 * clamp(z_r60/4.0,   -1, 1) +
@@ -501,13 +503,16 @@ def quick_score(
     ) * 100.0
 
     momo = momo_raw
-
+    momo += early_turn
     try:
         knee  = _env_float("QS_MOMO_CHASE_KNEE", 35.0)
         slope = _env_float("QS_MOMO_CHASE_SLOPE", 0.6)
         cap   = _env_float("QS_MOMO_CHASE_PEN_MAX", 15.0)
     except Exception:
         knee, slope, cap = 35.0, 0.6, 15.0
+
+
+
 
     # classic chase penalty
     if r60 is not None and r60 > knee:
