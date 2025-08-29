@@ -140,14 +140,20 @@ def _overheat_level(rsi: Optional[float], vs50: Optional[float]) -> int:
 def _probe_gate(feats: Dict) -> Tuple[bool, int]:
     """
     Check whether the "probe" path should be allowed for this name now.
-    Conditions:
-      - ALLOW_BLOWOFF_PROBE=1
-      - ATR% >= PROBE_MIN_EV
-      - vol_vs20 <= PROBE_MAX_VOL_SPIKE
-      - meets overheat A/B/C bands
+    Profile-aware:
+      - Aggressive (A): permissive on probes
+      - Balanced (B): default behavior
+      - Conservative (C): mostly blocks probes
     """
+    prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
+
+    if prof == "C":
+        # Conservative: no probes at all
+        return False, 0
+
     if not _env_bool("ALLOW_BLOWOFF_PROBE", True):
         return False, 0
+
     rsi  = safe(feats.get("RSI14"), None)
     vs50 = safe(feats.get("vsSMA50"), None)
     atr  = safe(feats.get("ATRpct"), None)
@@ -159,9 +165,13 @@ def _probe_gate(feats: Dict) -> Tuple[bool, int]:
 
     ev_ok  = (atr is not None) and (atr >= _env_float("PROBE_MIN_EV", 4.0))
     vol_ok = (v20 is None) or (v20 <= _env_float("PROBE_MAX_VOL_SPIKE", 150.0))
-    if ev_ok and vol_ok:
-        return True, lvl
-    return False, lvl
+
+    # Aggressive: looser probe rules
+    if prof == "A":
+        ev_ok = True   # ignore ATR floor
+        vol_ok = True  # ignore volume spike cap
+
+    return (ev_ok and vol_ok), lvl
 
 
 # ---------- hard filters ----------
@@ -306,46 +316,47 @@ class HardFilter:
         return dropped
 
     def _scaled(self):
-        m = self.mode
-        if m == "off":
+        """
+        Scale thresholds dynamically by profile (A/B/C).
+        A = Aggressive (looser filters)
+        B = Balanced (moderate filters)
+        C = Conservative (stricter filters)
+        """
+        prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
+
+        if prof == "A":
+            # Looser filters → allow more volatile, extended names
             return dict(
                 min_price=self.min_price,
-                max_atr_pct=self.max_atr_pct + 999,
-                max_vssma200_neg=self.max_vssma200_neg - 999,
-                max_drawdown_neg=self.max_drawdown_neg - 999,
-                pump_rsi=self.pump_rsi + 999,
-                pump_vol_vs20=self.pump_vol_vs20 + 999,
-                pump_d5=self.pump_d5 + 999,
+                max_atr_pct=self.max_atr_pct + 4.0,   # tolerate higher ATR
+                max_vssma200_neg=self.max_vssma200_neg - 10.0,  # allow weaker base
+                max_drawdown_neg=self.max_drawdown_neg - 10.0,  # tolerate deeper DD
+                pump_rsi=self.pump_rsi + 4.0,
+                pump_vol_vs20=self.pump_vol_vs20 + 100.0,
+                pump_d5=self.pump_d5 + 4.0,
             )
-        if m == "strict":
+
+        if prof == "C":
+            # Conservative → harsh risk filters
             return dict(
-                min_price=self.min_price,
-                max_atr_pct=self.max_atr_pct - 2.0,
-                max_vssma200_neg=self.max_vssma200_neg + 5.0,
-                max_drawdown_neg=self.max_drawdown_neg + 5.0,
-                pump_rsi=self.pump_rsi - 2.0,
-                pump_vol_vs20=self.pump_vol_vs20 - 50.0,
-                pump_d5=self.pump_d5 - 2.0,
+                min_price=max(self.min_price, 5.0),  # no penny junk
+                max_atr_pct=self.max_atr_pct - 3.0,  # low ATR tolerance
+                max_vssma200_neg=self.max_vssma200_neg + 10.0,  # base must be solid
+                max_drawdown_neg=self.max_drawdown_neg + 10.0,  # shallow DD only
+                pump_rsi=self.pump_rsi - 3.0,        # earlier pump detection
+                pump_vol_vs20=self.pump_vol_vs20 - 100.0,
+                pump_d5=self.pump_d5 - 3.0,
             )
-        if m == "normal":
-            return dict(
-                min_price=self.min_price,
-                max_atr_pct=self.max_atr_pct - 1.0,
-                max_vssma200_neg=self.max_vssma200_neg + 2.0,
-                max_drawdown_neg=self.max_drawdown_neg + 2.0,
-                pump_rsi=self.pump_rsi - 1.0,
-                pump_vol_vs20=self.pump_vol_vs20 - 25.0,
-                pump_d5=self.pump_d5 - 1.0,
-            )
-        # loose default
+
+        # Default = Balanced (B)
         return dict(
             min_price=self.min_price,
-            max_atr_pct=self.max_atr_pct + 1.5,
-            max_vssma200_neg=self.max_vssma200_neg - 2.0,
-            max_drawdown_neg=self.max_drawdown_neg - 2.0,
-            pump_rsi=self.pump_rsi + 1.5,
-            pump_vol_vs20=self.pump_vol_vs20 + 50.0,
-            pump_d5=self.pump_d5 + 2.0,
+            max_atr_pct=self.max_atr_pct,          # baseline
+            max_vssma200_neg=self.max_vssma200_neg,
+            max_drawdown_neg=self.max_drawdown_neg,
+            pump_rsi=self.pump_rsi,
+            pump_vol_vs20=self.pump_vol_vs20,
+            pump_d5=self.pump_d5,
         )
 
 
@@ -440,191 +451,67 @@ class RobustRanker:
 
     def composite_score(self, feats: Dict, context: Optional[Dict]=None) -> Tuple[float, Dict[str, float]]:
         P = self.params
+        prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
+
+
         try:
-            # trend inputs
+            # -------- Inputs --------
             vs50  = safe(feats.get("vsSMA50"), 0.0)
             vs200 = safe(feats.get("vsSMA200"), 0.0)
             macd  = safe(feats.get("MACD_hist"), 0.0)
             rsi   = safe(feats.get("RSI14"),   None)
-            rsi_band = tri_sweetspot(rsi, lo=40, mid_lo=52, mid_hi=68, hi=75)
-
-            # EMA-based fields
+            px    = safe(feats.get("price"),   None)
             vsem50  = safe(feats.get("vsEMA50"), None)
             vsem200 = safe(feats.get("vsEMA200"), None)
-            e50s    = safe(feats.get("EMA50_slope_5d"), None)
-
-            # Fair value & anchor
-            px = safe(feats.get("price"), None)
-            fva = safe(feats.get("fva_hint"), None)
-            value = self._value_tilt(feats)
-
-            # FVA term (small influence by design)
-            fva_term = 0.0
-            if fva and px:
-                disc = (fva - px) / max(abs(fva), 1e-9) * 100.0  # +% means px below anchor
-                if disc < 0:
-                    fva_term = -clamp(abs(disc)/25.0, 0.0, 1.0) * 0.35
-                elif disc > 0:
-                    fva_term =  clamp(disc/25.0, 0.0, 1.0) * 0.15
-
-            # KO penalty with momentum-carry discount
-            ko_pen = 0.0
-            ko_pct = _env_float("QS_FVA_KO_PCT", 0.0)  # 0 disables
-            d20_for_ko = safe(feats.get("d20"), None)
-            if ko_pct > 0 and (px is not None) and (fva is not None) and px > fva:
-                gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
-                extended = ((rsi is not None and rsi >= 72) or
-                            (vsem50 is not None and vsem50 >= 40) or
-                            (d20_for_ko is not None and d20_for_ko >= 15))
-                if gap >= ko_pct and extended:
-                    base_ko = -min(0.6, max(0.0, gap - ko_pct) * 0.012)  # contributes inside stability
-                    # acceleration calc for discount decision
-                    z_r60  = self._zs("r60", safe(feats.get("r60"), 0.0))
-                    z_r120 = self._zs("r120", safe(feats.get("r120"), 0.0))
-                    accel_z = clamp(((z_r60 - z_r120) / 2.0), -1.0, 1.0)
-                    strong_trend = (safe(feats.get("r60"), 0.0) >= 30.0) and (vs50 is not None and vs50 >= 15.0)
-                    discount = 1.0
-                    if strong_trend and accel_z > 0.10:
-                        discount = _env_float("KO_MOMO_DISCOUNT", 0.50)
-                        if accel_z >= 0.35:
-                            discount = _env_float("KO_MOMO_DISCOUNT_STRONG", 0.35)
-                    ko_pen = base_ko * discount
-
-            # trend score
-            trend = (
-                0.28*(self._zs("vsSMA200", vs200)/4.0) +
-                0.20*(self._zs("vsSMA50",  vs50) /4.0) +
-                0.20*(self._zs("vsEMA200", vsem200)/4.0) +
-                0.17*(self._zs("vsEMA50",  vsem50) /4.0) +
-                0.15*(clamp(macd,-1.5,1.5)/1.5) +
-                0.10*rsi_band
-            )
-            trend = clamp(trend, -1.0, 1.0)
-
-            # momentum
-            d20  = safe(feats.get("d20"), 0.0)
-            r60  = safe(feats.get("r60"), 0.0)
-            r120 = safe(feats.get("r120"), 0.0)
-            is20h = feats.get("is_20d_high")
-
-            near20 = 0.0
-            if is20h or (d20 is not None and d20 >= 8 and safe(feats.get("RSI14"), 50) <= 72):
-                near20 = 1.0
-            elif (d20 is not None and 3.0 <= d20 <= 7.0 and rsi is not None and rsi <= 65 and
-                  vsem200 is not None and vsem200 <= 10.0):
-                near20 = 0.6
-
-            z_r60  = self._zs("r60", r60)
-            z_r120 = self._zs("r120", r120)
-            accel_z = clamp(((z_r60 - z_r120) / 2.0), -1.0, 1.0)
-
-            momo = (
-                0.33*(self._zs("r60",  r60) /4.0) +
-                0.25*(self._zs("r120", r120)/4.0) +
-                0.24*(self._zs("d20",  d20) /4.0) +
-                0.10*(self._zs("EMA50_slope_5d", e50s)/4.0) +
-                0.05*near20 +
-                0.08*accel_z
-            )
-            try:
-                knee  = _env_float("TR_CHASE_KNEE", 35.0)
-                slope = _env_float("TR_CHASE_SLOPE", 0.006)
-                cap   = _env_float("TR_CHASE_MAX", 0.18)
-            except Exception:
-                knee, slope, cap = 35.0, 0.006, 0.18
-            if r60 is not None and r60 > knee:
-                momo -= min(cap, (r60 - knee) * slope)
-            momo = clamp(momo, -1.0, 1.0)
-
-            # structure
             sma50 = safe(feats.get("SMA50"), None)
             sma200= safe(feats.get("SMA200"), None)
             avwap = safe(feats.get("AVWAP252"), None)
             e50   = safe(feats.get("EMA50"), None)
             e200  = safe(feats.get("EMA200"), None)
 
-            align = 0.0
-            if sma50 is not None and sma200 is not None:
-                align += 0.5 if (sma50 > sma200) else -0.2
-            if e50 and e200:
-                align += 0.6 if (e50 > e200) else -0.25
-            if px and e50:
-                align += 0.25 if (px > e50) else -0.15
-            if px and avwap:
-                align += 0.25 if (px > avwap) else -0.10
-            if px and e50 and e200:
-                if px > e50 > e200: align += 0.20
-                elif px < e50 < e200: align -= 0.18
-            struct = clamp(align, -1.0, 1.0)
+            v20   = safe(feats.get("vol_vs20"), None)
+            atrp  = safe(feats.get("ATRpct"), None)
+            dd    = safe(feats.get("drawdown_pct"), None)
 
-            # AVWAP premium headwind (QS_STRUCT_PREM_CAP points on 0..100 scale)
-            prem_cap_pts = _env_float("QS_STRUCT_PREM_CAP", 0.0)
-            if prem_cap_pts > 0 and px and avwap:
-                prem = (px / avwap) - 1.0  # >0 means above AVWAP
-                if prem > 0:
-                    prem_cap = prem_cap_pts / 100.0
-                    struct -= min(prem_cap, prem * (prem_cap / 0.20))
-
-            # continuation boost
-            v20_for_boost = safe(feats.get("vol_vs20"), None)
-            if (vsem50 is not None and 3.0 <= vsem50 <= 18.0) and (vsem200 is not None and vsem200 >= -2.0) and \
-               (rsi is not None and 52.0 <= rsi <= 68.0) and (e50s is not None and e50s > 0.0):
-                if (v20_for_boost is None) or (-20.0 <= v20_for_boost <= 180.0):
-                    struct = clamp(struct + 0.08, -1.0, 1.0)
-
-            # stability (inverse risk)
-            atrp = safe(feats.get("ATRpct"), None)
-            dd   = safe(feats.get("drawdown_pct"), None)
-            v20  = safe(feats.get("vol_vs20"), None)
-            atr_pen = 0.0 if atrp is None else (-clamp((atrp - P.atr_soft_cap)/P.atr_soft_cap, 0.0, 1.0))
-            dd_pen  = 0.0 if dd   is None else (-clamp((abs(min(dd,0.0)) - abs(P.dd_soft_cap))/25.0, 0.0, 1.0))
-            vol_pen = 0.0 if v20  is None else (-clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0))
-
-            # Mean-reversion risk if far above EMA50
-            ext_pen = 0.0
-            if vsem50 is not None and vsem50 >= 20:
-                ext_pen = -clamp((vsem50 - 20)/40.0, 0.0, 0.3)
-
-            # ATH guard
-            ath_guard = int(os.getenv("ATH_GUARD", "1")) != 0
-            ath_sev = 0.0
-            ath_relief = 1.0
-            if ath_guard:
-                near_pct   = _env_float("ATH_NEAR_PCT", 1.0)   # within X% of 52w high
-                min_rsi    = _env_float("ATH_MIN_RSI", 80.0)
-                min_vs50   = _env_float("ATH_MIN_VS50", 25.0)
-                vol_relief = _env_float("ATH_VOL_RELIEF", 60.0)
-
-                dd0 = safe(feats.get("drawdown_pct"), None)
-                if (dd0 is not None and dd0 >= -near_pct and
-                    rsi is not None and rsi >= min_rsi and
-                    vsem50 is not None and vsem50 >= min_vs50):
-                    ath_sev = clamp(
-                        0.5 * ((rsi - min_rsi) / 10.0) + 0.5 * ((vsem50 - min_vs50) / 25.0),
-                        0.0, 1.0
-                    )
-                    if v20 is not None and v20 >= vol_relief:
-                        ath_relief = 0.5  # participation halves the penalty
-
-            # distribution / stall penalties
-            stall_pen = 0.0
-            if accel_z < -0.25:
-                stall_pen -= min(0.08, (abs(accel_z) - 0.25) * 0.10)
-            if (rsi is not None and 55 <= rsi <= 75) and (macd < 0.0) and (vs50 > 0.0):
-                stall_pen -= 0.08
-            if (rsi is not None and 55 <= rsi <= 70) and (vs50 > 0.0) and (v20 is not None and v20 <= -20):
-                stall_pen -= 0.04
-
-            # stability aggregates (include ko_pen)
-            stability = clamp(
-                0.45*atr_pen +
-                0.20*dd_pen  +
-                0.10*vol_pen +
-                0.10*ext_pen +
-                0.10*stall_pen +
-                0.20*ko_pen,
-                -1.0, 0.0
+            # -------- Trend (lighter weight than Stage 1) --------
+            rsi_band = tri_sweetspot(rsi, lo=40, mid_lo=52, mid_hi=68, hi=75)
+            trend = (
+                0.25*(self._zs("vsSMA200", vs200)/4.0) +
+                0.20*(self._zs("vsSMA50",  vs50) /4.0) +
+                0.15*(clamp(macd,-1.5,1.5)/1.5) +
+                0.10*rsi_band
             )
+            trend = clamp(trend, -1.0, 1.0)
+
+            # -------- Structure (heavier weight here) --------
+            struct = 0.0
+            if sma50 and sma200:
+                struct += 0.6 if sma50 > sma200 else -0.3
+            if e50 and e200:
+                struct += 0.6 if e50 > e200 else -0.25
+            if px and e50:
+                struct += 0.3 if px > e50 else -0.15
+            if px and avwap:
+                struct += 0.4 if px > avwap else -0.20
+            if px and e50 and e200:
+                if px > e50 > e200: struct += 0.25
+                elif px < e50 < e200: struct -= 0.20
+            struct = clamp(struct, -1.0, 1.0)
+
+            # -------- Stability (risk filters) --------
+            stab = 0.0
+            if atrp is not None:
+                stab -= clamp((atrp - P.atr_soft_cap) / P.atr_soft_cap, 0.0, 1.0)
+            if dd is not None:
+                stab -= clamp((abs(min(dd,0.0)) - abs(P.dd_soft_cap))/25.0, 0.0, 1.0)
+            if v20 is not None:
+                stab -= clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0)
+
+            # extra harsh on unstable small caps
+            if feats.get("liq_tier") == "small" and v20 is not None and v20 >= 300:
+                stab -= 0.5
+
+            stab = clamp(stab, -1.0, 0.0)
 
             # Blowoff detector (EMA-aware)
             blow = 0.0
@@ -635,65 +522,47 @@ class RobustRanker:
             if vsem50 is not None and vsem50 >= 25 and blow < 0:
                 blow = min(-1.0, blow - 0.2)
 
-            # Harsher blowoffs under extreme valuations
+            # Profile-aware adjustments
+            if prof == "A":
+                blow *= 0.5   # Aggressive → half penalty
+            elif prof == "C":
+                blow *= 1.5   # Conservative → harsher penalty
+
+
+            # -------- Valuation sanity checks --------
+            val = self._value_tilt(feats)
             pe  = safe(feats.get("val_PE"), None)
             ps  = safe(feats.get("val_PS"), None)
-            peg = safe(feats.get("val_PEG"), None)
-            if ((pe is not None and pe >= 60) or (ps is not None and ps >= 30) or (peg is not None and peg >= 4.0)):
-                if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
-                    blow = -1.0
+            rev = safe(feats.get("val_EV_REV"), None)
 
-            # valuation (with FVA term)
-            value = clamp(value + fva_term, -1.0, 1.0)
+            # Harsh penalty for bubble valuations
+            if (pe and pe >= 80) or (ps and ps >= 40) or (rev and rev >= 20):
+                val -= 0.5
 
-            # ★ Apply probe add-back on struct/stability (normalized: PROBE_ADD_BACK_X / 100)
-            probe_ok, probe_lvl = _probe_gate(feats)
-            if probe_ok:
-                add_pts = _env_float("PROBE_ADD_BACK_A", 4.0) if probe_lvl == 1 else \
-                          _env_float("PROBE_ADD_BACK_B", 7.0) if probe_lvl == 2 else \
-                          _env_float("PROBE_ADD_BACK_C", 10.0)
-                add = clamp(add_pts / 100.0, 0.0, 0.20)  # max +0.20 on the -1..+1 scale
-                share = _env_float("PROBE_STRUCT_SHARE", 0.45)
-                struct = clamp(struct + add * share, -1.0, 1.0)
-                stability = clamp(stability + add * (1.0 - share), -1.0, 0.0)
+            val = clamp(val, -1.0, 1.0)
 
+            # -------- Score combination --------
             parts = {
                 "trend": trend,
-                "momo": momo,
                 "struct": struct,
-                "stability": stability,
+                "stability": stab,
                 "blowoff": blow,
-                "value": value,
-                # debug extras (not weighted)
-                "accel_z": accel_z,
-                "ko_pen": ko_pen,
-                "probe_ok": bool01(probe_ok),
-                "probe_lvl": float(probe_lvl) if probe_ok else 0.0,
+                "value": val,
             }
+
+            # Stronger weight on struct + stability, lighter on momo/trend
             w = {
-                "trend": P.w_trend,
-                "momo": P.w_momo,
-                "struct": P.w_struct,
-                "stability": P.w_stab,
-                "blowoff": P.w_blowoff,
-                "value": P.w_value,
+                "trend": 0.20,
+                "struct": 0.30,
+                "stability": 0.25,
+                "blowoff": 0.15,
+                "value": 0.10,
             }
-            active_w = sum(w.values()) or 1.0
+            active_w = sum(w.values())
             score_unit = sum(w[k] * parts[k] for k in w.keys())
             scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
 
-            # Final ATH haircut on the headline score
-            if 'ath_sev' in locals() and ath_sev > 0:
-                haircut = _env_float("ATH_SCORE_HAIRCUT", 22.0)
-                scr = clamp(scr - haircut * ath_sev * ath_relief, -100.0, 100.0)
-
-            if self.verbose and logger.isEnabledFor(logging.DEBUG):
-                logger.debug(
-                    "[Ranker] parts trend=%.3f momo=%.3f struct=%.3f stab=%.3f blow=%.3f value=%.3f -> score=%.2f (accel=%.3f ko=%.3f probe=%s/L%d)",
-                    parts["trend"], parts["momo"], parts["struct"], parts["stability"], parts["blowoff"], parts["value"], scr,
-                    parts["accel_z"], parts["ko_pen"], str(bool(probe_ok)), int(probe_lvl)
-                )
-            return (scr, parts)
+            return scr, parts
         except Exception as e:
             if self.verbose:
                 logger.exception(f"[Ranker] composite_score error: {e}")
@@ -707,22 +576,32 @@ class RobustRanker:
 
     def _apply_profile(self) -> None:
         """
-        A = Aggressive, B = Balanced (default), C = Conservative.
-        Controlled by RANKER_PROFILE (or SELECTION_MODE) env.
+        A = Aggressive (more forgiving of volatility/valuations)
+        B = Balanced (default, moderate risk filter)
+        C = Conservative (strict risk & valuation focus)
         """
         prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
         P = self.params
+
         if prof == "A":
-            # More momentum/trend, looser stability
-            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.32, 0.36, 0.14, 0.10, 0.02, 0.06
-            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 6.8, 300.0, -40.0
+            # Aggressive: more tolerance to volatility, lighter blowoff penalties
+            P.w_trend, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = \
+                0.25, 0.28, 0.18, 0.09, 0.10
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = \
+                8.0, 350.0, -45.0   # wide tolerance
+
         elif prof == "C":
-            # Value/stability forward; harsher blowoff
-            P.w_trend, P.w_momo, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = 0.24, 0.24, 0.16, 0.24, 0.04, 0.08
-            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = 5.5, 220.0, -30.0
-        else:
-            # B = defaults already set in dataclass
-            pass
+            # Conservative: harsher risk & valuation penalties, durability focus
+            P.w_trend, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = \
+                0.15, 0.35, 0.30, 0.15, 0.05
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = \
+                5.0, 180.0, -25.0   # stricter thresholds
+
+        else:  # B = Balanced (default)
+            P.w_trend, P.w_struct, P.w_stab, P.w_blowoff, P.w_value = \
+                0.20, 0.30, 0.25, 0.15, 0.10
+            P.atr_soft_cap, P.vol20_soft_cap, P.dd_soft_cap = \
+                6.0, 250.0, -35.0   # middle ground
 
     def score_universe(self, universe: List[Tuple[str, str, Dict]], context: Optional[Dict]=None):
         """

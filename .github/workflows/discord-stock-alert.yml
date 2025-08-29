@@ -131,7 +131,7 @@ jobs:
           QS_USE_XS: '1'
 
           # --- Stage-2 profile ---
-          RANKER_PROFILE: 'A'
+          RANKER_PROFILE: 'C' # A=Aggressive, B=Balanced, C=Conservative
 
           # --- Early-turn tiny boosts ---
           QS_ET_BONUS_TREND: '6'
