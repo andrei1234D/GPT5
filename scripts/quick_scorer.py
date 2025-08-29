@@ -465,9 +465,10 @@ def quick_score(
         z_vsE200= (0.0 if vsE200 is None else clamp(vsE200, -40, 80) / 20.0)
         z_e50s  = (0.0 if e50s   is None else clamp(e50s,   -20, 30) / 10.0)
 
-    # trend (EMA alignment + RSI band)
+           # trend (EMA alignment + RSI band)
     rsi_band = _rsi_band_val(rsi)
-    trend = (
+
+    trend_raw = (
         0.40 * clamp(z_vs200/4.0, -1, 1) +
         0.25 * clamp(z_vs50/4.0,  -1, 1) +
         0.15 * clamp(z_vsE200/4.0,-1, 1) +
@@ -475,21 +476,50 @@ def quick_score(
         0.10 * clamp(macd/1.5,    -1, 1)
     ) * 100.0 + 8.0 * rsi_band
 
+    trend = trend_raw
+
+    # 🔥 Dynamic dampener: reduce weight of trend if stock is already extended
+    if rsi is not None and vs50 is not None:
+        if rsi > 70 and vs50 > 20:
+            if rsi < 75 and vs50 < 35:
+                damp = 0.75   # mildly extended
+            elif rsi < 80 and vs50 < 45:
+                damp = 0.65   # clearly extended
+            else:
+                damp = 0.50   # very extended / blowoff
+            trend *= damp
+
+
+
+
     # momentum (EMA50 slope) + chase penalty
-    momo = (
+    momo_raw = (
         0.36 * clamp(z_r60/4.0,   -1, 1) +
         0.27 * clamp(z_r120/4.0,  -1, 1) +
         0.22 * clamp(z_d20/4.0,   -1, 1) +
         0.15 * clamp(z_e50s/4.0,  -1, 1)
     ) * 100.0
+
+    momo = momo_raw
+
     try:
         knee  = _env_float("QS_MOMO_CHASE_KNEE", 35.0)
         slope = _env_float("QS_MOMO_CHASE_SLOPE", 0.6)
         cap   = _env_float("QS_MOMO_CHASE_PEN_MAX", 15.0)
     except Exception:
         knee, slope, cap = 35.0, 0.6, 15.0
+
+    # classic chase penalty
     if r60 is not None and r60 > knee:
-        momo -= min(cap, (r60 - knee) * slope)
+        penalty = min(cap, (r60 - knee) * slope)
+        momo -= penalty
+
+    # 🔥 Dynamic dampener for extended momo
+    if rsi is not None and rsi > 72 and vs50 > 25:
+        damp = 0.7 if rsi < 78 else 0.55  # moderate vs. very extended
+        momo *= damp
+
+
 
     # acceleration & continuation
     try:
@@ -641,13 +671,16 @@ def quick_score(
 )
 
     return score, {
-        "trend": trend, "momo": momo, "struct": struct, "risk_pen": risk_pen,
+        "trend_raw": trend_raw, "trend": trend,
+        "momo_raw": momo_raw,   "momo": momo,
+        "struct": struct, "risk_pen": risk_pen,
         "pe_tilt_pts": pe_points_raw, "pe_weight": w_pe, "tier": tier,
         "fva_hint": fva, "price": px,
-        "accel_z": accel_z,            # helps downstream diagnostics
-        "probe_ok": bool(probe_ok),    # for tagging in Stage-1
+        "accel_z": accel_z,
+        "probe_ok": bool(probe_ok),
         "probe_lvl": int(probe_lvl),
     }
+
 
 def rank_stage1(
     universe: List[Tuple[str, str, Dict]],
@@ -780,32 +813,31 @@ def enhance_score_for_strong_buy(
 ) -> Tuple[float, float, str, str]:
     """
     Returns (enhanced_score, bonus_points, reason_log, phase).
-    Enhances early-stage strong buy setups, penalizes mid/late breakouts,
-    but still rewards extended names if supported well.
+    Enhances early-stage strong buy setups, penalizes mid/late breakouts aggressively.
     """
     bonus = 0.0
     reason_log = []
     phase = "Neutral"  # Default
 
     # === Align keys with quick_score ===
-    vsSMA20       = safe(feats.get("vsSMA20"))
-    vsSMA50       = safe(feats.get("vsSMA50"))
-    vsSMA200      = safe(feats.get("vsSMA200"))
-    vsEMA50       = safe(feats.get("vsEMA50"))
-    EMA50_slope_5d= safe(feats.get("EMA50_slope_5d"))
-    RSI14         = safe(feats.get("RSI14"))
-    r20           = safe(feats.get("r20"))
-    r60           = safe(feats.get("r60"))
-    MACD_hist     = safe(feats.get("MACD_hist"))
-    vol_vs20      = safe(feats.get("vol_vs20"))
-    drawdown_pct  = safe(feats.get("drawdown_pct"))
-    REL_STRENGTH  = safe(feats.get("REL_STRENGTH"))
-    CATALYST_HINT = str(feats.get("CATALYST_TIMING_HINTS") or "")
+    vsSMA20        = safe(feats.get("vsSMA20"))
+    vsSMA50        = safe(feats.get("vsSMA50"))
+    vsSMA200       = safe(feats.get("vsSMA200"))
+    vsEMA50        = safe(feats.get("vsEMA50"))
+    EMA50_slope_5d = safe(feats.get("EMA50_slope_5d"))
+    RSI14          = safe(feats.get("RSI14"))
+    r20            = safe(feats.get("r20"))
+    r60            = safe(feats.get("r60"))
+    MACD_hist      = safe(feats.get("MACD_hist"))
+    vol_vs20       = safe(feats.get("vol_vs20"))
+    drawdown_pct   = safe(feats.get("drawdown_pct"))
+    REL_STRENGTH   = safe(feats.get("REL_STRENGTH"))
+    CATALYST_HINT  = str(feats.get("CATALYST_TIMING_HINTS") or "")
 
     # Internals from quick_score
-    trend     = parts.get("trend", 0)
-    struct    = parts.get("struct", 0)
-    risk_pen  = parts.get("risk_pen", 0)
+    trend    = parts.get("trend", 0)
+    struct   = parts.get("struct", 0)
+    risk_pen = parts.get("risk_pen", 0)
 
     # === Phase 1: Early setups (reward) ===
     if trend > 60 and struct > 0 and risk_pen > -8:
@@ -827,40 +859,48 @@ def enhance_score_for_strong_buy(
         if struct <= 0: reason_log.append("Blocked: no structure")
         if risk_pen <= -8: reason_log.append("Blocked: extended risk_pen")
 
-    # === Phase 2: Breakout / extended (penalize gradually) ===
-    if RSI14 is not None and vsSMA50 is not None:
-        if RSI14 > 70 and vsSMA50 > 20:
-            phase = "Extended"
-            penalty = min((vsSMA50 // 10) * 10, 40)   # scale penalty
-            bonus -= penalty
-            reason_log.append(f"Extended breakout penalty -{penalty}")
+    # === Phase 2: Mid extension (warning zone) ===
+    if RSI14 >= 68 and vsSMA50 >= 15:
+        phase = "Mid"
+        penalty = 10 + (vsSMA50 // 10) * 3
+        bonus -= penalty
+        reason_log.append(f"Mid extension penalty -{penalty}")
 
-    # === Phase 3: Extended but supported (soften penalty) ===
-    if struct > 10 and -12 < risk_pen < -5:
-        phase = "Supported-Extended"
-        bonus += 5
-        reason_log.append("Extended but strong support → softened")
+    # === Phase 3: Late extension (harsh penalties) ===
+    if trend >= 85 and RSI14 >= 70 and vsSMA50 >= 25:
+        phase = "Late"
+        penalty = 20 + ((vsSMA50 // 10) * 5)
+        penalty = min(penalty, 45)  # cap
+        bonus -= penalty
+        reason_log.append(f"Late-stage breakout penalty -{penalty}")
+
+        # soften if structure is very strong
+        if struct > 12:
+            soft_back = penalty * 0.5
+            bonus += soft_back
+            reason_log.append(f"Support softened +{soft_back}")
 
     # === Blowoff / overheat guards ===
     if RSI14 > 72 and vsSMA50 > 30:
-        bonus -= 20; reason_log.append("Medium blowoff")
+        bonus -= 15; reason_log.append("Medium blowoff")
     if RSI14 > 74 and vsSMA50 > 40:
-        bonus -= 30; reason_log.append("Heavy blowoff")
+        bonus -= 25; reason_log.append("Heavy blowoff")
     if RSI14 >= 78 and vsSMA50 > 50:
-        bonus -= 40; reason_log.append("Parabolic")
+        bonus -= 35; reason_log.append("Parabolic")
 
+    # === Extra guards ===
     if r60 > 150 or r20 > 70:
-        bonus -= 20; reason_log.append("Excessive r20/r60")
+        bonus -= 15; reason_log.append("Excessive r20/r60")
     if vol_vs20 > 150 and RSI14 > 70:
-        bonus -= 15; reason_log.append("Volume + RSI overheat")
+        bonus -= 10; reason_log.append("Volume + RSI overheat")
     if RSI14 > 65 and MACD_hist < 0:
-        bonus -= 10; reason_log.append("Bearish divergence")
+        bonus -= 8; reason_log.append("Bearish divergence")
 
     # === Weak base penalty ===
     if EMA50_slope_5d < 1 and vol_vs20 > 60 and MACD_hist < 0:
         bonus -= 8; reason_log.append("Weak base penalty")
 
     # Clamp to range
-    bonus = max(min(bonus, 40), -40)
+    bonus = max(min(bonus, 40), -50)
 
     return base_score + bonus, bonus, "; ".join(reason_log), phase
