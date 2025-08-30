@@ -45,10 +45,12 @@ Advice Rule:
 ```diff
 +Strong Buy
 ```
+
 - BASE ≥ 650 and Certainty ≥ 62% → 
 ```ini
 [Buy]
 ```
+
 - BASE ≥ 580 and Certainty ≥ 55% → 
 ```arm
 Hold
