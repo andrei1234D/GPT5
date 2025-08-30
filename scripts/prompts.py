@@ -40,13 +40,21 @@ Baseline logic:
 - Avoid score inflation: Only increase components when technical or proxy evidence is clearly above baseline.
 
 Advice Rule:
+- write the strong buy/hold/buy exactly as shoown, the formatting is important for parsing the discord message.
 - Final score = BASE + Certainty ± NewsDelta
-- BASE ≥ 720 and Certainty ≥ 72% → ```diff
+- BASE ≥ 720 and Certainty ≥ 72% → 
+```diff
 +Strong Buy
-- BASE ≥ 650 and Certainty ≥ 62% → ```ini
+```
+- BASE ≥ 650 and Certainty ≥ 62% → 
+```ini
 [Buy]
-- BASE ≥ 580 and Certainty ≥ 55% → ```fix
+```
+- BASE ≥ 580 and Certainty ≥ 55% → 
+```fix
 Hold
+```
+
 - Else → N/A
 
 Plan:
@@ -83,5 +91,5 @@ USER_PROMPT_TOP20_TEMPLATE = (
 "TODAY is {today}. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.\n\n"
 "Return ALL picks that meet the >720 point system; otherwise return only the single highest-scoring pick.\n\n"
 "CANDIDATES:\n{blocks}\n\n"
-"OBEY THE OUTPUT FORMAT EXACTLY (11 lines per pick)."
+"OBEY THE OUTPUT FORMAT EXACTLY (10 lines per pick)."
 )
