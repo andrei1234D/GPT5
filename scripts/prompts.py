@@ -51,7 +51,7 @@ Advice Rule:
 [Buy]
 ```
 - BASE ≥ 580 and Certainty ≥ 55% → 
-```fix
+```arm
 Hold
 ```
 
