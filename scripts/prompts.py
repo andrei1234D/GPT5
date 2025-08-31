@@ -65,7 +65,7 @@ Use FVA as anchor. Compute buy range, stop loss, and target as per PLAN_SPEC in 
 Always round prices to 2 decimals. Format: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 Probe buys (tight risk, early entry) may show: Probe buy X–Y; Stop Z; Target T; Max hold time: ≤ 6 months (Anchor: $FVA) (Parabolic risk)
 
-Output Format: exactly 11 lines per pick
+Output Format: exactly 10 lines per pick
 
 TICKER – Company
 
@@ -86,6 +86,8 @@ ADVICE: see rule above
 Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast
 
 What reduced the score: <brief risk flags, missing values, etc.>
+
+What was unclear/contradictory in the input prompt (or 'N/A' if everything was clear)
 """
 
 USER_PROMPT_TOP20_TEMPLATE = (

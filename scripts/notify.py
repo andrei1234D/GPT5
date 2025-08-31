@@ -38,6 +38,8 @@ DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
 DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
 
 # ——— Strengthened system prompt (adds strict PLAN rules) ———
+
+ALLOW_BLOWOFF_PROBE = os.getenv("ALLOW_BLOWOFF_PROBE", "0") == "1"
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
 INPUT EXTRAS:
 - Each candidate block may include:
@@ -81,10 +83,12 @@ PLAN BUILDER (MANDATORY; DO NOT SKIP):
      Target = FVA × (1 + 3.0×EV/100).
      Sanity: if stop ≥ buy_low → push to min(buy_low×0.99, FVA×(1 − 2.2×EV/100));
              if target ≤ buy_high → push to max(buy_high×1.05, FVA×(1 + 3.2×EV/100)).
-  5) Overheat/BLOWOFF guard (any of the following):
+ 5) Overheat/BLOWOFF guard (any of the following):
       A) RSI14 ≥ 75 AND vsSMA50 ≥ 30% AND Vol_vs_20d% ≥ +80%
       B) RSI14 ≥ 80 AND vsSMA50 ≥ 40%
       C) RSI14 ≥ 78 AND vsSMA50 ≥ 60%
+   → Output: "No trade — momentum blowoff; wait for cooling. (Anchor: $FVA)"
+
      → Normally output: "No trade — momentum blowoff; wait for cooling. (Anchor: $FVA)"
      → If CONFIG.ALLOW_BLOWOFF_PROBE=1 AND Vol_vs_20d% < 150:
          Use PROBE PLAN instead (tight risk):

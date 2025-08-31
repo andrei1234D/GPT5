@@ -565,27 +565,48 @@ def quick_score(
         pen   = _env_tiered("QS_FVA_PEN_MAX",   tier, 12.0)
         bonus = _env_tiered("QS_FVA_BONUS_MAX", tier, 6.0)
         ko_pct= _env_tiered("QS_FVA_KO_PCT",    tier, 35.0)
-        fva = safe(feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"), None)
+
+        fva = safe(
+            feats.get("fva_hint") if feats.get("fva_hint") is not None else feats.get("FVA_HINT"),
+            None
+        )
+
         if (fva is not None) and (px is not None):
-            disc = (fva - px) / max(abs(fva), 1e-9) * 100.0
-            if disc < 0:
-                struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
-            elif disc > 0:
+            disc = (fva - px) / max(abs(px), 1e-9) * 100.0
+
+            # ✅ Undervalued → bonus
+            if disc > 0:
                 struct += clamp(disc/20.0, 0.0, 1.0) * bonus
-            if px > fva:
+
+            # 🚨 Overvalued zone → handle in tiers
+            else:
                 gap = (px - fva) / max(abs(fva), 1e-9) * 100.0
-                if gap >= ko_pct:
-                    # base KO penalty
+
+                if gap <= 15:
+                    # Slight premium → treat as early breakout setup
+                    struct += clamp((15 - gap)/15.0, 0.0, 1.0) * (bonus * 0.5)
+
+                elif (r60 is not None and r60 >= 30):
+                    # Breakout in progress with strong trend support
+                    struct += bonus * 0.3
+
+                elif gap >= ko_pct:
+                    # Heavy KO penalty for runaway price with no momentum support
                     ko_pen = min(40.0, (gap - ko_pct) * 0.6)
-                    # discount if momentum is genuinely carrying
+
                     strong_trend = (r60 is not None and r60 >= 30) and (vs50 is not None and vs50 >= 15)
                     discount = 1.0
                     if strong_trend and accel_z > 0.10:
                         discount = _env_float("KO_MOMO_DISCOUNT", 0.50)
                         if accel_z >= 0.35:
                             discount = _env_float("KO_MOMO_DISCOUNT_STRONG", 0.35)
+
                     struct -= ko_pen * discount
-                    # (if not strong-trend, discount=1.0 → full penalty)
+
+                else:
+                    # Mild overvaluation → soft penalty
+                    struct -= clamp(abs(disc)/20.0, 0.0, 1.0) * pen
+
 
     # Valuation overlay (optional)
     if os.getenv("QS_VAL_OVERLAY", "1").lower() in {"1","true","yes"}:
