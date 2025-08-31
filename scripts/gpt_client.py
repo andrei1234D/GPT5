@@ -67,17 +67,12 @@ def call_gpt5(
     model: str = None,
     max_tokens: int = None,
     timeout: Optional[float] = None,
-    retries: int = 2,
+    retries: int = 5,  
 ) -> str:
     """
-    Calls the OpenAI Responses API with a per-call timeout and simple retry.
-    Raises on failure (no silent fallbacks).
-
-    Env defaults:
-      OPENAI_MODEL       (default "gpt-5")
-      OPENAI_MAX_TOKENS  (default "1200")
-      OPENAI_TIMEOUT     (seconds; default "180")
+    Calls the OpenAI Responses API with retries + robust error handling.
     """
+
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not set")
 
@@ -89,7 +84,7 @@ def call_gpt5(
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json",
     }
-    # Prefer messages-style input for clearer separation of system/user
+
     body = {
         "model": model,
         "input": [
@@ -100,43 +95,47 @@ def call_gpt5(
     }
 
     url = f"{OPENAI_BASE.rstrip('/')}/responses"
-    backoff = 1.5
+    backoff = 2.0  # ⬆ exponential backoff base
 
     last_err: Optional[Exception] = None
-    for attempt in range(retries + 1):
+    for attempt in range(retries):
         try:
             resp = requests.post(url, headers=headers, json=body, timeout=timeout)
-            # Raise for non-2xx early
             resp.raise_for_status()
             data = resp.json()
+
             text = extract_output_text(data)
+
             if not text:
-                raise RuntimeError(f"Empty output from Responses API: {json.dumps(data)[:600]}")
+                logger.warning(f"[gpt] Empty response (attempt {attempt+1}/{retries}) — retrying...")
+                time.sleep(backoff ** attempt)
+                continue  # ⬅ retry instead of raising immediately
+
             return text
+
         except (requests.Timeout, requests.ConnectionError) as e:
             last_err = e
-            logger.warning(f"[gpt] network timeout/conn error (attempt {attempt+1}/{retries+1}): {e}")
+            logger.warning(f"[gpt] timeout/conn error (attempt {attempt+1}/{retries}): {e}")
         except requests.HTTPError as e:
             last_err = e
             status = e.response.status_code if e.response is not None else None
-            body_snip = ""
+            snippet = ""
             try:
-                body_snip = e.response.text[:300] if e.response is not None else ""
+                snippet = e.response.text[:200]
             except Exception:
                 pass
-            logger.warning(f"[gpt] HTTP {status} (attempt {attempt+1}/{retries+1}) {body_snip}")
-            # Retry only transient statuses
+            logger.warning(f"[gpt] HTTP {status} (attempt {attempt+1}/{retries}) {snippet}")
             if status not in (429, 500, 502, 503, 504):
-                break
+                break  # ⬅ don’t retry permanent errors
         except Exception as e:
             last_err = e
-            logger.warning(f"[gpt] unexpected error (attempt {attempt+1}/{retries+1}): {e}")
+            logger.warning(f"[gpt] unexpected error (attempt {attempt+1}/{retries}): {e}")
 
-        # retry path
-        if attempt < retries:
+        # sleep before retry
+        if attempt < retries - 1:
             time.sleep(backoff ** attempt)
 
-    # Out of retries → raise the last error
+    # Out of retries → fail
     if last_err:
         raise last_err
     raise RuntimeError("Unknown GPT error")
