@@ -40,7 +40,7 @@ Baseline logic:
 
 Advice Rule:
 - write the strong buy/hold/buy exactly as shoown, the formatting is important for parsing the discord message.
-- Final score = BASE + Certainty ± NewsDelta
+- Final base score = BASE + Certainty ± NewsDelta
 - BASE ≥ 720 and Certainty ≥ 72% → 
 ```diff
 +Strong Buy
