@@ -86,8 +86,6 @@ ADVICE: see rule above
 Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast
 
 What reduced the score: <brief risk flags, missing values, etc.>
-
-What was unclear/contradictory in the input prompt (or 'N/A' if everything was clear)
 """
 
 USER_PROMPT_TOP20_TEMPLATE = (

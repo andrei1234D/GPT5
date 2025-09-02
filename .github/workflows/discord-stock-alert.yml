@@ -124,9 +124,9 @@ jobs:
 
           # --- Stage-1 quick pass (looser to surface more buys) ---
           STAGE1_MODE: 'loose'
-          STAGE1_KEEP: '350'
-          STAGE1_MIN_SMALL: '130'
-          STAGE1_MIN_LARGE: '130'
+          STAGE1_KEEP: '550'
+          STAGE1_MIN_SMALL: '70'
+          STAGE1_MIN_LARGE: '70'
           STAGE1_RESCUE_FRAC: '0.25'
           QS_USE_XS: '1'
 
