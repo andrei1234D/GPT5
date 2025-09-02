@@ -73,7 +73,7 @@ PLAN BUILDER (MANDATORY; DO NOT SKIP):
      Then allow a tiny PE bias (only if PE_HINT present; keep within the global clamp below; VALUATION_HISTORY is −5..+5):
        • If PE_HINT ≤ 10 and VALUATION_HISTORY ≥ +2 → tilt FVA up by +1%..+3%.
        • If PE_HINT ≥ 50 and VALUATION_HISTORY ≤ −2 → tilt FVA down by −1%..−3%.
-  2) Global clamp: |FVA − PRICE| ≤ 20% unless very strong technical evidence.
+  2) Global clamp: |FVA − PRICE| ≤ 25% unless very strong technical evidence.
      Treat as “very strong” only if TECH_BREAKOUT ≥ +4 AND RSI14 ≥ 75 AND vsSMA50 ≥ +20% AND Vol_vs_20d% ≥ +150%.
   3) Let EV = EXPECTED_VOLATILITY_PCT, with EV := min(max(EV, 1), 6).
      Early-trend EV floor: if 52≤RSI14≤66 AND 0≤vsSMA50≤8 AND vsSMA200≥10 → EV := max(EV, 4).
