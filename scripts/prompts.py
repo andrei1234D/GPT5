@@ -86,6 +86,8 @@ ADVICE: see rule above
 Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast
 
 What reduced the score: <brief risk flags, missing values, etc.>
+
+What wasn't clear or contradictory: <brief notes>
 """
 
 USER_PROMPT_TOP20_TEMPLATE = (
