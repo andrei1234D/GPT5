@@ -250,7 +250,7 @@ Drawdown%: 0.00%
 5d%: 2.12%
 20d%: 9.16%
 60d%: 26.73%
-Vol_vs_20d%: 36.31%
+Vol_vs_20d%: 36.35%
 EMA20: 202.78
 EMA50: 192.93
 EMA200: 178.39
@@ -289,7 +289,7 @@ Drawdown%: 0.00%
 5d%: 2.09%
 20d%: 9.08%
 60d%: 25.90%
-Vol_vs_20d%: 31.08%
+Vol_vs_20d%: 31.13%
 EMA20: 203.57
 EMA50: 193.85
 EMA200: 179.73
@@ -391,7 +391,7 @@ KO_CONTEXT: GAP_PCT=21.17%; EXTENDED=Yes
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 === FULL USER PROMPT (for reproducibility) ===
-TODAY is Sep 01. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.
+TODAY is Sep 02. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.
 
 Return ALL picks that meet the >720 point system; otherwise return only the single highest-scoring pick.
 
@@ -645,7 +645,7 @@ Drawdown%: 0.00%
 5d%: 2.12%
 20d%: 9.16%
 60d%: 26.73%
-Vol_vs_20d%: 36.31%
+Vol_vs_20d%: 36.35%
 EMA20: 202.78
 EMA50: 192.93
 EMA200: 178.39
@@ -684,7 +684,7 @@ Drawdown%: 0.00%
 5d%: 2.09%
 20d%: 9.08%
 60d%: 25.90%
-Vol_vs_20d%: 31.08%
+Vol_vs_20d%: 31.13%
 EMA20: 203.57
 EMA50: 193.85
 EMA200: 179.73
