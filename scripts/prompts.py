@@ -42,18 +42,24 @@ Advice Rule:
 - write the strong buy/hold/buy exactly as shoown, the formatting is important for parsing the discord message.
 - Final base score = BASE + Certainty ± NewsDelta
 - BASE ≥ 720 and Certainty ≥ 72% → 
+```txt
 ```diff
 +Strong Buy
 ```
+```
 
 - BASE ≥ 650 and Certainty ≥ 62% → 
+```txt
 ```ini
 [Buy]
 ```
+```
 
 - BASE ≥ 580 and Certainty ≥ 55% → 
+```txt
 ```arm
 Hold
+```
 ```
 
 - Else → N/A
