@@ -753,9 +753,6 @@ def merge_tr_qs(tr_score: float, tr_parts: Dict[str, float], qs_score: Optional[
     if tr_score > 70 and qs_score > 85:
         merged_score += 25
 
-    # --- Clamp final score to -100..100 ---
-    merged_score = max(-100, min(100, merged_score))
-
     merged_parts = dict(tr_parts)
     merged_parts["final_score"] = merged_score
 
