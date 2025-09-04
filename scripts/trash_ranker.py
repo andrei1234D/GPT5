@@ -453,116 +453,83 @@ class RobustRanker:
         P = self.params
         prof = (os.getenv("RANKER_PROFILE", os.getenv("SELECTION_MODE", "B")) or "B").upper()
 
-
         try:
             # -------- Inputs --------
-            vs50  = safe(feats.get("vsSMA50"), 0.0)
-            vs200 = safe(feats.get("vsSMA200"), 0.0)
-            macd  = safe(feats.get("MACD_hist"), 0.0)
-            rsi   = safe(feats.get("RSI14"),   None)
-            px    = safe(feats.get("price"),   None)
-            vsem50  = safe(feats.get("vsEMA50"), None)
-            vsem200 = safe(feats.get("vsEMA200"), None)
-            sma50 = safe(feats.get("SMA50"), None)
-            sma200= safe(feats.get("SMA200"), None)
-            avwap = safe(feats.get("AVWAP252"), None)
-            e50   = safe(feats.get("EMA50"), None)
-            e200  = safe(feats.get("EMA200"), None)
+            vs50   = safe(feats.get("vsSMA50"), None)
+            vs200  = safe(feats.get("vsSMA200"), None)
+            macd   = safe(feats.get("MACD_hist"), None)
+            rsi    = safe(feats.get("RSI14"), None)
+            px     = safe(feats.get("price"), None)
+            vsem50 = safe(feats.get("vsEMA50"), None)
+            vsem200= safe(feats.get("vsEMA200"), None)
+            sma50  = safe(feats.get("SMA50"), None)
+            sma200 = safe(feats.get("SMA200"), None)
+            avwap  = safe(feats.get("AVWAP252"), None)
+            e50    = safe(feats.get("EMA50"), None)
+            e200   = safe(feats.get("EMA200"), None)
 
-            v20   = safe(feats.get("vol_vs20"), None)
-            atrp  = safe(feats.get("ATRpct"), None)
-            dd    = safe(feats.get("drawdown_pct"), None)
+            v20    = safe(feats.get("vol_vs20"), None)
+            atrp   = safe(feats.get("ATRpct"), None)
+            dd     = safe(feats.get("drawdown_pct"), None)
 
-            # -------- Trend (lighter weight than Stage 1) --------
+            pe     = safe(feats.get("val_PE"), None)
+            ps     = safe(feats.get("val_PS"), None)
+            rev    = safe(feats.get("val_EV_REV"), None)
+
+            # -------- Trend (z-scores, not divided) --------
             rsi_band = tri_sweetspot(rsi, lo=40, mid_lo=52, mid_hi=68, hi=75)
+
+            # Trend: give z-scores more bite
             trend = (
-                0.25*(self._zs("vsSMA200", vs200)/4.0) +
-                0.20*(self._zs("vsSMA50",  vs50) /4.0) +
-                0.15*(clamp(macd,-1.5,1.5)/1.5) +
-                0.10*rsi_band
+                0.6*self._zs("vsSMA200", vs200) +
+                0.5*self._zs("vsSMA50",  vs50) +
+                0.3*(clamp(macd or 0.0, -2.0, 2.0)) +
+                0.4*rsi_band*4
             )
-            trend = clamp(trend, -1.0, 1.0)
 
-            # -------- Structure (heavier weight here) --------
+            # -------- Structure --------
             struct = 0.0
-            if sma50 and sma200:
-                struct += 0.6 if sma50 > sma200 else -0.3
-            if e50 and e200:
-                struct += 0.6 if e50 > e200 else -0.25
-            if px and e50:
-                struct += 0.3 if px > e50 else -0.15
-            if px and avwap:
-                struct += 0.4 if px > avwap else -0.20
+            if sma50 and sma200: struct += 2 if sma50 > sma200 else -1
+            if e50 and e200:     struct += 2 if e50 > e200 else -1
+            if px and e50:       struct += 1 if px > e50 else -0.5
+            if px and avwap:     struct += 2 if px > avwap else -1
             if px and e50 and e200:
-                if px > e50 > e200: struct += 0.25
-                elif px < e50 < e200: struct -= 0.20
-            struct = clamp(struct, -1.0, 1.0)
+                if px > e50 > e200: struct += 1
+                elif px < e50 < e200: struct -= 1
 
-            # -------- Stability (risk filters) --------
+            # -------- Stability --------
             stab = 0.0
-            if atrp is not None:
-                stab -= clamp((atrp - P.atr_soft_cap) / P.atr_soft_cap, 0.0, 1.0)
-            if dd is not None:
-                stab -= clamp((abs(min(dd,0.0)) - abs(P.dd_soft_cap))/25.0, 0.0, 1.0)
-            if v20 is not None:
-                stab -= clamp((v20 - P.vol20_soft_cap)/P.vol20_soft_cap, 0.0, 1.0)
+            if atrp: stab -= (atrp - P.atr_soft_cap)
+            if dd:   stab -= (abs(min(dd,0.0)) - abs(P.dd_soft_cap)) / 5
+            if v20:  stab -= (v20 - P.vol20_soft_cap) / 50
+            if feats.get("liq_tier") == "small" and v20 and v20 >= 300:
+                stab -= 2
 
-            # extra harsh on unstable small caps
-            if feats.get("liq_tier") == "small" and v20 is not None and v20 >= 300:
-                stab -= 0.5
-
-            stab = clamp(stab, -1.0, 0.0)
-
-            # Blowoff detector (EMA-aware)
+            # -------- Blowoff --------
             blow = 0.0
-            if (rsi is not None and rsi >= 80) and (v20 is not None and v20 >= 200) and (d20 is not None and d20 >= 15):
-                blow = -1.0
-            elif (rsi is not None and rsi >= 85):
-                blow = -0.7
-            if vsem50 is not None and vsem50 >= 25 and blow < 0:
-                blow = min(-1.0, blow - 0.2)
+            if rsi and rsi >= 80 and v20 and v20 >= 200: blow -= 3
+            if rsi and rsi >= 85: blow -= 5
+            if vsem50 and vsem50 >= 25: blow -= 1
+            if prof == "A": blow *= 0.5
+            if prof == "C": blow *= 1.5
 
-            # Profile-aware adjustments
-            if prof == "A":
-                blow *= 0.5   # Aggressive → half penalty
-            elif prof == "C":
-                blow *= 1.5   # Conservative → harsher penalty
+            # -------- Valuation --------
+            val = self._value_tilt(feats) * 5  # expand effect
+            if pe and pe >= 80: val -= 3
+            if ps and ps >= 40: val -= 3
+            if rev and rev >= 20: val -= 3
 
+            # -------- Combine --------
+            parts = {"trend": trend, "struct": struct, "stability": stab, "blowoff": blow, "value": val}
+            weights = {"trend": 0.25, "struct": 0.30, "stability": 0.25, "blowoff": 0.10, "value": 0.10}
 
-            # -------- Valuation sanity checks --------
-            val = self._value_tilt(feats)
-            pe  = safe(feats.get("val_PE"), None)
-            ps  = safe(feats.get("val_PS"), None)
-            rev = safe(feats.get("val_EV_REV"), None)
+            score_unit = sum(weights[k] * parts[k] for k in parts)
 
-            # Harsh penalty for bubble valuations
-            if (pe and pe >= 80) or (ps and ps >= 40) or (rev and rev >= 20):
-                val -= 0.5
-
-            val = clamp(val, -1.0, 1.0)
-
-            # -------- Score combination --------
-            parts = {
-                "trend": trend,
-                "struct": struct,
-                "stability": stab,
-                "blowoff": blow,
-                "value": val,
-            }
-
-            # Stronger weight on struct + stability, lighter on momo/trend
-            w = {
-                "trend": 0.20,
-                "struct": 0.30,
-                "stability": 0.25,
-                "blowoff": 0.15,
-                "value": 0.10,
-            }
-            active_w = sum(w.values())
-            score_unit = sum(w[k] * parts[k] for k in w.keys())
-            scr = clamp((score_unit / active_w) * 100.0, -100.0, 100.0)
+            # Final scale into -100..100
+            scr = clamp(score_unit * 35, -100, 100)
 
             return scr, parts
+
         except Exception as e:
             if self.verbose:
                 logger.exception(f"[Ranker] composite_score error: {e}")
@@ -615,8 +582,17 @@ class RobustRanker:
         for i, (t, n, f) in enumerate(universe, 1):
             if self.should_drop(f):
                 continue
-            score, parts = self.composite_score(f, context)
-            ranked.append((t, n, f, score, parts))
+            tr_score, tr_parts = self.composite_score(f, context)
+            qs_score = f.get("final_score", None)  # QS score from stage1_kept.csv
+            merged_score, merged_parts = merge_tr_qs(tr_score, tr_parts, qs_score)
+
+            # Add qs_score and tr_score explicitly into feats for export
+            f["_qs_score"] = qs_score
+            f["_tr_score"] = tr_score
+
+            ranked.append((t, n, f, merged_score, merged_parts))
+
+
             if self.verbose and self.log_every and (i % self.log_every == 0):
                 logger.info(f"[Ranker] progress: {i} processed, {len(ranked)} kept")
         ranked.sort(key=lambda x: x[3], reverse=True)
@@ -747,8 +723,98 @@ def pick_top_stratified(
             if not removed_any:
                 continue
 
-    picked.sort(key=lambda x: x[3], reverse=True)
+    # Always rank by merged_score from feats
+    picked.sort(key=lambda x: x[2].get("_merged_score", x[3]), reverse=True)
     return picked[:total]
+
+import pandas as pd
+
+def merge_tr_qs(tr_score: float, tr_parts: Dict[str, float], qs_score: Optional[float]) -> Tuple[float, Dict[str, float]]:
+    try:
+        qs_score = float(qs_score) if qs_score is not None else 0.0
+    except Exception:
+        qs_score = 0.0
+    tr_scaled = tr_score
+    # --- Weighted blend (Conservative TR bias) ---
+    w_tr = 0.75
+    w_qs = 0.25
+    merged_score = (w_tr * tr_scaled) + (w_qs * qs_score)
+
+
+    # --- Conservative penalties ---
+    if tr_score < -50:
+        merged_score -= 20
+    if tr_score < -75:
+        merged_score -= 40
+
+    # --- Synergy bonuses ---
+    if tr_score > 50 and qs_score > 75:
+        merged_score += 15
+    if tr_score > 70 and qs_score > 85:
+        merged_score += 25
+
+    # --- Clamp final score to -100..100 ---
+    merged_score = max(-100, min(100, merged_score))
+
+    merged_parts = dict(tr_parts)
+    merged_parts["final_score"] = merged_score
+
+    return merged_score, merged_parts
+
+def normalize_qs(qs_score: float) -> float:
+    if qs_score is None:
+        return 0.0
+    try:
+        qs = float(qs_score)
+    except Exception:
+        return 0.0
+    return max(-1.0, min(1.0, (qs - 50.0) / 50.0))
+
+
+
+def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.csv"):
+    """
+    Load stage1_kept.csv (QS final_score),
+    run TR composite scoring, merge results,
+    and save merged CSV.
+    """
+    df = pd.read_csv(stage1_path)
+
+    ranker = RobustRanker()
+
+    universe = []
+    for _, row in df.iterrows():
+        feats = row.to_dict()
+        ticker = feats.get("ticker", "")
+        name   = feats.get("name", ticker)
+        universe.append((ticker, name, feats))
+
+    ranked = ranker.score_universe(universe)
+
+    # Build DataFrame
+    rows = []
+    for t, n, f, tr_score, parts in ranked:
+        qs_score = f.get("final_score", None)  # from QS
+        if qs_score is None:
+            qs_score = 0.0
+
+        # Merge scores
+        merged_score, merged_parts = merge_tr_qs(tr_score, parts, qs_score)
+
+        row = {
+            "ticker": t,
+            "name": n,
+            "merged_score": merged_score,
+        }
+        # Optionally include breakdown parts
+        row.update({f"tr_{k}": v for k, v in parts.items()})
+        row.update({f"merged_{k}": v for k, v in merged_parts.items()})
+        rows.append(row)
+
+    out_df = pd.DataFrame(rows)
+    out_df.to_csv(out_path, index=False)
+    print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
+    return out_df
 
 __all__ = [
     "HardFilter",

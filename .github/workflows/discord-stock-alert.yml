@@ -313,6 +313,25 @@ jobs:
           else
             echo "No $FILE produced (enable STAGE1_WRITE_CSV=1)."
           fi
+      - name: Commit stage2 merged CSV to repo
+        shell: bash
+        run: |
+          set -e
+          FILE="data/stage2_merged.csv"
+          if [ -f "$FILE" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$FILE"
+            if git diff --cached --quiet; then
+              echo "No changes to commit for $FILE."
+            else
+              git commit -m "Add/update merged TR+QS CSV (run #${{ github.run_number }})"
+              git push
+            fi
+          else
+            echo "No $FILE produced (check merge_stage1_with_tr)."
+          fi
+
       - name: Commit enhancer bonus CSV to repo
         shell: bash
         run: |
