@@ -1,551 +1,551 @@
 ticker,company,base_score,trend,struct,risk_pen,enhancer_bonus,final_score,tags
-ZIMV,Zimvie,41.48,61.51194586288317,8.0,-5.8967440590687366,25.00,66.48,RS_trend_protect;stall_risk
-VNP.TO,5N Plus,51.21,83.08315312204356,17.0,-4.600259990198628,15.00,66.21,RS_trend_protect
-GFI,Gold Fields,45.88,73.63670731598134,11.0,-4.549503721181738,14.00,59.88,RS_trend_protect
-JMIA,Jumia Technologies,59.72,97.4,17.0,-18.3265,0.00,59.72,RS_trend_protect;low_liquidity_today;stall_risk
-CRDO,Credo Technology,59.03,94.53276542363719,17.0,-16.064112121663936,0.00,59.03,RS_trend_protect;breakout_protect
-MOB,Mobilicom,58.46,98.48,13.0,-17.956,0.00,58.46,RS_trend_protect;low_liquidity_today;stall_risk
-RIGL,Rigel Pharmaceuticals,58.31,93.62,17.0,-16.979739674966453,0.00,58.31,RS_trend_protect;stall_risk
-CLS.TO,Celestica,57.63,91.69108698621605,17.0,-12.965380260710184,0.00,57.63,RS_trend_protect;breakout_protect;stall_risk
-ALAB,Astera Labs,57.57,87.63666798142643,17.0,-13.774271477665941,0.00,57.57,RS_trend_protect
-W,Wayfair Inc,57.49,87.90129646370548,17.0,-9.671443635669107,0.00,57.49,RS_trend_protect;breakout_protect;stall_risk
-FUTU,Futu,57.46,77.44866112652906,25.0,-11.683202253701964,0.00,57.46,RS_trend_protect;stall_risk
-CHCI,Comstock Holding Companies,56.45,98.26,11.0,-23.53699785,0.00,56.45,RS_trend_protect;breakout_protect
-FORD,Forward Industries,56.14,99.09333333333333,17.0,-18.748166821674218,0.00,56.14,RS_trend_protect
-EFR.TO,Energy Fuels,56.13,92.75867854230361,17.0,-17.602,0.00,56.13,RS_trend_protect;low_liquidity_today;stall_risk
-UEC,Uranium Energy,54.61,87.38872120486555,17.0,-12.650821436832736,0.00,54.61,RS_trend_protect
-LYSDY,Lynas Rare Earths,54.54,90.21724153966439,17.0,-11.579049076698261,0.00,54.54,RS_trend_protect;low_liquidity_today;stall_risk
-FEIM,Frequency Electronics,54.19,87.62379394262524,17.0,-16.346432707121913,0.00,54.19,RS_trend_protect;stall_risk
-SFTBY,SoftBank,53.93,79.2838547656961,17.0,-6.931862233487401,0.00,53.93,RS_trend_protect;low_liquidity_today
-AMLX,Amylyx Pharmaceuticals,53.82,89.8379684614735,11.0,-18.573550047214354,0.00,53.82,RS_trend_protect;low_liquidity_today;stall_risk
-METC,Ramaco Resources,53.79,81.07951241693848,17.0,-11.76000132066956,0.00,53.79,RS_trend_protect
-PPIH,Perma-Pipe International,53.16,86.82903463472665,11.0,-16.5,0.00,53.16,RS_trend_protect
-U,Unity Software,53.14,73.94282061859347,17.0,-12.052704835743754,0.00,53.14,RS_trend_protect;stall_risk
-BELFB,Bel Fuse,50.29,73.47363151024031,19.0,-7.6274526703391565,2.00,52.29,RS_trend_protect;breakout_protect;stall_risk
-TDUP,ThredUp,51.92,90.7834949760611,17.0,-20.15835036264739,0.00,51.92,RS_trend_protect;stall_risk
-KSS,Kohl's,51.92,81.17706220417061,8.0,-18.4465,0.00,51.92,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-AFRM,Affirm,51.22,82.59221048119524,11.0,-13.1724232415053,0.00,51.22,RS_trend_protect;breakout_protect
-RCG.TO,RF Capital,50.50,92.06139450013373,8.0,-11.138665149999998,0.00,50.50,RS_trend_protect;low_liquidity_today
-OPRX,OptimizeRx,50.24,89.18109136771201,17.0,-24.629243079369814,0.00,50.24,breakout_protect;low_liquidity_today;stall_risk
-ACQ.TO,AutoCanada,50.15,83.76720046890959,11.0,-13.434217531861238,0.00,50.15,RS_trend_protect;breakout_protect;stall_risk
-CELH,Celsius,50.03,76.67835058310345,11.0,-15.307586700462204,0.00,50.03,RS_trend_protect;stall_risk
-LQDA,Liquidia,57.79,97.45333333333335,11.0,-15.102783932210128,-8.00,49.79,RS_trend_protect;low_liquidity_today;stall_risk
-LASR,nLight,57.62,94.92468193463336,11.0,-11.680990692904052,-8.00,49.62,RS_trend_protect;stall_risk
-HUT,Hut 8 Mining,49.51,56.370683405548355,25.0,-21.383656172922777,0.00,49.51,RS_trend_protect
-VERV,Verve Therapeutics,49.33,86.69018638061827,11.0,-6.0,0.00,49.33,RS_trend_protect
-XGN,Exagen,49.10,79.63474106222435,25.0,-19.522253478273026,0.00,49.10,RS_trend_protect;stall_risk
-ASM.TO,Avino Silver & Gold Mines,48.80,78.50303427358965,19.0,-19.40500764028422,0.00,48.80,RS_trend_protect
-GTN,Gray Media,48.78,55.90628497656822,25.0,-8.779811167437007,0.00,48.78,RS_trend_protect;low_liquidity_today
-PBYI,Puma Biotechnology,48.43,70.21502819727218,17.0,-14.931000000000001,0.00,48.43,RS_trend_protect;low_liquidity_today
-LIF,Life360,48.30,66.53423653158468,25.0,-16.453414094726902,0.00,48.30,RS_trend_protect;stall_risk
-INDV.L,Indivior,48.27,66.10841922830144,19.0,-8.764524626012625,0.00,48.27,RS_trend_protect;breakout_protect
-XNET,Xunlei,48.05,97.501765003193,11.0,-24.6225,0.00,48.05,stall_risk
-ETH,Ethan Allen Interiors,47.95,53.40663283142903,25.0,-12.092251166314622,0.00,47.95,RS_trend_protect
-RYTM,Rhythm Pharmaceuticals,47.41,66.9440690156913,19.0,-10.908778414818357,0.00,47.41,RS_trend_protect;stall_risk
-WLDN,Willdan,47.15,58.14817460931538,19.0,-14.088294940609314,0.00,47.15,RS_trend_protect;low_liquidity_today
-RDDT,Reddit,47.15,63.313915748614875,11.0,-10.975441611758566,0.00,47.15,RS_trend_protect
-OSS,One Stop Systems,46.69,69.32244968625807,25.0,-19.127499999999998,0.00,46.69,RS_trend_protect;low_liquidity_today;stall_risk
-FN,Fabrinet,46.57,66.25344950951273,25.0,-10.717055815841496,0.00,46.57,RS_trend_protect;breakout_protect;stall_risk
-ALNY,Alnylam Pharmaceuticals,46.56,55.78390813276303,25.0,-14.763621140437001,0.00,46.56,RS_trend_protect;low_liquidity_today;stall_risk
-HLIO,Helios Technologies,46.10,58.69624111922183,17.0,-4.473482977983202,0.00,46.10,RS_trend_protect;low_liquidity_today
-METCB,Ramaco Resources,45.96,68.37561266819766,11.0,-15.660305153819396,0.00,45.96,RS_trend_protect;low_liquidity_today
-TIGR,Up Fintech,45.95,70.94639017846985,11.0,-16.786,0.00,45.95,RS_trend_protect;stall_risk
-HSAI,Hesai,45.87,65.94405813888957,25.0,-17.1415,0.00,45.87,RS_trend_protect;stall_risk
-ENLT.TA,Enlight Renewable Energy,45.78,55.55405594494694,31.0,-3.7696977378570424,0.00,45.78,RS_trend_protect;breakout_protect
-XERS,Xeris Biopharma,53.49,92.73238180011116,11.0,-12.775504199592467,-8.00,45.49,RS_trend_protect;low_liquidity_today;stall_risk
-ONDS,Ondas,60.18,98.34666666666666,7.0,-15.402651831200778,-15.00,45.18,RS_trend_protect;stall_risk
-APLD,Applied Digital,45.17,64.14572374813338,25.0,-18.5,0.00,45.17,
-CLBR,PSQ Holdings,44.87,62.636578609924,19.0,-16.5,0.00,44.87,RS_trend_protect;breakout_protect
-MCRB,Seres Therapeutics,44.51,66.15808498189628,8.0,-15.661756130787923,0.00,44.51,RS_trend_protect;stall_risk
-DOO.TO,BRP,45.40,68.81292824758133,11.0,-7.147352020277323,-1.00,44.40,RS_trend_protect;stall_risk
-VITL,Vital Farms,44.37,56.876068566717926,17.0,-10.93642670064803,0.00,44.37,RS_trend_protect;stall_risk
-NMRK,Newmark,44.29,49.832296629456636,25.0,-7.477424307936982,0.00,44.29,RS_trend_protect;stall_risk
-MRCY,Mercury Systems,44.18,52.698051711569384,25.0,-7.132731275781522,0.00,44.18,RS_trend_protect;low_liquidity_today
-BLBD,Blue Bird,44.08,51.58291695965426,25.0,-5.569927712340342,0.00,44.08,RS_trend_protect;low_liquidity_today
-UPB,Upstream Bio,43.73,85.44804339360142,17.0,-13.051407021032455,0.00,43.73,RS_trend_protect
-WBTN,Webtoon Entertainment,42.97,58.3195910164088,2.0,-16.206000000000003,0.00,42.97,RS_trend_protect;low_liquidity_today
-ACFN,Acorn Energy,42.74,65.77710613295902,17.0,-22.217389985230316,0.00,42.74,RS_trend_protect;stall_risk
-TPCS,TechPrecision,42.74,69.64908506349016,17.0,-29.064830747984683,0.00,42.74,RS_trend_protect;low_liquidity_today;stall_risk
-NUS,Nu Skin Enterprises,50.01,79.52216134190694,11.0,-8.958266115004225,-8.00,42.01,RS_trend_protect;breakout_protect;stall_risk
-SCPH,scPharmaceuticals,41.87,62.25225634894246,19.0,-17.687969360369763,0.00,41.87,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-MGRM,Monogram Technologies,49.77,75.01010996041792,14.0,-7.218116499276736,-8.00,41.77,RS_trend_protect;overheat_L1;probe_ok_L1
-MLCO,Melco Resorts & Entertainment,41.68,55.2577988626937,11.0,-9.947181193988014,0.00,41.68,RS_trend_protect
-RNA,Avidity Biosciences,41.54,61.63669508916872,17.0,-14.404601113264752,0.00,41.54,RS_trend_protect;low_liquidity_today;stall_risk
-DXPE,DXP Enterprises,41.49,49.35454203920097,25.0,-13.086824785050446,0.00,41.49,RS_trend_protect;low_liquidity_today;stall_risk
-ELF,elf Beauty,41.36,55.204632638610846,25.0,-17.923148636814297,0.00,41.36,breakout_protect;stall_risk
-LC,LendingClub,41.27,41.74333727271487,25.0,-12.056817976243725,0.00,41.27,RS_trend_protect;low_liquidity_today;stall_risk
-TME,Tencent Music Entertainment,41.25,50.0281033410573,29.0,-9.801600318075643,0.00,41.25,RS_trend_protect;low_liquidity_today
-COOP,Mr Cooper,41.21,61.57481375147983,25.0,-12.018101040567018,0.00,41.21,RS_trend_protect
-ANET,Arista Networks,41.18,48.63968533064266,25.0,-8.820837734527977,0.00,41.18,RS_trend_protect;breakout_protect;stall_risk
-GSAT,Globalstar,41.14,44.456254551994284,19.0,-10.822092478073795,0.00,41.14,RS_trend_protect
-RHLD,Resolute Holdings Management,41.12,40.152174669778454,8.0,-19.783,0.00,41.12,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-TLNE,Talen Energy,41.08,47.84317598382601,25.0,-7.6818738545439915,0.00,41.08,RS_trend_protect
-WYNN,Wynn Resorts,40.98,46.092986636219486,29.0,-6.096060018545648,0.00,40.98,RS_trend_protect;stall_risk
-FIX,Comfort Systems USA,40.68,49.282954699903364,25.0,-22.821913851163004,0.00,40.68,RS_trend_protect;stall_risk
-TEM,Tempus AI,40.67,55.54648594058994,17.0,-22.5,0.00,40.67,stall_risk
-VSAT,Viasat,55.43,96.52666666666667,13.0,-14.489195069476933,-15.00,40.43,RS_trend_protect;stall_risk
-IBP,Installed Building Products,40.13,51.30105224722557,17.0,-16.371845211470603,0.00,40.13,RS_trend_protect;low_liquidity_today;stall_risk
-GH,Guardant Health,40.13,46.505228708949744,25.0,-10.224442125142886,0.00,40.13,RS_trend_protect
-CELC,Celcuity,55.10,92.56666666666666,13.0,-18.20932558023955,-15.00,40.10,RS_trend_protect;low_liquidity_today;stall_risk
-CDTX,Cidara Therapeutics,39.87,67.9528860928394,29.0,-12.731494781571492,0.00,39.87,RS_trend_protect;low_liquidity_today
-ESEA,Euroseas,47.69,70.59012084180759,19.0,-19.714562688122044,-8.00,39.69,RS_trend_protect;stall_risk
-EVI,EVI Industries,39.67,51.61638727546106,19.0,-20.28691437427315,0.00,39.67,RS_trend_protect
-PRPO,Precipio,39.63,73.57973996130958,19.0,-30.343747667437007,0.00,39.63,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-NATL,NCR Atleos,39.28,49.47735907480366,17.0,-10.0252414889916,0.00,39.28,RS_trend_protect;low_liquidity_today;stall_risk
-HDSN,Hudson Technologies,38.80,53.232993085557595,19.0,-4.6219931911932814,0.00,38.80,RS_trend_protect;breakout_protect;low_liquidity_today
-TARS,Tarsus Pharmaceuticals,38.76,42.822654627106864,17.0,-7.852040034905226,0.00,38.76,RS_trend_protect;stall_risk
-RBLX,Roblox,38.63,68.51245453064088,31.0,-19.761519438788632,0.00,38.63,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-BBW,Build-A-Bear Workshop,38.49,51.82424334025057,25.0,-21.414126663856464,0.00,38.49,RS_trend_protect;stall_risk
-FIVE,Five Below,38.15,52.98533092389559,21.0,-11.81799460705413,0.00,38.15,RS_trend_protect;breakout_protect
-PHAT,Phathom Pharmaceuticals,38.12,69.71512434563543,25.0,-23.209450404944267,0.00,38.12,RS_trend_protect;stall_risk
-REAL,RealReal,37.58,68.9817350523529,17.0,-9.876304355124164,0.00,37.58,RS_trend_protect;breakout_protect
-SEDG,SolarEdge Technologies,53.55,86.61036786292675,11.0,-15.441701434583557,-16.00,37.55,RS_trend_protect;stall_risk
-TPB,Turning Point Brands,37.29,45.88410840304389,25.0,-6.967556642148262,0.00,37.29,RS_trend_protect
-DPM.TO,Dundee Precious Metals,37.13,54.50553678809957,19.0,-4.990541351805704,0.00,37.13,RS_trend_protect
-IVZ,Invesco,37.10,40.08446312810667,29.0,-6.8985,0.00,37.10,RS_trend_protect;stall_risk
-CGNX,Cognex,37.01,40.87512911354298,25.0,-7.32737244669748,0.00,37.01,RS_trend_protect;stall_risk
-KTOS,Kratos Defense & Security Solutions,36.96,50.44772078778512,29.0,-7.966079907915139,0.00,36.96,RS_trend_protect
-COMP,Compass,36.89,44.19157413601669,25.0,-10.188908215437696,0.00,36.89,RS_trend_protect;stall_risk
-AXL,American Axle & Manufacturing,36.75,37.157827830313835,16.0,-13.155493986382387,0.00,36.75,RS_trend_protect;low_liquidity_today;stall_risk
-JOUT,Johnson Outdoors,36.73,45.44639168006934,25.0,-10.583033791767917,0.00,36.73,RS_trend_protect;stall_risk
-UAL,United Airlines,36.68,37.771119247853306,19.0,-4.323764066901419,0.00,36.68,RS_trend_protect
-AEHR,Aehr Test Systems,58.57,100.96666666666667,11.0,-16.054000000000002,-22.00,36.57,RS_trend_protect;stall_risk
-YOU,Clear Secure,36.42,39.85719231248487,25.0,-8.369603722479003,0.00,36.42,RS_trend_protect;stall_risk
-EDR.TO,Endeavour Silver,36.36,50.09484609033809,19.0,-10.837618036978574,0.00,36.36,RS_trend_protect
-FTCI,FTC Solar,36.33,51.193500845139084,25.0,-31.437850316665003,0.00,36.33,RS_trend_protect;pullback_protect;stall_risk
-TERN,Terns Pharmaceuticals,35.83,69.50388110692235,8.0,-13.96654942185317,0.00,35.83,RS_trend_protect
-URI,United Rentals,35.76,38.09268343902841,25.0,-4.5034490759476595,0.00,35.76,RS_trend_protect;breakout_protect;stall_risk
-STNE,StoneCo,35.52,45.7522963651273,29.0,-16.404100318075642,0.00,35.52,pullback_protect;stall_risk
-ZBIO,Zenas Biopharma,35.50,66.37647063803796,25.0,-20.102123729917245,0.00,35.50,RS_trend_protect
-GSY.TO,goeasy,35.42,36.55678761601423,25.0,-8.302499999999998,0.00,35.42,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-INTR,Inter & Co,35.25,44.96211476321775,25.0,-5.5908418070672425,0.00,35.25,RS_trend_protect;low_liquidity_today
-TNZ.TO,Tenaz Energy,34.86,47.65384521807037,19.0,-16.4666895386406,0.00,34.86,RS_trend_protect
-INSM,Insmed,45.81,64.83531840129709,11.0,-0.7144277123403411,-11.00,34.81,RS_trend_protect;low_liquidity_today
-ALDX,Aldeyra Therapeutics,34.50,33.10673251689593,29.0,-13.37558749565131,0.00,34.50,RS_trend_protect;stall_risk
-NGEX.TO,NGEx Minerals,34.48,47.17233822097652,25.0,-6.763424307936981,0.00,34.48,RS_trend_protect;pullback_protect;low_liquidity_today
-SIGA,SIGA Technologies,34.45,44.28688390357819,25.0,-6.458717677343244,0.00,34.45,RS_trend_protect
-PSIX,Power Solutions International,34.40,60.21265776236065,25.0,-11.667914561172982,0.00,34.40,RS_trend_protect
-PPTA.TO,Perpetua Resources,34.31,47.144046758735065,25.0,-19.688817486657225,0.00,34.31,
-EDV.L,Endeavour Mining,34.21,54.57080947164708,19.0,-10.138352649013154,0.00,34.21,
-RDNT,RadNet,34.16,38.51068943291396,10.0,-11.044148121016747,0.00,34.16,RS_trend_protect;breakout_protect;stall_risk
-CMCL,Caledonia Mining,50.10,88.44713872494961,11.0,-19.274323899159036,-16.00,34.10,RS_trend_protect;breakout_protect
-KNOP,KNOT Offshore Partners,34.03,39.93341151872487,25.0,-18.378187124042046,0.00,34.03,RS_trend_protect;stall_risk
-SCR.TO,Strathcona Resources,33.81,40.53460438264014,25.0,-7.20770570517505,0.00,33.81,RS_trend_protect;stall_risk
-ORGO,Organogenesis,33.79,36.439770999954426,29.0,-11.432105276963263,0.00,33.79,RS_trend_protect;stall_risk
-ATZ.TO,Aritzia,33.58,43.84097882321999,19.0,-8.895308736812384,0.00,33.58,RS_trend_protect;breakout_protect
-SONO,Sonos,33.38,41.72012997763733,2.0,-7.695756866416733,0.00,33.38,RS_trend_protect;breakout_protect;stall_risk
-JMHLY,Jardine Matheson,33.14,41.910842820574885,25.0,-16.2429232,0.00,33.14,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-VZLA.TO,Vizsla Silver,33.14,51.682256127563456,25.0,-18.92580095422693,0.00,33.14,stall_risk
-NXT,NEXTracker,32.90,40.45526943837877,29.0,-18.44625017522029,0.00,32.90,
-HSHP,Himalaya Shipping,32.73,44.26493191208415,25.0,-11.032797909899442,0.00,32.73,RS_trend_protect;breakout_protect;stall_risk
-MARI.TO,Marimaca Copper,32.69,52.28702225387408,29.0,-22.222995949999998,0.00,32.69,RS_trend_protect;low_liquidity_today
-APTV,Aptiv,32.68,31.210613138693983,29.0,0.0,0.00,32.68,low_liquidity_today
-OTLY,Oatly,32.67,40.93716939938729,25.0,-21.98207728244123,0.00,32.67,RS_trend_protect;pullback_protect;low_liquidity_today
-PRYMY,Prysmian,32.65,39.535630640346916,25.0,-6.0,0.00,32.65,RS_trend_protect;pullback_protect;low_liquidity_today
-ATAT,Atour Lifestyle Holdings,32.65,33.807643102496286,29.0,-4.343935241173616,0.00,32.65,RS_trend_protect
-BTO.TO,B2Gold,32.60,36.92175509950306,29.0,-4.451595185985459,0.00,32.60,pullback_protect
-GRGD.TO,Groupe Dynamite,32.38,12.622166292116553,16.0,-10.426418294319369,0.00,32.38,RS_trend_protect;low_liquidity_today
-SSL.TO,Sandstorm Gold,32.26,50.382190421146895,19.0,-15.571932907688904,0.00,32.26,RS_trend_protect;low_liquidity_today;stall_risk
-GO,Grocery Outlet,32.23,31.313522848092056,25.0,-6.0488902639033855,0.00,32.23,RS_trend_protect
-WB,Weibo,31.96,34.12391023342123,29.0,-5.707841807067243,0.00,31.96,pullback_protect;low_liquidity_today
-BABA,Alibaba,31.87,34.5112202267887,31.0,-6.203014092781005,0.00,31.87,pullback_protect
-RKT,Rocket Companies,31.83,51.4278814597994,25.0,-11.187321116416756,0.00,31.83,RS_trend_protect
-SNN,Smith & Nephew,31.62,40.79931124370531,25.0,-6.0169999999999995,0.00,31.62,RS_trend_protect;breakout_protect;stall_risk
-LZ,Legalzoom.com,31.58,33.871166225435886,25.0,-6.047471550865063,0.00,31.58,stall_risk
-BVNRY,Bavarian Nordic,31.55,32.33247847745332,29.0,-10.761647218326415,0.00,31.55,RS_trend_protect
-FVI.TO,Fortuna Mining,31.49,40.77553514857082,25.0,-10.913066274042045,0.00,31.49,stall_risk
-EPSM,Epsium Enterprise,31.47,29.565953515823384,8.0,-15.569192759466603,0.00,31.47,RS_trend_protect;stall_risk
-AMBA,Ambarella,44.31,55.050133564309924,19.0,-14.746094304458031,-13.00,31.31,RS_trend_protect;low_liquidity_today;stall_risk
-SWIM,Latham,31.26,33.834784137669004,25.0,-9.309562869638686,0.00,31.26,RS_trend_protect;low_liquidity_today
-KOD,Kodiak Sciences,31.24,61.1534109148883,11.0,-14.103,0.00,31.24,RS_trend_protect;low_liquidity_today
-THO,Thor Industries,31.22,32.925266742274225,25.0,-8.8456207444958,0.00,31.22,RS_trend_protect;low_liquidity_today;stall_risk
-CYRX,CryoPort,31.21,35.582074777614054,25.0,-10.882825133690734,0.00,31.21,RS_trend_protect
-AMPX,Amprius Technologies,31.20,60.13122974661078,19.0,-13.8825,0.00,31.20,RS_trend_protect;low_liquidity_today
-LEU,Centrus Energy,31.15,65.10159189387312,22.0,-18.5,0.00,31.15,RS_trend_protect;low_liquidity_today
-MOD,Modine Manufacturing,31.14,26.603802981530656,19.0,-4.2855246260126245,0.00,31.14,RS_trend_protect
-COMM,CommScope,54.12,96.43333333333334,11.0,-12.433307763033648,-23.00,31.12,RS_trend_protect;low_liquidity_today;stall_risk
-OCUL,Ocular Therapeutix,30.98,47.32052933160446,29.0,-7.762165880549661,0.00,30.98,RS_trend_protect;setup_protect
-DDS,Dillard's,43.93,57.48395321091199,19.0,-8.675121598982242,-13.00,30.93,RS_trend_protect;breakout_protect;stall_risk
-RCL,Royal Caribbean Cruises,30.81,47.500973616138594,21.0,-4.624563257366398,0.00,30.81,RS_trend_protect;low_liquidity_today
-PBT,Permian Basin Royalty Trust,46.81,74.16235124294406,11.0,-9.053362080050617,-16.00,30.81,RS_trend_protect;breakout_protect
-LWAY,Lifeway Foods,30.78,35.55457596352617,25.0,-8.766608827620683,0.00,30.78,RS_trend_protect
-STRL,Sterling Infrastructure,30.78,45.94307778698639,29.0,-15.981167201219222,0.00,30.78,RS_trend_protect;setup_protect
-PRLB,Proto Labs,30.43,34.17353821232881,25.0,-7.5325,0.00,30.43,RS_trend_protect;stall_risk
-ENVA,Enova International,30.40,30.41179938265648,21.0,-0.8169172025121034,0.00,30.40,RS_trend_protect;breakout_protect
-ELA,Envela,30.16,33.21333780509211,19.0,-22.07321025665971,0.00,30.16,RS_trend_protect;low_liquidity_today;stall_risk
-NEO.TO,Neo Performance Materials,30.11,48.54827222910012,29.0,-15.144207444958004,0.00,30.11,RS_trend_protect;low_liquidity_today
-BNB.BR,Banque Nationale de Belgique,30.00,41.550505285384205,19.0,-17.200118681180797,0.00,30.00,stall_risk
-LAUR,Laureate Education,29.97,32.080599255393025,21.0,-1.9244999999999999,0.00,29.97,RS_trend_protect
-INSW,International Seaways,29.90,25.073207968547695,29.0,-3.2987414889916016,0.00,29.90,RS_trend_protect
-CYGIY,CyberAgent,29.75,44.52992916292189,11.0,-15.99925,0.00,29.75,RS_trend_protect;low_liquidity_today
-CBL,CBL & Associates Properties,29.67,26.49355857557898,29.0,-7.859999999999999,0.00,29.67,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-INCY,Incyte,29.55,30.430291695438182,25.0,-0.9401235400605878,0.00,29.55,RS_trend_protect
-MDA.TO,MDA Space,29.54,45.314197156261216,29.0,-12.374328189453806,0.00,29.54,RS_trend_protect;low_liquidity_today;stall_risk
-HPE,Hewlett Packard Enterprise,29.53,29.188357884461453,19.0,-7.3356692013319424,0.00,29.53,RS_trend_protect;breakout_protect
-WAL,Western Alliance Bancorp,29.52,22.085835240407537,29.0,-2.0550000000000006,0.00,29.52,RS_trend_protect;breakout_protect
-EYPT,EyePoint Pharmaceuticals,29.42,49.38036988469989,29.0,-22.019917737108486,0.00,29.42,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-LGCY,Legacy Education,29.34,47.36270473450767,29.0,-29.103038827168135,0.00,29.34,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-FTAI,FTAI Aviation,37.14,43.26103547299792,19.0,-7.505345670247034,-8.00,29.14,RS_trend_protect;stall_risk
-JBGS,JBG SMITH Properties,29.09,36.78107907550088,19.0,-3.7696237924510614,0.00,29.09,RS_trend_protect;breakout_protect
-ATMU,Atmus Filtration Technologies,29.09,27.307946424938947,25.0,-5.721,0.00,29.09,RS_trend_protect;low_liquidity_today
-CS.TO,Capstone Copper,29.00,27.158145460026404,29.0,-7.661950859557175,0.00,29.00,pullback_protect;stall_risk
-BVN,Cia de Minas Buenaventura,28.92,41.40588430770431,19.0,-4.93703036707286,0.00,28.92,stall_risk
-ATRA,Atara Biotherapeutics,28.91,49.556460190643115,25.0,-27.112094454050244,0.00,28.91,RS_trend_protect;low_liquidity_today;stall_risk
-SION,Sionna Therapeutics,28.67,15.665976920772216,16.0,-17.76407698476916,0.00,28.67,RS_trend_protect;stall_risk
-IPO.TO,InPlay Oil,28.64,32.183792161370704,25.0,-12.320581587878891,0.00,28.64,RS_trend_protect;stall_risk
-VC,Visteon,28.61,37.00277782424179,29.0,-5.958027915590397,0.00,28.61,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-NIO,NIO,44.55,66.60754326839233,2.0,-16.157082236244968,-16.00,28.55,RS_trend_protect;stall_risk
-CCL,Carnival Corp,28.51,34.40669951753074,31.0,-5.456614963467505,0.00,28.51,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-CVNA,Carvana,28.48,45.2443999869849,31.0,-16.969931911932807,0.00,28.48,pullback_protect;low_liquidity_today;stall_risk
-LUG.TO,Lundin Gold,44.42,66.98877280279744,11.0,-10.211926486730588,-16.00,28.42,RS_trend_protect;breakout_protect
-HOOD,Robinhood Markets,28.34,40.314526433879415,29.0,-18.09773804987761,0.00,28.34,RS_trend_protect
-PAAS.TO,Pan American Silver,28.32,39.21222827093146,19.0,-5.7936828189453795,0.00,28.32,stall_risk
-CVI,CVR Energy,28.30,44.71262969593334,29.0,-16.41149741581109,0.00,28.30,RS_trend_protect;pullback_protect;stall_risk
-NET,Cloudflare,28.28,48.99064227183616,29.0,-15.953867899911007,0.00,28.28,pullback_protect;stall_risk
-BGLC,BioNexus Gene Lab,28.25,44.50209658971516,18.422619047619047,-16.471720864979567,0.00,28.25,RS_trend_protect;stall_risk;setup_protect
-LMND,Lemonade,28.24,25.470713507963893,29.0,-14.276801749416036,0.00,28.24,RS_trend_protect;low_liquidity_today
-NG.TO,Novagold Resources,44.23,57.92992802580109,11.0,-5.309912869248631,-16.00,28.23,RS_trend_protect
-CX,Cemex,28.19,41.22838703915722,11.0,-9.707877219366045,0.00,28.19,RS_trend_protect
-BBIO,BridgeBio Pharma,28.14,42.809914267267146,29.0,-8.02505978194931,0.00,28.14,RS_trend_protect;pullback_protect;setup_protect
-ADPT,Adaptive Biotechnologies Corp,28.05,50.50876866002212,29.0,-14.729529924687565,0.00,28.05,RS_trend_protect;pullback_protect;setup_protect
-WMS,Advanced Drainage Systems,27.92,28.203201486117596,25.0,-9.29,0.00,27.92,RS_trend_protect;low_liquidity_today;stall_risk
-HBM.TO,Hudbay Minerals,40.82,47.43151240714782,14.0,-0.08824829779831989,-13.00,27.82,RS_trend_protect;overheat_L1;probe_ok_L1
-MAG.TO,MAG Silver,27.79,40.738756204690404,19.0,-11.22271359575663,0.00,27.79,low_liquidity_today
-CG,Carlyle Group,27.76,34.19484509266499,29.0,-3.84367941454202,0.00,27.76,RS_trend_protect;pullback_protect;low_liquidity_today
-RDIB,Reading International (Class B),27.60,36.00818519675541,29.0,-32.04717395,0.00,27.60,low_liquidity_today
-PXT.TO,Parex Resources,27.55,35.49876928889945,19.0,-4.85228385652166,0.00,27.55,stall_risk
-NTOIY,Neste,40.48,56.00600720212413,11.0,-17.57054462790709,-13.00,27.48,RS_trend_protect;breakout_protect;low_liquidity_today
-NBN,Northeast Bank,27.48,28.291393811720145,19.0,-8.929186223348738,0.00,27.48,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-PINC,Premier,27.48,37.510988385348554,19.0,-16.266308895445473,0.00,27.48,breakout_protect;low_liquidity_today;stall_risk
-NEM,Newmont,40.28,50.116691794386306,11.0,-1.0233940041935008,-13.00,27.28,RS_trend_protect
-MCFT,MasterCraft Boat,27.27,33.54846866468577,19.0,-11.091752497390786,0.00,27.27,stall_risk
-ATLC,Atlanticus,39.96,39.38200152180796,19.0,-4.696972764773124,-13.00,26.96,RS_trend_protect;breakout_protect
-NU,NU Holdings,26.85,26.166302321593793,11.0,-12.195637118536908,0.00,26.85,RS_trend_protect
-CUK,Carnival,26.85,34.837018891416136,29.0,-5.572367360229584,0.00,26.85,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-EZPW,EZCORP,26.83,31.244553179113304,19.0,-5.422154092826583,0.00,26.83,RS_trend_protect;breakout_protect;stall_risk
-PBF,PBF Energy,39.82,36.86848111786008,19.0,-8.677191755838379,-13.00,26.82,RS_trend_protect
-SANM,Sanmina,26.68,37.96249399167081,29.0,-7.2166139356890815,0.00,26.68,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-ASMB,Assembly Biosciences,26.66,35.00252841746434,29.0,-17.59161797754976,0.00,26.66,RS_trend_protect
-ATRO,Astronics,26.62,50.66440054122684,21.0,-13.729972827527213,0.00,26.62,breakout_protect
-AMSC,American Superconductor,26.52,42.23132817203613,29.0,-20.66555811765626,0.00,26.52,RS_trend_protect
-PODD,Insulet,26.50,35.979238137086476,11.0,0.0,0.00,26.50,breakout_protect
-SYF,Synchrony Financial,26.41,29.36998419109242,29.0,-0.17903149788576286,0.00,26.41,RS_trend_protect;breakout_protect
-ROKU,Roku,26.41,32.154855793230276,29.0,-5.0215376864151775,0.00,26.41,RS_trend_protect;pullback_protect
-APH,Amphenol,26.35,37.455442671024116,31.0,-14.792287442980552,0.00,26.35,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-SAN,Banco Santander,26.34,41.691759164648204,29.0,-1.1792585822703858,0.00,26.34,RS_trend_protect;pullback_protect;setup_protect
-LSCC,Lattice Semiconductor,34.28,37.28502099076541,19.0,-9.020224466974803,-8.00,26.28,RS_trend_protect;low_liquidity_today;stall_risk
-LLYVK,Liberty Media Corporation,34.26,34.55339573725539,29.0,-2.6659999999999995,-8.00,26.26,RS_trend_protect
-PPRUY,Kering,26.25,27.138744547006983,19.0,-10.0,0.00,26.25,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-HRTG,Heritage Insurance,26.23,48.36519640264078,29.0,-16.751134421801012,0.00,26.23,breakout_protect;stall_risk
-LPG,Dorian LPG,26.20,29.692429585921257,29.0,-1.170649423150434,0.00,26.20,RS_trend_protect;pullback_protect;setup_protect
-CG.TO,Centerra Gold,26.16,30.43039397536788,11.0,-3.0039052971147147,0.00,26.16,
-GLW,Corning,39.05,49.1528409016933,19.0,-2.891983219336069,-13.00,26.05,RS_trend_protect;breakout_protect
-RIOT,Riot Platforms,26.03,30.96920308775754,25.0,-21.836278302996718,0.00,26.03,RS_trend_protect;pullback_protect
-SIG,Signet Jewelers,26.00,38.144346386879945,29.0,-18.666766075735627,0.00,26.00,pullback_protect;stall_risk;setup_protect
-CVE.TO,Cenovus Energy,25.96,23.816415490070614,19.0,-4.27955867004622,0.00,25.96,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-AREN,Arena Group,25.88,62.83994474478471,21.0,-29.22126715,0.00,25.88,RS_trend_protect;pullback_protect;low_liquidity_today
-POWL,Powell Industries,25.86,31.72259395162922,25.0,-17.288649570100894,0.00,25.86,RS_trend_protect;low_liquidity_today;stall_risk
-AMG,Affiliated Managers,25.84,35.284633613630994,29.0,-6.0205,0.00,25.84,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-LTM,Latam Airlines,38.82,58.39782342547053,11.0,-15.023416367483575,-13.00,25.82,RS_trend_protect;low_liquidity_today
-PII,Polaris,25.74,33.29908862605322,25.0,-8.556321380647084,0.00,25.74,RS_trend_protect;low_liquidity_today
-VIK,Viking Holdings,25.74,38.47788251055087,25.0,-9.28286904229412,0.00,25.74,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-CIO,City Office REIT,25.64,35.66066226240641,29.0,-5.787893151442495,0.00,25.64,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-K.TO,Kinross Gold,41.57,46.19069650830083,14.0,1.278799506372688,-16.00,25.57,RS_trend_protect;overheat_L1;probe_ok_L1
-CVS,CVS Health,25.48,23.311817206255192,21.0,-8.0,0.00,25.48,
-SKE.TO,Skeena Resources,25.46,44.22794595010203,29.0,-17.45269407859821,0.00,25.46,pullback_protect;stall_risk;setup_protect
-SIMO,Silicon Motion Technology,25.45,41.45174833780307,29.0,-14.4914263837561,0.00,25.45,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-AGX,Argan,25.41,41.49787482427459,29.0,-19.83966999652105,0.00,25.41,pullback_protect
-BKE,Buckle,38.38,50.12921814088319,19.0,-5.3787798945129754,-13.00,25.38,RS_trend_protect;breakout_protect;stall_risk
-CEU.TO,CES Energy Solutions,25.35,21.62434447250267,20.0,-7.703993191193282,0.00,25.35,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-ECG,Everus Construction,25.32,33.39210320412185,29.0,-19.612648774911783,0.00,25.32,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-BURL,Burford Capital,25.24,31.313338309172188,29.0,-3.2888765473295742,0.00,25.24,RS_trend_protect;breakout_protect
-ROAD,Construction Partners,25.22,39.186717171579865,29.0,-17.273584233377484,0.00,25.22,pullback_protect;stall_risk
-III,Information Services,25.21,41.06310083694747,29.0,-18.33377371013866,0.00,25.21,breakout_protect;pullback_protect;stall_risk
-MUX,McEwen,41.18,51.50875403746416,11.0,-10.082423064073687,-16.00,25.18,RS_trend_protect
-THC,Tenet Healthcare,25.17,37.97561465966507,21.0,-7.07659426235905,0.00,25.17,RS_trend_protect;breakout_protect
-FRO,Frontline,25.00,32.305939005140104,11.0,-3.679130151472481,0.00,25.00,RS_trend_protect
-SCLX,Scilex,39.95,87.66844503916016,8.0,-17.886499999999998,-15.00,24.95,RS_trend_protect;stall_risk
-LVS,Las Vegas Sands,24.89,26.41763503664935,31.0,-6.497834594880866,0.00,24.89,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-TIXT.TO,TELUS International CDA,37.88,39.68230660460817,19.0,-6.785669555148197,-13.00,24.88,RS_trend_protect;breakout_protect
-RAPT,RAPT Therapeutics,24.88,48.57814203816984,16.0,-18.840124867490708,0.00,24.88,RS_trend_protect;breakout_protect;stall_risk
-MDGL,Madrigal Pharmaceuticals,40.87,39.04854510086522,14.0,-1.9078077630336479,-16.00,24.87,RS_trend_protect;low_liquidity_today;overheat_L1;probe_ok_L1
-MHK,Mohawk Industries,24.71,25.940848762438907,16.0,-7.92818622334874,0.00,24.71,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-BNS.TO,Bank of Nova Scotia,24.70,30.344707259253006,11.0,-9.918551493622315,0.00,24.70,RS_trend_protect
-MFI.TO,Maple Leaf Foods,32.67,46.303207170331675,19.0,-6.058999999999999,-8.00,24.67,RS_trend_protect;stall_risk
-EFX.TO,Enerflex,37.64,37.03585402907216,19.0,-1.5225,-13.00,24.64,RS_trend_protect;breakout_protect
-C,Citigroup,24.63,28.217857711959653,31.0,-5.607114864943634,0.00,24.63,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-PAY,Paymentus,24.61,22.877960544815764,29.0,-10.120759303338255,0.00,24.61,
-RRR,Red Rock Resorts,24.59,31.160965250946784,29.0,-7.2195,0.00,24.59,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-MCY,Mercury General,24.54,34.07684488930079,29.0,-6.664,0.00,24.54,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-TSEM.TA,Tower Semiconductor,40.49,37.06199806363264,14.0,-1.34361749861311,-16.00,24.49,RS_trend_protect;overheat_L1;probe_ok_L1
-SN,SharkNinja,24.44,22.294404583113632,31.0,0.0,0.00,24.44,RS_trend_protect;pullback_protect;setup_protect
-CFG,Citizens Financial Group,24.42,26.384732667453992,29.0,-4.0,0.00,24.42,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-SNOW,Snowflake,24.42,35.95033555354618,29.0,-18.255504199592465,0.00,24.42,pullback_protect
-GNK,Genco Shipping & Trading,24.38,30.372139691319177,29.0,-5.092508489423818,0.00,24.38,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-GCT,GigaCloud Technology,24.34,19.259487993284385,29.0,-11.18482989875984,0.00,24.34,RS_trend_protect
-TER,Teradyne,37.33,35.09652974071702,19.0,-6.073566036589744,-13.00,24.33,RS_trend_protect;stall_risk
-NCLH,Norwegian Cruise Line,24.30,21.53917753880107,31.0,-7.381669201331943,0.00,24.30,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-PHIN,Phinia,32.28,32.8432799567191,19.0,-6.271,-8.00,24.28,RS_trend_protect;stall_risk
-GSL,Global Ship Lease,24.26,35.27701878043506,29.0,-5.238634666660005,0.00,24.26,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-OGC.TO,OceanaGold,40.24,48.722118615341806,14.0,-7.272907099964089,-16.00,24.24,RS_trend_protect;overheat_L1;probe_ok_L1
-BAP,Credicorp,24.21,37.13489762003081,29.0,-8.439470669878997,0.00,24.21,pullback_protect;low_liquidity_today;stall_risk
-MITSY,Mitsui & Co,24.19,37.682218111001944,11.0,-18.317628348491628,0.00,24.19,RS_trend_protect;low_liquidity_today
-GTX,Garrett Motion,24.16,33.40460090955136,29.0,-7.943000000000001,0.00,24.16,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-TPR,Tapestry,24.16,27.893901778197506,29.0,-0.4969931911932812,0.00,24.16,RS_trend_protect
-IRTC,iRhythm Technologies,37.15,64.26131898435482,14.0,-8.844432979416332,-13.00,24.15,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
-AVGO,Broadcom,24.15,28.931775473439185,31.0,-8.033196415685712,0.00,24.15,RS_trend_protect;pullback_protect;setup_protect
-PFGC,Performance Food,24.15,28.794984076403715,31.0,-4.0,0.00,24.15,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-KEC.TO,Kiwetinohk Energy,24.11,31.953037949896423,29.0,-11.257247033697892,0.00,24.11,RS_trend_protect;pullback_protect;setup_protect
-SHOP.TO,Shopify,24.08,31.719628792832424,25.0,-2.500568211351308,0.00,24.08,RS_trend_protect
-EVR,Evercore,24.02,26.181231503183927,29.0,-7.481922744464141,0.00,24.02,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-SAP.TO,Saputo,32.00,40.8383289081363,19.0,-5.293232177206209,-8.00,24.00,RS_trend_protect;breakout_protect;stall_risk
-BOOT,Boot Barn,23.97,43.218351898994136,21.0,-11.952147707428262,0.00,23.97,breakout_protect
-CUBI,Customers Bancorp,23.92,35.89590800851944,19.0,-6.0,0.00,23.92,RS_trend_protect;pullback_protect
-XOMA,XOMA Royalty Corporation,39.90,42.645131000774754,11.0,-9.897867022678582,-16.00,23.90,RS_trend_protect;breakout_protect
-PET.TO,Pet Valu,23.85,36.82892411674683,29.0,-14.523404877792181,0.00,23.85,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-RL,Ralph Lauren,23.83,36.85829636144875,21.0,-1.883824844600373,0.00,23.83,breakout_protect
-FGEN,FibroGen,23.81,57.462761608681596,-1.4503631961259074,-23.25619775,0.00,23.81,RS_trend_protect;low_liquidity_today;stall_risk
-BLD,TopBuild,23.76,22.10176151437661,29.0,-3.9284243079369823,0.00,23.76,RS_trend_protect;pullback_protect
-NXE.TO,NexGen Energy,23.68,26.940865324417047,29.0,-13.246791145612354,0.00,23.68,RS_trend_protect;pullback_protect
-EGL.LS,Mota-Engil,23.68,37.05649020648286,29.0,-9.366679356770465,0.00,23.68,RS_trend_protect
-LNR.TO,Linamar,23.66,31.22318192353564,29.0,-7.959593635119642,0.00,23.66,breakout_protect
-IBKR,Interactive Brokers,23.62,26.325209495381024,31.0,-1.9832002748699424,0.00,23.62,RS_trend_protect;pullback_protect;low_liquidity_today
-BWAY,Brainsway,39.58,39.18887265993259,14.0,-8.132752548722728,-16.00,23.58,RS_trend_protect;overheat_L1;probe_ok_L1
-FIGS,Figs,23.56,27.57006964398678,29.0,-5.396661265875844,0.00,23.56,RS_trend_protect;pullback_protect;setup_protect
-ARLO,Arlo Technologies,23.55,41.72964209655103,29.0,-18.027638561701707,0.00,23.55,pullback_protect;stall_risk
-VOE.VI,voestalpine,23.48,32.21581816486618,29.0,-7.743917499130261,0.00,23.48,RS_trend_protect;pullback_protect;stall_risk
-SEA.TO,Seabridge Gold,23.48,33.428061920674125,29.0,-8.666972764773124,0.00,23.48,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-AX,Axos Financial,23.47,28.88664750991558,29.0,-6.946,0.00,23.47,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-BBVA,Banco Bilbao Vizcaya Argentaria,23.38,33.06959503558257,29.0,-2.196674843826245,0.00,23.38,RS_trend_protect
-HLF,Herbalife Ltd,23.33,31.666333177326553,29.0,-11.715732070970628,0.00,23.33,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-III.TO,Imperial Metals,23.33,53.37377811937439,19.0,-24.799429599361364,0.00,23.33,breakout_protect
-SSSS,SuRo Capital,23.32,36.07520296008353,29.0,-10.670867470842051,0.00,23.32,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-TCW.TO,Trican Well Service,23.27,26.71828624885678,29.0,-4.3545,0.00,23.27,RS_trend_protect;pullback_protect;low_liquidity_today
-TCBX,Third Coast Bancshares,23.23,26.105348947117648,29.0,-6.826408760815409,0.00,23.23,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-LITE,Lumentum,39.23,45.66513752110431,14.0,-7.783559465235328,-16.00,23.23,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
-KLG,WK Kellogg Co,23.15,24.780429535001236,29.0,-5.132302151875335,0.00,23.15,RS_trend_protect;stall_risk
-OMF,OneMain,23.14,26.300657040224955,29.0,-1.1392208607501337,0.00,23.14,RS_trend_protect;breakout_protect
-GE,General Electric,23.14,31.833361993005013,29.0,-3.720991028657785,0.00,23.14,breakout_protect
-NTAP,NetApp,23.03,27.121009140652056,29.0,-6.16136159304988,0.00,23.03,breakout_protect;pullback_protect;stall_risk
-RMBS,Rambus,22.98,29.578698000382484,29.0,-7.121692064026749,0.00,22.98,RS_trend_protect;pullback_protect;setup_protect
-TOT.TO,Total Energy Services,30.93,30.249806246450596,29.0,-9.812973901140502,-8.00,22.93,RS_trend_protect;pullback_protect;stall_risk
-ACAD,ACADIA Pharmaceuticals,22.92,36.376141568044,29.0,-10.690003927925869,0.00,22.92,pullback_protect;stall_risk;setup_protect
-ESLT.TA,Elbit Systems,22.91,35.921560666013676,31.0,-4.710229205918837,0.00,22.91,pullback_protect;stall_risk;setup_protect
-KITS.TO,KITS Eyecare,22.91,39.67866657092101,29.0,-25.35921656886482,0.00,22.91,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-TAYD,Taylor Devices,22.79,31.858330907633178,25.0,-27.544100300000004,0.00,22.79,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-DJCO,Daily Journal Corp,22.76,30.61636980725137,10.0,-4.226732062906542,0.00,22.76,breakout_protect
-MLI,Mueller Industries,22.66,26.776097688323027,29.0,-5.212417957775214,0.00,22.66,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-RYCEY,Rolls-Royce,22.65,32.21839030351408,29.0,-4.189500000000001,0.00,22.65,RS_trend_protect;low_liquidity_today
-FSLR,First Solar,22.64,23.89303498160516,31.0,-15.94770793293598,0.00,22.64,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-EXTR,Extreme Networks,35.64,44.017608952764334,11.0,-2.057503602324105,-13.00,22.64,RS_trend_protect;breakout_protect
-RF,Regions Financial,22.62,21.66643404935034,29.0,-2.8511806919109417,0.00,22.62,RS_trend_protect;breakout_protect
-HG,Hamilton Insurance Group,22.61,29.87307598543565,29.0,-2.2829822108869213,0.00,22.61,pullback_protect
-EMBC,Embecta,22.60,34.61857440009885,8.0,-12.999141966105066,0.00,22.60,RS_trend_protect;low_liquidity_today;stall_risk
-EVOK,Evoke Pharma,22.58,37.04340353046408,15.597364568081993,-16.5,0.00,22.58,RS_trend_protect;low_liquidity_today
-TALO,Talos Energy,22.54,13.926479359696202,20.0,-5.283769519407585,0.00,22.54,
-OSK,Oshkosh,22.48,25.5197297097264,29.0,-1.1812604683463985,0.00,22.48,RS_trend_protect;pullback_protect;setup_protect
-ECO,Okeanis Eco Tankers,22.48,30.22556344808709,25.0,-7.181117340092442,0.00,22.48,RS_trend_protect;stall_risk
-FAST,Fastenal,22.48,26.444989729553022,31.0,-5.934294797427943,0.00,22.48,pullback_protect;stall_risk;setup_protect
-KN,Knowles,22.45,27.18789896851277,29.0,-5.6745,0.00,22.45,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-CTGO,Contango ORE,22.43,31.571617877617637,29.0,-16.69505450864997,0.00,22.43,
-ITUB,Itau Unibanco Holding,22.40,26.28431619955003,31.0,-5.863593651507217,0.00,22.40,pullback_protect;setup_protect
-GOOGL,Alphabet (Class A),35.40,50.02479807888566,11.0,-4.136876658123119,-13.00,22.40,RS_trend_protect;breakout_protect;overheat_L1
-LILAK,Liberty Latin America (Class C),22.40,35.00744525822079,19.0,-12.375145370508424,0.00,22.40,RS_trend_protect;low_liquidity_today;stall_risk
-REZI,Resideo Technologies,46.38,55.84129371361556,11.0,-4.33380696784454,-24.00,22.38,RS_trend_protect;breakout_protect;low_liquidity_today
-TRIP,TripAdvisor,22.33,23.830593527736987,29.0,-3.7240523755441837,0.00,22.33,RS_trend_protect;pullback_protect;setup_protect
-PBI,Pitney Bowes,22.31,31.147865748427147,29.0,-6.968048927445744,0.00,22.31,pullback_protect;stall_risk
-EPRX.TO,Eupraxia Pharmaceuticals,22.26,28.579720514302053,29.0,-11.175060451056813,0.00,22.26,RS_trend_protect;pullback_protect;setup_protect
-BNL,Broadstone Net Lease,22.24,15.587232301812321,21.0,-1.6800000000000006,0.00,22.24,
-MTA,ArcelorMittal,38.24,51.448485871015734,11.0,-13.268525421201732,-16.00,22.24,RS_trend_protect
-VEON,VEON,22.24,30.225779454983225,29.0,-12.501698026937035,0.00,22.24,RS_trend_protect;pullback_protect;low_liquidity_today
-BK,Bank of New York Mellon,22.18,25.842859366375656,31.0,-4.054,0.00,22.18,pullback_protect;stall_risk;setup_protect
-PFSI,PennyMac Financial Services,22.16,30.667891088883483,25.0,-5.284030556929519,0.00,22.16,breakout_protect;stall_risk
-TNK,Teekay Tankers,22.15,26.181241294574097,11.0,-2.469053482894488,0.00,22.15,
-AG.TO,First Majestic Silver,22.11,33.62196827759293,29.0,-12.871674538583335,0.00,22.11,pullback_protect;setup_protect
-EBR,Centrais Eletricas Brasileiras,22.10,29.378131803775453,29.0,-4.610685599039393,0.00,22.10,pullback_protect
-CWCO,Consolidated Water,22.08,27.63674515179847,29.0,-6.786,0.00,22.08,pullback_protect;stall_risk;setup_protect
-EXPE,Expedia,30.07,33.121412402775505,19.0,-4.422,-8.00,22.07,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
-GNW,Genworth Financial,22.05,24.097817651723258,29.0,-2.4780000000000006,0.00,22.05,RS_trend_protect;pullback_protect;setup_protect
-ASND,Ascendis Pharma,22.05,34.613567489964666,29.0,-10.890965955966404,0.00,22.05,breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-SSL,Sasol,38.03,47.0924650630598,11.0,-2.8969794471840435,-16.00,22.03,RS_trend_protect
-BSVN,Bank7,22.02,23.463334829182806,29.0,-10.349001260260454,0.00,22.02,RS_trend_protect;pullback_protect;stall_risk
-R,Ryder System,22.01,25.599909588752,29.0,-5.575477181394715,0.00,22.01,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-APEI,American Public Education,21.95,24.888664320608147,29.0,-4.937111581959281,0.00,21.95,RS_trend_protect;breakout_protect
-DAL,Delta Air Lines,21.95,20.294308366949682,31.0,-8.322676133028336,0.00,21.95,pullback_protect;stall_risk;setup_protect
-GOOG,Alphabet (Class C),34.94,49.12390155495395,11.0,-4.054438898631534,-13.00,21.94,RS_trend_protect;breakout_protect;overheat_L1
-BDGI.TO,Badger Infrastructure Solutions,21.93,32.1835177332412,25.0,-9.003,0.00,21.93,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-LEVI,Levi Strauss & Co,21.92,26.756527487733777,21.0,-0.9256863459754554,0.00,21.92,RS_trend_protect
-AXSM,Axsome Therapeutics,21.92,26.335133737425735,11.0,-2.110453520399116,0.00,21.92,breakout_protect
-VIV,Telefonica Brasil,21.91,29.65279926388529,29.0,-3.0179999999999993,0.00,21.91,pullback_protect;low_liquidity_today
-INTC,Intel,21.90,21.17182295904395,31.0,-6.274539038815169,0.00,21.90,pullback_protect;low_liquidity_today
-AMRX,Amneal Pharmaceuticals,21.88,23.094616411667584,29.0,-2.50380696784454,0.00,21.88,RS_trend_protect;pullback_protect;setup_protect
-IMPUY,Impala Platinum,21.87,37.813569835915544,29.0,-15.3159533222479,0.00,21.87,pullback_protect;stall_risk;setup_protect
-JLL,Jones Lang LaSalle,29.85,24.783572624624618,29.0,-9.2935,-8.00,21.85,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-OLMA,Olema Pharmaceuticals,21.79,39.58911727634852,2.0,-17.9725,0.00,21.79,RS_trend_protect
-BMO.TO,Bank of Montreal,21.75,31.872999160679903,21.0,0.0,0.00,21.75,breakout_protect;low_liquidity_today
-GS,Goldman Sachs,21.73,19.984602978672314,31.0,-1.105831763685085,0.00,21.73,RS_trend_protect;pullback_protect;setup_protect
-MFG,Mizuho Financial Group,21.69,27.242518160518387,29.0,-1.2848632615708477,0.00,21.69,pullback_protect;setup_protect
-WDC,Western Digital,37.65,43.318966859878614,14.0,-4.118234680184881,-16.00,21.65,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
-APLS,Apellis Pharmaceuticals,21.65,39.14568420847809,8.0,-8.899790100184887,0.00,21.65,RS_trend_protect;stall_risk
-REVG,REV,37.61,59.787526648805525,11.0,-17.541076487252127,-16.00,21.61,RS_trend_protect;breakout_protect
-WCC,WESCO International,21.61,19.00271489019755,29.0,-4.467079899588092,0.00,21.61,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-NFLX,Netflix,21.59,28.415106668195932,31.0,-10.446364270336923,0.00,21.59,breakout_protect;setup_protect
-COF,Capital One Financial,21.58,24.067062875308235,31.0,-4.0,0.00,21.58,pullback_protect;stall_risk;setup_protect
-APP,AppLovin,37.53,55.7832854860884,11.0,-14.311413627647788,-16.00,21.53,RS_trend_protect;breakout_protect
-CIGI.TO,Colliers International Group,21.42,19.582920789106307,29.0,-2.8095,0.00,21.42,RS_trend_protect;pullback_protect
-DOC.VI,DO & CO,21.42,14.575216340065516,29.0,-2.3993656378907597,0.00,21.42,RS_trend_protect
-STAA,STAAR Surgical,21.41,42.59055441095527,2.0,-1.6829999999999998,0.00,21.41,RS_trend_protect
-WPM.TO,Wheaton Precious Metals,21.40,37.71678964242599,21.0,-0.9342946075712839,0.00,21.40,breakout_protect
-GASS,StealthGas,21.38,29.641481329744682,29.0,-16.530273253126087,0.00,21.38,pullback_protect;low_liquidity_today;stall_risk
-GM,General Motors,21.37,20.435240488663823,31.0,-4.953708413481155,0.00,21.37,pullback_protect;stall_risk
-VLO,Valero Energy,21.35,29.93243318748395,21.0,-9.931874767883581,0.00,21.35,
-JKS,JinkoSolar,21.32,23.014782906714586,29.0,-13.284470155558871,0.00,21.32,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-BNCDY,Banca Mediolanum,29.32,49.13185310299248,19.0,-28.313193750000003,-8.00,21.32,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-ATGE,Adtalem Global Education,21.31,29.320624340600407,29.0,-10.205680990839351,0.00,21.31,pullback_protect;low_liquidity_today;stall_risk
-SVM.TO,Silvercorp Metals,21.16,32.37827334090048,29.0,-10.503883455096666,0.00,21.16,pullback_protect;stall_risk
-TFPM.TO,Triple Flag Precious Metals,21.14,38.31976865330377,25.0,-10.300131795029497,0.00,21.14,pullback_protect;low_liquidity_today;stall_risk
-CCO.TO,Cameco,21.11,29.634046585347257,29.0,-14.251073082848764,0.00,21.11,RS_trend_protect;pullback_protect;setup_protect
-MU,Micron Technology,21.09,25.59970935542337,31.0,-3.3372610696468037,0.00,21.09,pullback_protect;setup_protect
-MSB,Mesabi Trust,21.07,28.072720615819094,29.0,-7.11180482438682,0.00,21.07,pullback_protect
-MIRM,Mirum Pharmaceuticals,37.06,45.063811337304244,11.0,-5.330772923810946,-16.00,21.06,RS_trend_protect
-LUN.TO,Lundin Mining,21.04,30.633669505208008,29.0,-5.284030556929519,0.00,21.04,pullback_protect;stall_risk;setup_protect
-AII.TO,Almonty Industries,21.02,38.17229895441426,20.0,-20.4713938,0.00,21.02,
-HCA,HCA Healthcare,21.01,24.28917829442583,29.0,-4.591533392288824,0.00,21.01,breakout_protect;pullback_protect
-AGI.TO,Alamos Gold,34.01,42.79047482396148,14.0,-7.363386056641271,-13.00,21.01,overheat_L1;probe_ok_L1
-IDXX,IDEXX Laboratories,21.00,21.279670214069842,29.0,-3.852219075267198,0.00,21.00,RS_trend_protect
-KRC,Kilroy Realty,20.93,21.108825937895013,29.0,-0.846278198293622,0.00,20.93,
-BLX,Banco Latinoamericano de Comercio Exterior,20.93,27.97022883604252,29.0,-5.49387212654446,0.00,20.93,pullback_protect;stall_risk;setup_protect
-OR.TO,OR Royalties,33.92,50.54187245313727,11.0,-3.2226107765538345,-13.00,20.92,RS_trend_protect;breakout_protect
-PTGX,Protagonist Therapeutics,20.90,28.597111051107106,29.0,-7.911428187507907,0.00,20.90,
-LRN,Stride,20.87,24.974991854597416,29.0,-10.07536904229412,0.00,20.87,pullback_protect;low_liquidity_today;stall_risk
-GNTX,Gentex,20.86,19.64794379076306,29.0,-1.7355,0.00,20.86,RS_trend_protect;pullback_protect;setup_protect
-FOXA,Fox Corp (Class A),20.80,21.868447014244396,31.0,-4.0,0.00,20.80,pullback_protect;stall_risk;setup_protect
-IDCC,InterDigital,33.80,52.89028656535247,19.0,-5.958773319126515,-13.00,20.80,RS_trend_protect;breakout_protect;stall_risk
-ASPS,Altisource Portfolio Solutions,20.77,35.029754135753855,19.0,-27.557807950000004,0.00,20.77,RS_trend_protect;low_liquidity_today;stall_risk
-SOHU,Sohu.com,20.76,20.66732038464749,29.0,-14.718939012648912,0.00,20.76,RS_trend_protect;setup_protect
-SQM,Sociedad Quimica y Minera de Chile,20.73,16.080114750370633,29.0,-6.344959147159685,0.00,20.73,RS_trend_protect;low_liquidity_today
-MS,Morgan Stanley,20.71,21.186524562335848,31.0,-4.596216523191657,0.00,20.71,breakout_protect;pullback_protect;stall_risk;setup_protect
-GPI,Group 1 Automotive,20.70,28.568168425208892,29.0,-6.780948629398839,0.00,20.70,breakout_protect;pullback_protect;stall_risk
-PNC,PNC Financial Services,20.68,19.804023806761663,29.0,0.0,0.00,20.68,low_liquidity_today
-ERJ,Embraer,20.67,26.001378442561993,29.0,-3.493491799656173,0.00,20.67,RS_trend_protect;pullback_protect;setup_protect
-HALO,Halozyme Therapeutics,33.66,36.75148855807417,11.0,-8.84561090293495,-13.00,20.66,RS_trend_protect;overheat_L1
-HBI,Hanesbrands,20.61,28.838539173536542,8.0,-5.82,0.00,20.61,RS_trend_protect;low_liquidity_today
-DCI,Donaldson,20.60,25.38104071955656,29.0,-7.161999999999999,0.00,20.60,pullback_protect;low_liquidity_today;stall_risk
-THFF,First Financial,20.59,22.172513768204094,29.0,-2.2183251645008024,0.00,20.59,breakout_protect
-VAL,Valaris,20.56,22.418113837664965,29.0,-6.222538825292169,0.00,20.56,breakout_protect;pullback_protect
-TCOM,Trip.com,33.55,30.312882188222865,19.0,-1.638762734135728,-13.00,20.55,
-DCO,Ducommun,20.53,24.081203230328377,29.0,-4.565470820829145,0.00,20.53,RS_trend_protect;pullback_protect;setup_protect
-AXP,American Express,20.52,22.626674196006757,29.0,-1.5271803121976246,0.00,20.52,
-LYFT,Lyft,20.51,24.155769987061763,29.0,-16.833567064897544,0.00,20.51,
-NXST,Nexstar Media,20.50,25.715906939553996,25.0,-7.178289945827742,0.00,20.50,RS_trend_protect;pullback_protect;low_liquidity_today
-NLY,Annaly Capital Management,20.50,21.430622554949256,29.0,-4.115226337448561,0.00,20.50,breakout_protect;pullback_protect
-AIF.TO,Altus Group,20.46,18.01476671217003,29.0,-1.2700107510496244,0.00,20.46,pullback_protect;setup_protect
-FN.TO,First National Financial,20.45,22.356955272217387,29.0,-5.467096379733301,0.00,20.45,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-FNB,FNB Corp,20.42,20.331513531842173,29.0,-5.759504907128452,0.00,20.42,breakout_protect;pullback_protect;stall_risk
-EIF.TO,Exchange Income Corp,20.40,16.79456631650639,29.0,-1.976840818515355,0.00,20.40,RS_trend_protect
-MDI.TO,Major Drilling Group International,20.39,20.664706863371997,29.0,-5.139061474674122,0.00,20.39,
-ULTA,Ulta Beauty,20.38,22.366734852132574,31.0,-10.458435349302116,0.00,20.38,pullback_protect;setup_protect
-SFIX,Stitch Fix,33.37,47.635412625365355,19.0,-15.882442365374308,-13.00,20.37,breakout_protect;stall_risk
-CNAL.L,Centrica,20.37,27.031632094092963,29.0,-12.136660000000001,0.00,20.37,
-CRC,California Resources,20.33,20.09635981994508,29.0,-6.21743452114706,0.00,20.33,breakout_protect;pullback_protect
-ELD.TO,Eldorado Gold,33.32,44.87045818343663,19.0,-7.9892412318760435,-13.00,20.32,RS_trend_protect
-PI,Impinj,39.25,81.10149524770478,11.0,-11.466925103126087,-19.00,20.25,RS_trend_protect
-FTDR,Frontdoor,20.25,25.924752719238455,29.0,-13.6690809708407,0.00,20.25,breakout_protect;pullback_protect;stall_risk
-HE,Hawaiian Electric Industries,20.20,23.5797055781322,29.0,-8.218231275781521,0.00,20.20,pullback_protect;stall_risk
-NSSC,Napco Security Technologies,36.19,24.67762379958302,14.0,-3.068510379926316,-16.00,20.19,RS_trend_protect;overheat_L1;probe_ok_L1
-SLS.TO,Solaris Resources,20.18,26.34256966844029,29.0,-10.12172579804063,0.00,20.18,RS_trend_protect;pullback_protect;setup_protect
-CLF,Cleveland-Cliffs,20.17,15.10404596278174,29.0,-6.232443627867979,0.00,20.17,RS_trend_protect;pullback_protect;setup_protect
-ETON,Eton Pharmaceuticals,20.16,32.39390016799075,25.0,-12.495807763033648,0.00,20.16,breakout_protect;low_liquidity_today;stall_risk
-IDN,Intellicheck,20.14,38.47220209341763,29.0,-28.873868835974854,0.00,20.14,stall_risk;setup_protect
-EME,EMCOR,28.14,34.39998229990338,29.0,-4.994,-8.00,20.14,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
-CMI,Cummins,20.10,14.345401580476354,31.0,-0.7702517932294454,0.00,20.10,RS_trend_protect;pullback_protect;setup_protect
-AYI,Acuity,20.09,26.176919111931245,25.0,-9.067,0.00,20.09,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-LNC,Lincoln National,33.09,37.00352300107338,19.0,-1.9619999999999997,-13.00,20.09,RS_trend_protect
-ARIS.TO,Aris Mining,36.08,37.57274278368278,14.0,-18.476952338352966,-16.00,20.08,RS_trend_protect;overheat_L1;probe_ok_L1
-IPCO.TO,International Petroleum,20.08,22.47715012072897,29.0,-1.4248232742612656,0.00,20.08,pullback_protect;setup_protect
-VOD,Vodafone,20.07,23.846131713450426,29.0,-5.191190683533932,0.00,20.07,pullback_protect;stall_risk;setup_protect
-BEN,Franklin Resources,20.05,21.806162091121116,29.0,-1.5005337636750924,0.00,20.05,pullback_protect;setup_protect
-NYMT,Adamas Trust,20.04,25.590195895224323,29.0,-5.252387780559012,0.00,20.04,breakout_protect;pullback_protect;stall_risk
-HAS,Hasbro,20.02,22.848152674946377,29.0,-3.6795000000000004,0.00,20.02,pullback_protect;low_liquidity_today
-GOOS.TO,Canada Goose,20.00,24.93353155643554,29.0,-15.766852830431656,0.00,20.00,pullback_protect;stall_risk
-XHR,Xenia Hotels & Resorts,20.00,16.94716549332834,29.0,-1.2179617130732967,0.00,20.00,breakout_protect
-CC,Chemours,20.00,15.69297814596458,20.0,-7.530749092987426,0.00,20.00,RS_trend_protect;pullback_protect
-CALX,Calix,27.99,45.744270458434116,29.0,-13.34259710339746,-8.00,19.99,RS_trend_protect;pullback_protect;stall_risk
-JPM,JPMorgan Chase & Co,19.98,23.209771781301956,29.0,-4.925134856516664,0.00,19.98,breakout_protect;pullback_protect;stall_risk
-AN,AutoNation,19.94,27.48681541150248,21.0,-3.185546716863379,0.00,19.94,breakout_protect
-FIBK,First Interstate BancSystem,19.92,18.71964820190837,29.0,-6.4645,0.00,19.92,pullback_protect;stall_risk
-AZZ,AZZ,19.92,25.5931736140394,25.0,-9.406500000000001,0.00,19.92,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-HNGKY,Hongkong Land Holdings,19.90,41.46319643442249,19.0,-30.14563421264971,0.00,19.90,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-BTSG,BrightSpring Health Services,19.89,26.41468445512275,29.0,-13.11845173660748,0.00,19.89,pullback_protect;stall_risk
-JHG,Janus Henderson,19.87,20.137998127281755,29.0,-6.545,0.00,19.87,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
-FNV.TO,Franco-Nevada,19.87,33.14986168234705,19.0,-1.6784999999999997,0.00,19.87,breakout_protect
-CALM,Cal-Maine Foods,19.87,20.10555307034428,29.0,-7.7781748141382865,0.00,19.87,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-WSM,Williams-Sonoma,19.85,13.77241111366429,31.0,-2.019034839222703,0.00,19.85,RS_trend_protect;pullback_protect;setup_protect
-RFIL,RF Industries,19.84,32.10358763226185,12.0,-18.818723630320108,0.00,19.84,RS_trend_protect
-SKYW,SkyWest,19.82,21.41799599876702,29.0,-6.521234249238316,0.00,19.82,pullback_protect;stall_risk;setup_protect
-ACOPY,a2 Milk,19.80,30.015044761880926,11.0,-23.963315,0.00,19.80,breakout_protect;low_liquidity_today
-CMA,Comerica,19.80,20.997428859692256,29.0,-7.743000000000001,0.00,19.80,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-VNT,Vontier,19.79,21.33409926350102,29.0,-3.0374999999999996,0.00,19.79,pullback_protect;low_liquidity_today
-FHN,First Horizon,19.75,14.787370566452616,31.0,-3.0909996286137313,0.00,19.75,pullback_protect;setup_protect
-CMRE,Costamare,19.72,27.229372615546872,16.0,-6.405611863919933,0.00,19.72,RS_trend_protect;stall_risk
-AMX,America Movil,19.72,24.23019873039887,29.0,-6.574739025260263,0.00,19.72,pullback_protect;stall_risk
-MO,Altria,19.72,19.964411544418112,31.0,-5.499245569594956,0.00,19.72,pullback_protect;stall_risk;setup_protect
-LYV,Live Nation Entertainment,19.69,15.97738791372219,31.0,-1.575437554696455,0.00,19.69,pullback_protect;setup_protect
-AEM.TO,Agnico Eagle Mines,32.61,50.316233421223366,11.0,-2.1483779746291556,-13.00,19.61,RS_trend_protect
-HOV,Hovnanian Enterprises,19.60,24.353015539633684,16.0,-11.842243316822119,0.00,19.60,RS_trend_protect
-COHN,Cohen & Co,19.57,24.057267540849843,19.0,-22.84246177010089,0.00,19.57,RS_trend_protect;low_liquidity_today
-CBNA,Chain Bridge Bancorp,19.57,24.51877139180051,11.0,-21.30231685,0.00,19.57,low_liquidity_today
-NEXT,NextDecade,19.53,23.138254444245057,29.0,-10.80184925293684,0.00,19.53,RS_trend_protect;pullback_protect;stall_risk;setup_protect
-KNT.TO,K92 Mining,19.52,32.885889224055184,29.0,-10.438894197950722,0.00,19.52,breakout_protect
-MG.TO,Magna International,19.51,20.43007561205478,29.0,-8.696000000000002,0.00,19.51,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-GHC,Graham Holdings,19.47,28.135722709599392,19.0,-1.9310420632422527,0.00,19.47,breakout_protect
-DFH,Dream Finders Homes,19.45,21.092266238792057,29.0,-9.476474844869319,0.00,19.45,pullback_protect;stall_risk;setup_protect
-STT,State Street,19.45,16.654513200866134,31.0,0.0,0.00,19.45,pullback_protect;low_liquidity_today
-PTC,PTC,19.45,18.428461875615206,29.0,-8.393999999999998,0.00,19.45,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-IMXI,International Money Express,19.40,27.90659427867467,3.2040816326530592,-6.0,0.00,19.40,low_liquidity_today
-GRBK,Green Brick Partners,19.39,20.520582102498853,29.0,-3.7368724466974803,0.00,19.39,pullback_protect;low_liquidity_today
-ARCT,Arcturus Therapeutics,19.37,14.355894436161368,20.0,-13.563,0.00,19.37,RS_trend_protect;low_liquidity_today
-TFC,Truist Financial,19.35,16.683714218650458,29.0,-4.0,0.00,19.35,breakout_protect;pullback_protect;stall_risk
-IX,ORIX,19.34,26.854830515355715,25.0,-8.690000000000001,0.00,19.34,RS_trend_protect;pullback_protect;low_liquidity_today;stall_risk
-RY.TO,Royal Bank of Canada,19.33,24.758463867527276,21.0,0.0,0.00,19.33,breakout_protect;low_liquidity_today
-ZION,Zions Bancorp,19.31,14.786985044577344,29.0,-3.1125000000000003,0.00,19.31,breakout_protect;low_liquidity_today
-BDI.TO,Black Diamond Group,19.31,22.86999970895431,29.0,-7.2592473446863,0.00,19.31,RS_trend_protect;pullback_protect;setup_protect
-GTLS,Chart Industries,19.31,15.485407882104294,25.0,-6.224,0.00,19.31,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
-ULCC,Frontier Group,19.30,23.644717648226777,8.0,-14.389744442945577,0.00,19.30,
-PESI,Perma-Fix Environmental Services,19.29,19.794591472190852,29.0,-18.729557540195202,0.00,19.29,pullback_protect;setup_protect
-TDW,Tidewater,19.22,19.515951558182486,29.0,-7.473683614134488,0.00,19.22,RS_trend_protect;pullback_protect;setup_protect
-ARQT,Arcutis Biotherapeutics,19.19,21.041802037591296,29.0,-7.5480512213279,0.00,19.19,pullback_protect;setup_protect
-KEY,KeyCorp,19.19,13.871998399676263,29.0,-2.6904686961344195,0.00,19.19,breakout_protect
-ADTN,ADTRAN,19.19,14.697190005512546,29.0,-8.77715614184975,0.00,19.19,RS_trend_protect;breakout_protect;pullback_protect
-HMC,Honda Motor,19.18,21.09869744534788,29.0,-5.481993776365511,0.00,19.18,pullback_protect;stall_risk;setup_protect
-MEDP,Medpace,40.18,42.996232678628616,19.0,-9.62264409704007,-21.00,19.18,RS_trend_protect;stall_risk
-BHC.TO,Bausch Health,19.13,11.6528166300809,20.0,-12.464701431340393,0.00,19.13,RS_trend_protect;low_liquidity_today
-YEXT,Yext,19.13,24.25856191920511,29.0,-10.471179414542021,0.00,19.13,
-JXN,Jackson Financial,19.13,19.125802566440612,29.0,-7.6305,0.00,19.13,pullback_protect;low_liquidity_today;stall_risk
-AMKR,Amkor Technology,19.10,17.288388702515057,29.0,-3.401300159037822,0.00,19.10,pullback_protect;setup_protect
-COUR,Coursera,19.05,19.484545926696626,29.0,-8.344792106923727,0.00,19.05,RS_trend_protect;low_liquidity_today
-OZK,Bank,19.03,19.415414629959386,29.0,-5.807499999999999,0.00,19.03,pullback_protect;stall_risk
-TBPH,Theravance Biopharma,40.01,44.64191152797563,19.0,-4.679205839766416,-21.00,19.01,RS_trend_protect;breakout_protect
-PDN.AX,Paladin Energy,18.99,20.87426310787638,20.0,-8.649346936045744,0.00,18.99,RS_trend_protect;pullback_protect
-HLT,Hilton Worldwide,18.95,16.484876893411318,29.0,-2.8295303712363844,0.00,18.95,breakout_protect;pullback_protect
-LPTH,LightPath Technologies,43.92,47.214285714285715,8.0,-12.791603172937766,-25.00,18.92,RS_trend_protect;breakout_protect
-MPWR,Monolithic Power Systems,18.89,21.453553577094766,25.0,-4.09406204099729,0.00,18.89,pullback_protect;low_liquidity_today
-DBM.TO,Doman Building Materials,18.88,27.119322672984868,25.0,-13.220141401472656,0.00,18.88,pullback_protect;low_liquidity_today
-ESE,ESCO Technologies,18.87,23.973518518004504,29.0,-4.2795000000000005,0.00,18.87,low_liquidity_today
-GEV,GE Vernova,18.86,16.22401654127983,29.0,-14.401745629418212,0.00,18.86,RS_trend_protect
-WTS,Watts Water Technologies,18.85,21.166996606443924,29.0,-6.621134101253554,0.00,18.85,pullback_protect;stall_risk;setup_protect
-CTRN,Citi Trends,34.83,49.53281621845751,11.0,-24.5,-16.00,18.83,breakout_protect
-MUFG,Mitsubishi UFJ Financial Group,18.83,22.153280588357276,29.0,-2.9544360674357537,0.00,18.83,pullback_protect;setup_protect
-VIPS,Vipshop,18.82,18.861499242886563,29.0,-1.71143452114706,0.00,18.82,
-BGSF,BGSF,18.81,18.37213939991272,20.0,-15.773315610831968,0.00,18.81,RS_trend_protect
-CJ.TO,Cardinal Energy,18.81,19.879375127388837,29.0,-3.9861571180425455,0.00,18.81,breakout_protect;pullback_protect
-IMG.TO,IAMGOLD,34.77,28.42621470017773,14.0,-4.015952338352966,-16.00,18.77,RS_trend_protect;breakout_protect;low_liquidity_today;overheat_L1;probe_ok_L1
-BRSP,BrightSpire Capital,18.73,21.39321082228882,29.0,-6.316,0.00,18.73,breakout_protect;pullback_protect;stall_risk
-SCHL,Scholastic,18.72,10.76090161060507,29.0,-4.21636811733457,0.00,18.72,RS_trend_protect
-PHM,PulteGroup,31.72,36.269044911614984,19.0,-6.195513439984391,-13.00,18.72,RS_trend_protect;breakout_protect;stall_risk
-SITM,SiTime,18.69,23.109673649164172,29.0,-16.67401573088816,0.00,18.69,pullback_protect;setup_protect
-SSD,Simpson Manufacturing,18.67,15.218686318482614,29.0,-1.4355000000000002,0.00,18.67,pullback_protect;setup_protect
-CVO.TO,Coveo Solutions,18.65,22.00866186436546,29.0,-13.119160477786767,0.00,18.65,
-BOS.TO,AirBoss of America,18.62,30.354024249721064,29.0,-22.133096298334166,0.00,18.62,breakout_protect;pullback_protect;stall_risk;setup_protect
-FITB,Fifth Third Bancorp,18.58,13.278445070998776,29.0,-2.58,0.00,18.58,breakout_protect
-ARI,Apollo Commercial Real Estate Finance,18.58,19.994433900730098,29.0,-1.548,0.00,18.58,breakout_protect
+FN,Fabrinet,50.20,70.3144981494037,25.0,-6.438320885912954,30.00,80.20,RS_trend_protect;breakout_protect
+CLS.TO,Celestica,59.74,96.1959023614382,17.0,-7.581064357746155,15.00,74.74,RS_trend_protect;breakout_protect
+W,Wayfair Inc,57.73,87.40268669053906,17.0,-4.890611331292628,10.00,67.73,RS_trend_protect;breakout_protect;stall_risk
+RYTM,Rhythm Pharmaceuticals,50.66,69.78158957094399,19.0,-5.63150514271256,17.00,67.66,RS_trend_protect;breakout_protect;stall_risk
+VNP.TO,5N Plus,51.64,83.54407201412144,17.0,-3.1271844303005776,15.00,66.64,RS_trend_protect
+ZIMV,Zimvie,41.63,61.38475101033402,8.0,-4.554,25.00,66.63,RS_trend_protect;stall_risk
+JMIA,Jumia Technologies,59.95,97.40666666666667,17.0,-16.686500000000002,0.00,59.95,RS_trend_protect;stall_risk
+GFI,Gold Fields,45.68,72.72020565075707,11.0,-2.9512630340872477,14.00,59.68,RS_trend_protect
+CRDO,Credo Technology,59.08,94.70483201818568,17.0,-15.841433354181227,0.00,59.08,RS_trend_protect;breakout_protect
+MOB,Mobilicom,58.69,98.5,13.0,-16.320999999999998,0.00,58.69,RS_trend_protect;stall_risk
+RIGL,Rigel Pharmaceuticals,58.68,93.72666666666667,17.0,-14.878163987098832,0.00,58.68,RS_trend_protect;stall_risk
+FUTU,Futu,58.09,79.00672067829542,25.0,-10.444392847945256,0.00,58.09,RS_trend_protect;stall_risk
+ALAB,Astera Labs,57.67,87.64387440535258,17.0,-12.705631782505849,0.00,57.67,RS_trend_protect
+FORD,Forward Industries,56.89,99.26666666666668,17.0,-16.426392,0.00,56.89,RS_trend_protect
+EFR.TO,Energy Fuels,56.59,93.38311480806068,17.0,-15.574,0.00,56.59,RS_trend_protect;stall_risk
+CHCI,Comstock Holding Companies,56.47,98.28,11.0,-23.50218745,0.00,56.47,RS_trend_protect;breakout_protect
+FEIM,Frequency Electronics,55.34,89.8603370601164,17.0,-13.197601265589933,0.00,55.34,RS_trend_protect;breakout_protect;stall_risk
+UEC,Uranium Energy,55.06,87.96990755092118,17.0,-10.498248521161704,0.00,55.06,RS_trend_protect
+CELH,Celsius,54.85,75.21760689126633,25.0,-15.29928037967698,0.00,54.85,RS_trend_protect;stall_risk
+LYSDY,Lynas Rare Earths,54.81,89.80853694363543,17.0,-7.404090675360784,0.00,54.81,RS_trend_protect;stall_risk
+AMLX,Amylyx Pharmaceuticals,54.63,90.4835244829166,11.0,-14.156433354181226,0.00,54.63,RS_trend_protect;stall_risk
+SFTBY,SoftBank,54.24,79.03139222588943,17.0,-3.7659187974442934,0.00,54.24,RS_trend_protect
+TDUP,ThredUp,53.59,93.61245143698815,17.0,-16.802665580263415,0.00,53.59,RS_trend_protect;stall_risk
+U,Unity Software,52.97,73.7053805320344,17.0,-11.889326392210247,0.00,52.97,RS_trend_protect;stall_risk
+KSS,Kohl's,52.22,81.11771631379665,8.0,-16.1935,0.00,52.22,RS_trend_protect;breakout_protect;stall_risk
+OPRX,OptimizeRx,51.44,91.5307669421234,17.0,-22.067711961787033,0.00,51.44,RS_trend_protect;breakout_protect;stall_risk
+RCG.TO,RF Capital,50.52,92.06333186741955,8.0,-11.0329961,0.00,50.52,RS_trend_protect;low_liquidity_today
+LASR,nLight,58.34,95.13350575148546,11.0,-6.8867264768768806,-8.00,50.34,RS_trend_protect;stall_risk
+LQDA,Liquidia,58.22,97.43333333333334,11.0,-11.961796898568855,-8.00,50.22,RS_trend_protect;stall_risk
+GTN,Gray Media,50.14,58.405576937865824,25.0,-4.693300632794967,0.00,50.14,RS_trend_protect
+BELFB,Bel Fuse,48.06,74.75169801106092,11.0,-3.6998428343008465,2.00,50.06,RS_trend_protect;breakout_protect;stall_risk
+OSS,One Stop Systems,49.54,71.44851550982222,25.0,-17.927,0.00,49.54,RS_trend_protect;low_liquidity_today;stall_risk
+METCB,Ramaco Resources,49.48,78.34883535584542,11.0,-12.453885379493029,0.00,49.48,RS_trend_protect
+VERV,Verve Therapeutics,49.30,86.61412523905557,11.0,-6.0,0.00,49.30,RS_trend_protect
+XGN,Exagen,49.27,79.81456280092071,25.0,-18.557003544142354,0.00,49.27,RS_trend_protect;stall_risk
+PBYI,Puma Biotechnology,49.18,72.02178331024103,17.0,-13.4505,0.00,49.18,RS_trend_protect
+LIF,Life360,49.15,68.47250440803515,25.0,-14.665592215150289,0.00,49.15,RS_trend_protect;stall_risk
+AFRM,Affirm,48.92,76.62891612531453,11.0,-11.342572721231836,0.00,48.92,RS_trend_protect;breakout_protect
+ASM.TO,Avino Silver & Gold Mines,48.57,77.86246559944598,19.0,-18.320179239482513,0.00,48.57,RS_trend_protect
+XNET,Xunlei,48.28,97.42399479795081,11.0,-22.572,0.00,48.28,stall_risk
+INDV.L,Indivior,48.07,65.80222596414401,19.0,-8.667304367021082,0.00,48.07,RS_trend_protect;breakout_protect
+HUT,Hut 8 Mining,47.85,52.11359503653069,25.0,-19.936866972664554,0.00,47.85,RS_trend_protect
+ETH,Ethan Allen Interiors,47.78,52.89917509918837,25.0,-11.133431750080938,0.00,47.78,RS_trend_protect
+RDDT,Reddit,47.58,64.54782085011823,11.0,-10.11736139214893,0.00,47.58,RS_trend_protect
+WLDN,Willdan,47.54,58.293607716977505,19.0,-11.487520063034228,0.00,47.54,RS_trend_protect
+ALNY,Alnylam Pharmaceuticals,47.05,57.028401673067975,25.0,-14.554993934310197,0.00,47.05,RS_trend_protect;stall_risk
+HLIO,Helios Technologies,46.51,60.33377274577956,17.0,-6.100370822756092,0.00,46.51,RS_trend_protect;stall_risk
+TIGR,Up Fintech,46.11,71.10774579583139,11.0,-15.3775,0.00,46.11,RS_trend_protect;stall_risk
+XERS,Xeris Biopharma,54.06,93.57795454181365,11.0,-10.778103227744872,-8.00,46.06,RS_trend_protect;stall_risk
+HSAI,Hesai,46.04,66.13570992113725,25.0,-15.9625,0.00,46.04,RS_trend_protect;stall_risk
+PBT,Permian Basin Royalty Trust,46.98,73.90562288222793,11.0,-6.520870827957532,-1.00,45.98,RS_trend_protect;breakout_protect
+ENLT.TA,Enlight Renewable Energy,45.87,55.18457175344605,31.0,-0.6584021396813647,0.00,45.87,RS_trend_protect;breakout_protect
+VITL,Vital Farms,45.34,58.10885342993233,17.0,-6.948216035370842,0.00,45.34,RS_trend_protect;stall_risk
+ONDS,Ondas,60.27,98.36000000000001,7.0,-14.5,-15.00,45.27,RS_trend_protect;stall_risk
+MRCY,Mercury Systems,44.83,54.82866519348496,25.0,-8.193164177182592,0.00,44.83,RS_trend_protect;stall_risk
+BLBD,Blue Bird,44.69,53.60522202365194,25.0,-6.8639667721324935,0.00,44.69,RS_trend_protect;stall_risk
+CLBR,PSQ Holdings,44.68,62.32937779546152,19.0,-16.5,0.00,44.68,RS_trend_protect;breakout_protect
+COOP,Mr Cooper,44.56,67.3412971606692,25.0,-13.574484189756838,0.00,44.56,RS_trend_protect;stall_risk
+DOO.TO,BRP,45.52,68.10228043572153,11.0,-2.246086242127063,-1.00,44.52,RS_trend_protect
+NMRK,Newmark,44.32,52.05599733076884,17.0,-1.4572385839271855,0.00,44.32,RS_trend_protect;stall_risk
+MCRB,Seres Therapeutics,44.25,65.14595010817058,8.0,-14.668,0.00,44.25,RS_trend_protect;stall_risk
+UPB,Upstream Bio,44.16,86.08839937514875,17.0,-11.389689730036954,0.00,44.16,RS_trend_protect
+GH,Guardant Health,44.06,51.819599819933856,25.0,-8.647893075120399,0.00,44.06,RS_trend_protect
+ACFN,Acorn Energy,44.06,68.85768751572446,17.0,-20.72098145,0.00,44.06,RS_trend_protect;stall_risk
+TPCS,TechPrecision,43.92,64.3558157772854,25.0,-28.87283976501254,0.00,43.92,RS_trend_protect;low_liquidity_today;stall_risk
+FIX,Comfort Systems USA,43.62,51.3042145796606,25.0,-16.557035096943906,0.00,43.62,RS_trend_protect;stall_risk
+ANET,Arista Networks,43.09,48.42629726567554,25.0,-4.110083271237555,0.00,43.09,RS_trend_protect;breakout_protect;stall_risk
+RNA,Avidity Biosciences,42.76,63.690335751991945,17.0,-10.711916835289358,0.00,42.76,RS_trend_protect;stall_risk
+EVI,EVI Industries,42.76,56.040046502249844,19.0,-19.95245033846866,0.00,42.76,RS_trend_protect;breakout_protect
+PRPO,Precipio,42.74,73.40557923203596,19.0,-26.149502816336167,0.00,42.74,RS_trend_protect;breakout_protect;low_liquidity_today
+DXPE,DXP Enterprises,42.43,50.57848656921789,25.0,-8.914516518891872,0.00,42.43,RS_trend_protect;breakout_protect;stall_risk
+MGRM,Monogram Technologies,50.37,75.58685697788226,14.0,-4.383119661727832,-8.00,42.37,RS_trend_protect;overheat_L1;probe_ok_L1
+NUS,Nu Skin Enterprises,50.11,79.25504638960156,11.0,-7.361136455612376,-8.00,42.11,RS_trend_protect;breakout_protect;stall_risk
+SCPH,scPharmaceuticals,41.99,62.42446802130028,19.0,-16.991606961970984,0.00,41.99,RS_trend_protect;breakout_protect;stall_risk
+LC,LendingClub,41.87,42.44415412200424,25.0,-9.25378588597427,0.00,41.87,RS_trend_protect;stall_risk
+MLCO,Melco Resorts & Entertainment,41.73,55.39374419752458,11.0,-9.386193292629233,0.00,41.73,RS_trend_protect
+WBTN,Webtoon Entertainment,41.52,54.052904884141086,2.0,-14.6025,0.00,41.52,RS_trend_protect;low_liquidity_today
+WYNN,Wynn Resorts,41.40,45.74077573266714,29.0,-0.9868234039707462,0.00,41.40,RS_trend_protect
+RHLD,Resolute Holdings Management,41.37,39.924616509450615,8.0,-17.622999999999998,0.00,41.37,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
+VSAT,Viasat,56.33,96.66666666666667,13.0,-9.233555200325398,-15.00,41.33,RS_trend_protect;stall_risk
+APLD,Applied Digital,41.31,62.056623331618034,25.0,-18.5,0.00,41.31,
+ACQ.TO,AutoCanada,52.31,87.84474893668492,11.0,-7.790520076471893,-11.00,41.31,RS_trend_protect;breakout_protect
+TME,Tencent Music Entertainment,41.10,49.72637627121272,29.0,-9.716885569576789,0.00,41.10,RS_trend_protect
+IBP,Installed Building Products,40.82,48.205768695342215,17.0,-2.451265632856284,0.00,40.82,RS_trend_protect
+BBW,Build-A-Bear Workshop,40.82,52.214494642881974,25.0,-16.752352232795673,0.00,40.82,RS_trend_protect
+CDTX,Cidara Therapeutics,40.70,69.12720955443964,29.0,-9.802942594704634,0.00,40.70,RS_trend_protect;setup_protect
+CELC,Celcuity,55.56,92.72666666666667,13.0,-15.563437088407342,-15.00,40.56,RS_trend_protect;stall_risk
+TEM,Tempus AI,40.49,55.31872913587012,17.0,-22.5,0.00,40.49,stall_risk
+EYPT,EyePoint Pharmaceuticals,40.36,53.798027696516954,29.0,-18.35321836941915,0.00,40.36,RS_trend_protect;pullback_protect
+RBLX,Roblox,40.01,66.90813833451847,31.0,-14.553294321932615,0.00,40.01,RS_trend_protect;pullback_protect;setup_protect
+NATL,NCR Atleos,39.75,49.66157855512644,17.0,-6.817173417705995,0.00,39.75,RS_trend_protect;stall_risk
+TLNE,Talen Energy,39.72,48.24034638700302,25.0,-2.7542677396430983,0.00,39.72,RS_trend_protect
+ELF,elf Beauty,39.71,51.61652466268507,25.0,-17.273291392271563,0.00,39.71,breakout_protect;stall_risk
+CGNX,Cognex,39.47,40.86762815658732,25.0,-0.7092933544264984,0.00,39.47,RS_trend_protect;stall_risk
+YOU,Clear Secure,39.42,41.082590111087946,25.0,-1.6846846331786205,0.00,39.42,RS_trend_protect;stall_risk
+HDSN,Hudson Technologies,39.06,52.60669127493871,19.0,-0.7187213923941973,0.00,39.06,RS_trend_protect;breakout_protect
+TARS,Tarsus Pharmaceuticals,38.89,43.675469985507625,11.0,-3.305185598520433,0.00,38.89,RS_trend_protect;stall_risk
+PI,Impinj,38.86,80.3049326523844,11.0,-11.33460873404216,0.00,38.86,RS_trend_protect
+VC,Visteon,38.78,39.571372179543005,29.0,-1.8147763306173719,0.00,38.78,RS_trend_protect;pullback_protect;stall_risk
+JOUT,Johnson Outdoors,38.44,44.100515218930866,25.0,-5.674081848281217,0.00,38.44,RS_trend_protect;stall_risk
+TPB,Turning Point Brands,38.43,48.40262470096062,25.0,-4.659489542290258,0.00,38.43,RS_trend_protect
+SEDG,SolarEdge Technologies,54.27,87.71986472826904,11.0,-14.5,-16.00,38.27,RS_trend_protect;stall_risk
+LSCC,Lattice Semiconductor,38.08,34.68345642774955,25.0,-2.374751448012719,0.00,38.08,RS_trend_protect;stall_risk
+PPIH,Perma-Pipe International,54.06,89.04471346076896,11.0,-15.695475006731364,-16.00,38.06,RS_trend_protect
+OCUL,Ocular Therapeutix,37.93,47.229931552344624,29.0,-7.6406305572261175,0.00,37.93,RS_trend_protect
+AXL,American Axle & Manufacturing,37.92,38.93981271131527,16.0,-9.848752658106767,0.00,37.92,RS_trend_protect;stall_risk
+REAL,RealReal,37.90,69.24308388681585,17.0,-8.149337392656276,0.00,37.90,RS_trend_protect;breakout_protect
+KTOS,Kratos Defense & Security Solutions,37.74,52.11545040828506,29.0,-6.990176961848349,0.00,37.74,RS_trend_protect
+FIVE,Five Below,37.71,51.993175154463266,21.0,-11.78123607585364,0.00,37.71,RS_trend_protect;breakout_protect
+JMHLY,Jardine Matheson,37.70,42.3650165575692,29.0,-7.522703258232005,0.00,37.70,RS_trend_protect;breakout_protect;pullback_protect
+COMP,Compass,37.43,48.29207659181451,17.0,-5.34662950726309,0.00,37.43,RS_trend_protect;stall_risk
+IVZ,Invesco,37.32,39.79677976543216,29.0,-4.14,0.00,37.32,RS_trend_protect;stall_risk
+ZBIO,Zenas Biopharma,37.29,66.59196406210906,25.0,-18.698043248431773,0.00,37.29,RS_trend_protect
+DPM.TO,Dundee Precious Metals,36.94,53.75851447314284,19.0,-3.8201442686237383,0.00,36.94,RS_trend_protect
+AEHR,Aehr Test Systems,58.79,100.97333333333333,11.0,-14.5,-22.00,36.79,RS_trend_protect;stall_risk
+ASMB,Assembly Biosciences,36.76,42.548784684711485,29.0,-15.79752196182791,0.00,36.76,RS_trend_protect
+NGEX.TO,NGEx Minerals,36.73,47.95592435851656,29.0,-4.312942784788393,0.00,36.73,RS_trend_protect;pullback_protect;low_liquidity_today
+FTCI,FTC Solar,36.66,51.718794263968604,25.0,-30.18022585,0.00,36.66,RS_trend_protect;pullback_protect;stall_risk
+RDNT,RadNet,36.42,37.392005306631205,16.0,-9.015083463368516,0.00,36.42,RS_trend_protect;breakout_protect;stall_risk
+METC,Ramaco Resources,51.16,81.79192375500253,11.0,-10.5,-15.00,36.16,RS_trend_protect
+TERN,Terns Pharmaceuticals,36.13,70.02810426888846,8.0,-12.69171874632243,0.00,36.13,RS_trend_protect
+EDR.TO,Endeavour Silver,36.07,49.230039205683006,19.0,-10.067631687254657,0.00,36.07,RS_trend_protect
+URI,United Rentals,35.96,39.79436132847461,19.0,-0.052,0.00,35.96,RS_trend_protect;breakout_protect;stall_risk
+INTR,Inter & Co,35.81,46.576845845691565,25.0,-6.299400316397484,0.00,35.81,RS_trend_protect;stall_risk
+ADPT,Adaptive Biotechnologies Corp,35.74,53.047388497948035,29.0,-17.24065474050115,0.00,35.74,RS_trend_protect;pullback_protect
+SIG,Signet Jewelers,35.62,39.14248033527902,29.0,-14.038650019673263,0.00,35.62,pullback_protect
+VZLA.TO,Vizsla Silver,35.56,51.860787276444015,25.0,-13.242632721386261,0.00,35.56,
+STNE,StoneCo,35.55,45.07136445052151,29.0,-13.716885569576789,0.00,35.55,pullback_protect;stall_risk
+PHAT,Phathom Pharmaceuticals,35.34,80.78743940870488,11.0,-21.593447579607517,0.00,35.34,RS_trend_protect
+PSIX,Power Solutions International,35.31,64.27841851215607,25.0,-15.622,0.00,35.31,RS_trend_protect;stall_risk
+PPTA.TO,Perpetua Resources,34.95,48.09078084112922,25.0,-17.883433407558236,0.00,34.95,
+PRYMY,Prysmian,34.88,39.592464813417365,29.0,-1.4460000000000002,0.00,34.88,RS_trend_protect;pullback_protect
+ORGO,Organogenesis,34.86,35.09239305817375,29.0,-11.270734844918262,0.00,34.86,RS_trend_protect
+RKT,Rocket Companies,34.83,54.6025831808317,25.0,-9.434621110787534,0.00,34.83,RS_trend_protect
+TNZ.TO,Tenaz Energy,34.77,47.7838995789661,19.0,-14.41697621770639,0.00,34.77,RS_trend_protect
+SONO,Sonos,34.71,43.20180639222837,2.0,-2.1767656328562843,0.00,34.71,RS_trend_protect;breakout_protect
+SIGA,SIGA Technologies,34.58,44.23247356752386,25.0,-5.350669778530026,0.00,34.58,RS_trend_protect
+FVI.TO,Fortuna Mining,34.50,38.393618126888555,29.0,-4.416859684957573,0.00,34.50,pullback_protect
+SCR.TO,Strathcona Resources,34.21,40.936112088116865,25.0,-5.255712151870791,0.00,34.21,RS_trend_protect;stall_risk
+EDV.L,Endeavour Mining,34.17,54.22474562816818,19.0,-8.643832088591296,0.00,34.17,
+ATZ.TO,Aritzia,33.92,44.603571844428295,19.0,-8.238042418922923,0.00,33.92,RS_trend_protect;breakout_protect
+KNOP,KNOT Offshore Partners,33.90,39.57525562285966,25.0,-17.862816399253767,0.00,33.90,RS_trend_protect;stall_risk
+OTLY,Oatly,33.72,42.87165413617602,25.0,-20.337643733980844,0.00,33.72,RS_trend_protect;pullback_protect;low_liquidity_today
+SNN,Smith & Nephew,33.69,40.11072854176036,25.0,-0.34,0.00,33.69,RS_trend_protect;breakout_protect;stall_risk
+LZ,Legalzoom.com,33.60,33.49857124200807,25.0,-1.2222802638115557,0.00,33.60,stall_risk
+MARI.TO,Marimaca Copper,33.52,54.3070594809796,29.0,-21.174778859231328,0.00,33.52,RS_trend_protect;low_liquidity_today
+GSY.TO,goeasy,33.41,35.49103334595971,25.0,-5.276,0.00,33.41,RS_trend_protect;breakout_protect;stall_risk
+HSHP,Himalaya Shipping,33.39,45.55161494071215,25.0,-10.048711950000001,0.00,33.39,RS_trend_protect;breakout_protect;stall_risk
+GRGD.TO,Groupe Dynamite,33.21,14.171435227586041,16.0,-7.7993301264363595,0.00,33.21,RS_trend_protect
+LWAY,Lifeway Foods,33.10,37.58034507646219,25.0,-9.425428615311167,0.00,33.10,RS_trend_protect;stall_risk
+CMCL,Caledonia Mining,48.97,86.59181056999151,11.0,-20.502958487443994,-16.00,32.97,RS_trend_protect;breakout_protect
+AMBA,Ambarella,45.72,56.64084111112468,19.0,-8.186631251127196,-13.00,32.72,RS_trend_protect
+GO,Grocery Outlet,32.71,31.56642342306017,25.0,-3.3111364556123766,0.00,32.71,RS_trend_protect
+BTO.TO,B2Gold,32.43,36.09721464754102,29.0,-3.0015810133447816,0.00,32.43,pullback_protect
+WB,Weibo,32.41,34.62514325913192,29.0,-3.6637416455121827,0.00,32.41,pullback_protect
+SSL.TO,Sandstorm Gold,32.33,50.08879829863489,19.0,-13.991604400544107,0.00,32.33,RS_trend_protect;low_liquidity_today;stall_risk
+DDS,Dillard's,45.22,58.66256378514839,19.0,-4.664536872689597,-13.00,32.22,RS_trend_protect;breakout_protect
+AMRX,Amneal Pharmaceuticals,32.18,26.60614559856409,29.0,-0.9896370527436885,0.00,32.18,RS_trend_protect;pullback_protect;stall_risk
+CYRX,CryoPort,32.17,34.08264782450074,29.0,-10.560400391680185,0.00,32.17,RS_trend_protect;pullback_protect
+SION,Sionna Therapeutics,32.09,17.34282701875786,16.0,-12.914005950837417,0.00,32.09,RS_trend_protect;stall_risk
+PRLB,Proto Labs,31.86,36.66211601750172,25.0,-4.466,0.00,31.86,RS_trend_protect;stall_risk
+NBN,Northeast Bank,31.86,28.01892511822895,29.0,-6.097476012655898,0.00,31.86,RS_trend_protect;pullback_protect;stall_risk
+THO,Thor Industries,31.83,33.451072288822324,25.0,-5.668904050623597,0.00,31.83,RS_trend_protect;breakout_protect;stall_risk
+BABA,Alibaba,31.81,33.857437273786665,31.0,-3.6395303583034684,0.00,31.81,pullback_protect
+BBIO,BridgeBio Pharma,31.81,47.07622721316249,29.0,-5.617395119653183,0.00,31.81,RS_trend_protect;pullback_protect;setup_protect
+ATRO,Astronics,31.64,54.8203369887778,11.0,-11.168880444993318,0.00,31.64,breakout_protect
+COMM,CommScope,54.62,96.46666666666667,11.0,-9.181435316336167,-23.00,31.62,RS_trend_protect;stall_risk
+MOD,Modine Manufacturing,31.52,27.128712537014536,19.0,-2.75928037967698,0.00,31.52,RS_trend_protect
+PPRUY,Kering,31.42,28.03592693093492,29.0,-4.0,0.00,31.42,RS_trend_protect;pullback_protect;stall_risk
+STRL,Sterling Infrastructure,31.33,46.94543224877411,29.0,-14.41504984656628,0.00,31.33,RS_trend_protect;setup_protect
+CS.TO,Capstone Copper,31.25,27.109832593691088,29.0,-2.6339870252504816,0.00,31.25,RS_trend_protect;pullback_protect;stall_risk
+KOD,Kodiak Sciences,31.22,59.87753932149407,11.0,-11.2665,0.00,31.22,RS_trend_protect
+SWIM,Latham,31.22,32.235028074551124,25.0,-4.476165949253768,0.00,31.22,RS_trend_protect
+ATMU,Atmus Filtration Technologies,31.13,30.4821401423495,25.0,-0.37199999999999955,0.00,31.13,RS_trend_protect
+ATRA,Atara Biotherapeutics,31.01,54.22617202174711,25.0,-25.955321612868268,0.00,31.01,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
+CALX,Calix,30.80,47.2795461425004,29.0,-8.984552391312576,0.00,30.80,RS_trend_protect;breakout_protect;pullback_protect
+ENVA,Enova International,30.68,31.188364344958288,21.0,-0.6483057099119081,0.00,30.68,RS_trend_protect;breakout_protect
+LEU,Centrus Energy,30.62,63.74096152752885,22.0,-18.5,0.00,30.62,RS_trend_protect;low_liquidity_today
+AMPX,Amprius Technologies,30.60,56.85484069084952,19.0,-10.5,0.00,30.60,RS_trend_protect
+NXT,NEXTracker,30.36,41.2237896183977,21.0,-15.56957353762552,0.00,30.36,breakout_protect
+NEO.TO,Neo Performance Materials,30.35,48.52834532290501,29.0,-13.178891075874077,0.00,30.35,RS_trend_protect;setup_protect
+RCL,Royal Caribbean Cruises,30.15,46.24819916825154,21.0,-4.844109081865376,0.00,30.15,RS_trend_protect
+BNB.BR,Banque Nationale de Belgique,30.05,41.18324012030654,19.0,-15.378759556920887,0.00,30.05,stall_risk
+MDA.TO,MDA Space,29.94,45.30248299479797,29.0,-9.181636455612377,0.00,29.94,RS_trend_protect;stall_risk;setup_protect
+CVE.TO,Cenovus Energy,29.92,23.705425868880397,29.0,-0.9844703065177031,0.00,29.92,pullback_protect
+NET,Cloudflare,29.83,47.96721648330382,29.0,-11.740357848006573,0.00,29.83,pullback_protect
+WAL,Western Alliance Bancorp,29.81,21.78390594450442,29.0,0.0,0.00,29.81,RS_trend_protect;breakout_protect
+ATAT,Atour Lifestyle Holdings,29.74,34.06219369573684,21.0,-2.912573734103478,0.00,29.74,RS_trend_protect
+LGCY,Legacy Education,29.51,47.62645235985582,29.0,-28.34390914532823,0.00,29.51,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+MCFT,MasterCraft Boat,29.39,32.76738238025919,19.0,-4.571999947268727,0.00,29.39,
+JBGS,JBG SMITH Properties,29.35,37.08504911306497,19.0,-3.9343886921420483,0.00,29.35,RS_trend_protect;breakout_protect
+BVN,Cia de Minas Buenaventura,29.34,41.04525069067691,19.0,-0.6091786243554791,0.00,29.34,
+IPO.TO,InPlay Oil,29.14,33.19084007574203,25.0,-10.9764261835412,0.00,29.14,RS_trend_protect;stall_risk
+CVI,CVR Energy,29.04,44.93499966308141,29.0,-11.419633214533224,0.00,29.04,RS_trend_protect;pullback_protect
+POWL,Powell Industries,29.03,33.549638144204906,25.0,-10.09209214939763,0.00,29.03,RS_trend_protect;stall_risk
+APTV,Aptiv,29.02,31.95355349221395,19.0,0.0,0.00,29.02,breakout_protect
+INCY,Incyte,28.96,29.586450628791525,25.0,-2.4577829281061474,0.00,28.96,RS_trend_protect
+CYGIY,CyberAgent,28.93,43.02015479057598,11.0,-18.951178110056645,0.00,28.93,RS_trend_protect;low_liquidity_today
+THC,Tenet Healthcare,28.91,39.69193920156587,11.0,-7.148966642147483,0.00,28.91,RS_trend_protect;breakout_protect
+APH,Amphenol,28.88,38.706305379317484,31.0,-10.491249507344847,0.00,28.88,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+LEVI,Levi Strauss & Co,28.85,27.164177385977297,21.0,-2.4625985694054,0.00,28.85,RS_trend_protect
+AMG,Affiliated Managers,28.61,36.29078240802933,29.0,0.0,0.00,28.61,RS_trend_protect;breakout_protect;pullback_protect
+HPE,Hewlett Packard Enterprise,28.45,27.37750386372838,19.0,-7.34898151895319,0.00,28.45,RS_trend_protect;breakout_protect;pullback_protect
+LUG.TO,Lundin Gold,44.36,66.90262949504253,11.0,-9.648235319464144,-16.00,28.36,RS_trend_protect;breakout_protect
+CX,Cemex,28.28,40.98144717238362,11.0,-8.135439911541486,0.00,28.28,RS_trend_protect
+CCL,Carnival Corp,28.24,33.90769271771143,31.0,-5.610627865672353,0.00,28.24,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+PINC,Premier,28.23,38.15948745232804,19.0,-12.439885030913194,0.00,28.23,breakout_protect;stall_risk
+CVNA,Carvana,28.23,44.62840103019563,31.0,-16.936046012533264,0.00,28.23,pullback_protect;stall_risk
+HBM.TO,Hudbay Minerals,41.18,47.59000625923491,14.0,2.6335239873441014,-13.00,28.18,RS_trend_protect;overheat_L1;probe_ok_L1
+HE,Hawaiian Electric Industries,28.18,24.952524980798074,29.0,-5.1956881645266915,0.00,28.18,pullback_protect;stall_risk
+WMS,Advanced Drainage Systems,28.15,27.52010206949549,25.0,-5.416,0.00,28.15,RS_trend_protect;stall_risk
+ESEA,Euroseas,49.13,73.71824997359155,19.0,-16.757534079647456,-21.00,28.13,RS_trend_protect;stall_risk
+PAAS.TO,Pan American Silver,28.07,38.844421577030694,19.0,-6.275928037967698,0.00,28.07,
+PXT.TO,Parex Resources,27.98,34.97194168669914,19.0,0.0,0.00,27.98,
+CG,Carlyle Group,27.94,33.59083313099988,29.0,-0.521197405050096,0.00,27.94,RS_trend_protect;pullback_protect;setup_protect
+ROAD,Construction Partners,27.93,40.258934913518935,29.0,-11.928181539476578,0.00,27.93,pullback_protect
+MHK,Mohawk Industries,27.93,27.520116569675427,16.0,-0.45180363580151983,0.00,27.93,RS_trend_protect;breakout_protect;stall_risk
+LPG,Dorian LPG,27.89,29.840505340757908,29.0,-0.7680947872308215,0.00,27.89,RS_trend_protect;pullback_protect;setup_protect
+TLS,Telos,55.88,96.9304761904762,8.0,-19.309,-28.00,27.88,RS_trend_protect;breakout_protect;low_liquidity_today;stall_risk
+NTOIY,Neste,40.81,55.11318717444149,11.0,-12.228137240628936,-13.00,27.81,RS_trend_protect;breakout_protect
+CIO,City Office REIT,27.76,35.39587708637512,29.0,-1.2228752095603515,0.00,27.76,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+KRC,Kilroy Realty,27.72,20.842799489178464,29.0,-1.3850988286975863,0.00,27.72,
+SANM,Sanmina,27.56,39.536182060176586,29.0,-5.345808101247194,0.00,27.56,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+VIK,Viking Holdings,27.54,37.43267459017212,29.0,-4.398562721508897,0.00,27.54,RS_trend_protect;pullback_protect;stall_risk
+RDIB,Reading International (Class B),27.44,35.639614737513334,29.0,-32.032146499999996,0.00,27.44,low_liquidity_today
+EZPW,EZCORP,27.42,30.250595554357727,19.0,-0.6693741405961391,0.00,27.42,RS_trend_protect;breakout_protect
+NEM,Newmont,40.41,50.42030180943644,11.0,-0.316026460263465,-13.00,27.41,RS_trend_protect
+INSW,International Seaways,27.37,25.78130223277021,21.0,-0.521197405050096,0.00,27.37,RS_trend_protect;breakout_protect
+GSAT,Globalstar,40.21,41.1855731325362,19.0,-5.64119544289516,-13.00,27.21,RS_trend_protect;breakout_protect
+GHC,Graham Holdings,27.21,29.623278193270924,19.0,-0.3292694738364101,0.00,27.21,breakout_protect
+INSM,Insmed,43.13,55.61446596126542,11.0,-0.5825147468206957,-16.00,27.13,RS_trend_protect
+HOOD,Robinhood Markets,27.01,36.5095554820615,29.0,-16.676403860539835,0.00,27.01,RS_trend_protect
+HRTG,Heritage Insurance,27.00,49.76829644059768,29.0,-15.188501772071177,0.00,27.00,breakout_protect;stall_risk
+AVAH,Aveanna Healthcare,48.91,88.36556666713129,2.0,-11.909937088407341,-22.00,26.91,RS_trend_protect;stall_risk
+SN,SharkNinja,26.87,24.4325744351299,31.0,-0.6279760126558988,0.00,26.87,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+RRR,Red Rock Resorts,26.84,30.45694642601462,29.0,-0.172,0.00,26.84,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+AMSC,American Superconductor,26.72,42.26941623292847,29.0,-19.219431848122248,0.00,26.72,RS_trend_protect
+C,Citigroup,26.69,28.355101587562853,31.0,-0.8954914503405351,0.00,26.69,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+CUK,Carnival,26.69,34.30699677183238,29.0,-4.932759840463033,0.00,26.69,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+CBL,CBL & Associates Properties,26.61,27.521044167798646,19.0,-4.106,0.00,26.61,RS_trend_protect;stall_risk
+PII,Polaris,26.52,33.683725478762,25.0,-3.832333860662472,0.00,26.52,RS_trend_protect
+LAUR,Laureate Education,26.51,32.76511729744633,11.0,0.0,0.00,26.51,RS_trend_protect
+KEC.TO,Kiwetinohk Energy,26.51,33.137172834339566,29.0,-9.092665,0.00,26.51,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+ROKU,Roku,26.48,32.103922552843656,29.0,-3.581646897118415,0.00,26.48,RS_trend_protect;pullback_protect
+LVS,Las Vegas Sands,26.46,25.528010853827105,31.0,-2.240489757462032,0.00,26.46,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+PBF,PBF Energy,39.43,35.961466431100405,19.0,-8.232270397076933,-13.00,26.43,RS_trend_protect
+PODD,Insulet,26.34,35.712832919532964,11.0,0.0,0.00,26.34,breakout_protect
+NU,NU Holdings,26.29,24.833328560433472,11.0,-11.096525759415277,0.00,26.29,RS_trend_protect
+SYF,Synchrony Financial,26.28,29.54060743127616,29.0,-0.06802093335194573,0.00,26.28,RS_trend_protect;breakout_protect;pullback_protect
+CG.TO,Centerra Gold,26.27,30.734954189580456,11.0,-2.8829684847523915,0.00,26.27,RS_trend_protect
+NG.TO,Novagold Resources,42.26,49.93106830036044,11.0,-4.5362930614987,-16.00,26.26,RS_trend_protect
+ECG,Everus Construction,26.25,34.38253564033994,29.0,-15.38593905056228,0.00,26.25,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+LTM,Latam Airlines,39.17,58.60135005943812,11.0,-12.65873445066466,-13.00,26.17,RS_trend_protect
+LLYVK,Liberty Media Corporation,34.17,34.365433088571365,29.0,-2.42962375165786,-8.00,26.17,RS_trend_protect
+SAN,Banco Santander,26.14,40.86093454322569,29.0,0.0,0.00,26.14,RS_trend_protect;pullback_protect;setup_protect
+SIMO,Silicon Motion Technology,26.13,42.200186140110816,29.0,-11.56947827880364,0.00,26.13,RS_trend_protect;pullback_protect;stall_risk
+BKE,Buckle,39.10,50.147286807670156,19.0,-1.2424354552072223,-13.00,26.10,RS_trend_protect;breakout_protect
+TER,Teradyne,39.00,34.60611065896984,19.0,-2.2741729227729883,-13.00,26.00,RS_trend_protect
+HLF,Herbalife Ltd,25.91,32.075504004604994,29.0,-5.702512784665759,0.00,25.91,RS_trend_protect;breakout_protect;pullback_protect;setup_protect
+BNCDY,Banca Mediolanum,33.89,48.6158454027805,29.0,-23.012275849999998,-8.00,25.89,RS_trend_protect;pullback_protect;stall_risk
+SEA.TO,Seabridge Gold,25.83,33.03737370148839,29.0,-1.9008375948885867,0.00,25.83,RS_trend_protect;pullback_protect;setup_protect
+TCBX,Third Coast Bancshares,25.75,26.83196659509895,29.0,-2.173235269124276,0.00,25.75,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+SHOP.TO,Shopify,25.66,31.609386418110407,25.0,-1.7489123203766472,0.00,25.66,RS_trend_protect
+FGEN,FibroGen,25.63,55.491364999634975,4.743341404358354,-23.10128735,0.00,25.63,RS_trend_protect;stall_risk
+CEU.TO,CES Energy Solutions,25.62,21.508265867846006,20.0,-5.185221392394197,0.00,25.62,RS_trend_protect;pullback_protect;stall_risk
+III,Information Services,25.61,41.335697365025005,29.0,-16.024470743017794,0.00,25.61,breakout_protect;pullback_protect;stall_risk
+SKE.TO,Skeena Resources,25.51,43.50932439422655,29.0,-14.757563664550368,0.00,25.51,pullback_protect;stall_risk;setup_protect
+CVS,CVS Health,25.51,23.481648667759078,21.0,-8.0,0.00,25.51,
+MCY,Mercury General,25.47,33.747703225135936,29.0,0.0,0.00,25.47,RS_trend_protect;breakout_protect;pullback_protect
+KN,Knowles,25.45,28.76083720752453,29.0,-0.22528488027683669,0.00,25.45,RS_trend_protect;pullback_protect;stall_risk
+NCLH,Norwegian Cruise Line,25.35,22.987484627801912,31.0,-3.4734044142783924,0.00,25.35,RS_trend_protect;breakout_protect;pullback_protect;setup_protect
+CUBI,Customers Bancorp,25.33,33.66351880149432,25.0,-6.0,0.00,25.33,RS_trend_protect;pullback_protect
+MUX,McEwen,41.30,51.09676509110635,11.0,-8.248406876101734,-16.00,25.30,RS_trend_protect
+K.TO,Kinross Gold,41.30,45.633215525846154,14.0,1.670281046243821,-16.00,25.30,RS_trend_protect;overheat_L1;probe_ok_L1
+GTX,Garrett Motion,25.28,34.79721172607455,29.0,-4.1,0.00,25.28,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+GCT,GigaCloud Technology,25.24,20.89651487880613,29.0,-9.201817172264423,0.00,25.24,RS_trend_protect
+FRO,Frontline,25.22,32.67117011997949,11.0,-2.9645607708567767,0.00,25.22,RS_trend_protect
+BURL,Burford Capital,25.20,31.31422004963757,29.0,-3.2663592000088126,0.00,25.20,RS_trend_protect;breakout_protect
+EVR,Evercore,25.19,24.12199958630195,29.0,-4.711185055133418,0.00,25.19,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+NTAP,NetApp,25.17,27.54447585367776,29.0,-1.7646999625906759,0.00,25.17,breakout_protect;pullback_protect
+CWCO,Consolidated Water,25.17,29.13408220886476,29.0,-0.2844119658332657,0.00,25.17,pullback_protect;stall_risk;setup_protect
+KLG,WK Kellogg Co,25.11,24.146576054318828,29.0,-0.6584565959929168,0.00,25.11,RS_trend_protect;stall_risk;setup_protect
+FAST,Fastenal,25.06,27.86794277417395,31.0,-1.8544619154706872,0.00,25.06,pullback_protect;stall_risk
+EXTR,Extreme Networks,38.03,45.76389063489167,14.0,1.5328163764287872,-13.00,25.03,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
+PHIN,Phinia,32.99,32.65912565751097,19.0,-0.23,-8.00,24.99,RS_trend_protect;stall_risk
+RIOT,Riot Platforms,24.96,28.352621827809173,25.0,-19.81414129076709,0.00,24.96,RS_trend_protect;pullback_protect
+CFG,Citizens Financial Group,24.90,26.234927353045776,29.0,0.0,0.00,24.90,RS_trend_protect;breakout_protect
+GSL,Global Ship Lease,24.86,36.32683298568673,29.0,-4.0,0.00,24.86,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+TIXT.TO,TELUS International CDA,37.84,39.34356417731716,19.0,-5.544886588241405,-13.00,24.84,RS_trend_protect;breakout_protect
+EFX.TO,Enerflex,37.83,36.6566827807215,19.0,0.0,-13.00,24.83,RS_trend_protect;breakout_protect
+MFI.TO,Maple Leaf Foods,32.79,46.10371973072446,19.0,-4.308,-8.00,24.79,RS_trend_protect;stall_risk
+AGX,Argan,24.71,43.78229277668455,25.0,-19.64119544289516,0.00,24.71,pullback_protect
+RAPT,RAPT Therapeutics,24.60,53.77334191239424,8.0,-13.529152750000002,0.00,24.60,RS_trend_protect;breakout_protect
+BVNRY,Bavarian Nordic,24.54,36.19516422825354,29.0,-9.685126,0.00,24.54,RS_trend_protect;pullback_protect
+TSEM.TA,Tower Semiconductor,40.53,36.8769631269245,14.0,1.0071863924555144,-16.00,24.53,RS_trend_protect;overheat_L1;probe_ok_L1
+MTA,ArcelorMittal,40.51,59.49352907220866,11.0,-10.663020066071365,-16.00,24.51,RS_trend_protect
+BNS.TO,Bank of Nova Scotia,24.51,29.8150655233966,11.0,-9.020314000279187,0.00,24.51,RS_trend_protect
+AVGO,Broadcom,24.50,30.627392069829014,31.0,-9.96077148162098,0.00,24.50,RS_trend_protect;pullback_protect
+ACAD,ACADIA Pharmaceuticals,24.46,34.60579509862282,29.0,-5.687407591263449,0.00,24.46,pullback_protect;stall_risk;setup_protect
+AX,Axos Financial,24.45,30.348328213572426,29.0,-4.0,0.00,24.45,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+KITS.TO,KITS Eyecare,24.44,37.745992600963746,29.0,-20.031088903911396,0.00,24.44,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+PFSI,PennyMac Financial Services,24.42,31.221497451398445,25.0,-1.706542885422711,0.00,24.42,breakout_protect
+TPR,Tapestry,24.40,28.46853482448987,29.0,-0.4905387341647969,0.00,24.40,RS_trend_protect
+FIGS,Figs,24.40,29.0694723614228,29.0,-4.016285885974272,0.00,24.40,RS_trend_protect;pullback_protect;setup_protect
+BAP,Credicorp,24.37,36.46110550376161,29.0,-5.189512235072754,0.00,24.37,pullback_protect;stall_risk
+ALDX,Aldeyra Therapeutics,24.34,28.75237789132703,25.0,-13.660691708669045,0.00,24.34,RS_trend_protect;stall_risk
+MITSY,Mitsui & Co,24.33,36.900061792699766,11.0,-14.576824620139067,0.00,24.33,RS_trend_protect
+BDGI.TO,Badger Infrastructure Solutions,24.33,32.73197310471847,29.0,-4.7425,0.00,24.33,RS_trend_protect;pullback_protect;stall_risk
+BWAY,Brainsway,40.32,40.052010286695904,14.0,-5.259675489092258,-16.00,24.32,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
+ARLO,Arlo Technologies,24.28,42.63612006915013,29.0,-15.403112468268276,0.00,24.28,pullback_protect;stall_risk
+BLD,TopBuild,24.27,22.329072956453494,29.0,-0.8891014556736938,0.00,24.27,RS_trend_protect;pullback_protect
+OGC.TO,OceanaGold,40.24,48.42612734805309,14.0,-5.827784113903094,-16.00,24.24,RS_trend_protect;overheat_L1;probe_ok_L1
+IRTC,iRhythm Technologies,37.24,64.35712186853581,14.0,-8.173234000224681,-13.00,24.24,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
+PKE,Park Aerospace,24.22,33.124763598833106,21.0,-2.7899390505622805,0.00,24.22,RS_trend_protect;breakout_protect
+NXE.TO,NexGen Energy,24.15,27.388482855935358,29.0,-11.035326562797323,0.00,24.15,RS_trend_protect;pullback_protect
+HNGKY,Hongkong Land Holdings,24.14,41.072168076887124,29.0,-26.83254284229765,0.00,24.14,RS_trend_protect;breakout_protect;pullback_protect;low_liquidity_today;stall_risk
+TAYD,Taylor Devices,24.12,34.681441822298254,25.0,-26.296140049999998,0.00,24.12,RS_trend_protect;low_liquidity_today;stall_risk
+IMPUY,Impala Platinum,24.11,37.39209823421337,29.0,-9.375706438462421,0.00,24.11,pullback_protect;setup_protect
+PET.TO,Pet Valu,24.11,36.70948505346543,29.0,-12.193985394714044,0.00,24.11,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+NIO,NIO,40.11,49.60754619571538,2.0,-10.5,-16.00,24.11,RS_trend_protect
+NCSM,NCS Multistage,40.10,52.56409400904309,11.0,-17.946929572095158,-16.00,24.10,RS_trend_protect
+HNGE,Hinge Health,24.06,9.00711327363125,26.0,-11.690133423525914,0.00,24.06,RS_trend_protect
+LNR.TO,Linamar,24.06,31.666246232294604,29.0,-6.107743404196055,0.00,24.06,breakout_protect
+SCLX,Scilex,39.03,89.60824553761528,2.0,-15.202499999999999,-15.00,24.03,RS_trend_protect;stall_risk
+CTGO,Contango ORE,24.01,36.12665566496798,29.0,-15.543372404623323,0.00,24.01,pullback_protect;setup_protect
+SNOW,Snowflake,23.96,34.733862372774986,29.0,-17.126078047656712,0.00,23.96,pullback_protect
+PFGC,Performance Food,23.96,28.418384788563472,31.0,-4.0,0.00,23.96,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+R,Ryder System,23.91,25.50136963854805,29.0,-2.7960817293786566,0.00,23.91,RS_trend_protect;breakout_protect;pullback_protect
+APLS,Apellis Pharmaceuticals,23.88,43.3303831059674,8.0,-3.5868107197576236,0.00,23.88,RS_trend_protect;breakout_protect;stall_risk
+UAL,United Airlines,36.82,37.853814864658645,19.0,-2.549115943202203,-13.00,23.82,RS_trend_protect
+PAY,Paymentus,23.76,24.121706793055296,25.0,-8.26323135079853,0.00,23.76,
+IBKR,Interactive Brokers,23.76,26.598304790366956,31.0,-1.7573991844993833,0.00,23.76,RS_trend_protect;pullback_protect;setup_protect
+SAP.TO,Saputo,31.73,39.94061576186583,19.0,-4.15,-8.00,23.73,RS_trend_protect;breakout_protect;stall_risk
+TCW.TO,Trican Well Service,23.67,26.855953925996396,29.0,-1.9260000000000004,0.00,23.67,RS_trend_protect;pullback_protect;setup_protect
+EGL.LS,Mota-Engil,23.61,36.68860557490683,29.0,-8.703425288943386,0.00,23.61,RS_trend_protect
+RMBS,Rambus,23.61,30.8022053627405,29.0,-6.129216910017166,0.00,23.61,RS_trend_protect;pullback_protect;setup_protect
+COF,Capital One Financial,23.50,24.079206731207346,31.0,-0.13345282473757547,0.00,23.50,pullback_protect;setup_protect
+AYI,Acuity,23.48,29.267200376882034,29.0,-4.0,0.00,23.48,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+SVM.TO,Silvercorp Metals,23.47,31.97940638840932,29.0,-4.0683002843258596,0.00,23.47,pullback_protect
+SSSS,SuRo Capital,23.46,35.83824440230009,29.0,-8.879089239151684,0.00,23.46,RS_trend_protect;pullback_protect;stall_risk
+BBVA,Banco Bilbao Vizcaya Argentaria,23.45,32.68452366265734,29.0,-0.3900669452394767,0.00,23.45,RS_trend_protect
+DAL,Delta Air Lines,23.45,19.07756705426665,31.0,-3.1072030508641766,0.00,23.45,pullback_protect;stall_risk;setup_protect
+GNK,Genco Shipping & Trading,23.41,32.354982163864335,19.0,-0.8228727070098221,0.00,23.41,RS_trend_protect;breakout_protect
+XOMA,XOMA Royalty Corporation,39.35,41.245902414542044,11.0,-9.557515729512499,-16.00,23.35,RS_trend_protect;breakout_protect
+GS,Goldman Sachs,23.33,20.282575478008397,31.0,-1.4597412688360047,0.00,23.33,RS_trend_protect;pullback_protect;setup_protect
+VOE.VI,voestalpine,23.31,31.827196873304064,29.0,-7.663640189838489,0.00,23.31,RS_trend_protect;pullback_protect;stall_risk
+MFG,Mizuho Financial Group,23.31,26.927474278236577,29.0,0.0,0.00,23.31,pullback_protect;setup_protect
+MLI,Mueller Industries,23.19,26.409684849000158,29.0,-1.2550765136177608,0.00,23.19,RS_trend_protect;breakout_protect
+TFPM.TO,Triple Flag Precious Metals,23.19,38.152327488243216,29.0,-6.484349284735687,0.00,23.19,pullback_protect;stall_risk;setup_protect
+GE,General Electric,23.18,31.754427093883027,29.0,-3.934430404011553,0.00,23.18,breakout_protect
+GPI,Group 1 Automotive,23.16,29.07837397315085,29.0,-1.8886343220507062,0.00,23.16,breakout_protect;pullback_protect
+OMF,OneMain,23.14,26.07328721741299,29.0,-0.2191116791160023,0.00,23.14,RS_trend_protect;breakout_protect
+RL,Ralph Lauren,23.13,37.10567470110797,21.0,-9.770161344334687,0.00,23.13,RS_trend_protect;breakout_protect
+LUN.TO,Lundin Mining,23.03,29.9217840167078,29.0,-0.2732876437325963,0.00,23.03,pullback_protect;setup_protect
+REZI,Resideo Technologies,46.98,55.8407258434321,11.0,-0.5152453797382972,-24.00,22.98,RS_trend_protect;breakout_protect
+AZZ,AZZ,22.95,27.588314935594937,29.0,-4.64,0.00,22.95,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+FOXA,Fox Corp (Class A),22.95,22.55426796241605,31.0,-0.9029327436098998,0.00,22.95,breakout_protect;pullback_protect;setup_protect
+RYCEY,Rolls-Royce,22.95,32.171874611234024,29.0,-1.8823137928454376,0.00,22.95,RS_trend_protect
+EVOK,Evoke Pharma,22.95,38.10442744165154,15.509516837481698,-16.5,0.00,22.95,RS_trend_protect;low_liquidity_today
+FSLR,First Solar,22.94,24.64864597221702,31.0,-15.78523973974957,0.00,22.94,RS_trend_protect;pullback_protect;stall_risk
+TOT.TO,Total Energy Services,30.91,29.871974150533106,29.0,-8.618605862655897,-8.00,22.91,RS_trend_protect;pullback_protect;stall_risk
+OSK,Oshkosh,22.91,26.595261470527984,29.0,-1.0269355070656594,0.00,22.91,RS_trend_protect;pullback_protect;setup_protect
+GOOGL,Alphabet (Class A),35.89,51.10899900316325,11.0,-3.6689167148682267,-13.00,22.89,RS_trend_protect;breakout_protect;overheat_L1
+BTSG,BrightSpring Health Services,22.88,27.889432410077195,29.0,-7.223385904806018,0.00,22.88,pullback_protect
+EMBC,Embecta,22.86,34.13231691812376,8.0,-9.845660442956477,0.00,22.86,RS_trend_protect;stall_risk
+BNL,Broadstone Net Lease,22.86,16.776997776315053,21.0,-0.7223461948879198,0.00,22.86,
+RF,Regions Financial,22.85,21.835620872182453,29.0,-1.0413824309634179,0.00,22.85,RS_trend_protect;breakout_protect
+HG,Hamilton Insurance Group,22.82,29.993040087684424,29.0,-0.9197601265589928,0.00,22.82,pullback_protect
+BSVN,Bank7,22.80,23.208784327565574,29.0,-5.072591512655898,0.00,22.80,RS_trend_protect
+ECO,Okeanis Eco Tankers,22.79,30.463560360953917,25.0,-5.3881974050500965,0.00,22.79,RS_trend_protect;breakout_protect;stall_risk
+TALO,Talos Energy,22.78,13.85099595727527,20.0,-3.0352084176446774,0.00,22.78,
+TNK,Teekay Tankers,22.76,27.46011374805553,11.0,-1.621956165985728,0.00,22.76,breakout_protect
+GM,General Motors,22.75,20.821229012812267,29.0,-0.3933462986047943,0.00,22.75,pullback_protect;stall_risk
+ESLT.TA,Elbit Systems,22.74,35.499820398534425,31.0,-4.357270195209668,0.00,22.74,pullback_protect;stall_risk;setup_protect
+FN.TO,First National Financial,22.72,22.31418192456248,29.0,-0.45,0.00,22.72,RS_trend_protect;breakout_protect;pullback_protect;stall_risk;setup_protect
+PBI,Pitney Bowes,22.71,31.683964187179086,29.0,-5.563592215150289,0.00,22.71,pullback_protect;stall_risk
+GNTX,Gentex,22.68,20.26775935057744,29.0,-1.8718026871639624,0.00,22.68,RS_trend_protect;pullback_protect;stall_risk
+JHG,Janus Henderson,22.61,20.731344051562324,29.0,0.0,0.00,22.61,RS_trend_protect;breakout_protect;pullback_protect;setup_protect
+BLX,Banco Latinoamericano de Comercio Exterior,22.54,27.326885842544492,29.0,-3.172303705882782,0.00,22.54,pullback_protect;setup_protect
+MS,Morgan Stanley,22.51,20.78731976752327,31.0,-0.2341605581761673,0.00,22.51,breakout_protect;pullback_protect;setup_protect
+GNW,Genworth Financial,22.49,24.337812108390274,29.0,0.0,0.00,22.49,RS_trend_protect;pullback_protect;setup_protect
+EBR,Centrais Eletricas Brasileiras,22.41,29.18462612091151,29.0,-1.6583864724301827,0.00,22.41,pullback_protect
+TCEHY,Tencent,22.41,26.393643191512297,29.0,-1.020515250865115,0.00,22.41,pullback_protect;stall_risk;setup_protect
+GOOG,Alphabet (Class C),35.33,49.94107338307477,11.0,-3.3649293578528936,-13.00,22.33,RS_trend_protect;breakout_protect;overheat_L1
+VEON,VEON,22.30,30.01813209834728,29.0,-11.265365126375041,0.00,22.30,RS_trend_protect;pullback_protect;low_liquidity_today
+BGLC,BioNexus Gene Lab,30.29,49.50557177995001,18.06547619047619,-12.938281657358838,-8.00,22.29,RS_trend_protect;stall_risk
+EME,EMCOR,30.26,35.29401573315614,29.0,-2.2661881927337633,-8.00,22.26,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+GASS,StealthGas,22.24,31.221059492696465,29.0,-14.93044005050096,0.00,22.24,pullback_protect;stall_risk;setup_protect
+AXSM,Axsome Therapeutics,22.21,26.820995797468107,11.0,-0.9842514137313727,0.00,22.21,breakout_protect
+EPRX.TO,Eupraxia Pharmaceuticals,22.20,28.136989053869485,29.0,-10.233095348067891,0.00,22.20,RS_trend_protect;pullback_protect;setup_protect
+REVG,REV,38.19,61.25508829474214,11.0,-17.617723164465374,-16.00,22.19,RS_trend_protect;breakout_protect
+SSL,Sasol,38.17,46.79893291282926,11.0,-0.9745654079362851,-16.00,22.17,RS_trend_protect
+GRBK,Green Brick Partners,22.16,22.475698416369532,29.0,-0.8327365631938025,0.00,22.16,breakout_protect;pullback_protect;setup_protect
+STAA,STAAR Surgical,22.13,44.010289302024894,2.0,0.0,0.00,22.13,RS_trend_protect
+MG.TO,Magna International,22.13,20.885944854724727,29.0,-2.46923133744866,0.00,22.13,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+JKS,JinkoSolar,22.11,24.005135162577794,29.0,-10.560955569454153,0.00,22.11,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+SNRE,Sunrise Communications,22.09,23.49682697404518,29.0,-3.526774308015142,0.00,22.09,pullback_protect;stall_risk
+BMO.TO,Bank of Montreal,22.09,32.80926524850044,21.0,-0.15831420771293572,0.00,22.09,breakout_protect
+BK,Bank of New York Mellon,22.08,25.6634152935797,31.0,-4.044,0.00,22.08,pullback_protect;stall_risk;setup_protect
+ITUB,Itau Unibanco Holding,22.07,25.062697175809337,31.0,-3.443814834190085,0.00,22.07,pullback_protect;setup_protect
+CALM,Cal-Maine Foods,22.06,19.907950993883755,29.0,-2.6981609364637578,0.00,22.06,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+SKYW,SkyWest,22.06,21.643821457819364,29.0,-2.358022540736399,0.00,22.06,pullback_protect;setup_protect
+VIV,Telefonica Brasil,22.03,29.365116754965126,29.0,-1.281070557497073,0.00,22.03,pullback_protect;setup_protect
+TRIP,TripAdvisor,21.93,22.870487782005764,29.0,-3.373356730126585,0.00,21.93,RS_trend_protect;pullback_protect;setup_protect
+EXPE,Expedia,29.92,32.89097150036733,19.0,-4.412,-8.00,21.92,RS_trend_protect;breakout_protect;stall_risk
+DCI,Donaldson,21.82,25.59483906332307,29.0,0.0,0.00,21.82,pullback_protect
+DXR,Daxor,21.81,40.1592537583841,25.0,-22.532775353618952,0.00,21.81,RS_trend_protect;low_liquidity_today;stall_risk
+MO,Altria,21.79,20.03960857156084,31.0,-0.484,0.00,21.79,pullback_protect;stall_risk;setup_protect
+WCC,WESCO International,21.77,19.339558126750827,29.0,-4.019772758040844,0.00,21.77,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+JPM,JPMorgan Chase & Co,21.76,22.77412445041154,29.0,-0.6067708037058526,0.00,21.76,breakout_protect;pullback_protect
+INTC,Intel,21.76,20.95959721041836,31.0,-6.131734177059955,0.00,21.76,pullback_protect;setup_protect
+FBK,FB Financial,21.74,21.763016964026374,29.0,-5.388999999999999,0.00,21.74,RS_trend_protect;breakout_protect;pullback_protect;stall_risk
+MSB,Mesabi Trust,21.74,29.349246805111843,29.0,-5.996676356235973,0.00,21.74,pullback_protect
+ATGE,Adtalem Global Education,21.72,29.25270413738596,29.0,-6.739080169972384,0.00,21.72,pullback_protect;stall_risk
+PTC,PTC,21.71,17.70127678837347,29.0,-1.402,0.00,21.71,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+MU,Micron Technology,21.70,26.944043918976636,31.0,-2.7072249389279546,0.00,21.70,pullback_protect;setup_protect
+AG.TO,First Majestic Silver,21.67,32.623225184297624,29.0,-12.956404649512034,0.00,21.67,pullback_protect
+ORIC,ORIC Pharmaceuticals,21.66,28.262662420123576,29.0,-11.653703290594745,0.00,21.66,breakout_protect;pullback_protect
+DOCS,Doximity,21.63,26.91561246023077,29.0,-8.330909556920886,0.00,21.63,breakout_protect;pullback_protect;stall_risk
+NXST,Nexstar Media,21.61,23.00361378242173,29.0,-3.829250886035588,0.00,21.61,RS_trend_protect;pullback_protect;setup_protect
+NFLX,Netflix,21.59,28.213205203579847,31.0,-9.36995076217731,0.00,21.59,breakout_protect;setup_protect
+SQM,Sociedad Quimica y Minera de Chile,21.55,17.76091456215132,29.0,-3.9737324049887786,0.00,21.55,RS_trend_protect;pullback_protect;setup_protect
+ERJ,Embraer,21.53,28.17931297159442,29.0,-2.4743777374697657,0.00,21.53,RS_trend_protect;pullback_protect;setup_protect
+WDC,Western Digital,37.52,43.13881142442172,14.0,-4.042394810100192,-16.00,21.52,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
+BEN,Franklin Resources,21.51,21.56525033322555,29.0,-1.6505610553188972,0.00,21.51,pullback_protect;setup_protect
+APEI,American Public Education,21.51,23.830727686799836,29.0,-4.748026981910854,0.00,21.51,RS_trend_protect;breakout_protect
+CCO.TO,Cameco,21.45,29.602649693984525,29.0,-11.648381835350673,0.00,21.45,RS_trend_protect;pullback_protect;setup_protect
+MPWR,Monolithic Power Systems,21.44,21.96514989702422,31.0,-4.223154748505063,0.00,21.44,pullback_protect;setup_protect
+WTS,Watts Water Technologies,21.39,22.050630336839735,29.0,-1.9147289370019611,0.00,21.39,pullback_protect;stall_risk;setup_protect
+APP,AppLovin,37.39,55.64599278170663,11.0,-13.381072194551763,-16.00,21.39,RS_trend_protect;breakout_protect
+LYV,Live Nation Entertainment,21.37,16.73374924103052,31.0,-3.433371426661501,0.00,21.37,pullback_protect;setup_protect
+HII,Huntington Ingalls Industries,21.35,20.029033650645182,29.0,-1.709646481605183,0.00,21.35,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+HMC,Honda Motor,21.32,20.72443113179476,29.0,-0.23,0.00,21.32,pullback_protect;stall_risk;setup_protect
+IDCC,InterDigital,34.32,52.83072745059061,19.0,-1.6493571449940836,-13.00,21.32,RS_trend_protect;breakout_protect
+SOHU,Sohu.com,21.30,21.009032526588754,29.0,-11.697468615579183,0.00,21.30,RS_trend_protect;setup_protect
+ARQT,Arcutis Biotherapeutics,21.29,22.111234185192174,29.0,-6.961242071655397,0.00,21.29,pullback_protect;setup_protect
+HALO,Halozyme Therapeutics,34.26,36.26864881511865,11.0,-2.655224221375512,-13.00,21.26,RS_trend_protect;overheat_L1
+AII.TO,Almonty Industries,21.25,38.181175335135734,20.0,-18.743788199999997,0.00,21.25,RS_trend_protect
+DCO,Ducommun,21.25,25.138585762110125,29.0,-2.4925624540067703,0.00,21.25,RS_trend_protect;pullback_protect;setup_protect
+OZK,Bank,21.24,19.21696521261093,29.0,-0.5820906420471821,0.00,21.24,pullback_protect
+DOC.VI,DO & CO,21.23,14.17912847175023,29.0,-2.329173417705994,0.00,21.23,RS_trend_protect
+FNB,FNB Corp,21.21,20.147309029775144,29.0,-0.6332568308517431,0.00,21.21,breakout_protect;pullback_protect
+IX,ORIX,21.20,26.837628264730206,29.0,-6.5585,0.00,21.20,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+FIBK,First Interstate BancSystem,21.12,19.052610365082455,29.0,0.0,0.00,21.12,breakout_protect
+ASND,Ascendis Pharma,21.10,30.70992790032582,29.0,-6.836011012594582,0.00,21.10,pullback_protect;stall_risk;setup_protect
+INDB,Independent Bank,21.09,20.955380403831857,29.0,-1.8880597284865914,0.00,21.09,breakout_protect;pullback_protect
+VWDRY,Vestas Wind Systems,21.09,22.403416567107243,29.0,-1.1356921386260268,0.00,21.09,pullback_protect;stall_risk;setup_protect
+NEXT,NextDecade,21.08,22.36158032935326,29.0,-11.32601895426565,0.00,21.08,RS_trend_protect;pullback_protect
+RFIL,RF Industries,21.05,35.53499242270321,12.0,-18.75454270908059,0.00,21.05,RS_trend_protect
+MIRM,Mirum Pharmaceuticals,37.03,44.349794974228416,11.0,-2.97893905056228,-16.00,21.03,RS_trend_protect
+OR.TO,OR Royalties,34.01,50.90612994560583,11.0,-3.3729020793537576,-13.00,21.01,RS_trend_protect;breakout_protect
+LMND,Lemonade,21.00,23.956141734165065,29.0,-11.30309202506653,0.00,21.00,RS_trend_protect
+LRN,Stride,20.99,24.16778684900286,29.0,-6.640404050623598,0.00,20.99,pullback_protect;stall_risk
+GOOS.TO,Canada Goose,20.98,25.12975365597198,29.0,-10.504898984713336,0.00,20.98,
+HCA,HCA Healthcare,20.97,24.196890934784918,29.0,-4.08426577692878,0.00,20.97,breakout_protect;pullback_protect
+WPM.TO,Wheaton Precious Metals,20.95,36.51250967191575,21.0,-0.536944004866687,0.00,20.95,breakout_protect
+ENS,EnerSys,20.88,19.13531924540569,29.0,-0.3042178313204856,0.00,20.88,breakout_protect;pullback_protect;stall_risk
+NSSC,Napco Security Technologies,36.86,25.644975294294465,14.0,-1.7345141603193648,-16.00,20.86,RS_trend_protect;overheat_L1;probe_ok_L1
+OLA.TO,Orla Mining,20.84,34.871578292452725,29.0,-10.536061877339254,0.00,20.84,pullback_protect;stall_risk
+HBI,Hanesbrands,20.84,29.14910022957262,8.0,-4.847999999999999,0.00,20.84,RS_trend_protect;low_liquidity_today
+UNCRY,UniCredit,20.84,25.812753982395847,29.0,-0.5748671800983028,0.00,20.84,
+COUR,Coursera,20.82,22.5410172386131,29.0,-5.037469844862343,0.00,20.82,RS_trend_protect
+CC,Chemours,20.82,16.692900851211014,20.0,-4.476165949253768,0.00,20.82,RS_trend_protect;pullback_protect
+CATY,Cathay General Bancorp,20.79,18.110003133143117,29.0,0.0,0.00,20.79,breakout_protect;pullback_protect
+CBNA,Chain Bridge Bancorp,20.75,26.31982656532109,11.0,-17.98969805,0.00,20.75,
+MAG.TO,MAG Silver,20.74,41.610720442701975,19.0,-11.448689873611421,0.00,20.74,pullback_protect
+BOOT,Boot Barn,20.73,45.016424981451806,11.0,-12.110491868890904,0.00,20.73,breakout_protect
+DBM.TO,Doman Building Materials,20.71,26.714079614988634,29.0,-10.216563167348504,0.00,20.71,pullback_protect;setup_protect
+AGI.TO,Alamos Gold,33.70,41.94334969798985,14.0,-6.588121888018357,-13.00,20.70,overheat_L1;probe_ok_L1
+CLF,Cleveland-Cliffs,20.66,15.80080644260987,29.0,-4.744884206071732,0.00,20.66,RS_trend_protect;pullback_protect;setup_protect
+PNC,PNC Financial Services,20.66,19.861346091511937,29.0,0.0,0.00,20.66,breakout_protect
+AIF.TO,Altus Group,20.63,18.102015976634284,29.0,0.0,0.00,20.63,pullback_protect;setup_protect
+CNAL.L,Centrica,20.61,26.622144403060915,29.0,-8.957421891037328,0.00,20.61,
+SSD,Simpson Manufacturing,20.61,15.872659994216228,29.0,-0.5357400945418739,0.00,20.61,RS_trend_protect;pullback_protect;setup_protect
+FTDR,Frontdoor,20.61,25.554888475833955,29.0,-9.867374360178438,0.00,20.61,breakout_protect;pullback_protect
+VAL,Valaris,20.61,22.096271627138044,29.0,-4.798047791551552,0.00,20.61,breakout_protect;pullback_protect
+ARIS.TO,Aris Mining,36.61,38.16934550530937,14.0,-16.311136455612377,-16.00,20.61,RS_trend_protect;overheat_L1;probe_ok_L1
+VLO,Valero Energy,20.60,28.404282023487294,21.0,-9.904586133854483,0.00,20.60,
+AXP,American Express,20.59,22.72894917003895,29.0,-1.0642567271348686,0.00,20.59,
+AREN,Arena Group,20.58,53.226555843645116,15.0,-25.7013243,0.00,20.58,RS_trend_protect
+VPG,Vishay Precision,20.57,21.781912344192882,29.0,-2.4555842693303744,0.00,20.57,breakout_protect;pullback_protect;setup_protect
+AAP,Advance Auto Parts,20.57,32.29625659535172,29.0,-15.558082974626883,0.00,20.57,pullback_protect;stall_risk
+DFH,Dream Finders Homes,20.54,18.88055571520525,29.0,-6.1572213457372005,0.00,20.54,pullback_protect;stall_risk;setup_protect
+HAS,Hasbro,20.53,22.876854561505525,29.0,0.0,0.00,20.53,pullback_protect;setup_protect
+TCOM,Trip.com,33.51,29.72151995196327,19.0,-0.5694495836366434,-13.00,20.51,
+LYFT,Lyft,20.47,24.31917484507865,29.0,-15.740263577494648,0.00,20.47,
+FOX,Fox Corp (Class B),20.45,19.605938559672524,29.0,-1.2574843342673874,0.00,20.45,breakout_protect;pullback_protect;setup_protect
+THFF,First Financial,20.41,21.214339595841142,29.0,-1.6878822753881062,0.00,20.41,breakout_protect
+ULTA,Ulta Beauty,20.41,22.17899818217191,31.0,-9.061075127950398,0.00,20.41,pullback_protect;setup_protect
+VNT,Vontier,20.40,21.822977161556608,29.0,0.0,0.00,20.40,pullback_protect;setup_protect
+FSUGY,Fortescue,20.39,21.30611872804721,29.0,-5.0328399,0.00,20.39,RS_trend_protect;pullback_protect;setup_protect
+ADEN.TO,ADENTRA,20.34,21.138056563116514,20.0,-2.374713115694037,0.00,20.34,RS_trend_protect;pullback_protect
+MDI.TO,Major Drilling Group International,20.34,20.68816429811852,29.0,-3.97363335,0.00,20.34,
+MDGL,Madrigal Pharmaceuticals,36.32,39.59425204080805,14.0,-1.752093987221465,-16.00,20.32,RS_trend_protect;overheat_L1;probe_ok_L1
+CMI,Cummins,20.30,15.002073436889555,31.0,-1.6932998718497656,0.00,20.30,RS_trend_protect;pullback_protect;setup_protect
+NLY,Annaly Capital Management,20.28,20.67527887926561,29.0,-3.2830634557655958,0.00,20.28,breakout_protect;pullback_protect
+XHR,Xenia Hotels & Resorts,20.27,17.054888169391624,29.0,-0.7795319353165469,0.00,20.27,breakout_protect
+SLS.TO,Solaris Resources,20.27,25.904089788339743,29.0,-8.194598905678806,0.00,20.27,RS_trend_protect;pullback_protect;setup_protect
+ANGPY,Valterra Platinum,20.23,34.40848369408862,29.0,-13.413240973908264,0.00,20.23,breakout_protect;pullback_protect;stall_risk;setup_protect
+PAGS,Pagseguro Digital,20.19,19.584434528416942,29.0,-2.549690536766318,0.00,20.19,pullback_protect;setup_protect
+MARUY,Marubeni,20.18,32.392280858918895,21.0,-5.474247735136258,0.00,20.18,breakout_protect
+III.TO,Imperial Metals,20.17,53.57513014126396,11.0,-24.80076311321818,0.00,20.17,breakout_protect
+CMA,Comerica,20.17,20.689151694981188,29.0,-4.004,0.00,20.17,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+ELD.TO,Eldorado Gold,33.17,44.46150250986341,19.0,-7.576034299147889,-13.00,20.17,RS_trend_protect
+FHN,First Horizon,20.16,15.373539518358161,31.0,-1.5777244806676984,0.00,20.16,pullback_protect;setup_protect
+LNC,Lincoln National,33.14,36.58576253648878,19.0,0.0,-13.00,20.14,RS_trend_protect
+SPNS,Sapiens International,44.07,69.9069209764317,2.0,-8.342500000000001,-24.00,20.07,RS_trend_protect;low_liquidity_today;stall_risk
+AFG,American Financial Group,20.06,19.61849129311218,29.0,-3.801948805760085,0.00,20.06,breakout_protect;pullback_protect
+TIH.TO,Toromont Industries,20.02,16.828386953670673,29.0,0.0,0.00,20.02,pullback_protect;setup_protect
+CIGI.TO,Colliers International Group,20.00,21.46454180794722,25.0,-7.3420000000000005,0.00,20.00,RS_trend_protect;stall_risk
+MSM,MSC Industrial Direct,20.00,19.598698606188705,29.0,-2.263953365811222,0.00,20.00,breakout_protect;pullback_protect
+ADI,Analog Devices,19.99,16.80524791225539,31.0,-0.5977688378680452,0.00,19.99,pullback_protect
+VOD,Vodafone,19.99,23.291965156260925,29.0,-4.084,0.00,19.99,pullback_protect;stall_risk;setup_protect
+WMG,Warner Music,19.98,12.94984350018743,29.0,-0.192,0.00,19.98,RS_trend_protect;pullback_protect;stall_risk;setup_protect
+IDN,Intellicheck,19.97,37.6166066613219,29.0,-27.755204452934038,0.00,19.97,stall_risk;setup_protect
+FNV.TO,Franco-Nevada,19.95,33.2601346444006,19.0,-0.9721575872866588,0.00,19.95,breakout_protect
+BYD,Boyd Gaming,19.94,17.46638552524328,29.0,-0.39428063137632285,0.00,19.94,pullback_protect
+AEM.TO,Agnico Eagle Mines,32.87,51.16704723150234,11.0,-2.192320701484837,-13.00,19.87,RS_trend_protect;breakout_protect
+MTZ,MasTec,19.87,23.129476208036422,29.0,-9.59050017341476,0.00,19.87,pullback_protect;setup_protect
+EIF.TO,Exchange Income Corp,19.86,14.969139968231337,29.0,-0.24018010980023338,0.00,19.86,RS_trend_protect
+QRVO,Qorvo,19.86,20.104842401327943,29.0,-1.259793015068804,0.00,19.86,pullback_protect;stall_risk;setup_protect
+AN,AutoNation,19.85,27.642724043557624,21.0,-3.7994308012150046,0.00,19.85,breakout_protect
+NTRS,Northern Trust,19.84,16.59746597868785,29.0,-1.9575581881462627,0.00,19.84,pullback_protect;setup_protect
+POW.TO,Power Corp of Canada,19.83,19.398433080431907,29.0,-0.33606141832795755,0.00,19.83,breakout_protect;pullback_protect;stall_risk
+CNM,Core & Main,19.81,20.287456469954407,29.0,-2.739608924962846,0.00,19.81,breakout_protect;pullback_protect;stall_risk;setup_protect
+AMX,America Movil,19.79,23.763365450159576,29.0,-4.58968442171719,0.00,19.79,pullback_protect;stall_risk
+RJF,Raymond James Financial,19.78,16.9634350874733,29.0,-0.8800584474384491,0.00,19.78,breakout_protect;pullback_protect
+COHN,Cohen & Co,19.78,24.698575628670678,19.0,-22.86739026247195,0.00,19.78,RS_trend_protect;low_liquidity_today
+SITM,SiTime,19.77,21.55456361468203,29.0,-15.731913240056416,0.00,19.77,pullback_protect;setup_protect
+WSM,Williams-Sonoma,19.74,13.597880162460507,31.0,-2.123998790551688,0.00,19.74,RS_trend_protect;pullback_protect;setup_protect
+TRIN,Trinity Capital,19.74,18.12463712818376,29.0,-0.09380724721509952,0.00,19.74,pullback_protect;stall_risk;setup_protect
+ESE,ESCO Technologies,19.74,24.41160858294298,29.0,0.0,0.00,19.74,
+IDXX,IDEXX Laboratories,19.72,17.864215970452122,29.0,-4.738996141294356,0.00,19.72,RS_trend_protect
+GEV,GE Vernova,19.69,18.12399497115647,29.0,-13.352845239303253,0.00,19.69,RS_trend_protect
+FM.TO,First Quantum Minerals,19.68,20.219232751067132,29.0,-2.7185115982230785,0.00,19.68,pullback_protect;setup_protect
+MEDP,Medpace,40.68,41.70593774107235,19.0,-4.086,-21.00,19.68,RS_trend_protect;breakout_protect
+BP,BP,19.67,15.011458079752988,31.0,0.0,0.00,19.67,pullback_protect;setup_protect
+IPCO.TO,International Petroleum,19.67,21.065553577103508,29.0,0.0,0.00,19.67,pullback_protect;setup_protect
+AAPL,Apple,19.65,21.09207326155809,22.0,-0.2732876437325963,0.00,19.65,breakout_protect;pullback_protect
+JAG.TO,Jaguar Mining,35.62,48.50542370750414,11.0,-22.174945982739494,-16.00,19.62,RS_trend_protect
+HOV,Hovnanian Enterprises,19.62,24.253260073941625,16.0,-10.91629270065394,0.00,19.62,RS_trend_protect
+HD,Home Depot,19.62,13.81649398355886,31.0,-1.7553851944191772,0.00,19.62,breakout_protect;pullback_protect;stall_risk;setup_protect
+TFC,Truist Financial,19.62,16.460450887500066,29.0,0.0,0.00,19.62,breakout_protect;pullback_protect
+MTB,M&T Bank,19.59,18.245311562877898,29.0,-1.1467245843845726,0.00,19.59,breakout_protect;pullback_protect
+ATLC,Atlanticus,35.57,26.536479738891945,14.0,1.0378450633408136,-16.00,19.57,RS_trend_protect;breakout_protect;overheat_L1;probe_ok_L1
+CMC,Commercial Metals,19.53,21.026311562299234,29.0,-4.636562721508897,0.00,19.53,pullback_protect;stall_risk;setup_protect
+KNT.TO,K92 Mining,19.51,32.488524483746986,29.0,-9.205606743907254,0.00,19.51,breakout_protect
+BHC.TO,Bausch Health,19.49,11.92706470726382,20.0,-10.162937088407341,0.00,19.49,RS_trend_protect;setup_protect
+ZION,Zions Bancorp,19.49,14.267601647936315,29.0,0.0,0.00,19.49,breakout_protect
+NBIX,Neurocrine Biosciences,19.48,19.618866016376156,29.0,-0.6585389476728203,0.00,19.48,pullback_protect
