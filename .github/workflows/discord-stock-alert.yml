@@ -332,6 +332,13 @@ jobs:
           else
             echo "No $FILE produced (check rank_stage1 logging)."
           fi
+      - name: Run TR + QS merger
+  
+        run: |
+         set -e
+         python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv', 'data/stage2_merged.csv')"
+         test -f data/stage2_merged.csv || (echo "No data/stage2_merged.csv produced (check merge_stage1_with_tr)." && exit 1)  
+     
       - name: Commit stage2 merged CSV to repo
         shell: bash
         run: |
