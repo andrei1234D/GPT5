@@ -21,6 +21,8 @@ API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip
 API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
 API_KEY       = os.getenv("T212_API_KEY")
 
+PRECALL_SLEEP_SECONDS = int(os.getenv("T212_PRECALL_SLEEP", "60")) 
+
 
 IN_PATH   = Path(os.getenv("CLEAN_INPUT", "data/universe.csv"))
 OUT_PATH  = Path(os.getenv("CLEAN_OUT", "data/universe_clean.csv"))
@@ -239,8 +241,15 @@ def fetch_t212_instruments() -> Tuple[List[Dict[str,Any]], str]:
     return r2.json(), API_BASE_DEMO  # pragma: no cover
 
 # ---------- main ----------
+# ---------- main ----------
 def main():
     log("[INFO] Fetching T212 instruments…")
+
+    # Add this block right here, before any API call:
+    if PRECALL_SLEEP_SECONDS > 0:
+        log(f"[INFO] Sleeping {PRECALL_SLEEP_SECONDS}s before hitting T212 (rate-limit guard)…")
+        time.sleep(PRECALL_SLEEP_SECONDS)
+
     instruments: Optional[List[Dict[str,Any]]] = None
     base_used = None
     try:
@@ -257,6 +266,7 @@ def main():
         else:
             log("Error:  T212 returned 429. Check key/base/scope.")
             sys.exit(1)
+
 
     # Build whitelist if we have instruments
     whitelist: set[str] = set()
