@@ -1,22 +1,21 @@
-# scripts/alphavantage_jit.py
 import os
 import requests
 
 ALPHAVANTAGE_API_KEY = os.getenv("ALPHAVANTAGE_API_KEY")
 BASE_URL = "https://www.alphavantage.co/query"
 
-def get_news_sentiment_bulk(tickers: list[str], days: int = 7, limit: int = 50):
+def get_news_sentiment(ticker: str, limit: int = 5):
     """
-    Fetch latest news sentiment for multiple tickers in one API call.
-    Returns a dict: {ticker: [articles...]}.
+    Fetch latest news sentiment for a given ticker from Alpha Vantage.
+    Returns a list of dicts with title, source, published_at, sentiment.
+    Ensures we only include articles where this ticker appears in ticker_sentiment.
     """
     if not ALPHAVANTAGE_API_KEY:
         raise ValueError("Missing ALPHAVANTAGE_API_KEY in environment")
 
-    tickers_str = ",".join(tickers)
     params = {
         "function": "NEWS_SENTIMENT",
-        "tickers": tickers_str,
+        "tickers": ticker,
         "apikey": ALPHAVANTAGE_API_KEY,
         "sort": "LATEST",
         "limit": limit,
@@ -26,15 +25,19 @@ def get_news_sentiment_bulk(tickers: list[str], days: int = 7, limit: int = 50):
     resp.raise_for_status()
     data = resp.json()
 
-    out = {t: [] for t in tickers}
-    for item in data.get("feed", []):
+    if "feed" not in data:
+        return []
+
+    results = []
+    for item in data["feed"]:
+        # ensure ticker is actually relevant in this article
         for related in item.get("ticker_sentiment", []):
-            sym = related.get("ticker")
-            if sym in out:
-                out[sym].append({
+            if related.get("ticker") == ticker:
+                results.append({
                     "title": item.get("title"),
                     "source": item.get("source"),
                     "published_at": item.get("time_published"),
                     "sentiment": item.get("overall_sentiment_label"),
                 })
-    return out
+                break  # don’t duplicate the same article
+    return results

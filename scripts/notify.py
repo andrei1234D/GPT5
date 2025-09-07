@@ -238,7 +238,6 @@ def main():
         log("[INFO] Stage-1 P/E refine applied.")
 
      # 6) Load Stage-2 merged results instead of re-scoring
-
     path = "data/stage2_merged.csv"
     if not os.path.exists(path):
         return fail(f"{path} not found")
@@ -247,14 +246,31 @@ def main():
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    # Build ranked list similar to RobustRanker output
+    # preserve the CSV's order
+    df = df.sort_values("merged_score", ascending=False).reset_index(drop=True)
+
+    # reload full features for all tickers
+    universe = [(t, "") for t in df["ticker"]]
+    feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
+
     ranked = []
-    for row in df.to_dict("records"):
+    for _, row in df.iterrows():
         t = row["ticker"]
         n = row.get("name", t)
-        f = row  # treat row dict as feats
+
+        # fresh features
+        f = feats_map.get(t, {}).get("features", {})
+        if f is None:
+            f = {}
+
+        # overlay scores/meta from stage2_merged.csv
+        f.update(row.to_dict())
+
         s = row.get("merged_score", 0.0)
+
+        # maintain the merged CSV order
         ranked.append((t, n, f, s, {}))
+
 
 
 
