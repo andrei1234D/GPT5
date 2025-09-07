@@ -4,7 +4,7 @@ import requests
 ALPHAVANTAGE_API_KEY = os.getenv("ALPHAVANTAGE_API_KEY")
 BASE_URL = "https://www.alphavantage.co/query"
 
-def get_news_sentiment(ticker: str, limit: int = 5):
+def get_news_sentiment_bulk(ticker: str, limit: int = 5):
     """
     Fetch latest news sentiment for a given ticker from Alpha Vantage.
     Returns a list of dicts with title, source, published_at, sentiment.
