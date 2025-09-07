@@ -1,6 +1,7 @@
 # scripts/notify.py
 import os, re, sys, time, requests, pytz
-from datetime import datetime
+import pandas as pd
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from universe import load_universe
@@ -22,6 +23,8 @@ from debugger import post_debug_inputs_to_discord
 
 from trash_ranker import RobustRanker, pick_top_stratified
 from quick_scorer import rank_stage1, quick_score  # we rescore after adding PE
+from alphavantage_jit import get_news_sentiment_bulk
+
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -234,52 +237,59 @@ def main():
         pre_top200 = rescored[:int(os.getenv("STAGE1_KEEP", "200"))]
         log("[INFO] Stage-1 P/E refine applied.")
 
-    # 6) Stage-2 — RobustRanker
-    ranker = RobustRanker()
-    tickers_pre = [t for (t, n, f, _score, _meta) in pre_top200]
-    vals_pre = fetch_valuations_for_top(tickers_pre)
-    for (t, n, f, _score, _meta) in pre_top200:
-        v = (vals_pre.get(t) or {})
-        f["val_PE"]        = v.get("PE")        if v.get("PE")        is not None else f.get("val_PE")
-        f["val_PS"]        = v.get("PS")        if v.get("PS")        is not None else f.get("val_PS")
-        f["val_EV_REV"]    = v.get("EV_REV")    if v.get("EV_REV")    is not None else f.get("val_EV_REV")
-        f["val_EV_EBITDA"] = v.get("EV_EBITDA") if v.get("EV_EBITDA") is not None else f.get("val_EV_EBITDA")
-        f["val_PEG"]       = v.get("PEG")       if v.get("PEG")       is not None else f.get("val_PEG")
-        f["val_FCF_YIELD"] = v.get("FCF_YIELD") if v.get("FCF_YIELD") is not None else f.get("val_FCF_YIELD")
+     # 6) Load Stage-2 merged results instead of re-scoring
 
-    ranker.fit_cross_section([f for (t, n, f, _score, _meta) in pre_top200])
+    path = "data/stage2_merged.csv"
+    if not os.path.exists(path):
+        return fail(f"{path} not found")
 
-    thorough_ranked = []
-    for (t, n, f, _score, _meta) in pre_top200:
-        if ranker.should_drop(f):
-            continue
-        score, parts = ranker.composite_score(f)
-        thorough_ranked.append((t, n, f, score))
-    thorough_ranked.sort(key=lambda x: x[3], reverse=True)
-    top200 = thorough_ranked[:200]
-    if not top200:
-        return fail("No candidates after Stage-2 robust scorer")
-    log(f"[INFO] Stage-2 leader: {top200[0][0]}")
+    df = pd.read_csv(path)
+    if df.empty:
+        return fail("stage2_merged.csv is empty")
 
-    # 7) Stratified Top-10
+    # Build ranked list similar to RobustRanker output
+    ranked = []
+    for row in df.to_dict("records"):
+        t = row["ticker"]
+        n = row.get("name", t)
+        f = row  # treat row dict as feats
+        s = row.get("merged_score", 0.0)
+        ranked.append((t, n, f, s, {}))
+
+
+
+# 7) Stratified Top-10 from merged CSV
     top10 = pick_top_stratified(
-        top200,
+        ranked,
         total=10,
         min_small=int(os.getenv("STAGE2_MIN_SMALL", "5")),
         min_large=int(os.getenv("STAGE2_MIN_LARGE", "5")),
         pe_min=int(os.getenv("STAGE2_MIN_PE", "5")),
     )
-    tickers_top10 = [t for (t, _, _, _) in top10]
+    tickers_top10 = [t for (t, _, _, _, _) in top10]
+
+    log(f"[INFO] Using stratified Top-10 from stage2_merged.csv: {', '.join(tickers_top10)}")
 
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
     valuations_map = fetch_valuations_for_top(tickers_top10)
 
+    # --- Fetch bulk news for all tickers ---
+    try:
+        news_map = get_news_sentiment_bulk(tickers_top10, days=7, limit=50)
+        log(f"[INFO] Pulled news for {len(news_map)} tickers via AlphaVantage bulk API")
+    except Exception as e:
+        log(f"[WARN] Failed to fetch bulk news: {e}")
+        news_map = {t: [] for t in tickers_top10}
+
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
 
-    for (t, name, feats, _score) in top10:
+    # cutoff for 1 week
+    cutoff = datetime.utcnow() - timedelta(days=7)
+
+    for (t, name, feats, _score, _meta) in top10:
         proxies = derive_proxies(feats, spy_ctx)
         fund_proxy = fund_proxies_from_feats(feats)
         cat = catalyst_severity_from_feats(feats)
@@ -309,12 +319,24 @@ def main():
             "FCF_YIELD": vals.get("FCF_YIELD"),
         }
 
+        # --- Filter to last 7 days, take up to 2 news ---
+        news_items = [
+            n for n in news_map.get(t, [])
+            if n.get("published_at") and datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S") >= cutoff
+        ]
+        if news_items:
+            news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})" for n in news_items[:2]]
+            news_text = "\n".join(news_lines)
+        else:
+            news_text = "N/A"
+
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
             cat=cat, earn_sev=earn_sev, fm=fm,
             baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
             pe_hint=pe_hint
         )
+        block_text += f"\n\nNews:\n{news_text}"
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 
@@ -322,13 +344,10 @@ def main():
     user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
         today=now.strftime("%b %d"),
         blocks=blocks_text,
-    )
+)
 
-    # Log the exact inputs we’re about to send to GPT
-    if os.getenv("LOG_GPT_INPUT", "1").lower() in {"1", "true", "yes"}:
-        echo = os.getenv("LOG_GPT_INPUT_STDOUT", "0").lower() in {"1", "true", "yes"}
-        dump_path = dump_blocks_pre_gpt(blocks, user_prompt, TZ, echo_stdout=echo)
-        log(f"[INFO] Dumped pre-GPT blocks to {dump_path}")
+
+
 
     # 8) GPT adjudication
     try:

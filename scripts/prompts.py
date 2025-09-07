@@ -18,11 +18,8 @@ Penalize: overextended names trading >40% above anchor or >50× sales unless exc
 Do not upgrade obvious blowoffs; at best, allow controlled probe buys with tight stops.
 
 News:
-- NEWS IS NOT INCLUDED IN THE BLOCK. You MUST search the web ONLY for recent, company-specific news (within the last 14 days) that directly affects the stock’s near-term and long term performance (e.g. earnings, guidance, catalysts, partnerships, regulatory updates).
-- Score it +-50 points based on impact (e.g. strong beat +50, miss -50, guidance up +30, down -30, partnership +20, etc.).
-- Do not search for or include general market headlines, rumors, or sector commentary.
 - Only include 1–2 bullet points per stock. If no relevant news is found, output exactly "N/A".
-
+- News have an impact on certanty: positive news +5–15%, negative news -5–15%, neutral/no news 0%.
 
 
 Certainty:
