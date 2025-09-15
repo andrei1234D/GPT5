@@ -4,6 +4,9 @@ import os, sys, csv, json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
+# --- imports from universe builder ---
+from universe_from_trading_212 import map_to_yahoo, simplify_symbol
+
 IN_PATH   = Path(os.getenv("CLEAN_INPUT", "data/universe.csv"))
 OUT_PATH  = Path(os.getenv("CLEAN_OUT", "data/universe_clean.csv"))
 REJ_PATH  = Path(os.getenv("CLEAN_REJECTS", "data/universe_rejects.csv"))
@@ -12,7 +15,8 @@ META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
 ALLOW_STALE        = os.getenv("ALLOW_STALE", "1").lower() in {"1","true","yes"}
 CLEAN_ALLOW_OFFLINE= os.getenv("CLEAN_ALLOW_OFFLINE", "1").lower() in {"1","true","yes"}
 
-def log(msg: str): print(msg, flush=True)
+def log(msg: str): 
+    print(msg, flush=True)
 
 # -------------------- Helpers --------------------
 def atomic_write(path: Path, rows: List[Tuple], header: Tuple[str, ...]) -> None:
@@ -67,8 +71,14 @@ def main():
             if (it.get("type") or it.get("instrumentType") or "").upper() not in {"EQUITY","STOCK"}:
                 continue
             tick = (it.get("ticker") or it.get("symbol") or "").strip()
-            if tick: whitelist.add(tick.upper())
-        log(f"[INFO] Whitelist size: {len(whitelist)}")
+            mic  = it.get("mic")
+            exch = it.get("exchange")
+            isin = it.get("isin")
+            if tick:
+                simple = simplify_symbol(tick)
+                yh = map_to_yahoo(simple, exch, mic, isin)
+                whitelist.add(yh.upper())
+        log(f"[INFO] Whitelist size (normalized to Yahoo): {len(whitelist)}")
     else:
         log("[WARN] No instrument metadata found, skipping whitelist")
 
@@ -95,6 +105,10 @@ def main():
     log(f"[INFO] Input rows   : {len(rows)}")
     log(f"[INFO] Kept (clean) : {len(kept)}")
     log(f"[INFO] Rejected     : {len(rejects)}")
+
+    # Debug peek
+    log(f"[DEBUG] Sample kept: {kept[:10]}")
+    log(f"[DEBUG] Sample rejects: {rejects[:10]}")
 
 if __name__ == "__main__":
     main()
