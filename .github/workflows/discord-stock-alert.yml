@@ -64,15 +64,6 @@ jobs:
           CLEAN_ALLOW_OFFLINE: '1'
         run: python scripts/clean_universe.py
 
-      - name: Save rejects file
-        run: |
-          if [ -f data/universe_rejects.csv ]; then
-            echo "[INFO] Rejects file size:"
-            wc -l data/universe_rejects.csv
-          else
-            echo "[WARN] No rejects file created!"
-          fi
-
       - name: Auto-build Yahoo aliases from last run’s rejects
         env:
           ALIASES_FROM: data/universe_rejects.csv
@@ -85,13 +76,10 @@ jobs:
 
       - name: Run Quick Scorer
         env:
-          # --- Stage-1 knobs ---
-          STAGE1_MODE: 'quick'
-          STAGE1_KEEP: '2000'
+          STAGE1_MODE: 'loose'
+          STAGE1_KEEP: '200'
           STAGE1_WRITE_TOPN_CSV: '1'
           STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
-
-          # --- yfinance knobs ---
           YF_CHUNK_SIZE: '50'
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
@@ -99,8 +87,6 @@ jobs:
           YF_SLEEP_PER_REQUEST: '0.5'
           YF_SLEEP_FALLBACK: '0.3'
           YF_MIN_ROWS: '40'
-
-          # --- Quick Scorer / valuation knobs ---
           QS_ET_BONUS_TREND: '6'
           QS_ET_BONUS_MOMO: '8'
           QS_ET_BONUS_STRUCT: '5'
@@ -113,7 +99,6 @@ jobs:
 
       - name: Run Trash Ranker
         env:
-          # --- Stage-2 knobs ---
           RANKER_PROFILE: 'C'
           HARD_DROP_MODE: 'normal'
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
@@ -121,8 +106,17 @@ jobs:
           ATH_GUARD: '1'
         run: python scripts/trash_ranker.py --input data/stage1_kept.csv --output data/stage2_merged.csv
 
-      - name: Prepare logs dir
-        run: mkdir -p logs
+      - name: Commit updated rejects + stage outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/universe_rejects.csv data/stage1_kept.csv data/stage2_merged.csv || true
+          if git diff --cached --quiet; then
+            echo "No new files to commit"
+          else
+            git commit -m "Update rejects and stage results (run #${{ github.run_number }})"
+            git push
+          fi
 
   send-alert:
     runs-on: ubuntu-latest
@@ -134,31 +128,10 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Ensure dependency manifest
-        run: |
-          if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\n" > requirements.txt
-          fi
-          cat requirements.txt
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: requirements.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade --upgrade-strategy eager -r requirements.txt
-
       - name: Run notifier
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-          # --- Logging knobs ---
           PYTHONUNBUFFERED: '1'
           FEATURES_LOG_LEVEL: 'INFO'
           FEATURES_VERBOSE: '0'
@@ -167,16 +140,12 @@ jobs:
           RANKER_VERBOSE: '1'
           RANKER_LOG_EVERY: '300'
           QUICK_LOG_LEVEL: 'INFO'
-
-          # --- Stage-1 knobs (repeat for consistency) ---
           STAGE1_MODE: 'quick'
           STAGE1_KEEP: '2000'
           STAGE1_WRITE_TOPN_CSV: '1'
           STAGE1_TOPN_CSV: '2000'
           STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
           STAGE1_ENHANCER_BONUS_PATH: 'data/stage1_enhancer_bonus.csv'
-
-          # --- yfinance knobs ---
           YF_CHUNK_SIZE: '50'
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
@@ -184,8 +153,6 @@ jobs:
           YF_SLEEP_PER_REQUEST: '0.5'
           YF_SLEEP_FALLBACK: '0.3'
           YF_MIN_ROWS: '40'
-
-          # --- Quick Scorer / valuation knobs ---
           QS_ET_BONUS_TREND: '6'
           QS_ET_BONUS_MOMO: '8'
           QS_ET_BONUS_STRUCT: '5'
@@ -194,29 +161,13 @@ jobs:
           QS_PE_WEIGHT: '0.015'
           QS_PE_WEIGHT_LARGE: '0.02'
           QS_PE_WEIGHT_SMALL: '0.005'
-
-          # --- Stage-2 knobs ---
           RANKER_PROFILE: 'C'
           HARD_DROP_MODE: 'normal'
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
           ALLOW_BLOWOFF_PROBE: '1'
           ATH_GUARD: '1'
-
-          # --- OpenAI / notifier knobs ---
           FORCE_CATALYSTS_PARTIAL: '1'
           OPENAI_TIMEOUT: '360'
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
-
-      - name: Commit updated rejects
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/universe_rejects.csv || true
-          if git diff --cached --quiet; then
-            echo "No new rejects to commit"
-          else
-            git commit -m "Update rejects from Yahoo (run #${{ github.run_number }})"
-            git push
-          fi
