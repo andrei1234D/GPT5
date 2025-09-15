@@ -46,6 +46,83 @@ def load_instruments() -> Optional[List[Dict[str,Any]]]:
             log(f"[WARN] Failed to read {META_PATH}: {e}")
     return None
 
+def load_existing_rejects(path: Path) -> set[str]:
+    rejects = set()
+    if path.exists():
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as f:
+                rdr = csv.DictReader(f)
+                for row in rdr:
+                    t = (row.get("ticker") or "").strip().upper()
+                    if t:
+                        rejects.add(t)
+        except Exception as e:
+            log(f"[WARN] Failed to read existing rejects {path}: {e}")
+    return rejects
+
+def main():
+    if not IN_PATH.exists():
+        if OUT_PATH.exists():
+            log(f"[INFO] {IN_PATH} missing. Using stale {OUT_PATH}")
+            sys.exit(0)
+        else:
+            sys.exit(f"[FATAL] Missing {IN_PATH} and no fallback {OUT_PATH}")
+
+    instruments = load_instruments()
+    whitelist: set[str] = set()
+    if instruments:
+        for it in instruments:
+            if (it.get("type") or it.get("instrumentType") or "").upper() not in {"EQUITY","STOCK"}:
+                continue
+            tick = (it.get("ticker") or it.get("symbol") or "").strip()
+            if tick: whitelist.add(tick.upper())
+        log(f"[INFO] Whitelist size: {len(whitelist)}")
+    else:
+        log("[WARN] No instrument metadata found, skipping whitelist")
+
+    rows = load_in(IN_PATH)
+    kept, rejects, seen = [], [], set()
+
+    # 🔥 Load old rejects to persist them across runs
+    old_rejects = load_existing_rejects(REJ_PATH)
+    all_rejects = set(old_rejects)
+
+    for t, nm in rows:
+        if t in seen: continue
+        seen.add(t)
+
+        if t in old_rejects:
+            # Already rejected in past → keep rejecting
+            rejects.append((t, nm, "persisted-reject"))
+            continue
+        if whitelist and t not in whitelist:
+            all_rejects.add(t)
+            rejects.append((t, nm, "not-in-whitelist")); continue
+        if name_reject(nm):
+            all_rejects.add(t)
+            rejects.append((t, nm, "name-filter")); continue
+        if is_junk_symbol(t):
+            all_rejects.add(t)
+            rejects.append((t, nm, "symbol-hygiene")); continue
+
+        kept.append((t, nm))
+
+    kept.sort(key=lambda x: x[0])
+
+    # 🔥 Write clean universe
+    atomic_write(OUT_PATH, kept, ("ticker","company"))
+
+    # 🔥 Write combined rejects (old + new)
+    rej_rows = [(t, "", "persisted") for t in old_rejects]  # keep history
+    rej_rows.extend(rejects)  # add today’s new ones
+    rej_rows = list({r[0]: r for r in rej_rows}.values())  # dedup by ticker
+    atomic_write(REJ_PATH, rej_rows, ("ticker","company","reason"))
+
+    log(f"[INFO] Input rows   : {len(rows)}")
+    log(f"[INFO] Kept (clean) : {len(kept)}")
+    log(f"[INFO] Rejected     : {len(rej_rows)} (total, persisted+new)")
+
+
 def is_junk_symbol(sym: str) -> bool:
     if not sym: return True
     s = sym.upper()
@@ -55,17 +132,19 @@ def is_junk_symbol(sym: str) -> bool:
 def name_reject(nm: str) -> bool:
     return any(x in nm.upper() for x in ["DELISTED","ETF","ETN","FUND","TRUST","CERTIFICATE","WARRANT"])
 
-def load_rejects() -> set[str]:
-    """Load persistent rejects from universe_rejects.csv"""
-    path = Path("data/universe_rejects.csv")
+def load_rejects(path: Path) -> set[str]:
+    """Load persistent rejects from universe_rejects.csv (from clean_universe and features.fetch_history)."""
     rejects = set()
     if path.exists():
-        with path.open("r", encoding="utf-8-sig", newline="") as f:
-            rdr = csv.DictReader(f)
-            for row in rdr:
-                t = (row.get("ticker") or "").strip().upper()
-                if t:
-                    rejects.add(t)
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as f:
+                rdr = csv.DictReader(f)
+                for row in rdr:
+                    t = (row.get("ticker") or "").strip().upper()
+                    if t:
+                        rejects.add(t)
+        except Exception as e:
+            log(f"[WARN] Failed to read rejects {path}: {e}")
     return rejects
 
 
