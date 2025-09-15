@@ -828,3 +828,12 @@ __all__ = [
     "RobustRanker",
     "pick_top_stratified",
 ]
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", required=True, help="Path to stage1_kept.csv")
+    parser.add_argument("--output", required=True, help="Path to save merged results (stage2_merged.csv)")
+    args = parser.parse_args()
+
+    merge_stage1_with_tr(args.input, args.output)
