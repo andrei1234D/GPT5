@@ -1,1 +1,2 @@
-
+ticker,name,qs_score,tr_score,merged_score,merged_qs_score,merged_tr_score,probe_ok,probe_lvl,tr_trend,tr_struct,tr_stability,tr_blowoff,tr_value,tr_final_score,merged_trend,merged_struct,merged_stability,merged_blowoff,merged_value,merged_final_score
+YUMC,YUMC,0.0,-13.125,-9.84375,0.0,-13.125,False,0,0.0,0.0,0.0,0.0,-5.0,-13.125,0.0,0.0,0.0,0.0,-5.0,-9.84375
