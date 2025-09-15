@@ -949,7 +949,7 @@ if __name__ == "__main__":
     log.info(f"[Stage1] Input universe: {input_path} → Output: {output_path}")
 
     # 1) Load universe
-    universe = load_universe(path=input_path)
+    universe = load_universe()
     if not universe:
         log.error("[Stage1] Universe is empty!")
         sys.exit(1)
