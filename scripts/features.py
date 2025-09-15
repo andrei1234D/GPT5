@@ -87,7 +87,7 @@ def _fmt(x, fmt=".2f"):
 
 # ---------------------------- config ------------------------------- #
 CHUNK_SIZE = int(os.getenv("YF_CHUNK_SIZE", "60"))
-MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "3"))
+MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "6"))
 RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "2.0"))
 
 # ---------------------------- constants ---------------------------- #

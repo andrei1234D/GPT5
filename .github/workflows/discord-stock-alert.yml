@@ -59,12 +59,22 @@ jobs:
           ALLOW_STALE: '1'
         run: python scripts/universe_from_trading_212.py
 
-      # --- Clean universe (no extra API calls) ---
+      # --- Clean universe (writes universe_clean + rejects) ---
       - name: Clean universe
         env:
           ALLOW_STALE: '1'
           CLEAN_ALLOW_OFFLINE: '1'
         run: python scripts/clean_universe.py
+
+      # 🔥 Explicitly cache rejects as well
+      - name: Save rejects file
+        run: |
+          if [ -f data/universe_rejects.csv ]; then
+            echo "[INFO] Rejects file size:"
+            wc -l data/universe_rejects.csv
+          else
+            echo "[WARN] No rejects file created!"
+          fi
 
       - name: Auto-build Yahoo aliases from last run’s rejects
         env:
@@ -79,43 +89,6 @@ jobs:
       - name: Prepare logs dir
         run: mkdir -p logs
 
-      # --- Stage 1 Quick Scorer ---
-      - name: Run Stage-1 Quick Scorer
-        env:
-          STAGE1_WRITE_CSV: '1'
-          STAGE1_KEEP: '550'
-          STAGE1_MODE: 'loose'
-          STAGE1_RESCUE_FRAC: '0.25'
-          YF_CHUNK_SIZE: '50'
-          YF_MAX_RETRIES: '5'
-          YF_RETRY_SLEEP: '2.5'
-        run: |
-          python scripts/quick_scorer.py --input data/universe_clean.csv --output data/stage1_kept.csv
-
-      # --- Stage 2 Merger (Trash Ranker + QS merge) ---
-      - name: Run TR + QS merger
-        env:
-          STAGE2_KEEP: '10'
-          STAGE2_MIN_SMALL: '5'
-          STAGE2_MIN_LARGE: '5'
-          STAGE2_MIN_PE: '5'
-        run: |
-          python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv', 'data/stage2_merged.csv')"
-          test -f data/stage2_merged.csv || (echo 'No data/stage2_merged.csv produced' && exit 1)
-
-      # --- Commit results ---
-      - name: Commit Stage-1/2 CSVs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/stage1_kept.csv data/stage2_merged.csv || true
-          git add logs/top2000_quick_full.csv || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update Stage-1/2 results (run #${{ github.run_number }})"
-            git push
-          fi
   send-alert:
     runs-on: ubuntu-latest
     needs: prepare-data
