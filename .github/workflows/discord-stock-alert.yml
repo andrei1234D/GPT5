@@ -93,6 +93,61 @@ jobs:
 
       # --- Stage 2 Merger ---
       - name: Run TR + QS merger
+        env:
+          STAGE2_KEEP: '10'
+          STAGE2_MIN_SMALL: '5'
+          STAGE2_MIN_LARGE: '5'
+          STAGE2_MIN_PE: '5'
+
+          # --- Hard filter knobs ---
+          HARD_DROP_MODE: 'normal'
+          HARD_GRACE_ATR: '2.0'
+          HARD_EMA_ROLLOVER: '1'
+          TR_EARN_BLACKOUT_DAYS: '0'
+
+          # --- Early turn detector ---
+          EARLY_TURN_RSI_LO: '47.0'
+          EARLY_TURN_RSI_HI: '63.0'
+          EARLY_TURN_MIN_E50_SLOPE: '2.0'
+          EARLY_TURN_VS200_LO: '-12.0'
+          EARLY_TURN_VS200_HI: '8.0'
+          EARLY_TURN_VOL_LO: '110.0'
+          EARLY_TURN_VOL_HI: '220.0'
+          EARLY_TURN_VS200_PAD: '5.0'
+
+          # --- Overheat / probe ---
+          ALLOW_BLOWOFF_PROBE: '1'
+          PROBE_MIN_EV: '4.0'
+          PROBE_MAX_VOL_SPIKE: '150'
+          OVERHEAT_A_RSI: '78'
+          OVERHEAT_B_RSI: '83'
+          OVERHEAT_C_RSI: '87'
+          OVERHEAT_A_VS50: '20'
+          OVERHEAT_B_VS50: '35'
+          OVERHEAT_C_VS50: '50'
+          PROBE_ADD_BACK_A: '4'
+          PROBE_ADD_BACK_B: '7'
+          PROBE_ADD_BACK_C: '10'
+          PROBE_STRUCT_SHARE: '0.45'
+
+          # --- Momentum-carry discount ---
+          KO_MOMO_DISCOUNT: '0.50'
+          KO_MOMO_DISCOUNT_STRONG: '0.35'
+
+          # --- ATH guard ---
+          ATH_GUARD: '1'
+          ATH_NEAR_PCT: '1.0'
+          ATH_MIN_RSI: '80'
+          ATH_MIN_VS50: '25'
+          ATH_VOL_RELIEF: '60'
+          ATH_SCORE_HAIRCUT: '22'
+
+          # --- Ranker profile ---
+          RANKER_PROFILE: 'C'
+          RANKER_VERBOSE: '1'
+          RANKER_LOG_LEVEL: 'DEBUG'
+          RANKER_LOG_EVERY: '300'
+
         run: |
           python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv', 'data/stage2_merged.csv')"
           test -f data/stage2_merged.csv || (echo 'No data/stage2_merged.csv produced' && exit 1)
@@ -165,11 +220,14 @@ jobs:
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
 
-          # --- Stage-2 profile ---
+          # --- Stage-2 profile (repeat for notifier consistency) ---
           RANKER_PROFILE: 'C'
-
-          # --- (all your QS, TR, FVA, catalyst, momo knobs go here — same as before) ---
+          HARD_DROP_MODE: 'normal'
+          EARLY_TURN_MIN_E50_SLOPE: '2.0'
           ALLOW_BLOWOFF_PROBE: '1'
+          ATH_GUARD: '1'
+
+          # --- Quick Scorer / valuation knobs ---
           QS_ET_BONUS_TREND: '6'
           QS_ET_BONUS_MOMO: '8'
           QS_ET_BONUS_STRUCT: '5'
@@ -178,9 +236,6 @@ jobs:
           QS_PE_WEIGHT: '0.015'
           QS_PE_WEIGHT_LARGE: '0.02'
           QS_PE_WEIGHT_SMALL: '0.005'
-          HARD_DROP_MODE: 'normal'
-          EARLY_TURN_MIN_E50_SLOPE: '2.0'
-          # etc… (copy over full block of knobs you had before)
 
           # --- OpenAI plumbing ---
           FORCE_CATALYSTS_PARTIAL: '1'
@@ -188,31 +243,3 @@ jobs:
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
-
-      # --- Commit blocks file ---
-      - name: Find latest blocks file
-        id: pick_file
-        run: |
-          set -e
-          FILE=$(ls -1t data/logs/blocks_to_gpt_*.txt 2>/dev/null | head -n1 || true)
-          if [ -z "$FILE" ]; then
-            echo "found=0" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=1" >> "$GITHUB_OUTPUT"
-            echo "file=$FILE" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Commit latest blocks_to_gpt
-        if: steps.pick_file.outputs.found == '1'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p logs
-          cp "${{ steps.pick_file.outputs.file }}" "logs/blocks_to_gpt_latest.txt"
-          git add logs/blocks_to_gpt_latest.txt
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
-            git push
-          fi
