@@ -1,5 +1,6 @@
 # scripts/quick_scorer.py
 from __future__ import annotations
+import pandas as pd
 from typing import Dict, List, Tuple, Optional
 import os, math, csv, logging, time
 import numpy as np
@@ -951,6 +952,30 @@ def enhance_score_for_strong_buy(
     bonus = max(min(bonus, 40), -50)
 
     return base_score + bonus, bonus, "; ".join(reason_log), phase
+
+
+def load_universe(path: str = "data/universe_clean.csv"):
+    """
+    Load universe_clean.csv (or another universe file).
+    Returns list of (ticker, company_name).
+    Falls back gracefully if company column is missing.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Universe file not found: {path}")
+
+    df = pd.read_csv(path)
+    if df.empty:
+        raise ValueError(f"Universe file {path} is empty")
+
+    tickers = []
+    for _, row in df.iterrows():
+        t = str(row.get("ticker") or "").strip()
+        if not t:
+            continue
+        name = str(row.get("company") or row.get("name") or "").strip()
+        tickers.append((t, name))
+    return tickers
+
 
 # === main entrypoint for Stage-1 ===
 if __name__ == "__main__":
