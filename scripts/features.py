@@ -278,7 +278,46 @@ def fetch_history(
         chunk_keys = keys[i:i + chunk_size]
         chunk_syms = [yh_map[k] for k in chunk_keys]
         if FEATURES_VERBOSE:
-            logger.info(f"[fetch] chunk {i//chunk_size+1}/{(len(keys)+chunk_size-1)//chunk_size} size={len(chunk_keys)}")
+            logger.info(
+                f"[fetch] chunk {i//chunk_size+1}/{(len(keys)+chunk_size-1)//chunk_size} size={len(chunk_keys)}"
+            )
+
+        # 🔥 added: throttle between chunks
+        if i > 0:
+            sleep_s = float(os.getenv("YF_SLEEP_BETWEEN_CHUNKS", "1.0"))
+            if FEATURES_VERBOSE:
+                logger.info(f"[fetch] sleeping {sleep_s:.1f}s before next chunk…")
+            time.sleep(sleep_s)
+
+        # Retry the batch on transient errors
+        attempt = 0
+        data = None
+        while attempt < max_retries:
+            try:
+                t1 = time.time()
+                data = yf.download(
+                    tickers=" ".join(chunk_syms),
+                    period=period,
+                    interval="1d",
+                    auto_adjust=True,
+                    progress=False,
+                    group_by="ticker",
+                    threads=True,
+                )
+                if FEATURES_VERBOSE:
+                    logger.debug(
+                        f"[fetch] download ok in {time.time()-t1:.2f}s "
+                        f"(shape={getattr(data,'shape',None)})"
+                    )
+                break
+            except Exception as e:
+                attempt += 1
+                if FEATURES_VERBOSE:
+                    logger.warning(f"[fetch] attempt {attempt} failed: {e!r}")
+                if attempt < max_retries:
+                    time.sleep(retry_sleep * attempt)
+                else:
+                    data = None
 
         # Retry the batch on transient errors
         attempt = 0
@@ -365,6 +404,12 @@ def fetch_history(
                     if FEATURES_VERBOSE:
                         logger.debug(f"[fetch] reject {orig}: {e2!r}")
 
+                # 🔥 added: throttle after each single fallback request
+                sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.5"))
+                if sleep_fb > 0:
+                    if FEATURES_VERBOSE:
+                        logger.debug(f"[fetch] sleeping {sleep_fb:.1f}s after fallback for {orig}")
+                    time.sleep(sleep_fb)
         if FEATURES_VERBOSE:
             logger.info(
                 f"[fetch] chunk done ok={ok_in_chunk} fb_ok={fb_ok_in_chunk} "

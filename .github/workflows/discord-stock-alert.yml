@@ -52,18 +52,19 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
 
-      - name: Build universe.csv from Trading 212 (fallback to stale)
+      # --- Build universe.csv + universe_meta.json ---
+      - name: Build universe from Trading 212
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
           ALLOW_STALE: '1'
-        run: python scripts/universe_from_trading_212.py || true
+        run: python scripts/universe_from_trading_212.py
 
-      - name: Clean universe (fallback to stale)
+      # --- Clean universe (no extra API calls) ---
+      - name: Clean universe
         env:
-          T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          CLEAN_ALLOW_OFFLINE: '1'
           ALLOW_STALE: '1'
-        run: python scripts/clean_universe.py || true
+          CLEAN_ALLOW_OFFLINE: '1'
+        run: python scripts/clean_universe.py
 
       - name: Auto-build Yahoo aliases from last run’s rejects
         env:
@@ -77,94 +78,6 @@ jobs:
 
       - name: Prepare logs dir
         run: mkdir -p logs
-
-      # --- Stage 1 Quick Scorer ---
-      - name: Run Stage-1 Quick Scorer
-        env:
-          STAGE1_WRITE_CSV: '1'
-          STAGE1_KEEP: '550'
-          STAGE1_MODE: 'loose'
-          STAGE1_RESCUE_FRAC: '0.25'
-          YF_CHUNK_SIZE: '50'
-          YF_MAX_RETRIES: '5'
-          YF_RETRY_SLEEP: '2.5'
-        run: |
-          python scripts/quick_scorer.py --input data/universe_clean.csv --output data/stage1_kept.csv
-
-      # --- Stage 2 Merger ---
-      - name: Run TR + QS merger
-        env:
-          STAGE2_KEEP: '10'
-          STAGE2_MIN_SMALL: '5'
-          STAGE2_MIN_LARGE: '5'
-          STAGE2_MIN_PE: '5'
-
-          # --- Hard filter knobs ---
-          HARD_DROP_MODE: 'normal'
-          HARD_GRACE_ATR: '2.0'
-          HARD_EMA_ROLLOVER: '1'
-          TR_EARN_BLACKOUT_DAYS: '0'
-
-          # --- Early turn detector ---
-          EARLY_TURN_RSI_LO: '47.0'
-          EARLY_TURN_RSI_HI: '63.0'
-          EARLY_TURN_MIN_E50_SLOPE: '2.0'
-          EARLY_TURN_VS200_LO: '-12.0'
-          EARLY_TURN_VS200_HI: '8.0'
-          EARLY_TURN_VOL_LO: '110.0'
-          EARLY_TURN_VOL_HI: '220.0'
-          EARLY_TURN_VS200_PAD: '5.0'
-
-          # --- Overheat / probe ---
-          ALLOW_BLOWOFF_PROBE: '1'
-          PROBE_MIN_EV: '4.0'
-          PROBE_MAX_VOL_SPIKE: '150'
-          OVERHEAT_A_RSI: '78'
-          OVERHEAT_B_RSI: '83'
-          OVERHEAT_C_RSI: '87'
-          OVERHEAT_A_VS50: '20'
-          OVERHEAT_B_VS50: '35'
-          OVERHEAT_C_VS50: '50'
-          PROBE_ADD_BACK_A: '4'
-          PROBE_ADD_BACK_B: '7'
-          PROBE_ADD_BACK_C: '10'
-          PROBE_STRUCT_SHARE: '0.45'
-
-          # --- Momentum-carry discount ---
-          KO_MOMO_DISCOUNT: '0.50'
-          KO_MOMO_DISCOUNT_STRONG: '0.35'
-
-          # --- ATH guard ---
-          ATH_GUARD: '1'
-          ATH_NEAR_PCT: '1.0'
-          ATH_MIN_RSI: '80'
-          ATH_MIN_VS50: '25'
-          ATH_VOL_RELIEF: '60'
-          ATH_SCORE_HAIRCUT: '22'
-
-          # --- Ranker profile ---
-          RANKER_PROFILE: 'C'
-          RANKER_VERBOSE: '1'
-          RANKER_LOG_LEVEL: 'DEBUG'
-          RANKER_LOG_EVERY: '300'
-
-        run: |
-          python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv', 'data/stage2_merged.csv')"
-          test -f data/stage2_merged.csv || (echo 'No data/stage2_merged.csv produced' && exit 1)
-
-      # --- Commit results ---
-      - name: Commit Stage-1/2 CSVs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/stage1_kept.csv data/stage2_merged.csv || true
-          git add logs/top2000_quick_full.csv || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update Stage-1/2 results (run #${{ github.run_number }})"
-            git push
-          fi
 
   send-alert:
     runs-on: ubuntu-latest

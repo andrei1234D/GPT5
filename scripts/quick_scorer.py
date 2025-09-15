@@ -1,8 +1,9 @@
 # scripts/quick_scorer.py
 from __future__ import annotations
 from typing import Dict, List, Tuple, Optional
-import os, math, csv, logging
+import os, math, csv, logging, time
 import numpy as np
+from features import build_features
 
 """
 ENV knobs this scorer honors (new ones marked ★):
@@ -11,6 +12,7 @@ ENV knobs this scorer honors (new ones marked ★):
 QS_W_TREND_SMALL,  QS_W_MOMO_SMALL,  QS_W_STRUCT_SMALL,  QS_W_RISK_SMALL
 QS_W_TREND_LARGE,  QS_W_MOMO_LARGE,  QS_W_STRUCT_LARGE,  QS_W_RISK_LARGE
 QS_PE_WEIGHT, QS_PE_WEIGHT_SMALL, QS_PE_WEIGHT_LARGE
+
 
 # Anchor & structure shaping (tier-aware via *_SMALL / *_LARGE)
 QS_USE_FVA=1|0
@@ -53,6 +55,10 @@ STAGE1_WRITE_CSV=1|0
 
 _TIER_THR_LARGE_USD = None
 _TIER_THR_MID_USD   = None
+YF_CHUNK_SIZE   = int(os.getenv("YF_CHUNK_SIZE", "80"))
+YF_MAX_RETRIES  = int(os.getenv("YF_MAX_RETRIES", "5"))
+YF_RETRY_SLEEP  = float(os.getenv("YF_RETRY_SLEEP", "2.5"))
+
 
 # -------- logging --------
 def _cfg_log():
@@ -827,6 +833,20 @@ def rank_stage1(
 
     return pre, scored, removed
 
+def fetch_features_with_retries(universe):
+    """Fetch features with retry + sleep guard (to avoid rate-limits)."""
+    last_exc = None
+    for attempt in range(1, YF_MAX_RETRIES + 1):
+        try:
+            feats = build_features(universe, batch_size=YF_CHUNK_SIZE)
+            if feats:   # success
+                return feats
+        except Exception as e:
+            last_exc = e
+            print(f"[WARN] build_features failed (attempt {attempt}/{YF_MAX_RETRIES}): {e}", flush=True)
+        if attempt < YF_MAX_RETRIES:
+            time.sleep(YF_RETRY_SLEEP * attempt)  # exponential backoff
+    raise RuntimeError(f"Failed to fetch features after {YF_MAX_RETRIES} attempts: {last_exc}")
 
 
 # === CUSTOM MODIFICATION START ===
@@ -955,7 +975,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # 2) Features
-    feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
+    feats_map = fetch_features_with_retries(universe)
     if not feats_map:
         log.error("[Stage1] Failed to build features")
         sys.exit(1)
