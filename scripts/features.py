@@ -228,73 +228,41 @@ def fetch_history(
 ) -> Dict[str, pd.DataFrame]:
     """
     Returns {original_ticker: normalized OHLCV DataFrame}.
-    - Preserves real Yahoo suffixes.
-    - Applies aliases (static + data/aliases.csv if present).
-    - Batches requests to reduce rate-limit errors.
-    - Auto-adjusted prices to keep units consistent (splits/dividends).
-    - Accepts only frames with >= YF_MIN_ROWS (default 40) rows after cleaning.
+    Rejects are written immediately into data/universe_rejects.csv.
+    Always returns a dict (never None).
     """
     t0 = time.time()
     min_rows = int(os.getenv("YF_MIN_ROWS", "40"))
+    extra_aliases = load_aliases_csv("data/aliases.csv")  # optional
 
-    extra_aliases = load_aliases_csv("data/aliases.csv")  # optional external file
-
-    # apply aliases first, then normalize for Yahoo
-    alias_applied: Dict[str, str] = {}
-    yh_map: Dict[str, str] = {}
+    # Map aliases → Yahoo symbols
+    yh_map = {}
     for t in tickers:
         ali = apply_alias(t, extra_aliases)
-        if ali != t:
-            alias_applied[t] = ali
         yh_map[t] = _normalize_symbol_for_yahoo(ali)
-
-    if FEATURES_VERBOSE and alias_applied:
-        for k, v in alias_applied.items():
-            logger.info(f"[alias] {k} -> {v}")
 
     out: Dict[str, pd.DataFrame] = {}
     rejects: List[Tuple[str, str]] = []  # (ticker, reason)
-    keys = list(yh_map.keys())
-
-    if FEATURES_VERBOSE:
-        logger.info(f"[fetch] start period={period} universe={len(keys)} chunk_size={chunk_size} retries={max_retries} min_rows={min_rows}")
-
-    # totals across all chunks
-    total_ok = total_fb_ok = total_empty = total_rejects = 0
 
     def _usable_df(df_in: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
-        """Keep only OHLCV cols, drop all-NaN rows, require min_rows."""
         if not isinstance(df_in, pd.DataFrame) or df_in.empty:
             return None
         cols = [c for c in df_in.columns if c in FIELDS]
         if not cols:
             return None
         df2 = df_in[cols].dropna(how="all")
-        if df2 is None or df2.empty or df2.shape[0] < min_rows:
+        if df2.empty or df2.shape[0] < min_rows:
             return None
         return df2
 
-    for i in range(0, len(keys), chunk_size):
-        chunk_keys = keys[i:i + chunk_size]
+    for i in range(0, len(tickers), chunk_size):
+        chunk_keys = tickers[i:i + chunk_size]
         chunk_syms = [yh_map[k] for k in chunk_keys]
-        if FEATURES_VERBOSE:
-            logger.info(
-                f"[fetch] chunk {i//chunk_size+1}/{(len(keys)+chunk_size-1)//chunk_size} size={len(chunk_keys)}"
-            )
 
-        # 🔥 added: throttle between chunks
-        if i > 0:
-            sleep_s = float(os.getenv("YF_SLEEP_BETWEEN_CHUNKS", "1.0"))
-            if FEATURES_VERBOSE:
-                logger.info(f"[fetch] sleeping {sleep_s:.1f}s before next chunk…")
-            time.sleep(sleep_s)
-
-        # Retry the batch on transient errors
-        attempt = 0
+        # infinite retry loop for transient errors
         data = None
-        while attempt < max_retries:
+        while True:
             try:
-                t1 = time.time()
                 data = yf.download(
                     tickers=" ".join(chunk_syms),
                     period=period,
@@ -304,141 +272,65 @@ def fetch_history(
                     group_by="ticker",
                     threads=True,
                 )
-                if FEATURES_VERBOSE:
-                    logger.debug(
-                        f"[fetch] download ok in {time.time()-t1:.2f}s "
-                        f"(shape={getattr(data,'shape',None)})"
-                    )
                 break
             except Exception as e:
-                attempt += 1
-                if FEATURES_VERBOSE:
-                    logger.warning(f"[fetch] attempt {attempt} failed: {e!r}")
-                if attempt < max_retries:
-                    time.sleep(retry_sleep * attempt)
-                else:
+                msg = str(e).lower()
+                if "404" in msg or "not found" in msg:
+                    logger.warning(f"[fetch] permanent error for {chunk_syms}: {e!r}")
                     data = None
+                    break
+                logger.warning(f"[fetch] transient error: {e!r}, retrying…")
+                time.sleep(retry_sleep)
 
-        # Retry the batch on transient errors
-        attempt = 0
-        data = None
-        # 🔥 Infinite retry until success (unless it's a permanent error)
-    while True:
-        try:
-            t1 = time.time()
-            data = yf.download(
-                tickers=" ".join(chunk_syms),
-                period=period,
-                interval="1d",
-                auto_adjust=True,
-                progress=False,
-                group_by="ticker",
-                threads=True,
-            )
-            if FEATURES_VERBOSE:
-                logger.debug(f"[fetch] download ok in {time.time()-t1:.2f}s (shape={getattr(data,'shape',None)})")
-            break  # ✅ success, exit infinite loop
-        except Exception as e:
-            msg = str(e).lower()
-            if "not found" in msg or "404" in msg:
-                logger.warning(f"[fetch] permanent error for {chunk_syms}: {e!r}")
-                data = None
-                break  # ❌ stop retrying → real reject
-            # transient (rate limit, connection, etc.)
-            logger.warning(f"[fetch] transient error: {e!r}, retrying…")
-            time.sleep(retry_sleep)
-            if data is None or (isinstance(data, pd.DataFrame) and data.empty):
-                if FEATURES_VERBOSE:
-                    logger.warning("[fetch] chunk failed: empty data after retries")
+        for orig in chunk_keys:
+            yh = yh_map[orig]
+            df_norm = _normalize_ohlcv(data, ticker_hint=yh) if data is not None else None
+            df_use = _usable_df(df_norm)
 
-            ok_in_chunk = empty_in_chunk = fb_ok_in_chunk = rej_in_chunk = 0
+            if df_use is not None:
+                out[orig] = df_use
+                continue
 
-            for orig in chunk_keys:
-                yh = yh_map[orig]
-                try:
-                    df_norm = _normalize_ohlcv(data, ticker_hint=(yh or "").strip()) if data is not None else None
-                    df_use = _usable_df(df_norm)
-                    if df_use is not None:
-                        out[orig] = df_use
-                        ok_in_chunk += 1
-                        total_ok += 1
-                        if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                            logger.debug(f"[fetch] ok {orig}->{yh} rows={df_use.shape[0]} cols={list(df_use.columns)}")
-                        continue
-                    else:
-                        empty_in_chunk += 1
-                        total_empty += 1
-                        if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] empty/too-few-rows {orig}->{yh} (trying fallback)")
-                    # force fallback
-                    raise ValueError("normalize-empty")
-                except Exception:
-                    # single-ticker fallback
-                    try:
-                        single = yf.download(
-                            tickers=yh,
-                            period=period,
-                            interval="1d",
-                            auto_adjust=True,
-                            progress=False,
-                            group_by="ticker",
-                            threads=False,
-                        )
-                        df1 = _normalize_ohlcv(single)
-                        df_use = _usable_df(df1)
-                        if df_use is not None:
-                            out[orig] = df_use
-                            fb_ok_in_chunk += 1
-                            total_fb_ok += 1
-                            if FEATURES_VERBOSE:
-                                logger.debug(f"[fetch] fallback ok {orig} rows={df_use.shape[0]}")
-                        else:
-                            rejects.append((orig, "404/empty-or-short"))
-                            rej_in_chunk += 1
-                            total_rejects += 1
-                            if FEATURES_VERBOSE:
-                                logger.debug(f"[fetch] reject {orig}: empty/short after fallback")
-                    except Exception as e2:
-                        rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
-                        rej_in_chunk += 1
-                        total_rejects += 1
-                        if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] reject {orig}: {e2!r}")
-
-                    # 🔥 added: throttle after each single fallback request
-                    sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.3"))
-                    if sleep_fb > 0:
-                        if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] sleeping {sleep_fb:.1f}s after fallback for {orig}")
-                        time.sleep(sleep_fb)
-            if FEATURES_VERBOSE:
-                logger.info(
-                    f"[fetch] chunk done ok={ok_in_chunk} fb_ok={fb_ok_in_chunk} "
-                    f"empty={empty_in_chunk} rejects={rej_in_chunk}/{len(chunk_keys)}"
+            # fallback single ticker
+            try:
+                single = yf.download(
+                    tickers=yh,
+                    period=period,
+                    interval="1d",
+                    auto_adjust=True,
+                    progress=False,
+                    group_by="ticker",
+                    threads=False,
                 )
+                df1 = _normalize_ohlcv(single)
+                df_use = _usable_df(df1)
+                if df_use is not None:
+                    out[orig] = df_use
+                    continue
+            except Exception:
+                pass
 
-        # persist rejects (append-safe, once per function call)
-        if rejects:
-            import csv
-            os.makedirs("data", exist_ok=True)
-            path = "data/universe_rejects.csv"
-            header_needed = not os.path.exists(path)
-            with open(path, "a", newline="", encoding="utf-8") as f:
-                w = csv.writer(f)
-                if header_needed:
-                    w.writerow(["ticker", "reason", "ts"])
-                ts = time.strftime("%Y-%m-%d %H:%M:%S")
-                for tkr, r in rejects:
-                    w.writerow([tkr, r, ts])
-            if FEATURES_VERBOSE:
-                logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
+            # permanent reject
+            rejects.append((orig, "404/empty-or-short"))
+            logger.debug(f"[fetch] reject {orig}: no data found")
 
-        if FEATURES_VERBOSE:
-            logger.info(
-                f"[fetch] finished in {time.time()-t0:.2f}s "
-                f"ok={total_ok} fb_ok={total_fb_ok} empty={total_empty} rejects={total_rejects} / universe={len(keys)}"
-            )
-        return out
+    # persist rejects immediately
+    if rejects:
+        import csv
+        os.makedirs("data", exist_ok=True)
+        path = "data/universe_rejects.csv"
+        header_needed = not os.path.exists(path)
+        with open(path, "a", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            if header_needed:
+                w.writerow(["ticker", "reason", "ts"])
+            ts = time.strftime("%Y-%m-%d %H:%M:%S")
+            for tkr, r in rejects:
+                w.writerow([tkr, r, ts])
+        logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
+
+    logger.info(f"[fetch] finished in {time.time()-t0:.2f}s ok={len(out)} rejects={len(rejects)} / universe={len(tickers)}")
+    return out
 
 # ---------------------------- compute ------------------------------ #
 def compute_indicators(df: pd.DataFrame) -> dict:
@@ -573,66 +465,45 @@ def build_features(
     name_map = dict(universe)
 
     total = len(tickers)
-    fetched = 0
-    computed = 0
-    skipped_df = 0
-    skipped_compute = 0
+    fetched = computed = skipped_df = skipped_compute = 0
 
-    if FEATURES_VERBOSE:
-        logger.info(f"[build] start universe={total} batch_size={batch_size} period={period}")
+    logger.info(f"[build] start universe={total} batch_size={batch_size} period={period}")
 
-    # Fetch in batches; fetch_history does its own internal sub-chunking
     for i in range(0, total, batch_size):
         chunk = tickers[i:i + batch_size]
         if not chunk:
             continue
 
-        t1 = time.time()
-        hist = fetch_history(
-            chunk,
-            period=period,
-            chunk_size=CHUNK_SIZE,
-            max_retries=MAX_RETRIES,
-            retry_sleep=RETRY_SLEEP,
-        )
-        fetched += len(hist)
+        try:
+            hist = fetch_history(
+                chunk,
+                period=period,
+                chunk_size=CHUNK_SIZE,
+                max_retries=MAX_RETRIES,
+                retry_sleep=RETRY_SLEEP,
+            ) or {}
+        except Exception as e:
+            logger.warning(f"[build] fetch failed for batch {i//batch_size+1}: {e!r}")
+            continue
 
-        if FEATURES_VERBOSE:
-            logger.info(f"[build] batch {i//batch_size+1}/{(total+batch_size-1)//batch_size} fetched={len(hist)}/{len(chunk)} in {time.time()-t1:.2f}s")
+        fetched += len(hist)
+        logger.info(f"[build] batch {i//batch_size+1}/{(total+batch_size-1)//batch_size} fetched={len(hist)}/{len(chunk)}")
 
         for idx, t in enumerate(chunk, 1):
             df = hist.get(t)
             if df is None or df.empty:
                 skipped_df += 1
-                if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f"[build] skip (no df) {t}")
                 continue
             try:
                 feats = compute_indicators(df)
                 out[t] = {"company": name_map.get(t, t), "features": feats}
                 computed += 1
-                if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(
-                        "[build] ok %s px=%s vs50=%s vs200=%s rsi=%s macd=%s dd=%s atr=%s",
-                        t,
-                        _fmt(feats.get("price")), _fmt(feats.get("vsSMA50")),
-                        _fmt(feats.get("vsSMA200")), feats.get("RSI14"),
-                        _fmt(feats.get("MACD_hist"), ".3f"),
-                        _fmt(feats.get("drawdown_pct")), _fmt(feats.get("ATRpct"))
-                    )
             except Exception as e:
                 skipped_compute += 1
-                if FEATURES_VERBOSE:
-                    logger.warning(f"[build] compute failed {t}: {e!r}")
+                logger.warning(f"[build] compute failed {t}: {e!r}")
 
-            # heartbeat
-            if FEATURES_VERBOSE and FEATURES_LOG_EVERY and (idx % FEATURES_LOG_EVERY == 0):
-                logger.info(f"[build] progress batch {i//batch_size+1}: {idx}/{len(chunk)} tickers processed")
-
-    if FEATURES_VERBOSE:
-        logger.info(
-            "[build] done in %.2fs | fetched=%d computed=%d skipped_df=%d skipped_compute=%d total=%d",
-            time.time()-t0, fetched, computed, skipped_df, skipped_compute, total
-        )
-
+    logger.info(
+        "[build] done in %.2fs | fetched=%d computed=%d skipped_df=%d skipped_compute=%d total=%d",
+        time.time()-t0, fetched, computed, skipped_df, skipped_compute, total
+    )
     return out
