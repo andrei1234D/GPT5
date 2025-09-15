@@ -976,54 +976,6 @@ def load_universe(path: str = "data/universe_clean.csv"):
         name = str(row.get("company") or row.get("name") or "").strip()
         tickers.append((t, name))
     return tickers
-
-def enrich_and_save_stage1(universe, kept, bonuses, out_path="data/stage1_kept.csv"):
-    """
-    Enrich Stage1 output with features, proxies, valuations, enhancer bonuses.
-    Write fat CSV for Stage2.
-    """
-    spy_ctx = get_spy_ctx()
-    tickers = list(kept.keys())
-
-    # --- batch valuations ---
-    pe_map = fetch_pe_for_top(tickers) or {}
-    val_map = fetch_valuations_for_top(tickers) or {}
-
-    rows = []
-    for t, meta in kept.items():
-        feats = dict(meta.get("features", {}))
-
-        # --- QS score ---
-        feats["qs_score"] = meta.get("score")
-
-        # --- Proxies ---
-        try:
-            prox = derive_proxies(feats, spy_ctx)
-            feats.update(prox)
-        except Exception as e:
-            print(f"[WARN] proxy fail {t}: {e!r}", flush=True)
-
-        # --- Valuations ---
-        vals = val_map.get(t, {})
-        feats.update({f"val_{k}": v for k, v in vals.items()})
-
-        # --- Raw PE fallback ---
-        feats["pe_hint"] = pe_map.get(t)
-
-        # --- Enhancer bonus (per ticker) ---
-        feats["enhancer_bonus"] = bonuses.get(t, 0)
-
-        rows.append({
-            "ticker": t,
-            "company": meta.get("company", ""),
-            **feats
-        })
-
-    df = pd.DataFrame(rows)
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    df.to_csv(out_path, index=False)
-    print(f"[Stage1] enriched CSV wrote: {len(df)} rows, {len(df.columns)} cols -> {out_path}", flush=True)
-
 # === main entrypoint for Stage-1 ===
 if __name__ == "__main__":
     import sys
@@ -1117,61 +1069,72 @@ if __name__ == "__main__":
             proxies = {}
             log.warning(f"[Stage1] proxy fail {t}: {e!r}")
 
-        # --- Valuations ---
+                # --- Valuations ---
         vals = val_map.get(t, {})
+        if not vals:
+            log.warning(f"[Stage1] No valuations for {t}")
         val_fields = {f"val_{k}": v for k, v in vals.items()}
+
+        # --- Raw PE fallback ---
         pe_hint = pe_map.get(t)
+        if pe_hint is None:
+            log.warning(f"[Stage1] No PE hint for {t}")
 
         row = {
-            # identifiers
-            "ticker": t,
-            "company": n,
-            "sector": feats.get("sector"),
-            "industry": feats.get("industry"),
+        # identifiers
+        "ticker": t,
+        "company": n,
 
-            # scores
-            "score": s,
-            "tier": meta.get("tier"),
-            "base_score": meta.get("base_score"),
-            "enhancer_score": meta.get("enhancer_bonus", 0),
-            "enhancer_reason": enh_reason,
-            "enhancer_phase": enh_phase,
+        # aligned QS columns (for TR compatibility)
+        "final_score": s,   # was "score"
+        "enhancer_bonus": meta.get("enhancer_bonus", 0),
+        "tier": meta.get("tier"),
+        "avg_dollar_vol_20d": feats.get("avg_dollar_vol_20d"),
 
-            # components
-            "trend": parts.get("trend"),
-            "trend_raw": parts.get("trend_raw"),
-            "momo": parts.get("momo"),
-            "momo_raw": parts.get("momo_raw"),
-            "struct": parts.get("struct"),
-            "risk_pen": parts.get("risk_pen"),
-            "pe_score": parts.get("pe_tilt_pts"),
-            "fva_hint": parts.get("fva_hint"),
-            "accel_z": parts.get("accel_z"),
-            "probe_ok": parts.get("probe_ok"),
-            "probe_lvl": parts.get("probe_lvl"),
+        # overlap with old QS CSV
+        "price": feats.get("price"),
+        "vsSMA50": feats.get("vsSMA50"),
+        "vsSMA200": feats.get("vsSMA200"),
+        "RSI14": feats.get("RSI14"),
+        "ATR%": feats.get("ATRpct"),
+        "r60": feats.get("r60"),
+        "vol_vs20": feats.get("vol_vs20"),
+        "drawdown%": feats.get("drawdown_pct"),
+        "tags": ";".join(meta.get("tags", [])),
 
-            # meta
-            "tags": ";".join(meta.get("tags", [])),
-            "mode": os.getenv("STAGE1_MODE", "loose"),
+        # keep diagnostic/extra fields
+        "base_score": meta.get("base_score"),
+        "enhancer_reason": enh_reason,
+        "enhancer_phase": enh_phase,
 
-            # fundamentals
-            "price": feats.get("price"),
-            "market_cap": feats.get("market_cap"),
-            "pe_ratio": feats.get("pe_ratio"),
-            "pe_hint": pe_hint,
+        # components
+        "trend": parts.get("trend"),
+        "momo": parts.get("momo"),
+        "struct": parts.get("struct"),
+        "risk_pen": parts.get("risk_pen"),
+        "fva_hint": parts.get("fva_hint"),
+        "pe_score": parts.get("pe_tilt_pts"),
+        "accel_z": parts.get("accel_z"),
+        "probe_ok": parts.get("probe_ok"),
+        "probe_lvl": parts.get("probe_lvl"),
 
-            # add valuations
-            **val_fields,
+        # fundamentals
+        "market_cap": feats.get("market_cap"),
+        "pe_ratio": feats.get("pe_ratio"),
+        "pe_hint": pe_hint,
 
-            # add proxies
-            **proxies,
+        # valuations
+        **val_fields,
 
-            # diagnostics
-            "data_rows": feats.get("data_rows"),
-            "alias_used": feats.get("alias_used"),
-            "yf_symbol": feats.get("yf_symbol"),
-            "history_ok": feats.get("history_ok"),
-        }
+        # proxies
+        **proxies,
+
+        # diagnostics
+        "data_rows": feats.get("data_rows"),
+        "alias_used": feats.get("alias_used"),
+        "yf_symbol": feats.get("yf_symbol"),
+        "history_ok": feats.get("history_ok"),
+    }
         rows.append(row)
 
     df = pd.DataFrame(rows)
