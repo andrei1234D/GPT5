@@ -1009,10 +1009,14 @@ if __name__ == "__main__":
     for t, name in universe:
         row = feats_map.get(t)
         if not row:
+            log.debug(f"[Stage1] Drop {t} ({name}): no features found")
             continue
+
         feats = row["features"]
         if not is_garbage(feats):
             kept.append((t, name, feats))
+        else:
+            log.debug(f"[Stage1] Drop {t} ({name}): is_garbage triggered")
 
     if not kept:
         log.error("[Stage1] All filtered out in trash stage")
@@ -1021,11 +1025,18 @@ if __name__ == "__main__":
 
     # 4) Daily index filter
     today_ctx = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
-    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_ctx)]
+    kept2 = []
+    for (t, n, f) in kept:
+        if daily_index_filter(f, today_ctx):
+            kept2.append((t, n, f))
+        else:
+            log.debug(f"[Stage1] Drop {t} ({n}): daily_index_filter blocked")
+
     if not kept2:
         log.error("[Stage1] All filtered by daily context")
         sys.exit(1)
     log.info(f"[Stage1] After daily index filter: {len(kept2)} remain")
+
 
     # 5) Rank
     pre, scored, removed = rank_stage1(
@@ -1079,13 +1090,6 @@ if __name__ == "__main__":
     }
     for (t, n, feats, s, meta) in pre
 ])
-
-    cols_final = [c for c in cols_keep if c in df.columns]
-    df_out = df[cols_final].copy()
-    df_out.to_csv(output_path, index=False)
-
-    log.info(f"[Stage1] wrote enriched CSV with {len(df_out)} rows, {len(cols_final)} cols -> {output_path}")
-
     cols_keep = [
     # identifiers
     "ticker", "company", "sector", "industry",
