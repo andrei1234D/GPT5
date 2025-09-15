@@ -7,7 +7,7 @@ import logging
 import pandas as pd
 from proxies import derive_proxies, get_spy_ctx
 from data_fetcher import fetch_pe_for_top, fetch_valuations_for_top
-
+from features import build_features
 """
 ENV knobs this scorer honors (new ones marked ★):
 
@@ -1094,7 +1094,7 @@ if __name__ == "__main__":
         log_dir="data"
     )
     log = logging.getLogger("quick_scorer")
-    
+
         # 6) Enrich with proxies + valuations before writing
     spy_ctx = get_spy_ctx()
     tickers = [t for (t, _, _, _, _) in pre]
