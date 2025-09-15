@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Tuple, Optional
 import os, math, csv, logging, time
 import numpy as np
+import logging
 from features import build_features
 
 """
@@ -955,8 +956,6 @@ def enhance_score_for_strong_buy(
 if __name__ == "__main__":
     import sys
     import pandas as pd
-    from features import build_features
-    from universe import load_universe
     from filters import is_garbage, daily_index_filter
 
     try:
@@ -1011,10 +1010,66 @@ if __name__ == "__main__":
         rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
         log_dir="data"
     )
-
+    logger = logging.getLogger("quick_scorer")
     # 6) Write kept set
-    pd.DataFrame(
-        [(t, n, s, m.get("tier")) for (t, n, _f, s, m) in pre],
-        columns=["ticker", "company", "score", "tier"]
-    ).to_csv(output_path, index=False)
-    log.info(f"[Stage1] Final survivors={len(pre)} → {output_path}")
+    # df should be whatever DataFrame holds your Stage-1 scoring results.
+    # In your old script, this was usually called kept_df or stage1_df.
+
+    # Make sure we point to the right DataFrame:
+    df = pd.DataFrame([
+    {
+        "ticker": t,
+        "company": n,
+        "score": s,
+        "tier": meta.get("tier"),
+        "enhancer_score": meta.get("enhancer_bonus"),
+        "base_score": meta.get("base_score"),
+        "trend": meta.get("parts", {}).get("trend"),
+        "momo": meta.get("parts", {}).get("momo"),
+        "struct": meta.get("parts", {}).get("struct"),
+        "risk_pen": meta.get("parts", {}).get("risk_pen"),
+        "tags": ";".join(meta.get("tags", [])),
+        **feats  # flatten feature dict so all indicators appear as columns
+    }
+    for (t, n, feats, s, meta) in pre
+])
+
+    cols_keep = [
+        # identifiers
+        "ticker", "company", "sector", "industry",
+
+        # final ranking output
+        "score", "tier",
+
+        # raw components
+        "raw_score", "val_overlay", "pe_score", "fva_score", "momo_score",
+
+        # enhancer + bonuses
+        "enhancer_score", "bonus_trend", "bonus_momo", "bonus_struct",
+
+        # valuation / fundamentals
+        "price", "market_cap", "pe_ratio", "eps_growth", "rev_growth", "debt_to_equity",
+
+        # momentum / technicals
+        "sma_50", "sma_200", "rsi", "volatility", "atr", "beta",
+
+        # catalyst flags
+        "catalyst_score", "news_sentiment",
+
+        # risk / filters
+        "drop_reason", "rescue_flag", "mode",
+
+        # diagnostics
+        "data_rows", "alias_used", "yf_symbol", "history_ok"
+    ]
+
+    # Keep only available columns
+    cols_final = [c for c in cols_keep if c in df.columns]
+
+    df_out = df[cols_final].copy()
+    df_out.to_csv(output_path, index=False)
+
+    logger.info(
+        f"[Stage1] wrote enriched CSV with {len(df_out)} rows, {len(cols_final)} cols -> {output_path}"
+    )
+
