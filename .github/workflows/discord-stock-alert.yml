@@ -3,7 +3,7 @@ name: Daily GPT-5 Stock Alert to Discord
 on:
   schedule:
     - cron: '0 4 * * *' # 04:00 UTC daily
-  workflow_dispatch: # manual run
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  send-alert:
+  prepare-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -31,8 +31,7 @@ jobs:
             universe-cache-
 
       - name: Purge valuation caches
-        run: |
-          rm -f data/pe_cache.json data/valuations_cache.json
+        run: rm -f data/pe_cache.json data/valuations_cache.json
 
       - name: Ensure dependency manifest
         run: |
@@ -62,41 +61,26 @@ jobs:
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
           ALLOW_STALE: '1'
-        run: |
-          python scripts/universe_from_trading_212.py || true
-          ls -lah data || true
-          ls -lah data/universe.csv || true
+        run: python scripts/universe_from_trading_212.py || true
 
       - name: Clean universe (fallback to stale)
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
           CLEAN_ALLOW_OFFLINE: '1'
           ALLOW_STALE: '1'
-        run: |
-          python scripts/clean_universe.py || true
-          wc -l data/universe_clean.csv || true
-          head -n 5 data/universe_clean.csv || true
+        run: python scripts/clean_universe.py || true
 
-      - name: Auto-build Yahoo aliases from last run’s rejects
+      - name: Auto-build Yahoo aliases from rejects
         env:
           ALIASES_FROM: data/universe_rejects.csv
           ALIASES_OUT: data/aliases.csv
-          ALIASES_MAX_PER_RUN: '250'
-          ALIAS_LOG_LEVEL: 'INFO'
-          YF_TEST_PERIOD: '60d'
-          YF_TEST_INTERVAL: '1d'
-        run: |
-          python scripts/aliases_autobuild.py || true
+        run: python scripts/aliases_autobuild.py || true
 
-      - name: Prepare logs dir (for Stage-1 TopN CSV)
+      - name: Prepare logs dir
         run: mkdir -p logs
 
-      - name: Run notifier
+      - name: Run Stage-1 Quick Scorer
         env:
-          # --- Secrets ---
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-
           # --- Logging ---
           PYTHONUNBUFFERED: '1'
           FEATURES_LOG_LEVEL: 'INFO'
@@ -131,7 +115,7 @@ jobs:
           QS_USE_XS: '1'
 
           # --- Stage-2 profile ---
-          RANKER_PROFILE: 'C' # A=Aggressive, B=Balanced, C=Conservative
+          RANKER_PROFILE: 'C'
 
           # --- Early-turn tiny boosts ---
           QS_ET_BONUS_TREND: '6'
@@ -148,7 +132,7 @@ jobs:
           QS_FVA_BONUS_MAX_LARGE: '8'
           QS_STRUCT_PREM_CAP: '0'
 
-          # --- Valuation overlay into structure ---
+          # --- Valuation overlay ---
           QS_VAL_OVERLAY: '1'
           QS_VAL_OVERLAY_MAX: '20'
           QS_PE_WEIGHT: '0.015'
@@ -161,10 +145,6 @@ jobs:
           HARD_EMA_ROLLOVER: '0'
           TR_EARN_BLACKOUT_DAYS: '0'
           R2_ENABLE_DECILE_GATE: '1'
-          R2_MIN_TREND_PCTILE: ''
-          R2_MIN_COMBO_PCTILE: ''
-          R2_MIN_STAB_PCTILE: ''
-          R2_ELITE_MIN_KEEP_FRAC: ''
 
           # --- Early-turn detector ---
           EARLY_TURN_MIN_E50_SLOPE: '2.0'
@@ -189,12 +169,12 @@ jobs:
           QS_SETUP_CAP_SMALL: '14'
           QS_SETUP_CAP_LARGE: '16'
 
-          # --- Momentum “chase” penalty ---
+          # --- Momentum penalties ---
           QS_MOMO_CHASE_KNEE: '40'
           QS_MOMO_CHASE_SLOPE: '0.45'
           QS_MOMO_CHASE_PEN_MAX: '8'
 
-          # --- Momo chase (trash_ranker) ---
+          # --- trash_ranker params ---
           TR_CHASE_KNEE: '40'
           TR_CHASE_SLOPE: '0.004'
           TR_CHASE_MAX: '0.12'
@@ -209,20 +189,10 @@ jobs:
           QS_W_STRUCT_LARGE: '0.40'
           QS_W_RISK_LARGE: '0.10'
 
-          # --- Blowoff probe + ATH guard ---
+          # --- Blowoff probe ---
           ALLOW_BLOWOFF_PROBE: '1'
           PROBE_MIN_EV: '2.2'
           PROBE_MAX_VOL_SPIKE: '200'
-          OVERHEAT_A_RSI: '76'
-          OVERHEAT_B_RSI: '82'
-          OVERHEAT_C_RSI: '86'
-          OVERHEAT_A_VS50: '18'
-          OVERHEAT_B_VS50: '32'
-          OVERHEAT_C_VS50: '45'
-          PROBE_ADD_BACK_A: '6'
-          PROBE_ADD_BACK_B: '9'
-          PROBE_ADD_BACK_C: '12'
-          PROBE_STRUCT_SHARE: '0.50'
 
           # --- Strong-buy enhancer ---
           QS_STRONG_BUY_BONUS: '1'
@@ -232,128 +202,62 @@ jobs:
           QS_RECENT_GAIN_20D: '20'
           QS_RECENT_GAIN_60D: '40'
 
-          # --- Momentum-carry discount on FVA KO ---
+          # --- Momentum-carry discount ---
           KO_MOMO_DISCOUNT: '0.35'
           KO_MOMO_DISCOUNT_STRONG: '0.25'
+        run: python scripts/notify_stage1.py || true
 
-          # --- OpenAI plumbing ---
-          FORCE_CATALYSTS_PARTIAL: '1'
-          OPENAI_TIMEOUT: '360'
-          LOG_GPT_INPUT: '1'
-          LOG_GPT_INPUT_STDOUT: '0'
+      - name: Run TR + QS merger
         run: |
-          python scripts/notify.py
+          python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv','data/stage2_merged.csv')"
 
-      - name: Find latest blocks file
-        id: pick_file
-        shell: bash
+      - name: Commit Stage-1/2 CSVs
         run: |
-          set -e
-          FILE=$(ls -1t data/logs/blocks_to_gpt_*.txt 2>/dev/null | head -n1 || true)
-          if [ -z "$FILE" ]; then
-            echo "found=0" >> "$GITHUB_OUTPUT"
-            echo "No blocks_to_gpt_*.txt found"
-          else
-            echo "found=1" >> "$GITHUB_OUTPUT"
-            echo "file=$FILE" >> "$GITHUB_OUTPUT"
-            echo "basename=$(basename "$FILE")" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Commit blocks file to repo (overwrite single file)
-        if: steps.pick_file.outputs.found == '1'
-        shell: bash
-        run: |
-          set -e
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p logs
-          cp "${{ steps.pick_file.outputs.file }}" "logs/blocks_to_gpt_latest.txt"
-          git add "logs/blocks_to_gpt_latest.txt"
+          git add data/stage1_kept.csv data/stage2_merged.csv logs/top2000_quick_full.csv data/stage1_enhancer_bonus.csv || true
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No CSV changes."
           else
-            git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
+            git commit -m "Update Stage-1 & Stage-2 CSVs (run #${{ github.run_number }})"
             git push
           fi
 
-      - name: Commit top2000 quick-sort CSV to repo
-        shell: bash
-        run: |
-          set -e
-          FILE="logs/top2000_quick_full.csv"
-          if [ -f "$FILE" ]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$FILE"
-            if git diff --cached --quiet; then
-              echo "No changes to commit for $FILE."
-            else
-              git commit -m "Add/update top2000 quick-sort CSV (run #${{ github.run_number }})"
-              git push
-            fi
-          else
-            echo "No $FILE produced."
-          fi
+  send-alert:
+    runs-on: ubuntu-latest
+    needs: prepare-data
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Commit top200 kept CSV to repo
-        shell: bash
-        run: |
-          set -e
-          FILE="data/stage1_kept.csv"
-          if [ -f "$FILE" ]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$FILE"
-            if git diff --cached --quiet; then
-              echo "No changes to commit for $FILE."
-            else
-              git commit -m "Add/update top200 kept CSV (run #${{ github.run_number }})"
-              git push
-            fi
-          else
-            echo "No $FILE produced (enable STAGE1_WRITE_CSV=1)."
-          fi
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Commit enhancer bonus CSV to repo
-        shell: bash
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run notifier
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python scripts/notify.py
+
+      - name: Commit latest blocks_to_gpt
         run: |
-          set -e
-          FILE="data/stage1_enhancer_bonus.csv"
-          if [ -f "$FILE" ]; then
-            git config user.name  "github-actions[bot]"
+          FILE=$(ls -1t data/logs/blocks_to_gpt_*.txt 2>/dev/null | head -n1 || true)
+          if [ -n "$FILE" ]; then
+            git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$FILE"
+            mkdir -p logs
+            cp "$FILE" logs/blocks_to_gpt_latest.txt
+            git add logs/blocks_to_gpt_latest.txt
             if git diff --cached --quiet; then
-              echo "No changes to commit for $FILE."
+              echo "No new blocks."
             else
-              git commit -m "Add/update enhancer bonus CSV (run #${{ github.run_number }})"
+              git commit -m "Update latest GPT blocks (run #${{ github.run_number }})"
               git push
             fi
           else
-            echo "No $FILE produced (check rank_stage1 logging)."
-          fi
-      - name: Run TR + QS merger
-  
-        run: |
-         set -e
-         python -c "from scripts.trash_ranker import merge_stage1_with_tr; merge_stage1_with_tr('data/stage1_kept.csv', 'data/stage2_merged.csv')"
-         test -f data/stage2_merged.csv || (echo "No data/stage2_merged.csv produced (check merge_stage1_with_tr)." && exit 1)  
-     
-      - name: Commit stage2 merged CSV to repo
-        shell: bash
-        run: |
-          set -e
-          FILE="data/stage2_merged.csv"
-          if [ -f "$FILE" ]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$FILE"
-            if git diff --cached --quiet; then
-              echo "No changes to commit for $FILE."
-            else
-              git commit -m "Add/update merged TR+QS CSV (run #${{ github.run_number }})"
-              git push
-            fi
-          else
-            echo "No $FILE produced (check merge_stage1_with_tr)."
-          fi
+            echo "⚠️ No blocks_to_gpt found."
