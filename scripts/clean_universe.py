@@ -55,8 +55,27 @@ def is_junk_symbol(sym: str) -> bool:
 def name_reject(nm: str) -> bool:
     return any(x in nm.upper() for x in ["DELISTED","ETF","ETN","FUND","TRUST","CERTIFICATE","WARRANT"])
 
+def load_rejects() -> set[str]:
+    """Load persistent rejects from universe_rejects.csv"""
+    path = Path("data/universe_rejects.csv")
+    rejects = set()
+    if path.exists():
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            rdr = csv.DictReader(f)
+            for row in rdr:
+                t = (row.get("ticker") or "").strip().upper()
+                if t:
+                    rejects.add(t)
+    return rejects
+
+
 # -------------------- Main --------------------
 def main():
+        # Load persistent rejects
+    reject_set = load_rejects()
+    if reject_set:
+        log(f"[INFO] Persistent rejects loaded: {len(reject_set)}")
+
     if not IN_PATH.exists():
         if OUT_PATH.exists():
             log(f"[INFO] {IN_PATH} missing. Using stale {OUT_PATH}")
@@ -86,17 +105,25 @@ def main():
     kept, rejects, seen = [], [], set()
 
     for t, nm in rows:
-        if t in seen: continue
+        if t in seen:
+            continue
         seen.add(t)
 
+        if t in reject_set:
+            rejects.append((t, nm, "persistent-reject"))
+            continue
         if whitelist and t not in whitelist:
-            rejects.append((t, nm, "not-in-whitelist")); continue
+            rejects.append((t, nm, "not-in-whitelist"))
+            continue
         if name_reject(nm):
-            rejects.append((t, nm, "name-filter")); continue
+            rejects.append((t, nm, "name-filter"))
+            continue
         if is_junk_symbol(t):
-            rejects.append((t, nm, "symbol-hygiene")); continue
+            rejects.append((t, nm, "symbol-hygiene"))
+            continue
 
         kept.append((t, nm))
+
 
     kept.sort(key=lambda x: x[0])
     atomic_write(OUT_PATH, kept, ("ticker","company"))

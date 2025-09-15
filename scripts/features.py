@@ -322,122 +322,123 @@ def fetch_history(
         # Retry the batch on transient errors
         attempt = 0
         data = None
-        while attempt < max_retries:
-            try:
-                t1 = time.time()
-                data = yf.download(
-                    tickers=" ".join(chunk_syms),
-                    period=period,
-                    interval="1d",
-                    auto_adjust=True,
-                    progress=False,
-                    group_by="ticker",
-                    threads=True,
-                )
-                if FEATURES_VERBOSE:
-                    logger.debug(f"[fetch] download ok in {time.time()-t1:.2f}s (shape={getattr(data,'shape',None)})")
-                break
-            except Exception as e:
-                attempt += 1
-                if FEATURES_VERBOSE:
-                    logger.warning(f"[fetch] attempt {attempt} failed: {e!r}")
-                if attempt < max_retries:
-                    time.sleep(retry_sleep * attempt)
-                else:
-                    data = None
-
-        if data is None or (isinstance(data, pd.DataFrame) and data.empty):
+        # 🔥 Infinite retry until success (unless it's a permanent error)
+    while True:
+        try:
+            t1 = time.time()
+            data = yf.download(
+                tickers=" ".join(chunk_syms),
+                period=period,
+                interval="1d",
+                auto_adjust=True,
+                progress=False,
+                group_by="ticker",
+                threads=True,
+            )
             if FEATURES_VERBOSE:
-                logger.warning("[fetch] chunk failed: empty data after retries")
+                logger.debug(f"[fetch] download ok in {time.time()-t1:.2f}s (shape={getattr(data,'shape',None)})")
+            break  # ✅ success, exit infinite loop
+        except Exception as e:
+            msg = str(e).lower()
+            if "not found" in msg or "404" in msg:
+                logger.warning(f"[fetch] permanent error for {chunk_syms}: {e!r}")
+                data = None
+                break  # ❌ stop retrying → real reject
+            # transient (rate limit, connection, etc.)
+            logger.warning(f"[fetch] transient error: {e!r}, retrying…")
+            time.sleep(retry_sleep)
+            if data is None or (isinstance(data, pd.DataFrame) and data.empty):
+                if FEATURES_VERBOSE:
+                    logger.warning("[fetch] chunk failed: empty data after retries")
 
-        ok_in_chunk = empty_in_chunk = fb_ok_in_chunk = rej_in_chunk = 0
+            ok_in_chunk = empty_in_chunk = fb_ok_in_chunk = rej_in_chunk = 0
 
-        for orig in chunk_keys:
-            yh = yh_map[orig]
-            try:
-                df_norm = _normalize_ohlcv(data, ticker_hint=(yh or "").strip()) if data is not None else None
-                df_use = _usable_df(df_norm)
-                if df_use is not None:
-                    out[orig] = df_use
-                    ok_in_chunk += 1
-                    total_ok += 1
-                    if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
-                        logger.debug(f"[fetch] ok {orig}->{yh} rows={df_use.shape[0]} cols={list(df_use.columns)}")
-                    continue
-                else:
-                    empty_in_chunk += 1
-                    total_empty += 1
-                    if FEATURES_VERBOSE:
-                        logger.debug(f"[fetch] empty/too-few-rows {orig}->{yh} (trying fallback)")
-                # force fallback
-                raise ValueError("normalize-empty")
-            except Exception:
-                # single-ticker fallback
+            for orig in chunk_keys:
+                yh = yh_map[orig]
                 try:
-                    single = yf.download(
-                        tickers=yh,
-                        period=period,
-                        interval="1d",
-                        auto_adjust=True,
-                        progress=False,
-                        group_by="ticker",
-                        threads=False,
-                    )
-                    df1 = _normalize_ohlcv(single)
-                    df_use = _usable_df(df1)
+                    df_norm = _normalize_ohlcv(data, ticker_hint=(yh or "").strip()) if data is not None else None
+                    df_use = _usable_df(df_norm)
                     if df_use is not None:
                         out[orig] = df_use
-                        fb_ok_in_chunk += 1
-                        total_fb_ok += 1
-                        if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] fallback ok {orig} rows={df_use.shape[0]}")
+                        ok_in_chunk += 1
+                        total_ok += 1
+                        if FEATURES_VERBOSE and logger.isEnabledFor(logging.DEBUG):
+                            logger.debug(f"[fetch] ok {orig}->{yh} rows={df_use.shape[0]} cols={list(df_use.columns)}")
+                        continue
                     else:
-                        rejects.append((orig, "404/empty-or-short"))
+                        empty_in_chunk += 1
+                        total_empty += 1
+                        if FEATURES_VERBOSE:
+                            logger.debug(f"[fetch] empty/too-few-rows {orig}->{yh} (trying fallback)")
+                    # force fallback
+                    raise ValueError("normalize-empty")
+                except Exception:
+                    # single-ticker fallback
+                    try:
+                        single = yf.download(
+                            tickers=yh,
+                            period=period,
+                            interval="1d",
+                            auto_adjust=True,
+                            progress=False,
+                            group_by="ticker",
+                            threads=False,
+                        )
+                        df1 = _normalize_ohlcv(single)
+                        df_use = _usable_df(df1)
+                        if df_use is not None:
+                            out[orig] = df_use
+                            fb_ok_in_chunk += 1
+                            total_fb_ok += 1
+                            if FEATURES_VERBOSE:
+                                logger.debug(f"[fetch] fallback ok {orig} rows={df_use.shape[0]}")
+                        else:
+                            rejects.append((orig, "404/empty-or-short"))
+                            rej_in_chunk += 1
+                            total_rejects += 1
+                            if FEATURES_VERBOSE:
+                                logger.debug(f"[fetch] reject {orig}: empty/short after fallback")
+                    except Exception as e2:
+                        rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
                         rej_in_chunk += 1
                         total_rejects += 1
                         if FEATURES_VERBOSE:
-                            logger.debug(f"[fetch] reject {orig}: empty/short after fallback")
-                except Exception as e2:
-                    rejects.append((orig, f"fetch-error:{e2.__class__.__name__}"))
-                    rej_in_chunk += 1
-                    total_rejects += 1
-                    if FEATURES_VERBOSE:
-                        logger.debug(f"[fetch] reject {orig}: {e2!r}")
+                            logger.debug(f"[fetch] reject {orig}: {e2!r}")
 
-                # 🔥 added: throttle after each single fallback request
-                sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.3"))
-                if sleep_fb > 0:
-                    if FEATURES_VERBOSE:
-                        logger.debug(f"[fetch] sleeping {sleep_fb:.1f}s after fallback for {orig}")
-                    time.sleep(sleep_fb)
+                    # 🔥 added: throttle after each single fallback request
+                    sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.3"))
+                    if sleep_fb > 0:
+                        if FEATURES_VERBOSE:
+                            logger.debug(f"[fetch] sleeping {sleep_fb:.1f}s after fallback for {orig}")
+                        time.sleep(sleep_fb)
+            if FEATURES_VERBOSE:
+                logger.info(
+                    f"[fetch] chunk done ok={ok_in_chunk} fb_ok={fb_ok_in_chunk} "
+                    f"empty={empty_in_chunk} rejects={rej_in_chunk}/{len(chunk_keys)}"
+                )
+
+        # persist rejects (append-safe, once per function call)
+        if rejects:
+            import csv
+            os.makedirs("data", exist_ok=True)
+            path = "data/universe_rejects.csv"
+            header_needed = not os.path.exists(path)
+            with open(path, "a", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                if header_needed:
+                    w.writerow(["ticker", "reason", "ts"])
+                ts = time.strftime("%Y-%m-%d %H:%M:%S")
+                for tkr, r in rejects:
+                    w.writerow([tkr, r, ts])
+            if FEATURES_VERBOSE:
+                logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
+
         if FEATURES_VERBOSE:
             logger.info(
-                f"[fetch] chunk done ok={ok_in_chunk} fb_ok={fb_ok_in_chunk} "
-                f"empty={empty_in_chunk} rejects={rej_in_chunk}/{len(chunk_keys)}"
+                f"[fetch] finished in {time.time()-t0:.2f}s "
+                f"ok={total_ok} fb_ok={total_fb_ok} empty={total_empty} rejects={total_rejects} / universe={len(keys)}"
             )
-
-    # persist rejects (append-safe, once per function call)
-    if rejects:
-        import csv
-        os.makedirs("data", exist_ok=True)
-        path = "data/universe_rejects.csv"
-        header_needed = not os.path.exists(path)
-        with open(path, "a", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
-            if header_needed:
-                w.writerow(["ticker", "reason", "ts"])
-            ts = time.strftime("%Y-%m-%d %H:%M:%S")
-            for tkr, r in rejects:
-                w.writerow([tkr, r, ts])
-        if FEATURES_VERBOSE:
-            logger.info(f"[fetch] rejects wrote: {len(rejects)} -> {path}")
-
-    if FEATURES_VERBOSE:
-        logger.info(
-            f"[fetch] finished in {time.time()-t0:.2f}s "
-            f"ok={total_ok} fb_ok={total_fb_ok} empty={total_empty} rejects={total_rejects} / universe={len(keys)}"
-        )
-    return out
+        return out
 
 # ---------------------------- compute ------------------------------ #
 def compute_indicators(df: pd.DataFrame) -> dict:
