@@ -87,7 +87,7 @@ def _fmt(x, fmt=".2f"):
 
 # ---------------------------- config ------------------------------- #
 CHUNK_SIZE = int(os.getenv("YF_CHUNK_SIZE", "60"))
-MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "6"))
+MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "5"))
 RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "2.0"))
 
 # ---------------------------- constants ---------------------------- #
@@ -405,7 +405,7 @@ def fetch_history(
                         logger.debug(f"[fetch] reject {orig}: {e2!r}")
 
                 # 🔥 added: throttle after each single fallback request
-                sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.5"))
+                sleep_fb = float(os.getenv("YF_SLEEP_FALLBACK", "0.3"))
                 if sleep_fb > 0:
                     if FEATURES_VERBOSE:
                         logger.debug(f"[fetch] sleeping {sleep_fb:.1f}s after fallback for {orig}")
