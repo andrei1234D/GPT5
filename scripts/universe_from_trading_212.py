@@ -162,41 +162,44 @@ def main():
         log(f"[FATAL] {e}")
         sys.exit(1)
 
-    rows_raw, rejects = [], []
+    rows_raw = []
     for it in data:
         ttype = (it.get("type") or it.get("instrumentType") or "").upper()
-        if ttype not in {"EQUITY", "STOCK"}: continue
+        if ttype not in {"EQUITY", "STOCK"}:
+            continue
 
         tick = (it.get("ticker") or it.get("symbol") or "").strip()
         name = (it.get("name") or it.get("shortName") or "").strip()
-        if not tick or not name: continue
+        if not tick or not name:
+            continue
 
         simple = simplify_symbol(tick)
         if is_junk_symbol(simple):
-            rejects.append((simple.upper(), name, "junk-filter")); continue
+            # Instead of writing rejects here, just skip
+            continue
 
         yh = map_to_yahoo(simple, it.get("exchange"), it.get("mic"), it.get("isin"))
         rows_raw.append((yh.upper(), name))
 
     seen, rows = set(), []
     for sym, name in rows_raw:
-        if sym in seen: continue
-        seen.add(sym); rows.append((sym, name))
+        if sym in seen:
+            continue
+        seen.add(sym)
+        rows.append((sym, name))
     rows.sort(key=lambda x: x[0])
 
-    # Write outputs
+    # --- Write outputs ---
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f); w.writerow(("ticker","company")); w.writerows(rows)
-    if rejects:
-        with REJECTS_PATH.open("w", newline="", encoding="utf-8") as f:
-            w = csv.writer(f); w.writerow(("ticker","company","reason")); w.writerows(rejects)
+        w = csv.writer(f)
+        w.writerow(("ticker", "company"))
+        w.writerows(rows)
 
     with META_PATH.open("w", encoding="utf-8") as f:
         json.dump(data, f)
 
     log(f"[INFO] Wrote {len(rows)} rows to {OUT_PATH}")
-    log(f"[INFO] Wrote {len(rejects)} rejects to {REJECTS_PATH}")
     log(f"[INFO] Saved raw metadata to {META_PATH}")
 
 if __name__ == "__main__":
