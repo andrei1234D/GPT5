@@ -586,7 +586,7 @@ class RobustRanker:
             if self.should_drop(f):
                 continue
             tr_score, tr_parts = self.composite_score(f, context)
-            qs_score = f.get("final_score", None)  # QS score from stage1_kept.csv
+            qs_score = f.get("final_score", f.get("score", 0.0)) # QS score from stage1_kept.csv
             merged_score, merged_parts = merge_tr_qs(tr_score, tr_parts, qs_score)
 
             # Add qs_score and tr_score explicitly into feats for export
