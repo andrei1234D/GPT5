@@ -52,21 +52,18 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
 
-      # --- Build universe.csv + universe_meta.json ---
       - name: Build universe from Trading 212
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
           ALLOW_STALE: '1'
         run: python scripts/universe_from_trading_212.py
 
-      # --- Clean universe (writes universe_clean + rejects) ---
       - name: Clean universe
         env:
           ALLOW_STALE: '1'
           CLEAN_ALLOW_OFFLINE: '1'
         run: python scripts/clean_universe.py
 
-      # 🔥 Explicitly cache rejects as well
       - name: Save rejects file
         run: |
           if [ -f data/universe_rejects.csv ]; then
@@ -86,13 +83,43 @@ jobs:
           YF_TEST_INTERVAL: '1d'
         run: python scripts/aliases_autobuild.py || true
 
-      # --- Stage-1 Quick Scorer (enriches with indicators + writes stage1_kept.csv) ---
       - name: Run Quick Scorer
+        env:
+          # --- Stage-1 knobs ---
+          STAGE1_MODE: 'quick'
+          STAGE1_KEEP: '2000'
+          STAGE1_WRITE_TOPN_CSV: '1'
+          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
+
+          # --- yfinance knobs ---
+          YF_CHUNK_SIZE: '50'
+          YF_MAX_RETRIES: '5'
+          YF_RETRY_SLEEP: '2.5'
+          YF_SLEEP_BETWEEN_CHUNKS: '2'
+          YF_SLEEP_PER_REQUEST: '0.5'
+          YF_SLEEP_FALLBACK: '0.3'
+          YF_MIN_ROWS: '40'
+
+          # --- Quick Scorer / valuation knobs ---
+          QS_ET_BONUS_TREND: '6'
+          QS_ET_BONUS_MOMO: '8'
+          QS_ET_BONUS_STRUCT: '5'
+          QS_USE_FVA: '1'
+          QS_VAL_OVERLAY: '1'
+          QS_PE_WEIGHT: '0.015'
+          QS_PE_WEIGHT_LARGE: '0.02'
+          QS_PE_WEIGHT_SMALL: '0.005'
         run: python scripts/quick_scorer.py --input data/universe_clean.csv --output data/stage1_kept.csv
 
-      # --- Stage-2 Tier Ranker (final scoring/ranking on top tickers) ---
-      - name: Run Tier Ranker
-        run: python scripts/tier_ranker.py --input data/stage1_kept.csv --output data/stage2_ranked.csv
+      - name: Run Trash Ranker
+        env:
+          # --- Stage-2 knobs ---
+          RANKER_PROFILE: 'C'
+          HARD_DROP_MODE: 'normal'
+          EARLY_TURN_MIN_E50_SLOPE: '2.0'
+          ALLOW_BLOWOFF_PROBE: '1'
+          ATH_GUARD: '1'
+        run: python scripts/trash_ranker.py --input data/stage1_kept.csv --output data/stage2_merged.csv
 
       - name: Prepare logs dir
         run: mkdir -p logs
@@ -131,7 +158,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-          # --- Logging ---
+          # --- Logging knobs ---
           PYTHONUNBUFFERED: '1'
           FEATURES_LOG_LEVEL: 'INFO'
           FEATURES_VERBOSE: '0'
@@ -141,22 +168,22 @@ jobs:
           RANKER_LOG_EVERY: '300'
           QUICK_LOG_LEVEL: 'INFO'
 
-          # --- Quick-sort full dump ---
+          # --- Stage-1 knobs (repeat for consistency) ---
+          STAGE1_MODE: 'quick'
+          STAGE1_KEEP: '2000'
           STAGE1_WRITE_TOPN_CSV: '1'
           STAGE1_TOPN_CSV: '2000'
           STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
+          STAGE1_ENHANCER_BONUS_PATH: 'data/stage1_enhancer_bonus.csv'
 
-          # --- yfinance ---
+          # --- yfinance knobs ---
           YF_CHUNK_SIZE: '50'
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
-
-          # --- Stage-2 profile (repeat for notifier consistency) ---
-          RANKER_PROFILE: 'C'
-          HARD_DROP_MODE: 'normal'
-          EARLY_TURN_MIN_E50_SLOPE: '2.0'
-          ALLOW_BLOWOFF_PROBE: '1'
-          ATH_GUARD: '1'
+          YF_SLEEP_BETWEEN_CHUNKS: '2'
+          YF_SLEEP_PER_REQUEST: '0.5'
+          YF_SLEEP_FALLBACK: '0.3'
+          YF_MIN_ROWS: '40'
 
           # --- Quick Scorer / valuation knobs ---
           QS_ET_BONUS_TREND: '6'
@@ -168,12 +195,20 @@ jobs:
           QS_PE_WEIGHT_LARGE: '0.02'
           QS_PE_WEIGHT_SMALL: '0.005'
 
-          # --- OpenAI plumbing ---
+          # --- Stage-2 knobs ---
+          RANKER_PROFILE: 'C'
+          HARD_DROP_MODE: 'normal'
+          EARLY_TURN_MIN_E50_SLOPE: '2.0'
+          ALLOW_BLOWOFF_PROBE: '1'
+          ATH_GUARD: '1'
+
+          # --- OpenAI / notifier knobs ---
           FORCE_CATALYSTS_PARTIAL: '1'
           OPENAI_TIMEOUT: '360'
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
+
       - name: Commit updated rejects
         run: |
           git config user.name "github-actions[bot]"
