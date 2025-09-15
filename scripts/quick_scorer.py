@@ -1,11 +1,12 @@
 # scripts/quick_scorer.py
 from __future__ import annotations
-import pandas as pd
 from typing import Dict, List, Tuple, Optional
 import os, math, csv, logging, time
 import numpy as np
 import logging
-from features import build_features
+import pandas as pd
+from proxies import derive_proxies, get_spy_ctx
+from data_fetcher import fetch_pe_for_top, fetch_valuations_for_top
 
 """
 ENV knobs this scorer honors (new ones marked ★):
@@ -976,6 +977,52 @@ def load_universe(path: str = "data/universe_clean.csv"):
         tickers.append((t, name))
     return tickers
 
+def enrich_and_save_stage1(universe, kept, bonuses, out_path="data/stage1_kept.csv"):
+    """
+    Enrich Stage1 output with features, proxies, valuations, enhancer bonuses.
+    Write fat CSV for Stage2.
+    """
+    spy_ctx = get_spy_ctx()
+    tickers = list(kept.keys())
+
+    # --- batch valuations ---
+    pe_map = fetch_pe_for_top(tickers) or {}
+    val_map = fetch_valuations_for_top(tickers) or {}
+
+    rows = []
+    for t, meta in kept.items():
+        feats = dict(meta.get("features", {}))
+
+        # --- QS score ---
+        feats["qs_score"] = meta.get("score")
+
+        # --- Proxies ---
+        try:
+            prox = derive_proxies(feats, spy_ctx)
+            feats.update(prox)
+        except Exception as e:
+            print(f"[WARN] proxy fail {t}: {e!r}", flush=True)
+
+        # --- Valuations ---
+        vals = val_map.get(t, {})
+        feats.update({f"val_{k}": v for k, v in vals.items()})
+
+        # --- Raw PE fallback ---
+        feats["pe_hint"] = pe_map.get(t)
+
+        # --- Enhancer bonus (per ticker) ---
+        feats["enhancer_bonus"] = bonuses.get(t, 0)
+
+        rows.append({
+            "ticker": t,
+            "company": meta.get("company", ""),
+            **feats
+        })
+
+    df = pd.DataFrame(rows)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    df.to_csv(out_path, index=False)
+    print(f"[Stage1] enriched CSV wrote: {len(df)} rows, {len(df.columns)} cols -> {out_path}", flush=True)
 
 # === main entrypoint for Stage-1 ===
 if __name__ == "__main__":
@@ -1047,86 +1094,89 @@ if __name__ == "__main__":
         log_dir="data"
     )
     log = logging.getLogger("quick_scorer")
-    # 6) Write kept set
-    # df should be whatever DataFrame holds your Stage-1 scoring results.
-    # In your old script, this was usually called kept_df or stage1_df.
+    
+        # 6) Enrich with proxies + valuations before writing
+    spy_ctx = get_spy_ctx()
+    tickers = [t for (t, _, _, _, _) in pre]
 
-    # Make sure we point to the right DataFrame:
-    df = pd.DataFrame([
-    {
-        "ticker": t,
-        "company": n,
-        "score": s,
-        "tier": meta.get("tier"),
-        "enhancer_score": meta.get("enhancer_bonus"),
-        "base_score": meta.get("base_score"),
-        "trend": meta.get("parts", {}).get("trend"),
-        "momo": meta.get("parts", {}).get("momo"),
-        "struct": meta.get("parts", {}).get("struct"),
-        "risk_pen": meta.get("parts", {}).get("risk_pen"),
-        "tags": ";".join(meta.get("tags", [])),
+    # Batch valuation fetches
+    pe_map  = fetch_pe_for_top(tickers) or {}
+    val_map = fetch_valuations_for_top(tickers) or {}
 
-        # --- schema consistency ---
-        "raw_score": meta.get("base_score"),
-        "val_overlay": None,
-        "pe_score": meta.get("parts", {}).get("pe_tilt_pts"),
-        "fva_score": meta.get("parts", {}).get("fva_hint"),
-        "momo_score": meta.get("parts", {}).get("momo"),
+    rows = []
+    for (t, n, feats, s, meta) in pre:
+        # --- QS parts ---
+        parts = meta.get("parts", {})
+        enh_reason = meta.get("enhancer_reason", "")
+        enh_phase  = meta.get("phase", "")
 
-        "bonus_trend": None,
-        "bonus_momo": None,
-        "bonus_struct": None,
+        # --- Proxies ---
+        try:
+            proxies = derive_proxies(feats, spy_ctx)
+        except Exception as e:
+            proxies = {}
+            log.warning(f"[Stage1] proxy fail {t}: {e!r}")
 
-        "drop_reason": None,
-        "rescue_flag": None,
-        "mode": os.getenv("STAGE1_MODE", "loose"),
+        # --- Valuations ---
+        vals = val_map.get(t, {})
+        val_fields = {f"val_{k}": v for k, v in vals.items()}
+        pe_hint = pe_map.get(t)
 
-        "data_rows": feats.get("data_rows"),
-        "alias_used": feats.get("alias_used"),
-        "yf_symbol": feats.get("yf_symbol"),
-        "history_ok": feats.get("history_ok"),
+        row = {
+            # identifiers
+            "ticker": t,
+            "company": n,
+            "sector": feats.get("sector"),
+            "industry": feats.get("industry"),
 
-        **feats
-    }
-    for (t, n, feats, s, meta) in pre
-])
-    cols_keep = [
-    # identifiers
-    "ticker", "company", "sector", "industry",
+            # scores
+            "score": s,
+            "tier": meta.get("tier"),
+            "base_score": meta.get("base_score"),
+            "enhancer_score": meta.get("enhancer_bonus", 0),
+            "enhancer_reason": enh_reason,
+            "enhancer_phase": enh_phase,
 
-    # ranking output
-    "score", "tier",
-    "base_score", "enhancer_score",
+            # components
+            "trend": parts.get("trend"),
+            "trend_raw": parts.get("trend_raw"),
+            "momo": parts.get("momo"),
+            "momo_raw": parts.get("momo_raw"),
+            "struct": parts.get("struct"),
+            "risk_pen": parts.get("risk_pen"),
+            "pe_score": parts.get("pe_tilt_pts"),
+            "fva_hint": parts.get("fva_hint"),
+            "accel_z": parts.get("accel_z"),
+            "probe_ok": parts.get("probe_ok"),
+            "probe_lvl": parts.get("probe_lvl"),
 
-    # components
-    "trend", "momo", "struct", "risk_pen",
-    "pe_score", "fva_score", "momo_score",
+            # meta
+            "tags": ";".join(meta.get("tags", [])),
+            "mode": os.getenv("STAGE1_MODE", "loose"),
 
-    # meta
-    "tags", "mode",
+            # fundamentals
+            "price": feats.get("price"),
+            "market_cap": feats.get("market_cap"),
+            "pe_ratio": feats.get("pe_ratio"),
+            "pe_hint": pe_hint,
 
-    # fundamentals
-    "price", "market_cap", "pe_ratio",
-    "eps_growth", "rev_growth", "debt_to_equity",
+            # add valuations
+            **val_fields,
 
-    # technicals
-    "sma_50", "sma_200", "rsi", "volatility", "atr", "beta",
+            # add proxies
+            **proxies,
 
-    # catalysts
-    "catalyst_score", "news_sentiment",
+            # diagnostics
+            "data_rows": feats.get("data_rows"),
+            "alias_used": feats.get("alias_used"),
+            "yf_symbol": feats.get("yf_symbol"),
+            "history_ok": feats.get("history_ok"),
+        }
+        rows.append(row)
 
-    # diagnostics
-    "data_rows", "alias_used", "yf_symbol", "history_ok"
-]
+    df = pd.DataFrame(rows)
 
+    df.to_csv(output_path, index=False)
+    log.info(f"[Stage1] wrote enriched CSV with {len(df)} rows, {len(df.columns)} cols -> {output_path}")
 
-    # Keep only available columns
-    cols_final = [c for c in cols_keep if c in df.columns]
-
-    df_out = df[cols_final].copy()
-    df_out.to_csv(output_path, index=False)
-
-    log.info(
-        f"[Stage1] wrote enriched CSV with {len(df_out)} rows, {len(cols_final)} cols -> {output_path}"
-    )
 
