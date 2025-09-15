@@ -33,18 +33,18 @@ QS_MOMO_CHASE_KNEE (35), QS_MOMO_CHASE_SLOPE (0.6), QS_MOMO_CHASE_PEN_MAX (15)
 QS_VAL_OVERLAY=1|0
 QS_VAL_OVERLAY_MAX (12)
 
-# ★ Overheat-but-allow-probe path (lets strong names remain actionable with controlled haircut)
+# ★ Overheat-but-allow-probe path
 ALLOW_BLOWOFF_PROBE=1|0          (default 1)
 PROBE_MIN_EV=4                   (ATR% threshold to allow probes)
-PROBE_MAX_VOL_SPIKE=150          (max Vol_vs_20d% to still allow a probe)
+PROBE_MAX_VOL_SPIKE=150
 OVERHEAT_A_RSI=78  OVERHEAT_B_RSI=83  OVERHEAT_C_RSI=87
 OVERHEAT_A_VS50=20 OVERHEAT_B_VS50=35 OVERHEAT_C_VS50=50
-PROBE_ADD_BACK_A=4  PROBE_ADD_BACK_B=7  PROBE_ADD_BACK_C=10   (points given back split into struct/risk)
-PROBE_STRUCT_SHARE=0.45                                         (share of add-back that goes to struct)
+PROBE_ADD_BACK_A=4  PROBE_ADD_BACK_B=7  PROBE_ADD_BACK_C=10
+PROBE_STRUCT_SHARE=0.45
 
 # ★ Momentum-carry discount on FVA-KO penalty
-KO_MOMO_DISCOUNT=0.50           (reduce FVA KO haircut when accel is positive & trend strong)
-KO_MOMO_DISCOUNT_STRONG=0.35    (even stronger discount when accel is very positive)
+KO_MOMO_DISCOUNT=0.50
+KO_MOMO_DISCOUNT_STRONG=0.35
 
 # Stage-1 CSV dumps
 STAGE1_WRITE_TOPN_CSV=1|0  STAGE1_TOPN_CSV (2000)  STAGE1_TOPN_PATH
@@ -930,3 +930,71 @@ def enhance_score_for_strong_buy(
     bonus = max(min(bonus, 40), -50)
 
     return base_score + bonus, bonus, "; ".join(reason_log), phase
+
+# === main entrypoint for Stage-1 ===
+if __name__ == "__main__":
+    import sys
+    import pandas as pd
+    from features import build_features
+    from universe import load_universe
+    from filters import is_garbage, daily_index_filter
+
+    try:
+        input_path = sys.argv[sys.argv.index("--input") + 1] if "--input" in sys.argv else "data/universe_clean.csv"
+        output_path = sys.argv[sys.argv.index("--output") + 1] if "--output" in sys.argv else "data/stage1_kept.csv"
+    except Exception:
+        input_path = "data/universe_clean.csv"
+        output_path = "data/stage1_kept.csv"
+
+    log.info(f"[Stage1] Input universe: {input_path} → Output: {output_path}")
+
+    # 1) Load universe
+    universe = load_universe(path=input_path)
+    if not universe:
+        log.error("[Stage1] Universe is empty!")
+        sys.exit(1)
+
+    # 2) Features
+    feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
+    if not feats_map:
+        log.error("[Stage1] Failed to build features")
+        sys.exit(1)
+
+    # 3) Trash filter
+    kept = []
+    for t, name in universe:
+        row = feats_map.get(t)
+        if not row:
+            continue
+        feats = row["features"]
+        if not is_garbage(feats):
+            kept.append((t, name, feats))
+
+    if not kept:
+        log.error("[Stage1] All filtered out in trash stage")
+        sys.exit(1)
+    log.info(f"[Stage1] After trash filter: {len(kept)} remain")
+
+    # 4) Daily index filter
+    today_ctx = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
+    kept2 = [(t, n, f) for (t, n, f) in kept if daily_index_filter(f, today_ctx)]
+    if not kept2:
+        log.error("[Stage1] All filtered by daily context")
+        sys.exit(1)
+    log.info(f"[Stage1] After daily index filter: {len(kept2)} remain")
+
+    # 5) Rank
+    pre, scored, removed = rank_stage1(
+        kept2,
+        keep=int(os.getenv("STAGE1_KEEP", "200")),
+        mode=os.getenv("STAGE1_MODE", "loose"),
+        rescue_frac=float(os.getenv("STAGE1_RESCUE_FRAC", "0.15")),
+        log_dir="data"
+    )
+
+    # 6) Write kept set
+    pd.DataFrame(
+        [(t, n, s, m.get("tier")) for (t, n, _f, s, m) in pre],
+        columns=["ticker", "company", "score", "tier"]
+    ).to_csv(output_path, index=False)
+    log.info(f"[Stage1] Final survivors={len(pre)} → {output_path}")

@@ -279,7 +279,10 @@ class HardFilter:
            (d5  is not None and d5  >= t["pump_d5"]):
             # If probe path is allowed, keep with tag; otherwise apply old rule
             if probe_ok:
+                feats["probe_ok"] = True
+                feats["probe_lvl"] = probe_lvl
                 return False, f"probe_keep_L{probe_lvl}"
+
             if self.mode in {"off", "loose", "normal"} and (trend_leader or early_turn):
 
                 return False, "pump_pattern_soft_keep"
@@ -801,8 +804,15 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         row = {
             "ticker": t,
             "name": n,
-            "merged_score": merged_score,
+            "qs_score": qs_score,              # raw QS score from Stage-1
+            "tr_score": tr_score,              # raw TR score
+            "merged_score": merged_score,      # final weighted blend
+            "merged_qs_score": qs_score,       # duplicate for clarity
+            "merged_tr_score": tr_score,       # duplicate for clarity
+            "probe_ok": f.get("probe_ok", False),
+            "probe_lvl": f.get("probe_lvl", 0),
         }
+
         # Optionally include breakdown parts
         row.update({f"tr_{k}": v for k, v in parts.items()})
         row.update({f"merged_{k}": v for k, v in merged_parts.items()})
@@ -812,7 +822,6 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     out_df.to_csv(out_path, index=False)
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df
-
 __all__ = [
     "HardFilter",
     "RankerParams",
