@@ -86,6 +86,14 @@ jobs:
           YF_TEST_INTERVAL: '1d'
         run: python scripts/aliases_autobuild.py || true
 
+      # --- Stage-1 Quick Scorer (enriches with indicators + writes stage1_kept.csv) ---
+      - name: Run Quick Scorer
+        run: python scripts/quick_scorer.py --input data/universe_clean.csv --output data/stage1_kept.csv
+
+      # --- Stage-2 Tier Ranker (final scoring/ranking on top tickers) ---
+      - name: Run Tier Ranker
+        run: python scripts/tier_ranker.py --input data/stage1_kept.csv --output data/stage2_ranked.csv
+
       - name: Prepare logs dir
         run: mkdir -p logs
 
