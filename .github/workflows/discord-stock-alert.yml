@@ -193,5 +193,6 @@ jobs:
             echo "No new notifier files to commit"
           else
             git commit -m "Update notifier outputs (run #${{ github.run_number }})"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi
