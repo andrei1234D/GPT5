@@ -166,6 +166,16 @@ def main():
         today=now.strftime("%b %d"),
         blocks=blocks_text,
     )
+        # === 8b) Save blocks to logs for debugging / reuse ===
+    logs_dir = Path("logs")
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
+    try:
+        with blocks_path.open("w", encoding="utf-8") as f:
+            f.write(blocks_text)
+        log(f"[INFO] Wrote prompt blocks to {blocks_path}")
+    except Exception as e:
+        log(f"[WARN] Failed to save prompt blocks: {e}")
 
     # === 9) GPT adjudication ===
     try:
