@@ -111,6 +111,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/universe_rejects.csv data/stage1_kept.csv data/stage2_merged.csv || true
+          git add -f logs/blocks_to_gpt_latest.txt || true
           if git diff --cached --quiet; then
             echo "No new files to commit"
           else
