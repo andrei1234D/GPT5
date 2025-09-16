@@ -111,7 +111,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/universe_rejects.csv data/stage1_kept.csv data/stage2_merged.csv || true
-          git add -f logs/blocks_to_gpt_latest.txt || true
           if git diff --cached --quiet; then
             echo "No new files to commit"
           else
@@ -128,6 +127,7 @@ jobs:
         with:
           persist-credentials: true
           fetch-depth: 0
+
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
@@ -183,3 +183,15 @@ jobs:
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
+
+      - name: Commit notifier outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f logs/blocks_to_gpt_latest.txt daily_pick.txt || true
+          if git diff --cached --quiet; then
+            echo "No new notifier files to commit"
+          else
+            git commit -m "Update notifier outputs (run #${{ github.run_number }})"
+            git push
+          fi
