@@ -1,0 +1,12 @@
+RCG.TO – RCG.TO
+Base Scores: Market & Sector: 135, Quality (Tech Proxies): 160, Near-Term Catalysts: 120, Technical Valuation: 175, Risks: 70
+News: N/A
+Plan: Buy 15.87–16.13; Stop 15.68; Target 16.48; Max hold time: ≤ 1 year (Anchor: $16.00)
+Final base score: 729
+P/E Ratio: 60.24
+Certainty: 69%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/RCG.TO/forecast
+What reduced the score: Ultra-low volume (-88.95%), mild MACD weakness, only partial data available
