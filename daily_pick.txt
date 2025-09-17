@@ -1,12 +1,19 @@
-RCG.TO – RCG.TO
-Base Scores: Market & Sector: 135, Quality (Tech Proxies): 160, Near-Term Catalysts: 120, Technical Valuation: 175, Risks: 70
+NIO – NIO
+
+Base Scores: Market & Sector: 145, Quality (Tech Proxies): 168, Near-Term Catalysts: 142, Technical Valuation: 65, Risks: 36
+
 News: N/A
-Plan: Buy 15.87–16.13; Stop 15.68; Target 16.48; Max hold time: ≤ 1 year (Anchor: $16.00)
-Final base score: 729
-P/E Ratio: 60.24
-Certainty: 69%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/RCG.TO/forecast
-What reduced the score: Ultra-low volume (-88.95%), mild MACD weakness, only partial data available
+
+Plan: Buy 4.80–5.20; Stop 4.51; Target 5.73; Max hold time: ≤ 1 year (Anchor: $5.00)
+
+Final base score: 620
+
+P/E Ratio: N/A
+
+Certainty: 64%
+
+ADVICE: N/A
+
+Forecast image URL: https://stockscan.io/stocks/NIO/forecast
+
+What reduced the score: Price >40% above FVA and EXTENDED=Yes; not CONTINUATION_OK; MACD_hist ~ flat; low recent volume; negative FCF proxy. What wasn't clear or contradictory: Partial fundamentals; PE=N/A; no explicit near-term catalysts beyond “breakout today.”
