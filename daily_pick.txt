@@ -1,21 +1,19 @@
-ACFN – ACFN
+MOD – MOD
 
-Base Scores: Market & Sector: 155, Quality (Tech Proxies): 97, Near-Term Catalysts: 113, Technical Valuation: 250, Risks: 50
+Base Scores: Market & Sector: 130, Quality (Tech Proxies): 165, Near-Term Catalysts: 105, Technical Valuation: 160, Risks: 30
 
 News: N/A
 
-Plan: Buy 23.10–25.42; Stop 21.35; Target 28.63; Max hold time: ≤ 1 year (Anchor: $24.26)
+Plan: Buy 114.03–120.69; Stop 108.99; Target 129.94; Max hold time: ≤ 1 year (Anchor: $117.36)
 
-Final base score: 731
+Final base score: 656
 
-P/E Ratio: 10.13
+P/E Ratio: 44.45
 
 Certainty: 66%
 
-ADVICE: ```ini
-[Buy]
-```
+ADVICE: ```arm Hold ```
 
-Forecast image URL: https://stockscan.io/stocks/ACFN/forecast
+Forecast image URL: https://stockscan.io/stocks/MOD/forecast
 
-What reduced the score: Light volume (-40% vs 20d), MACD_hist negative, only partial fundamentals/valuation data, no explicit near-term catalysts, higher ATR (EV=6) raising risk
+What reduced the score: Price ~32% above FVA; RSI >70 (hot); below-average volume; no catalyst flags.
