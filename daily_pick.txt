@@ -1,19 +1,10 @@
-MOD – MOD
-
-Base Scores: Market & Sector: 130, Quality (Tech Proxies): 165, Near-Term Catalysts: 105, Technical Valuation: 160, Risks: 30
-
+ELVA.TO – ELVA.TO
+Base Scores: Market & Sector: 171, Quality (Tech Proxies): 234, Near-Term Catalysts: 140, Technical Valuation: 5, Risks: 18
 News: N/A
-
-Plan: Buy 114.03–120.69; Stop 108.99; Target 129.94; Max hold time: ≤ 1 year (Anchor: $117.36)
-
-Final base score: 656
-
-P/E Ratio: 44.45
-
-Certainty: 66%
-
-ADVICE: ```arm Hold ```
-
-Forecast image URL: https://stockscan.io/stocks/MOD/forecast
-
-What reduced the score: Price ~32% above FVA; RSI >70 (hot); below-average volume; no catalyst flags.
+Plan: Buy 6.07–6.61; Stop 5.67; Target 7.35; Max hold time: ≤ 1 year (Anchor: $6.34)
+Final base score: 635
+P/E Ratio: 243.00
+Certainty: 67%
+ADVICE: N/A
+Forecast image URL: https://stockscan.io/stocks/ELVA.TO/forecast
+What reduced the score: Far above FVA (>50%); EXTENDED=Yes; very expensive (PE 243, EV/EBITDA 82.76); anchor misalignment. What wasn't clear or contradictory: FUNDAMENTALS=PARTIAL; CATALYSTS=PARTIAL; VALUATION=PARTIAL; CONTINUATION_OK=No despite breakout.
