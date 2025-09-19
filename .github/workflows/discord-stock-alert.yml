@@ -55,7 +55,6 @@ jobs:
       - name: Build universe from Trading 212
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
           ALLOW_STALE: '1'
         run: python scripts/universe_from_trading_212.py
 
@@ -145,6 +144,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
           PYTHONUNBUFFERED: '1'
           FEATURES_LOG_LEVEL: 'INFO'
           FEATURES_VERBOSE: '0'
