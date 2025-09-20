@@ -1,7 +1,7 @@
 # scripts/notify.py
 import os, re, sys, time, requests, pytz
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from features import build_features
@@ -116,7 +116,7 @@ def main():
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = datetime.now(UTC) - timedelta(days=7)
 
     for (t, name, feats, _score, _meta) in top10:
         proxies = derive_proxies(feats, spy_ctx)
@@ -177,12 +177,15 @@ def main():
     except Exception as e:
         log(f"[WARN] Failed to save prompt blocks: {e}")
 
-    # === 9) GPT adjudication ===
-    try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
-    except Exception as e:
-        return fail(f"GPT-5 failed: {repr(e)}")
+    # # === 9) GPT adjudication ===
+    # try:
+    #     final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
+    # except Exception as e:
+    #     return fail(f"GPT-5 failed: {repr(e)}")
 
+    final_text = " --- GPT call skipped in this demo --- "
+    log("[INFO] GPT-5 call skipped in this demo")
+    
     # === 10) Save and wait until 08:00 ===
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
