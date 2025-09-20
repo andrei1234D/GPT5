@@ -34,7 +34,7 @@ def format_news_prompt(news_map):
         else:
             blocks.append(
                 f"### {t}\n" + "\n".join(
-                    f"- {a.get('title')} ({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})"
+                    f"- {a.get('title')} — {a.get('summary', 'N/A')} ({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})"
                     for a in articles[:3]
                 )
             )
@@ -48,9 +48,18 @@ def main():
 
     prompt = """
 You are a financial assistant.
-Summarize the news sentiment for each ticker below in 1–2 concise bullet points.
-Score the overall impact of each ticker as +50 to -50 (positive or negative).
-If no relevant news, return exactly "N/A".
+For each ticker, summarize in 1–2 bullet points.
+
+Assign a single impact score between -50 and +50.
+
+RESPECT THE OUTPUT FORMAT EXACTLY.
+
+Output format per ticker:
+
+### TICKER
+- summary bullet 1
+- summary bullet 2
+Impact: +/- XX
     """
     prompt += "\n\n" + format_news_prompt(news_map)
 

@@ -19,7 +19,7 @@ Do not upgrade obvious blowoffs; at best, allow controlled probe buys with tight
 
 News:
 - Only include 1–2 bullet points per stock. If no relevant news is found, output exactly "N/A".
-- News have an impact on certanty: positive news +5–15%, negative news -5–15%, neutral/no news 0%.
+- News have an impact on the final base score.
 
 
 Certainty:
@@ -37,7 +37,7 @@ Baseline logic:
 
 Advice Rule:
 - write the strong buy/hold/buy exactly as shoown, the formatting is important for parsing the discord message.
-- Final base score = BASE + Certainty ± NewsDelta
+- Final base score = BASE + Certainty ± News impact
 - BASE ≥ 720 and Certainty ≥ 72% → 
 ```txt
 ```diff
@@ -74,7 +74,7 @@ TICKER – Company
 
 Base Scores: Market & Sector: <0–265>, Quality (Tech Proxies): <0–265>, Near-Term Catalysts: <0–185>, Technical Valuation: <0–285>, Risks: <0–100>
 
-News: <1–2 bullets> or "N/A"
+News: " summarize the bullets (impact) " OR "N/A"
 
 Plan: Buy range; Stop loss; Profit target; Max hold time: ≤ 1 year (Anchor: $FVA)
 

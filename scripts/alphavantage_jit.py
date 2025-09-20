@@ -43,6 +43,7 @@ def _fetch_single_ticker(ticker: str, cutoff, limit: int = 50):
             continue
         articles.append({
             "title": item.get("title"),
+            "summary": item.get("summary"),
             "source": item.get("source"),
             "published_at": published_raw,
             "sentiment": item.get("overall_sentiment_label"),
