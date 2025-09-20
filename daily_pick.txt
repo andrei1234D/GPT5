@@ -1,10 +1,21 @@
-ELVA.TO – ELVA.TO
-Base Scores: Market & Sector: 171, Quality (Tech Proxies): 234, Near-Term Catalysts: 140, Technical Valuation: 5, Risks: 18
+COMM – COMM
+
+Base Scores: Market & Sector: 155, Quality (Tech Proxies): 195, Near-Term Catalysts: 90, Technical Valuation: 45, Risks: 22
+
 News: N/A
-Plan: Buy 6.07–6.61; Stop 5.67; Target 7.35; Max hold time: ≤ 1 year (Anchor: $6.34)
-Final base score: 635
-P/E Ratio: 243.00
-Certainty: 67%
+
+Plan: No trade — extended; wait for pullback. (Anchor: $12.91)
+
+Final base score: 570
+
+P/E Ratio: 60.93
+
+Certainty: 63%
+
 ADVICE: N/A
-Forecast image URL: https://stockscan.io/stocks/ELVA.TO/forecast
-What reduced the score: Far above FVA (>50%); EXTENDED=Yes; very expensive (PE 243, EV/EBITDA 82.76); anchor misalignment. What wasn't clear or contradictory: FUNDAMENTALS=PARTIAL; CATALYSTS=PARTIAL; VALUATION=PARTIAL; CONTINUATION_OK=No despite breakout.
+
+Forecast image URL: https://stockscan.io/stocks/COMM/forecast
+
+What reduced the score: Extended vs FVA (~21% above), weak MACD hist, negative valuation history, high P/E pressures tech valuation
+
+What wasn't clear or contradictory: Catalysts data partial; no breakout signal despite strong 60d trend
