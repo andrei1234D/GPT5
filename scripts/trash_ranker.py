@@ -528,9 +528,10 @@ class RobustRanker:
 
             score_unit = sum(weights[k] * parts[k] for k in parts)
 
-            # Final scale into -100..100
-            scr = clamp(score_unit * 35, -100, 100)
-
+            # Final scale into -100..150
+            val_boost = self._valuation_boost(feats)
+            scr = clamp(score_unit * 35, -100, 150)
+            parts["valuation_boost"] = val_boost
             return scr, parts
 
         except Exception as e:
@@ -602,6 +603,43 @@ class RobustRanker:
         if self.verbose and ranked:
             logger.info(f"[Ranker] done: kept {len(ranked)} / {len(universe)} ; leader={ranked[0][0]} score={ranked[0][3]:.2f}")
         return ranked
+    def _valuation_boost(self, feats: Dict) -> float:
+        """Apply custom PE/PEG rules to boost/punish scores."""
+        pe  = safe(feats.get("val_PE"), None)
+        peg = safe(feats.get("val_PEG"), None)
+
+        if pe is None or pe <= 0:
+            return 0.0
+
+        boost = 0.0
+
+        # --- PE rules ---
+        if pe < 10:
+            boost += 10
+        elif 10 <= pe <= 20:
+            boost += 5
+        elif pe > 30:
+            boost -= 5
+
+        # --- PEG rules ---
+        if peg is not None:
+            if peg < 1 and pe < 10:
+                boost += 40  # MASSIVE green flag
+            elif 1 <= peg < 2:
+                boost += 10  # fairly valued
+            elif 2 <= peg < 3:
+                boost -= 5   # high
+            elif peg > 3:
+                boost -= 20  # overvalued
+
+            # nuanced conditions
+            if peg > 2 and pe < 15:
+                boost += 5   # above 2 PEG but low PE is okay
+            if peg < 1.3 and pe > 30:
+                boost += 10  # low PEG + high PE okay
+            if peg > 2 and pe > 30:
+                boost -= 40  # MASSIVE red flag
+        return boost
 
 
 # --- Stratified top-N selector (5 small + 5 large with >=5 P/E present) ---
@@ -786,7 +824,12 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     for _, row in df.iterrows():
         feats = row.to_dict()
         ticker = feats.get("ticker", "")
-        name   = feats.get("name", ticker)
+        name   = feats.get("company", feats.get("name", ticker))
+        pe, yoy, peg = compute_pe_yoy_peg(ticker)
+        feats["val_PE"] = pe
+        feats["val_YoY"] = yoy
+        feats["val_PEG"] = peg
+
         universe.append((ticker, name, feats))
 
     ranked = ranker.score_universe(universe)
@@ -811,6 +854,7 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "merged_tr_score": tr_score,       # duplicate for clarity
             "probe_ok": f.get("probe_ok", False),
             "probe_lvl": f.get("probe_lvl", 0),
+            "valuation_boost": parts.get("valuation_boost", 0.0),  # <-- NEW
         }
 
         # Optionally include breakdown parts
@@ -822,6 +866,48 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     out_df.to_csv(out_path, index=False)
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df
+
+def compute_yoy_growth(ticker: str):
+    """Compute YoY net income growth from yfinance financials."""
+    try:
+        tk = yf.Ticker(ticker)
+        fin = tk.financials
+        if fin.empty or "Net Income" not in fin.index:
+            return None
+
+        net_income = fin.loc["Net Income"].dropna()
+        values = net_income.values[::-1]  # oldest → newest
+
+        if len(values) >= 2 and values[-2] != 0:
+            return (values[-1] - values[-2]) / abs(values[-2])
+    except Exception:
+        return None
+    return None
+
+def compute_pe_yoy_peg(ticker: str):
+    """Fetch PE from yfinance, compute YoY growth & PEG with custom rules."""
+    try:
+        tk = yf.Ticker(ticker)
+        info = tk.info
+
+        pe = info.get("trailingPE") or info.get("forwardPE")
+        if pe is not None and pe <= 0:
+            pe = None
+
+        yoy = compute_yoy_growth(ticker)
+
+        peg = None
+        if pe and yoy and yoy > 0:
+            peg = pe / yoy
+            if peg < 0.08:  # discard unrealistic PEG
+                peg = None
+
+        return float(pe) if pe is not None else None, \
+               float(yoy) if yoy is not None else None, \
+               float(peg) if peg is not None else None
+    except Exception:
+        return None, None, None
+
 __all__ = [
     "HardFilter",
     "RankerParams",

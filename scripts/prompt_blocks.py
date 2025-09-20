@@ -5,11 +5,11 @@ import math
 
 # Nudge GPT toward early-stage, in-motion setups (no cheap/expensive bias).
 BASELINE_HINTS = {
-    "MKT_SECTOR": 105,
-    " Quality (Tech Proxies)": 115,
-    "Near-Term Catalysts": 90,
-    "Technical Valuation": 90,
-    "RISKS": 25,
+    "MKT_SECTOR": 132,
+    " Quality (Tech Proxies)": 133,
+    "Near-Term Catalysts": 92,
+    "Technical Valuation": 193,
+    "RISKS": 50,
 }
 
 # -------- robust numeric helpers (handle numpy, Decimal, strings, NaN/inf) -------- #

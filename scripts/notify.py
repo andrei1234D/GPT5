@@ -149,7 +149,15 @@ def main():
 
         vals = valuations_map.get(t) or {}
         pe_hint = vals.get("PE")
-        fm = {k: vals.get(k) for k in ["PE", "PS", "EV_EBITDA", "EV_REV", "PEG", "FCF_YIELD"]}
+        fm = {
+    "PE": feats.get("val_PE"),
+    "PEG": feats.get("val_PEG"),
+    "YoY_Growth": feats.get("val_YoY"),
+    "PS": valuations_map.get(t, {}).get("PS"),
+    "EV_EBITDA": valuations_map.get(t, {}).get("EV_EBITDA"),
+    "EV_REV": valuations_map.get(t, {}).get("EV_REV"),
+    "FCF_YIELD": valuations_map.get(t, {}).get("FCF_YIELD"),
+}
 
         # Apply cutoff filter
         news_items = [
