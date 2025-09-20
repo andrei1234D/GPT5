@@ -1,19 +1,21 @@
-COMM – COMM
+VNP.TO – VNP.TO
 
-Base Scores: Market & Sector: 173, Quality (Tech Proxies): 197, Near-Term Catalysts: 90, Technical Valuation: 15, Risks: 2
+Base Scores: Market & Sector: 196, Quality (Tech Proxies): 147, Near-Term Catalysts: 92, Technical Valuation: 158, Risks: 38
 
-News: "ANS segment strength; shares near 52-wk highs (slightly positive)"
+News: "N/A"
 
-Plan: No trade — extended; wait for pullback. (Anchor: $13.18)
+FVA: 10.86
 
-Final base score: 545
+Final base score: 685
 
-P/E Ratio: 60.93
+Valuation: P/E=30.96, PEG=N/A, YoY Growth=N/A
 
-Certainty: 64%
+Certainty: 54%
 
 ADVICE: N/A
 
-Forecast image URL: https://stockscan.io/stocks/COMM/forecast
+Forecast image URL: https://stockscan.io/stocks/VNP.TO/forecast
 
-What reduced the score: Price > FVA by ~25%; high PE with negative valuation history; no catalyst flags; volatility/drawdown risks. What wasn't clear or contradictory: Fundamentals/catalysts only PARTIAL; no timing hints to firm up entry.
+What reduced the score: Price 40%+ above FVA anchor, elevated PE/PS with weak FCF yield, no active catalysts, mild/flat volume.
+
+What wasn't clear or contradictory: Missing PEG and YoY growth; earnings timing unclear; slight negative MACD_hist despite RSI>55.
