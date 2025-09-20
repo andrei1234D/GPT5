@@ -166,16 +166,76 @@ def main():
         today=now.strftime("%b %d"),
         blocks=blocks_text,
     )
-        # === 8b) Save blocks to logs for debugging / reuse ===
-    logs_dir = Path("logs")
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
+        # === 8) Build blocks ===
+    spy_ctx = get_spy_ctx()
+    earn_days_map = fetch_next_earnings_days(tickers_top10)
+    valuations_map = fetch_valuations_for_top(tickers_top10)
+
+    # Fetch news
     try:
-        with blocks_path.open("w", encoding="utf-8") as f:
-            f.write(blocks_text)
-        log(f"[INFO] Wrote prompt blocks to {blocks_path}")
+        news_map = get_news_sentiment_bulk(tickers_top10, limit=50)
+        log(f"[INFO] Pulled news for {len(news_map)} tickers via AlphaVantage (bulk+fallback)")
+
+        # Debug per ticker
+        for t, articles in news_map.items():
+            log(f"[DEBUG] {t}: {len(articles)} articles returned")
+            for a in articles[:2]:  # show 2 sample articles per ticker
+                log(f"[DEBUG] {t} Article: {a.get('title')} ({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})")
+
     except Exception as e:
-        log(f"[WARN] Failed to save prompt blocks: {e}")
+        log(f"[WARN] Failed to fetch bulk/per-ticker news: {e}")
+        news_map = {t: [] for t in tickers_top10}
+
+    blocks = []
+    debug_inputs = {}
+    baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
+
+    cutoff = datetime.now(UTC) - timedelta(days=7)  
+
+    for (t, name, feats, _score, _meta) in top10:
+        proxies = derive_proxies(feats, spy_ctx)
+        fund_proxy = fund_proxies_from_feats(feats)
+        cat = catalyst_severity_from_feats(feats)
+
+        earn_days = earn_days_map.get(t)
+        if earn_days is None:
+            earn_sev = 0
+        elif earn_days <= 0:
+            earn_sev = 5
+        elif earn_days <= 3:
+            earn_sev = 4
+        elif earn_days <= 7:
+            earn_sev = 3
+        elif earn_days <= 14:
+            earn_sev = 2
+        else:
+            earn_sev = 0
+
+        vals = valuations_map.get(t) or {}
+        pe_hint = vals.get("PE")
+        fm = {k: vals.get(k) for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]}
+
+        # Apply cutoff filter on the already-fetched articles
+        news_items = [
+            n for n in news_map.get(t, [])
+            if n.get("published_at") and datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
+        ]
+
+        if news_items:
+            news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})" for n in news_items[:2]]
+            news_text = "\n".join(news_lines)
+        else:
+            news_text = "N/A"
+
+        block_text, debug_dict = build_prompt_block(
+            t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
+            cat=cat, earn_sev=earn_sev, fm=fm,
+            baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
+            pe_hint=pe_hint,
+        )
+        block_text += f"\n\nNews:\n{news_text}"
+        blocks.append(block_text)
+        debug_inputs[t] = debug_dict
 
     # # === 9) GPT adjudication ===
     # try:
@@ -185,7 +245,7 @@ def main():
 
     final_text = " --- GPT call skipped in this demo --- "
     log("[INFO] GPT-5 call skipped in this demo")
-    
+
     # === 10) Save and wait until 08:00 ===
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
