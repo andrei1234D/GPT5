@@ -102,12 +102,11 @@ def main():
     tickers_top10 = [t for (t, _, _, _, _) in top10]
     log(f"[INFO] Using stratified Top-10 from stage2_merged.csv: {', '.join(tickers_top10)}")
 
-    # === 8) Fetch fundamentals and news ===
+        # === 8) Fetch fundamentals and news ===
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
     valuations_map = fetch_valuations_for_top(tickers_top10)
 
-    # Fetch news once
     try:
         news_map = get_news_sentiment_bulk(tickers_top10, limit=50)
         log(f"[INFO] Pulled news for {len(news_map)} tickers via AlphaVantage (bulk+fallback)")
@@ -115,8 +114,9 @@ def main():
         # Debug per ticker
         for t, articles in news_map.items():
             log(f"[DEBUG] {t}: {len(articles)} articles returned")
-            for a in articles[:2]:  # show up to 2 sample articles
-                log(f"[DEBUG] {t} Article: {a.get('title')} ({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})")
+            for a in articles[:2]:
+                log(f"[DEBUG] {t} Article: {a.get('title')} "
+                    f"({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})")
 
     except Exception as e:
         log(f"[WARN] Failed to fetch bulk/per-ticker news: {e}")
@@ -151,14 +151,15 @@ def main():
         pe_hint = vals.get("PE")
         fm = {k: vals.get(k) for k in ["PE", "PS", "EV_EBITDA", "EV_REV", "PEG", "FCF_YIELD"]}
 
-        # Apply cutoff filter on fetched articles
+        # Apply cutoff filter
         news_items = [
             n for n in news_map.get(t, [])
             if n.get("published_at") and
                datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
         ]
         if news_items:
-            news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})" for n in news_items[:2]]
+            news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})"
+                          for n in news_items[:2]]
             news_text = "\n".join(news_lines)
         else:
             news_text = "N/A"
@@ -178,6 +179,18 @@ def main():
         today=now.strftime("%b %d"),
         blocks=blocks_text,
     )
+
+    # === 9b) Save blocks for debugging / reuse ===
+    logs_dir = Path("logs")
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
+    try:
+        with blocks_path.open("w", encoding="utf-8") as f:
+            f.write(blocks_text)
+        log(f"[INFO] Wrote prompt blocks to {blocks_path}")
+    except Exception as e:
+        log(f"[WARN] Failed to save prompt blocks: {e}")
+
 
     # === 10) GPT adjudication ===
     try:
