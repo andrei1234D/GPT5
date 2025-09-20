@@ -1,1 +1,19 @@
- --- GPT call skipped in this demo --- 
+COMM – COMM
+
+Base Scores: Market & Sector: 173, Quality (Tech Proxies): 197, Near-Term Catalysts: 90, Technical Valuation: 15, Risks: 2
+
+News: "ANS segment strength; shares near 52-wk highs (slightly positive)"
+
+Plan: No trade — extended; wait for pullback. (Anchor: $13.18)
+
+Final base score: 545
+
+P/E Ratio: 60.93
+
+Certainty: 64%
+
+ADVICE: N/A
+
+Forecast image URL: https://stockscan.io/stocks/COMM/forecast
+
+What reduced the score: Price > FVA by ~25%; high PE with negative valuation history; no catalyst flags; volatility/drawdown risks. What wasn't clear or contradictory: Fundamentals/catalysts only PARTIAL; no timing hints to firm up entry.
