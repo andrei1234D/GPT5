@@ -142,9 +142,10 @@ def main():
         fm = {k: vals.get(k) for k in ["PE","PS","EV_EBITDA","EV_REV","PEG","FCF_YIELD"]}
 
         news_items = [
-            n for n in news_map.get(t, [])
-            if n.get("published_at") and datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S") >= cutoff
-        ]
+    n for n in news_map.get(t, [])
+    if n.get("published_at") and
+       datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
+]
         if news_items:
             news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})" for n in news_items[:2]]
             news_text = "\n".join(news_lines)
@@ -217,9 +218,10 @@ def main():
 
         # Apply cutoff filter on the already-fetched articles
         news_items = [
-            n for n in news_map.get(t, [])
-            if n.get("published_at") and datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
-        ]
+    n for n in news_map.get(t, [])
+    if n.get("published_at") and
+       datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
+]
 
         if news_items:
             news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})" for n in news_items[:2]]
