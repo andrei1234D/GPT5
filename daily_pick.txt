@@ -1,21 +1,14 @@
-VNP.TO – VNP.TO
+METC – METC
 
-Base Scores: Market & Sector: 196, Quality (Tech Proxies): 147, Near-Term Catalysts: 92, Technical Valuation: 158, Risks: 38
-
+Base Scores: Market & Sector: 210, Quality (Tech Proxies): 188, Near-Term Catalysts: 92, Technical Valuation: 151, Risks: 0
 News: "N/A"
-
-FVA: 10.86
-
-Final base score: 685
-
-Valuation: P/E=30.96, PEG=N/A, YoY Growth=N/A
-
-Certainty: 54%
-
-ADVICE: N/A
-
-Forecast image URL: https://stockscan.io/stocks/VNP.TO/forecast
-
-What reduced the score: Price 40%+ above FVA anchor, elevated PE/PS with weak FCF yield, no active catalysts, mild/flat volume.
-
-What wasn't clear or contradictory: Missing PEG and YoY growth; earnings timing unclear; slight negative MACD_hist despite RSI>55.
+FVA: 21.84
+Final base score: 705
+Valuation: P/E=14.84, PEG=N/A, YoY Growth=N/A
+Certainty: 64%
+ADVICE: ```arm
+Hold
+```
+Forecast image URL: https://stockscan.io/stocks/METC/forecast
+What reduced the score: 49% above FVA (extended), high volatility, no catalyst signal, valuation history negative, missing PEG/YoY data
+What wasn't clear or contradictory: Growth rate and PEG unknown; catalyst timing unspecified; FCF trend proxy negative despite low P/E
