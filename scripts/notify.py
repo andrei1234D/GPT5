@@ -239,14 +239,12 @@ def main():
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 
-    # # === 9) GPT adjudication ===
-    # try:
-    #     final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
-    # except Exception as e:
-    #     return fail(f"GPT-5 failed: {repr(e)}")
+        # === 9) GPT adjudication ===
+        try:
+            final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
+        except Exception as e:
+            return fail(f"GPT-5 failed: {repr(e)}")
 
-    final_text = " --- GPT call skipped in this demo --- "
-    log("[INFO] GPT-5 call skipped in this demo")
 
     # === 10) Save and wait until 08:00 ===
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
