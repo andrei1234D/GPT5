@@ -103,6 +103,7 @@ def get_news_sentiment_bulk(tickers: list[str], days: int = 7, limit: int = 50):
                 if sym in results:
                     results[sym].append({
                         "title": item.get("title"),
+                        "summary": item.get("summary"),
                         "source": item.get("source"),
                         "published_at": published_raw,
                         "sentiment": item.get("overall_sentiment_label"),
