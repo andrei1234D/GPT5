@@ -83,7 +83,7 @@ def main():
     ranked = []
     for _, row in df.iterrows():
         t = row["ticker"]
-        n = row.get("name", t)
+        n = row.get("company", t)
 
         f = feats_map.get(t, {}).get("features", {}) or {}
         f.update(row.to_dict())  # overlay merged CSV info
@@ -150,7 +150,6 @@ def main():
         vals = valuations_map.get(t) or {}
         pe_hint = vals.get("PE")
         fm = {
-    "PE": feats.get("val_PE"),
     "PEG": feats.get("val_PEG"),
     "YoY_Growth": feats.get("val_YoY"),
     "PS": valuations_map.get(t, {}).get("PS"),

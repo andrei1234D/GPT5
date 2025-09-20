@@ -1,5 +1,6 @@
 # scripts/trash_ranker.py
 from __future__ import annotations
+import yfinance as yf
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
 import math
@@ -873,16 +874,22 @@ def compute_yoy_growth(ticker: str):
         tk = yf.Ticker(ticker)
         fin = tk.financials
         if fin.empty or "Net Income" not in fin.index:
+            logger.debug(f"[YoY] {ticker}: No Net Income data")
             return None
 
         net_income = fin.loc["Net Income"].dropna()
         values = net_income.values[::-1]  # oldest → newest
 
         if len(values) >= 2 and values[-2] != 0:
-            return (values[-1] - values[-2]) / abs(values[-2])
-    except Exception:
-        return None
+            yoy = (values[-1] - values[-2]) / abs(values[-2])
+            logger.debug(f"[YoY] {ticker}: {yoy:.2f}")
+            return yoy
+        else:
+            logger.debug(f"[YoY] {ticker}: Not enough history")
+    except Exception as e:
+        logger.warning(f"[YoY] {ticker} error: {e}")
     return None
+
 
 def compute_pe_yoy_peg(ticker: str):
     """Fetch PE from yfinance, compute YoY growth & PEG with custom rules."""
@@ -895,19 +902,20 @@ def compute_pe_yoy_peg(ticker: str):
             pe = None
 
         yoy = compute_yoy_growth(ticker)
-
         peg = None
+
         if pe and yoy and yoy > 0:
             peg = pe / yoy
             if peg < 0.08:  # discard unrealistic PEG
                 peg = None
 
+        logger.debug(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
         return float(pe) if pe is not None else None, \
                float(yoy) if yoy is not None else None, \
                float(peg) if peg is not None else None
-    except Exception:
+    except Exception as e:
+        logger.warning(f"[PE/PEG] {ticker} error: {e}")
         return None, None, None
-
 __all__ = [
     "HardFilter",
     "RankerParams",
