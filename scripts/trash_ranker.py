@@ -830,9 +830,8 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         feats["val_PE"] = pe
         feats["val_YoY"] = yoy
         feats["val_PEG"] = peg
-
+        print(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
         universe.append((ticker, name, feats))
-
     ranked = ranker.score_universe(universe)
 
     # Build DataFrame
@@ -856,7 +855,10 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "probe_ok": f.get("probe_ok", False),
             "probe_lvl": f.get("probe_lvl", 0),
             "valuation_boost": parts.get("valuation_boost", 0.0),  # <-- NEW
-        }
+            "val_PE": f.get("val_PE"),
+            "val_YoY": f.get("val_YoY"),
+            "val_PEG": f.get("val_PEG"),
+                }
 
         # Optionally include breakdown parts
         row.update({f"tr_{k}": v for k, v in parts.items()})
@@ -898,6 +900,12 @@ def compute_pe_yoy_peg(ticker: str):
         info = tk.info
 
         pe = info.get("trailingPE") or info.get("forwardPE")
+        try:
+            pe = float(pe) if pe is not None else None
+        except Exception:
+            logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}")
+            pe = None
+
         if pe is not None and pe <= 0:
             pe = None
 
@@ -910,12 +918,11 @@ def compute_pe_yoy_peg(ticker: str):
                 peg = None
 
         logger.debug(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
-        return float(pe) if pe is not None else None, \
-               float(yoy) if yoy is not None else None, \
-               float(peg) if peg is not None else None
+        return pe, yoy, peg
     except Exception as e:
         logger.warning(f"[PE/PEG] {ticker} error: {e}")
         return None, None, None
+
 __all__ = [
     "HardFilter",
     "RankerParams",
