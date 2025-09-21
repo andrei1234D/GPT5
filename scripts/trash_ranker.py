@@ -854,7 +854,7 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "merged_tr_score": tr_score,       # duplicate for clarity
             "probe_ok": f.get("probe_ok", False),
             "probe_lvl": f.get("probe_lvl", 0),
-            "valuation_boost": parts.get("valuation_boost", 0.0),  # <-- NEW
+            "valuation_boost": parts.get("valuation_boost", 0.0),
             "val_PE": f.get("val_PE"),
             "val_YoY": f.get("val_YoY"),
             "val_PEG": f.get("val_PEG"),
@@ -873,40 +873,53 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
 def compute_yoy_growth(ticker: str):
     """Compute YoY net income growth from yfinance financials."""
     try:
+        logger.debug(f"[YoY] {ticker}: Fetching financials…")
         tk = yf.Ticker(ticker)
         fin = tk.financials
-        if fin.empty or "Net Income" not in fin.index:
-            logger.debug(f"[YoY] {ticker}: No Net Income data")
+
+        if fin.empty:
+            logger.debug(f"[YoY] {ticker}: financials empty")
+            return None
+        if "Net Income" not in fin.index:
+            logger.debug(f"[YoY] {ticker}: Net Income missing in financials index")
             return None
 
         net_income = fin.loc["Net Income"].dropna()
+        logger.debug(f"[YoY] {ticker}: Net Income values (newest first) = {net_income.values}")
+
         values = net_income.values[::-1]  # oldest → newest
+        logger.debug(f"[YoY] {ticker}: Net Income values (chronological) = {values}")
 
         if len(values) >= 2 and values[-2] != 0:
             yoy = (values[-1] - values[-2]) / abs(values[-2])
-            logger.debug(f"[YoY] {ticker}: {yoy:.2f}")
+            logger.info(f"[YoY] {ticker}: Computed YoY growth = {yoy:.4f}")
             return yoy
         else:
-            logger.debug(f"[YoY] {ticker}: Not enough history")
+            logger.debug(f"[YoY] {ticker}: Not enough history or prior year = 0")
     except Exception as e:
-        logger.warning(f"[YoY] {ticker} error: {e}")
+        logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
     return None
 
 
 def compute_pe_yoy_peg(ticker: str):
     """Fetch PE from yfinance, compute YoY growth & PEG with custom rules."""
     try:
+        logger.debug(f"[PE/PEG] {ticker}: Fetching ticker info…")
         tk = yf.Ticker(ticker)
         info = tk.info
+        logger.debug(f"[PE/PEG] {ticker}: info keys = {list(info.keys())}")
 
         pe = info.get("trailingPE") or info.get("forwardPE")
+        logger.debug(f"[PE/PEG] {ticker}: raw PE = {pe}")
+
         try:
             pe = float(pe) if pe is not None else None
         except Exception:
-            logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}")
+            logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}", exc_info=True)
             pe = None
 
         if pe is not None and pe <= 0:
+            logger.debug(f"[PE/PEG] {ticker}: Discarding non-positive PE {pe}")
             pe = None
 
         yoy = compute_yoy_growth(ticker)
@@ -914,13 +927,15 @@ def compute_pe_yoy_peg(ticker: str):
 
         if pe and yoy and yoy > 0:
             peg = pe / yoy
+            logger.debug(f"[PE/PEG] {ticker}: Raw PEG = {peg}")
             if peg < 0.08:  # discard unrealistic PEG
+                logger.debug(f"[PE/PEG] {ticker}: Discarding unrealistic PEG {peg}")
                 peg = None
 
-        logger.debug(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
+        logger.info(f"[PE/PEG] {ticker}: Final values -> PE={pe}, YoY={yoy}, PEG={peg}")
         return pe, yoy, peg
     except Exception as e:
-        logger.warning(f"[PE/PEG] {ticker} error: {e}")
+        logger.warning(f"[PE/PEG] {ticker} error: {e}", exc_info=True)
         return None, None, None
 
 __all__ = [
