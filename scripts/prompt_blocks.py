@@ -287,15 +287,16 @@ def build_prompt_block(
 
     # --- Valuation fields line (labels must remain unchanged) ---
     val_fields = (
-        "VALUATION_FIELDS: "
-        f"PE={_fmt_num(fm.get('PE'))}; "
-        f"PE_SECTOR=N/A; "
-        f"EV_EBITDA={_fmt_num(fm.get('EV_EBITDA'))}; "
-        f"EV_REV={_fmt_num(fm.get('EV_REV'))}; "
-        f"PS={_fmt_num(fm.get('PS'))}; "
-        f"FCF_YIELD={_fmt_pct(fm.get('FCF_YIELD'))}; "
-        f"PEG={_fmt_num(fm.get('PEG'))}"
-    )
+    "VALUATION_FIELDS: "
+    f"PE={_fmt_num(fm.get('PE'))}; "
+    f"YoY_Growth={_fmt_pct(fm.get('YoY_Growth'))}; "
+    f"PE_SECTOR=N/A; "
+    f"EV_EBITDA={_fmt_num(fm.get('EV_EBITDA'))}; "
+    f"EV_REV={_fmt_num(fm.get('EV_REV'))}; "
+    f"PS={_fmt_num(fm.get('PS'))}; "
+    f"FCF_YIELD={_fmt_pct(fm.get('FCF_YIELD'))}; "
+    f"PEG={_fmt_num(fm.get('PEG'))}"
+)
 
     def sgn(k: int) -> str:
         return ("+" + str(k)) if k > 0 else ("-" + str(abs(k)) if k < 0 else "0")
@@ -392,16 +393,17 @@ def build_prompt_block(
     }
 
     val_fields_dict = {
-        "PE": fm.get("PE"),
-        "PE_SECTOR": None,
-        "EV_EBITDA": fm.get("EV_EBITDA"),
-        "EV_REV": fm.get("EV_REV"),
-        "PS": fm.get("PS"),
-        "FCF_YIELD_pct": fm.get("FCF_YIELD"),
-        "PEG": fm.get("PEG"),
-        "VAL_FIELDS_PRESENT_COUNT": val_present_ct,
-        "PE_PRESENT_BOOL": (fm.get("PE") is not None and fm.get("PE") > 0),
-    }
+    "PE": fm.get("PE"),
+    "PE_SECTOR": None,
+    "EV_EBITDA": fm.get("EV_EBITDA"),
+    "EV_REV": fm.get("EV_REV"),
+    "PS": fm.get("PS"),
+    "FCF_YIELD_pct": fm.get("FCF_YIELD"),
+    "PEG": fm.get("PEG"),
+    "YoY_Growth": fm.get("YoY_Growth"),
+    "VAL_FIELDS_PRESENT_COUNT": val_present_ct,
+    "PE_PRESENT_BOOL": (fm.get("PE") is not None and fm.get("PE") > 0),
+}
     indicators_dict = {
         "vsSMA20_pct": feats.get("vsSMA20"),
         "vsSMA50_pct": feats.get("vsSMA50"),
@@ -487,5 +489,5 @@ def build_prompt_block(
 
         "PROMPT_BLOCK": block_text,
     }
-
+    print(f"[DEBUG VALS] {t}: PE={fm.get('PE')}, YoY={fm.get('YoY_Growth')}, PEG={fm.get('PEG')}")
     return block_text, debug_dict
