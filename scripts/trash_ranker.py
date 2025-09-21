@@ -714,14 +714,13 @@ def pick_top_stratified(
     picked = pick_small + pick_large
     picked_ids = {r[0] for r in picked}  # ticker set
 
-    # Helpers
     def pool_not_picked():
         return [r for r in ranked if r[0] not in picked_ids]
 
     def count_pe(rows):
         return sum(1 for r in rows if _has_pe(r))
 
-    # Fill the rest, biasing toward meeting pe_min
+    # Fill the rest
     while len(picked) < total:
         remaining = pool_not_picked()
         if not remaining:
@@ -733,11 +732,10 @@ def pick_top_stratified(
                 picked.append(next_with_pe)
                 picked_ids.add(next_with_pe[0])
                 continue
-        nxt = remaining[0]
-        picked.append(nxt)
-        picked_ids.add(nxt[0])
+        picked.append(remaining[0])
+        picked_ids.add(remaining[0][0])
 
-    # Improve PE coverage with swaps while honoring tier quotas
+    # Improve PE coverage
     pe_have = count_pe(picked)
     if pe_have < pe_min:
         insertables = [r for r in ranked if (r[0] not in picked_ids) and _has_pe(r)]
@@ -768,8 +766,15 @@ def pick_top_stratified(
             if not removed_any:
                 continue
 
-    # Always rank by merged_score from feats
-    picked.sort(key=lambda x: x[2].get("_merged_score", x[3]), reverse=True)
+    # ✅ Always rank by merged_final_score if available, else fallback
+    picked.sort(
+        key=lambda x: (
+            x[2].get("merged_final_score")  # new preferred field
+            or x[2].get("_merged_score")    # fallback to TR merge
+            or x[3]                         # fallback to score
+        ),
+        reverse=True,
+    )
     return picked[:total]
 
 import pandas as pd
@@ -815,13 +820,7 @@ def normalize_qs(qs_score: float) -> float:
 
 
 def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.csv"):
-    """
-    Load stage1_kept.csv (QS final_score),
-    run TR composite scoring, merge results,
-    and save merged CSV.
-    """
     df = pd.read_csv(stage1_path)
-
     ranker = RobustRanker()
 
     universe = []
@@ -835,40 +834,39 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         feats["val_PEG"] = peg
         print(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
         universe.append((ticker, name, feats))
+
     ranked = ranker.score_universe(universe)
 
-    # Build DataFrame
     rows = []
     for t, n, f, tr_score, parts in ranked:
-        qs_score = f.get("final_score", None)  # from QS
-        if qs_score is None:
-            qs_score = 0.0
+        qs_score = f.get("final_score", 0.0)
 
-        # Merge scores
         merged_score, merged_parts = merge_tr_qs(tr_score, parts, qs_score)
 
         row = {
             "ticker": t,
             "name": n,
-            "qs_score": qs_score,              # raw QS score from Stage-1
-            "tr_score": tr_score,              # raw TR score
-            "merged_score": merged_score,      # final weighted blend
-            "merged_qs_score": qs_score,       # duplicate for clarity
-            "merged_tr_score": tr_score,       # duplicate for clarity
+            "qs_score": qs_score,
+            "tr_score": tr_score,
+            "merged_score": merged_score,
+            "merged_qs_score": qs_score,
+            "merged_tr_score": tr_score,
             "probe_ok": f.get("probe_ok", False),
             "probe_lvl": f.get("probe_lvl", 0),
             "valuation_boost": parts.get("valuation_boost", 0.0),
             "val_PE": f.get("val_PE"),
             "val_YoY": f.get("val_YoY"),
             "val_PEG": f.get("val_PEG"),
-                }
-
-        # Optionally include breakdown parts
+        }
+        row["val_PEG"] = float(peg) if peg is not None and math.isfinite(peg) else None
         row.update({f"tr_{k}": v for k, v in parts.items()})
         row.update({f"merged_{k}": v for k, v in merged_parts.items()})
         rows.append(row)
 
     out_df = pd.DataFrame(rows)
+    out_df["merged_final_score"] = (
+        out_df["merged_score"] + out_df.get("valuation_boost", 0)
+    )
     out_df.to_csv(out_path, index=False)
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df

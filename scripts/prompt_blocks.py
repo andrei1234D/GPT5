@@ -226,6 +226,11 @@ def build_prompt_block(
     proxies = dict(proxies or {})
     cat = dict(cat or {})
 
+
+    fm["PE"]  = feats.get("val_PE")   if feats.get("val_PE")  is not None else fm.get("PE")
+    fm["PEG"] = feats.get("val_PEG")  if feats.get("val_PEG") is not None else fm.get("PEG")
+    fm["YoY_Growth"] = feats.get("val_YoY")  # ensure YoY is always carried
+
     # ---- Fill valuation fields from feats[...] if missing in fm ----
     def _pick(key: str, feat_key: str):
         if fm.get(key) is None:
@@ -329,7 +334,6 @@ def build_prompt_block(
         "vsEMA200: {vsem200}\n"
         "EMA50_slope_5d%: {ema50s}\n"
         "{val_fields}\n"
-        "DATA_AVAILABILITY: {funds_avail}; {cats_avail}; {vals_avail}\n"
         "BASELINE_HINTS: {baselines}\n"
         "PROXIES: MARKET_TREND={mt}; REL_STRENGTH={rs}; BREADTH_VOLUME={bv}; VALUATION_HISTORY={vh}; RISK_VOLATILITY={rv}; RISK_DRAWDOWN={rd}\n"
         "PROXIES_FUNDAMENTALS: GROWTH_TECH={gt}; MARGIN_TREND_TECH={mtf}; FCF_TREND_TECH={ft}; OP_EFF_TREND_TECH={ot}\n"

@@ -74,12 +74,15 @@ def main():
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    df = df.sort_values("merged_score", ascending=False).reset_index(drop=True)
-
+    if "merged_final_score" in df.columns:
+        df = df.sort_values("merged_final_score", ascending=False).reset_index(drop=True)
+    else:
+        df = df.sort_values("merged_score", ascending=False).reset_index(drop=True)
     # Build ranked list from merged
     universe = [(t, "") for t in df["ticker"]]
     feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
-
+    print("[DEBUG] First 5 rows from CSV:")
+    print(df[["ticker", "val_PE", "val_YoY", "val_PEG"]].head())
     ranked = []
     for _, row in df.iterrows():
         t = row["ticker"]
@@ -87,10 +90,11 @@ def main():
 
         f = feats_map.get(t, {}).get("features", {}) or {}
         f.update(row.to_dict())  # overlay merged CSV info
+        print(f"[DEBUG] {t} -> val_PE={f.get('val_PE')}, val_YoY={f.get('val_YoY')}, val_PEG={f.get('val_PEG')}")
 
         s = row.get("merged_score", 0.0)
         ranked.append((t, n, f, s, {}))
-
+    
     # === 7) Pick stratified Top-10 ===
     top10 = pick_top_stratified(
         ranked,
@@ -152,11 +156,13 @@ def main():
         fm = {
     "PEG": feats.get("val_PEG"),
     "YoY_Growth": feats.get("val_YoY"),
+    "PE": feats.get("val_PE"),
     "PS": valuations_map.get(t, {}).get("PS"),
     "EV_EBITDA": valuations_map.get(t, {}).get("EV_EBITDA"),
     "EV_REV": valuations_map.get(t, {}).get("EV_REV"),
     "FCF_YIELD": valuations_map.get(t, {}).get("FCF_YIELD"),
 }
+
 
         # Apply cutoff filter
         news_items = [
