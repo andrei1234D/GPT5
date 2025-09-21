@@ -1,23 +1,23 @@
 COMM – COMM
 
-Base Scores: Market & Sector: 210, Quality (Tech Proxies): 172, Near-Term Catalysts: 92, Technical Valuation: 140, Risks: 31
+Base Scores: Market & Sector: 200, Quality (Tech Proxies): 178, Near-Term Catalysts: 92, Technical Valuation: 168, Risks: 23
 
-News: "ANS segment strength; near 52-week highs coverage (Somewhat-Bullish)"
+News: "ANS strength; stock near 52W highs — supportive tone (+)"
 
-FVA: $10.00
+FVA: 10.53 | Buy 10.26–10.81; Stop 9.83; Target 11.58; Max hold time: ≤ 1 year (Anchor: $10.53)
 
-Final base score: 710
+Final base score: 727
 
-Valuation: P/E=60.93, PEG=N/A, YoY Growth=N/A
+Valuation: P/E=60.93, PEG=77.06, YoY Growth=N/A
 
-Certainty: 59%
+Certainty: 60%
 
-ADVICE: ```arm
+```arm
 Hold
 ```
 
 Forecast image URL: https://stockscan.io/stocks/COMM/forecast
 
-What reduced the score: 56% above FVA anchor (overextended vs anchor), high P/E without growth data, weak valuation history proxy, no explicit near-term catalysts.
+What reduced the score: >40% above FVA anchor; no catalyst proxies; high P/E; negative valuation-history proxy; elevated risk (vol/drawdown); MACD_hist < 0.
 
-What wasn't clear or contradictory: Missing PEG and YoY Growth; fundamentals partial; catalyst timing not provided beyond proxies.
+What wasn't clear or contradictory: YoY growth missing (PEG unusable); mixed valuation signals (low PS/strong FCF vs high P/E); volume spike vs soft momentum histogram.
