@@ -1,12 +1,15 @@
 # scripts/trash_ranker.py
 from __future__ import annotations
 import yfinance as yf
+from yfinance.exceptions import YFRateLimitError
+import time, random
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
 import math
 import os
 import logging
 import numpy as np
+
 
 """
 New/updated ENV knobs (★ = new here, aligned with quick_scorer):
@@ -870,73 +873,91 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df
 
-def compute_yoy_growth(ticker: str):
-    """Compute YoY net income growth from yfinance financials."""
-    try:
-        logger.debug(f"[YoY] {ticker}: Fetching financials…")
-        tk = yf.Ticker(ticker)
-        fin = tk.financials
+def compute_yoy_growth(ticker: str, retries: int = 3):
+    """Compute YoY net income growth from yfinance financials with retry/backoff."""
+    for attempt in range(retries):
+        try:
+            logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt+1})…")
+            tk = yf.Ticker(ticker)
+            fin = tk.financials
 
-        if fin.empty:
-            logger.debug(f"[YoY] {ticker}: financials empty")
+            if fin.empty:
+                logger.debug(f"[YoY] {ticker}: financials empty")
+                return None
+            if "Net Income" not in fin.index:
+                logger.debug(f"[YoY] {ticker}: Net Income missing in financials index")
+                return None
+
+            net_income = fin.loc["Net Income"].dropna()
+            logger.debug(f"[YoY] {ticker}: Net Income values (newest first) = {net_income.values}")
+
+            values = net_income.values[::-1]  # oldest → newest
+            logger.debug(f"[YoY] {ticker}: Net Income values (chronological) = {values}")
+
+            if len(values) >= 2 and values[-2] != 0:
+                yoy = (values[-1] - values[-2]) / abs(values[-2])
+                logger.info(f"[YoY] {ticker}: Computed YoY growth = {yoy:.4f}")
+                return yoy
+            else:
+                logger.debug(f"[YoY] {ticker}: Not enough history or prior year = 0")
+                return None
+
+        except YFRateLimitError:
+            wait = 60 * (attempt + 1) + random.uniform(1, 5)
+            logger.warning(f"[YoY] {ticker}: Rate limited, sleeping {wait:.1f}s before retry…")
+            time.sleep(wait)
+        except Exception as e:
+            logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
             return None
-        if "Net Income" not in fin.index:
-            logger.debug(f"[YoY] {ticker}: Net Income missing in financials index")
-            return None
-
-        net_income = fin.loc["Net Income"].dropna()
-        logger.debug(f"[YoY] {ticker}: Net Income values (newest first) = {net_income.values}")
-
-        values = net_income.values[::-1]  # oldest → newest
-        logger.debug(f"[YoY] {ticker}: Net Income values (chronological) = {values}")
-
-        if len(values) >= 2 and values[-2] != 0:
-            yoy = (values[-1] - values[-2]) / abs(values[-2])
-            logger.info(f"[YoY] {ticker}: Computed YoY growth = {yoy:.4f}")
-            return yoy
-        else:
-            logger.debug(f"[YoY] {ticker}: Not enough history or prior year = 0")
-    except Exception as e:
-        logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
     return None
 
 
 def compute_pe_yoy_peg(ticker: str):
     """Fetch PE from yfinance, compute YoY growth & PEG with custom rules."""
-    try:
-        logger.debug(f"[PE/PEG] {ticker}: Fetching ticker info…")
-        tk = yf.Ticker(ticker)
-        info = tk.info
-        logger.debug(f"[PE/PEG] {ticker}: info keys = {list(info.keys())}")
-
-        pe = info.get("trailingPE") or info.get("forwardPE")
-        logger.debug(f"[PE/PEG] {ticker}: raw PE = {pe}")
-
+    tries = 0
+    while tries < 3:  # up to 3 retries
         try:
-            pe = float(pe) if pe is not None else None
-        except Exception:
-            logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}", exc_info=True)
-            pe = None
+            logger.debug(f"[PE/PEG] {ticker}: Fetching ticker info…")
+            tk = yf.Ticker(ticker)
+            info = tk.info
+            logger.debug(f"[PE/PEG] {ticker}: info keys = {list(info.keys())}")
 
-        if pe is not None and pe <= 0:
-            logger.debug(f"[PE/PEG] {ticker}: Discarding non-positive PE {pe}")
-            pe = None
+            pe = info.get("trailingPE") or info.get("forwardPE")
+            logger.debug(f"[PE/PEG] {ticker}: raw PE = {pe}")
 
-        yoy = compute_yoy_growth(ticker)
-        peg = None
+            try:
+                pe = float(pe) if pe is not None else None
+            except Exception:
+                logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}", exc_info=True)
+                pe = None
 
-        if pe and yoy and yoy > 0:
-            peg = pe / yoy
-            logger.debug(f"[PE/PEG] {ticker}: Raw PEG = {peg}")
-            if peg < 0.08:  # discard unrealistic PEG
-                logger.debug(f"[PE/PEG] {ticker}: Discarding unrealistic PEG {peg}")
-                peg = None
+            if pe is not None and pe <= 0:
+                logger.debug(f"[PE/PEG] {ticker}: Discarding non-positive PE {pe}")
+                pe = None
 
-        logger.info(f"[PE/PEG] {ticker}: Final values -> PE={pe}, YoY={yoy}, PEG={peg}")
-        return pe, yoy, peg
-    except Exception as e:
-        logger.warning(f"[PE/PEG] {ticker} error: {e}", exc_info=True)
-        return None, None, None
+            yoy = compute_yoy_growth(ticker)
+            peg = None
+
+            if pe and yoy and yoy > 0:
+                peg = pe / yoy
+                logger.debug(f"[PE/PEG] {ticker}: Raw PEG = {peg}")
+                if peg < 0.08:  # discard unrealistic PEG
+                    logger.debug(f"[PE/PEG] {ticker}: Discarding unrealistic PEG {peg}")
+                    peg = None
+
+            logger.info(f"[PE/PEG] {ticker}: Final values -> PE={pe}, YoY={yoy}, PEG={peg}")
+            return pe, yoy, peg
+
+        except Exception as e:
+            tries += 1
+            wait = random.choice([3, 5, 7])
+            logger.warning(f"[PE/PEG] {ticker} error on try {tries}: {e}. Retrying in {wait}s…", exc_info=True)
+            time.sleep(wait)
+
+    logger.error(f"[PE/PEG] {ticker}: Failed after {tries} retries")
+    return None, None, None
+
+
 
 __all__ = [
     "HardFilter",
