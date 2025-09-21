@@ -1,14 +1,23 @@
-METC – METC
+COMM – COMM
 
-Base Scores: Market & Sector: 210, Quality (Tech Proxies): 188, Near-Term Catalysts: 92, Technical Valuation: 151, Risks: 0
-News: "N/A"
-FVA: 21.84
-Final base score: 705
-Valuation: P/E=14.84, PEG=N/A, YoY Growth=N/A
-Certainty: 64%
-ADVICE: ```arm
+Base Scores: Market & Sector: 171, Quality (Tech Proxies): 143, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 20
+
+News: "ANS segment strength; near 52-week highs with upside chatter (modestly bullish)"
+
+FVA: 10.53
+
+Final base score: 701
+
+Valuation: P/E=60.93, PEG=N/A, YoY Growth=N/A
+
+Certainty: 66%
+
+```arm
 Hold
 ```
-Forecast image URL: https://stockscan.io/stocks/METC/forecast
-What reduced the score: 49% above FVA (extended), high volatility, no catalyst signal, valuation history negative, missing PEG/YoY data
-What wasn't clear or contradictory: Growth rate and PEG unknown; catalyst timing unspecified; FCF trend proxy negative despite low P/E
+
+Forecast image URL: https://stockscan.io/stocks/COMM/forecast
+
+What reduced the score: 56% above FVA anchor; high PE; no explicit breakout catalyst; partial fundamentals
+
+What wasn't clear or contradictory: No PEG/YoY growth data to align with PE; mixed valuation signals vs strong FCF yield; breadth/volume strength vs anchor extension
