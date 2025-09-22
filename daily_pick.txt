@@ -1,21 +1,21 @@
-METC – METC
+CPS – CPS
 
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 217, Near-Term Catalysts: 92, Technical Valuation: 188, Risks: 90
+Base Scores: Market & Sector: 196, Quality (Tech Proxies): 156, Near-Term Catalysts: 92, Technical Valuation: 208, Risks: 17
 
 News: "N/A"
 
-FVA: $21.43
+FVA: 25.04 | Buy 24.23–25.85; Stop 23.00; Target 28.10; Max hold time: ≤ 1 year (Anchor: $25.04)
 
-Final base score: 627
+Final base score: 732
 
-Valuation: P/E=14.84, PEG=N/A, YoY Growth=N/A
+Valuation: P/E=22.47, PEG=36.82, YoY Growth=0.61%
 
-Certainty: 64%
+Certainty: 63%
 
-ADVICE: ```arm Hold```
+ADVICE: [Buy]
 
-Forecast image URL: https://stockscan.io/stocks/METC/forecast
+Forecast image URL: https://stockscan.io/stocks/CPS/forecast
 
-What reduced the score: Extended >40% above FVA anchor, high risk (ATR/volatility), negative valuation history, FCF trend weak, missing YoY growth.
+What reduced the score: 52% above FVA anchor; no active breakout catalyst; MACD_hist negative; valuation history negative; elevated risk/volatility vs anchor.
 
-What wasn't clear or contradictory: No explicit YoY Growth/PEG; no clear near-term catalysts; anchor far below price limits conviction.
+What wasn't clear or contradictory: PEG extremely high despite fair P/E and cheap EV/REV; sector relative valuation (PE_SECTOR) missing.
