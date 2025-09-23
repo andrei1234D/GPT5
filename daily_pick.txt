@@ -1,13 +1,12 @@
-APM.TO – APM.TO
-Base Scores: Market & Sector: 187, Quality (Tech Proxies): 157, Near-Term Catalysts: 145, Technical Valuation: 128, Risks: 31
-News: "N/A"
-FVA: $4.05
-Final base score: 714
-Valuation: P/E=18.32, PEG=N/A, YoY Growth=-0.54%
-Certainty: 66%
-ADVICE: ```arm
-Hold
-```
-Forecast image URL: https://stockscan.io/stocks/APM.TO/forecast
-What reduced the score: Far above FVA (~71%), extended, negative YoY growth, elevated ATR, partial fundamentals; valuation history mixed.
-What wasn't clear or contradictory: PEG missing; no SMA200; limited catalyst visibility beyond today; FVA vs strong momentum conflict.
+W – W
+
+Base Scores: Market & Sector: 170, Quality (Tech Proxies): 156, Near-Term Catalysts: 100, Technical Valuation: 183, Risks: 19
+News: "Retail momentum comps mention; ecommerce ops scaling via Sellercloud integration (Somewhat-Bullish)"
+FVA: 61.12 Buy 59.12–63.12; Stop 56.13; Target 68.60; Max hold time: ≤ 1 year (Anchor: $61.12)
+Final base score: 692
+Valuation: P/E=101.91, PEG=106.94, YoY Growth=N/A
+Certainty: 62%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/W/forecast
+What reduced the score: 36.8% above FVA; low volume; MACD<0; high P/E; no explicit breakout trigger
+What wasn't clear or contradictory: Official P/E missing vs PE_HINT provided; PEG appears placeholder; news not company-specific
