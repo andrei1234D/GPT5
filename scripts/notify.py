@@ -158,9 +158,9 @@ def main():
         vals = valuations_map.get(t) or {}
         pe_hint = vals.get("PE")
         fm = {
-    "PEG": feats.get("val_PEG"),
-    "YoY_Growth": feats.get("val_YoY"),
-    "PE": feats.get("val_PE"),
+    "PEG": row.get("val_PEG"),
+    "YoY_Growth": row.get("val_YoY"),
+    "PE": row.get("val_PE"),
     "PS": valuations_map.get(t, {}).get("PS"),
     "EV_EBITDA": valuations_map.get(t, {}).get("EV_EBITDA"),
     "EV_REV": valuations_map.get(t, {}).get("EV_REV"),
