@@ -71,6 +71,10 @@ def main():
         return fail(f"{path} not found")
 
     df = pd.read_csv(path)
+
+    # Ensure NaN values don’t nuke PEG/PE/YoY when converted later
+    df = df.where(pd.notnull(df), None)
+
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
