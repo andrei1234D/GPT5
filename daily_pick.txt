@@ -1,21 +1,13 @@
-CPS – CPS
-
-Base Scores: Market & Sector: 196, Quality (Tech Proxies): 156, Near-Term Catalysts: 92, Technical Valuation: 208, Risks: 17
-
+APM.TO – APM.TO
+Base Scores: Market & Sector: 187, Quality (Tech Proxies): 157, Near-Term Catalysts: 145, Technical Valuation: 128, Risks: 31
 News: "N/A"
-
-FVA: 25.04 | Buy 24.23–25.85; Stop 23.00; Target 28.10; Max hold time: ≤ 1 year (Anchor: $25.04)
-
-Final base score: 732
-
-Valuation: P/E=22.47, PEG=36.82, YoY Growth=0.61%
-
-Certainty: 63%
-
-ADVICE: [Buy]
-
-Forecast image URL: https://stockscan.io/stocks/CPS/forecast
-
-What reduced the score: 52% above FVA anchor; no active breakout catalyst; MACD_hist negative; valuation history negative; elevated risk/volatility vs anchor.
-
-What wasn't clear or contradictory: PEG extremely high despite fair P/E and cheap EV/REV; sector relative valuation (PE_SECTOR) missing.
+FVA: $4.05
+Final base score: 714
+Valuation: P/E=18.32, PEG=N/A, YoY Growth=-0.54%
+Certainty: 66%
+ADVICE: ```arm
+Hold
+```
+Forecast image URL: https://stockscan.io/stocks/APM.TO/forecast
+What reduced the score: Far above FVA (~71%), extended, negative YoY growth, elevated ATR, partial fundamentals; valuation history mixed.
+What wasn't clear or contradictory: PEG missing; no SMA200; limited catalyst visibility beyond today; FVA vs strong momentum conflict.
