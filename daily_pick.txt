@@ -1,12 +1,23 @@
-W – W
+M – M
 
-Base Scores: Market & Sector: 170, Quality (Tech Proxies): 156, Near-Term Catalysts: 100, Technical Valuation: 183, Risks: 19
-News: "Retail momentum comps mention; ecommerce ops scaling via Sellercloud integration (Somewhat-Bullish)"
-FVA: 61.12 Buy 59.12–63.12; Stop 56.13; Target 68.60; Max hold time: ≤ 1 year (Anchor: $61.12)
-Final base score: 692
-Valuation: P/E=101.91, PEG=106.94, YoY Growth=N/A
-Certainty: 62%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/W/forecast
-What reduced the score: 36.8% above FVA; low volume; MACD<0; high P/E; no explicit breakout trigger
-What wasn't clear or contradictory: Official P/E missing vs PE_HINT provided; PEG appears placeholder; news not company-specific
+Base Scores: Market & Sector: 165, Quality (Tech Proxies): 199, Near-Term Catalysts: 92, Technical Valuation: 253, Risks: 36
+
+News: N/A
+
+FVA: 14.65
+
+Final base score: 809
+
+Valuation: P/E=9.78, PEG=0.82, YoY Growth=11.93%
+
+Certainty: 64%
+
+ADVICE: ```ini
+[Buy]
+```
+
+Forecast image URL: https://stockscan.io/stocks/M/forecast
+
+What reduced the score: Weak volume/breadth, extended vs anchor (but within 25%), valuation-history headwind
+
+What wasn't clear or contradictory: No clear near-term catalysts; earnings timing unspecified
