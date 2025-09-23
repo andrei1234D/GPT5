@@ -858,7 +858,6 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "val_YoY": f.get("val_YoY"),
             "val_PEG": f.get("val_PEG"),
         }
-        row["val_PEG"] = float(peg) if peg is not None and math.isfinite(peg) else None
         row.update({f"tr_{k}": v for k, v in parts.items()})
         row.update({f"merged_{k}": v for k, v in merged_parts.items()})
         rows.append(row)
