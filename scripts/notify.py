@@ -175,11 +175,15 @@ def main():
                datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
         ]
         if news_items:
-            news_lines = [f"- {n['title']} ({n['sentiment']}, {n['source']})"
-                          for n in news_items[:2]]
-            news_text = "\n".join(news_lines)
+            news_lines = [
+                f"- {n['title']} — {n.get('summary','N/A')} "
+                f"({n['sentiment']}, {n['source']}, {n['published_at']})"
+                for n in news_items[:3]
+            ]
+            news_text = "\n".join(news_lines) + "\nImpact: ?"
         else:
-            news_text = "N/A"
+            news_text = "- N/A\nImpact: 0"
+
 
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
@@ -187,7 +191,7 @@ def main():
             baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
             pe_hint=pe_hint,
         )
-        block_text += f"\n\nNews:\n{news_text}"
+        block_text += f"\n\n### {t} News\n{news_text}"
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 
