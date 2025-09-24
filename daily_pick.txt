@@ -1,23 +1,21 @@
 M – M
 
-Base Scores: Market & Sector: 165, Quality (Tech Proxies): 199, Near-Term Catalysts: 92, Technical Valuation: 253, Risks: 36
+Base Scores: Market & Sector: 161, Quality (Tech Proxies): 172, Near-Term Catalysts: 92, Technical Valuation: 263, Risks: 53
 
-News: N/A
+News: "Centennial wins Galleria Fort Lauderdale management contract (Bullish); Target launches record fall/holiday deals (Bullish sector read-through)"
 
-FVA: 14.65
+FVA: $13.82
 
-Final base score: 809
+Final base score: 812
 
 Valuation: P/E=9.78, PEG=0.82, YoY Growth=11.93%
 
-Certainty: 64%
+Certainty: 66%
 
-ADVICE: ```ini
-[Buy]
-```
+ADVICE: [Buy]
 
 Forecast image URL: https://stockscan.io/stocks/M/forecast
 
-What reduced the score: Weak volume/breadth, extended vs anchor (but within 25%), valuation-history headwind
+What reduced the score: Volume contraction vs 20d, slight MACD hist negative, valuation-history proxy negative, no explicit breakout/earnings catalyst.
 
-What wasn't clear or contradictory: No clear near-term catalysts; earnings timing unspecified
+What wasn't clear or contradictory: Sector news not specific to M; price extended near +24% vs FVA but still within anchor range; mixed momentum signals (RSI strong vs flat MACD).
