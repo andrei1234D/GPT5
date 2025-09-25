@@ -1,44 +1,44 @@
-TICKER: M
-COMPANY: M
-CURRENT_PRICE: $17.38
-vsSMA20: 6.28%
-vsSMA50: 23.41%
-vsSMA200: 30.90%
-SMA50: 14.08
-AVWAP252: 13.68
-RSI14: 54.00
-MACD_hist: -0.07
-ATR%: 3.11%
-Drawdown%: -1.31%
-5d%: -1.31%
-20d%: 29.18%
-60d%: 42.49%
-Vol_vs_20d%: -20.44%
-EMA20: 16.34
-EMA50: 14.72
-EMA200: 13.48
-vsEMA50: 18.11%
-vsEMA200: 28.94%
-EMA50_slope_5d%: 4.06%
-VALUATION_FIELDS: PE=9.73; YoY_Growth=11.93%; PE_SECTOR=N/A; EV_EBITDA=6.59; EV_REV=0.41; PS=0.21; FCF_YIELD=18.12%; PEG=0.82
+TICKER: K.TO
+COMPANY: K.TO
+CURRENT_PRICE: $32.37
+vsSMA20: 4.46%
+vsSMA50: 20.22%
+vsSMA200: 61.29%
+SMA50: 26.93
+AVWAP252: 19.37
+RSI14: 65.00
+MACD_hist: -0.04
+ATR%: 2.71%
+Drawdown%: -4.43%
+5d%: 5.47%
+20d%: 16.15%
+60d%: 52.36%
+Vol_vs_20d%: -13.96%
+EMA20: 30.89
+EMA50: 27.87
+EMA200: 21.39
+vsEMA50: 16.17%
+vsEMA200: 51.33%
+EMA50_slope_5d%: 3.89%
+VALUATION_FIELDS: PE=18.93; YoY_Growth=1.28%; PE_SECTOR=N/A; EV_EBITDA=11.54; EV_REV=6.53; PS=6.50; FCF_YIELD=3.95%; PEG=14.80
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=3
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+3
 PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
 CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 3.11
-FVA_HINT: 13.88
-PE_HINT: 9.88
+EXPECTED_VOLATILITY_PCT: 2.71
+FVA_HINT: 23.15
+PE_HINT: 18.93
 SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=Yes
 RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=25.22%; EXTENDED=Yes
+KO_CONTEXT: GAP_PCT=39.83%; EXTENDED=Yes
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 
-News:
-- Seasonal retail hiring to fall to lowest level since 2009, signaling trouble for holidays, report says (Neutral, CNBC)
-- ORACLE RED BULL RACING AND ROKT UNVEIL ALL-FEMALE TEAM FOR BRITISH F4 ESPORTS CHAMPIONSHIP (Somewhat-Bullish, Benzinga)
+### K.TO News
+- N/A
+Impact: 0
 
 TICKER: TLS
 COMPANY: TLS
@@ -55,14 +55,14 @@ Drawdown%: 0.00%
 5d%: 6.28%
 20d%: 24.87%
 60d%: 133.33%
-Vol_vs_20d%: -36.97%
+Vol_vs_20d%: -36.93%
 EMA20: 6.50
 EMA50: 5.40
 EMA200: 3.83
 vsEMA50: 34.74%
 vsEMA200: 90.07%
 EMA50_slope_5d%: 7.02%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=-0.53%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=3.89; PS=4.53; FCF_YIELD=0.04%; PEG=N/A
+VALUATION_FIELDS: PE=N/A; YoY_Growth=-0.53%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=4.12; PS=4.53; FCF_YIELD=0.04%; PEG=N/A
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
 PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-3; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=1
 PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-2
@@ -78,9 +78,226 @@ KO_CONTEXT: GAP_PCT=65.08%; EXTENDED=Yes
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 
-News:
-- Telos Wins New Cyber Governance, Risk and Compliance Contract with U.S. Federal Agency - Telos  ( NASDAQ:TLS )  (Somewhat-Bullish, Benzinga)
-- Telos Wins New Cyber Governance, Risk and Compliance Contract with U.S. Federal Agency (Somewhat-Bullish, GlobeNewswire)
+### TLS News
+- Telos Wins New Cyber Governance, Risk and Compliance Contract with U.S. Federal Agency - Telos  ( NASDAQ:TLS )  — ASHBURN, Va., Sept. 22, 2025 ( GLOBE NEWSWIRE ) -- Telos Corporation TLS, a leading provider of cyber, cloud and enterprise security solutions for the world's most security-conscious organizations, today announced a new $2.2 million contract with a U.S. federal agency, which will deploy Telos' ... (Somewhat-Bullish, Benzinga, 20250922T131922)
+- Telos Wins New Cyber Governance, Risk and Compliance Contract with U.S. Federal Agency — Federal agency selects Telos' Xacta to streamline and automate cyber compliance Federal agency selects Telos' Xacta to streamline and automate cyber compliance ... (Somewhat-Bullish, GlobeNewswire, 20250922T131900)
+Impact: ?
+
+TICKER: M
+COMPANY: M
+CURRENT_PRICE: $17.38
+vsSMA20: 6.28%
+vsSMA50: 23.41%
+vsSMA200: 30.90%
+SMA50: 14.08
+AVWAP252: 13.68
+RSI14: 54.00
+MACD_hist: -0.07
+ATR%: 3.11%
+Drawdown%: -1.31%
+5d%: -1.31%
+20d%: 29.18%
+60d%: 42.49%
+Vol_vs_20d%: -3.26%
+EMA20: 16.34
+EMA50: 14.72
+EMA200: 13.48
+vsEMA50: 18.11%
+vsEMA200: 28.94%
+EMA50_slope_5d%: 4.06%
+VALUATION_FIELDS: PE=9.88; YoY_Growth=11.93%; PE_SECTOR=N/A; EV_EBITDA=6.64; EV_REV=0.41; PS=0.21; FCF_YIELD=18.12%; PEG=0.83
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=0; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 3.11
+FVA_HINT: 13.88
+PE_HINT: 9.88
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=25.22%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### M News
+- Seasonal retail hiring to fall to lowest level since 2009, signaling trouble for holidays, report says — Seasonal hiring, an indicator of how strong or weak the holiday shopping season is expected to be, is projected to fall to the lowest level since 2009 recession ... (Neutral, CNBC, 20250924T141214)
+- ORACLE RED BULL RACING AND ROKT UNVEIL ALL-FEMALE TEAM FOR BRITISH F4 ESPORTS CHAMPIONSHIP — History-Making Team Set to Break Barriers and Drive Change in Sim Racing (Somewhat-Bullish, Benzinga, 20250924T130000)
+- Centennial Awarded Management Contract for Galleria Fort Lauderdale — Retail Real Estate Owner/Operator Continues to Expand Its Third-Party Management Platform with Addition of Premier South Florida Center (Bullish, Benzinga, 20250923T143700)
+Impact: ?
+
+TICKER: SEDG
+COMPANY: SEDG
+CURRENT_PRICE: $37.47
+vsSMA20: 12.73%
+vsSMA50: 24.97%
+vsSMA200: 88.95%
+SMA50: 29.98
+AVWAP252: 19.17
+RSI14: 58.00
+MACD_hist: 0.42
+ATR%: 7.05%
+Drawdown%: -2.86%
+5d%: 7.95%
+20d%: 13.24%
+60d%: 71.41%
+Vol_vs_20d%: -24.95%
+EMA20: 33.37
+EMA50: 30.15
+EMA200: 23.12
+vsEMA50: 24.28%
+vsEMA200: 62.04%
+EMA50_slope_5d%: 4.87%
+VALUATION_FIELDS: PE=N/A; YoY_Growth=-53.62%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=2.37; PS=2.37; FCF_YIELD=17.31%; PEG=N/A
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=4; RISK_DRAWDOWN=2
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+2; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-3
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 6.00
+FVA_HINT: 24.58
+PE_HINT: N/A
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=52.44%; EXTENDED=No
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### SEDG News
+- Market Whales and Their Recent Bets on SEDG Options - SolarEdge Technologies  ( NASDAQ:SEDG )  — Deep-pocketed investors have adopted a bullish approach towards SolarEdge Technologies SEDG, and it's something market players shouldn't ignore. Our tracking of public options records at Benzinga unveiled this significant move today. (Somewhat-Bullish, Benzinga, 20250923T190121)
+- Why SolarEdge Technologies Rallied Over 20% This Week — The beaten-down solar inverter manufacturer began shipments from its new U.S.-based facility. (Somewhat-Bullish, Motley Fool, 20250919T214113)
+- SolarEdge Technologies  ( SEDG )  Outpaces Stock Market Gains: What You Should Know — SolarEdge Technologies (SEDG) concluded the recent trading session at $34.71, signifying a +1.76% move from its prior day's close. (Somewhat-Bullish, Zacks Commentary, 20250918T221504)
+Impact: ?
+
+TICKER: ELVA.TO
+COMPANY: ELVA.TO
+CURRENT_PRICE: $10.33
+vsSMA20: 19.20%
+vsSMA50: 42.32%
+vsSMA200: 120.35%
+SMA50: 7.26
+AVWAP252: 5.99
+RSI14: 67.00
+MACD_hist: 0.13
+ATR%: 4.72%
+Drawdown%: 0.00%
+5d%: 10.36%
+20d%: 36.64%
+60d%: 122.15%
+Vol_vs_20d%: 10.46%
+EMA20: 8.68
+EMA50: 7.48
+EMA200: 5.21
+vsEMA50: 38.10%
+vsEMA200: 98.38%
+EMA50_slope_5d%: 7.31%
+VALUATION_FIELDS: PE=258.25; YoY_Growth=-0.00%; PE_SECTOR=N/A; EV_EBITDA=90.91; EV_REV=7.91; PS=7.55; FCF_YIELD=-2.81%; PEG=N/A
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=+2; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=1
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+1; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
+PROXIES_CATALYSTS: TECH_BREAKOUT=+2; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today
+EXPECTED_VOLATILITY_PCT: 4.72
+FVA_HINT: 6.62
+PE_HINT: 258.25
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=56.04%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### ELVA.TO News
+- N/A
+Impact: 0
+
+TICKER: CGG.TO
+COMPANY: CGG.TO
+CURRENT_PRICE: $23.22
+vsSMA20: 3.85%
+vsSMA50: 38.07%
+vsSMA200: 107.50%
+SMA50: 16.82
+AVWAP252: 13.29
+RSI14: 63.00
+MACD_hist: -0.23
+ATR%: 3.48%
+Drawdown%: -6.18%
+5d%: 3.02%
+20d%: 30.01%
+60d%: 87.71%
+Vol_vs_20d%: 19.83%
+EMA20: 21.84
+EMA50: 18.28
+EMA200: 12.44
+vsEMA50: 27.02%
+vsEMA200: 86.71%
+EMA50_slope_5d%: 6.82%
+VALUATION_FIELDS: PE=22.54; YoY_Growth=3.46%; PE_SECTOR=N/A; EV_EBITDA=18.23; EV_REV=8.36; PS=8.16; FCF_YIELD=3.57%; PEG=6.52
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=+2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=4
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=+1; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 3.48
+FVA_HINT: 15.05
+PE_HINT: 22.54
+SUGGESTED_BONUSES: DIP_5_12
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=54.29%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### CGG.TO News
+- N/A
+Impact: 0
+
+TICKER: SATS
+COMPANY: SATS
+CURRENT_PRICE: $73.10
+vsSMA20: 3.38%
+vsSMA50: 59.36%
+vsSMA200: 143.18%
+SMA50: 45.87
+AVWAP252: 35.78
+RSI14: 58.00
+MACD_hist: -1.41
+ATR%: 5.33%
+Drawdown%: -12.53%
+5d%: 2.64%
+20d%: 24.40%
+60d%: 157.76%
+Vol_vs_20d%: -65.57%
+EMA20: 66.65
+EMA50: 52.12
+EMA200: 33.66
+vsEMA50: 40.25%
+vsEMA200: 117.20%
+EMA50_slope_5d%: 9.61%
+VALUATION_FIELDS: PE=N/A; YoY_Growth=0.93%; PE_SECTOR=N/A; EV_EBITDA=33.69; EV_REV=3.04; PS=1.36; FCF_YIELD=-4.00%; PEG=N/A
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-4; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=5
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-2
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 5.33
+FVA_HINT: 40.83
+PE_HINT: N/A
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=79.04%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### SATS News
+- Check Out What Whales Are Doing With SATS - EchoStar  ( NASDAQ:SATS )  — Whales with a lot of money to spend have taken a noticeably bearish stance on EchoStar. Looking at options history for EchoStar SATS we detected 11 trades. If we consider the specifics of each trade, it is accurate to state that 18% of the investors opened trades with bullish expectations and ... (Neutral, Benzinga, 20250924T200111)
+- Should iShares Russell 2000 Value ETF  ( IWN )  Be on Your Investing Radar? — Style Box ETF report for ... (Somewhat-Bullish, Zacks Commentary, 20250924T102002)
+- Elon Musk Throws Shade At Jeff Bezos' Blue Origin Over Possible Role In NASA's Artemis 3 Mission - EchoStar  ( NASDAQ:SATS ) , Amazon.com  ( NASDAQ:AMZN )  — SpaceX CEO Elon Musk has shared his thoughts on the possibility that Blue Origin, backed by Amazon.com Inc. AMZN founder Jeff Bezos, could secure a key role in NASA's Artemis 3 mission to the Moon. (Somewhat-Bullish, Benzinga, 20250923T072109)
+Impact: ?
 
 TICKER: HYMC
 COMPANY: HYMC
@@ -97,7 +314,7 @@ Drawdown%: -8.51%
 5d%: 6.24%
 20d%: 47.00%
 60d%: 95.22%
-Vol_vs_20d%: -35.24%
+Vol_vs_20d%: -34.91%
 EMA20: 5.69
 EMA50: 4.83
 EMA200: 3.58
@@ -120,295 +337,90 @@ KO_CONTEXT: GAP_PCT=48.43%; EXTENDED=Yes
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 
-News:
-N/A
+### HYMC News
+- N/A
+Impact: 0
 
-TICKER: CGG.TO
-COMPANY: CGG.TO
-CURRENT_PRICE: $23.22
-vsSMA20: 3.85%
-vsSMA50: 38.07%
-vsSMA200: 107.50%
-SMA50: 16.82
-AVWAP252: 13.29
-RSI14: 63.00
-MACD_hist: -0.23
-ATR%: 3.48%
-Drawdown%: -6.18%
-5d%: 3.02%
-20d%: 30.01%
-60d%: 87.71%
-Vol_vs_20d%: 19.84%
-EMA20: 21.84
-EMA50: 18.28
-EMA200: 12.44
-vsEMA50: 27.02%
-vsEMA200: 86.71%
-EMA50_slope_5d%: 6.82%
-VALUATION_FIELDS: PE=23.27; YoY_Growth=3.46%; PE_SECTOR=N/A; EV_EBITDA=18.81; EV_REV=8.62; PS=8.16; FCF_YIELD=3.57%; PEG=6.73
+TICKER: APM.TO
+COMPANY: APM.TO
+CURRENT_PRICE: $7.13
+vsSMA20: 6.12%
+vsSMA50: 35.06%
+vsSMA200: N/A
+SMA50: 5.28
+AVWAP252: 3.45
+RSI14: 51.00
+MACD_hist: -0.05
+ATR%: 4.79%
+Drawdown%: -3.13%
+5d%: 11.23%
+20d%: 35.29%
+60d%: 148.43%
+Vol_vs_20d%: -50.47%
+EMA20: 6.55
+EMA50: 5.49
+EMA200: N/A
+vsEMA50: 29.80%
+vsEMA200: N/A
+EMA50_slope_5d%: 6.49%
+VALUATION_FIELDS: PE=19.27; YoY_Growth=-0.54%; PE_SECTOR=N/A; EV_EBITDA=10.90; EV_REV=3.71; PS=3.84; FCF_YIELD=2.33%; PEG=N/A
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=+2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=4
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=+1; EARNINGS_SOON=0
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-4; VALUATION_HISTORY=0; RISK_VOLATILITY=3; RISK_DRAWDOWN=2
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-1; OP_EFF_TREND_TECH=+2
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
 CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 3.48
-FVA_HINT: 15.05
-PE_HINT: 22.54
+EXPECTED_VOLATILITY_PCT: 4.79
+FVA_HINT: 4.37
+PE_HINT: 19.27
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=63.16%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### APM.TO News
+- N/A
+Impact: 0
+
+TICKER: FMCC
+COMPANY: FMCC
+CURRENT_PRICE: $12.63
+vsSMA20: 5.07%
+vsSMA50: 33.63%
+vsSMA200: 91.67%
+SMA50: 9.45
+AVWAP252: 5.48
+RSI14: 55.00
+MACD_hist: -0.17
+ATR%: 8.73%
+Drawdown%: -10.74%
+5d%: -2.70%
+20d%: 34.94%
+60d%: 59.47%
+Vol_vs_20d%: -11.37%
+EMA20: 11.89
+EMA50: 10.24
+EMA200: 6.95
+vsEMA50: 23.39%
+vsEMA200: 81.70%
+EMA50_slope_5d%: 4.95%
+VALUATION_FIELDS: PE=3.59; YoY_Growth=0.13%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=144.10; PS=0.36; FCF_YIELD=80.72%; PEG=28.62
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=4; RISK_DRAWDOWN=5
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-3
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=+3; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 6.00
+FVA_HINT: 7.46
+PE_HINT: 3.59
 SUGGESTED_BONUSES: DIP_5_12
 SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
 RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=54.29%; EXTENDED=Yes
+KO_CONTEXT: GAP_PCT=69.30%; EXTENDED=Yes
 PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
 
 
-News:
-N/A
-
-TICKER: SEDG
-COMPANY: SEDG
-CURRENT_PRICE: $37.47
-vsSMA20: 12.73%
-vsSMA50: 24.97%
-vsSMA200: 88.95%
-SMA50: 29.98
-AVWAP252: 19.17
-RSI14: 58.00
-MACD_hist: 0.42
-ATR%: 7.05%
-Drawdown%: -2.86%
-5d%: 7.95%
-20d%: 13.24%
-60d%: 71.41%
-Vol_vs_20d%: -25.01%
-EMA20: 33.37
-EMA50: 30.15
-EMA200: 23.12
-vsEMA50: 24.28%
-vsEMA200: 62.04%
-EMA50_slope_5d%: 4.87%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=-53.62%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=2.27; PS=2.37; FCF_YIELD=17.31%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-3; VALUATION_HISTORY=-5; RISK_VOLATILITY=4; RISK_DRAWDOWN=2
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+2; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-3
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 6.00
-FVA_HINT: 24.58
-PE_HINT: N/A
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=52.44%; EXTENDED=No
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-- Market Whales and Their Recent Bets on SEDG Options - SolarEdge Technologies  ( NASDAQ:SEDG )  (Somewhat-Bullish, Benzinga)
-- Why SolarEdge Technologies Rallied Over 20% This Week (Somewhat-Bullish, Motley Fool)
-
-TICKER: SATS
-COMPANY: SATS
-CURRENT_PRICE: $73.10
-vsSMA20: 3.38%
-vsSMA50: 59.36%
-vsSMA200: 143.18%
-SMA50: 45.87
-AVWAP252: 35.78
-RSI14: 58.00
-MACD_hist: -1.41
-ATR%: 5.33%
-Drawdown%: -12.53%
-5d%: 2.64%
-20d%: 24.40%
-60d%: 157.76%
-Vol_vs_20d%: -65.75%
-EMA20: 66.65
-EMA50: 52.12
-EMA200: 33.66
-vsEMA50: 40.25%
-vsEMA200: 117.20%
-EMA50_slope_5d%: 9.61%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=0.93%; PE_SECTOR=N/A; EV_EBITDA=33.80; EV_REV=3.05; PS=1.36; FCF_YIELD=-4.00%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-4; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=5
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-2
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 5.33
-FVA_HINT: 40.83
-PE_HINT: N/A
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=79.04%; EXTENDED=Yes
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-- Should iShares Russell 2000 Value ETF  ( IWN )  Be on Your Investing Radar? (Somewhat-Bullish, Zacks Commentary)
-- Elon Musk Throws Shade At Jeff Bezos' Blue Origin Over Possible Role In NASA's Artemis 3 Mission - EchoStar  ( NASDAQ:SATS ) , Amazon.com  ( NASDAQ:AMZN )  (Somewhat-Bullish, Benzinga)
-
-TICKER: KSS
-COMPANY: KSS
-CURRENT_PRICE: $17.12
-vsSMA20: 4.70%
-vsSMA50: 23.53%
-vsSMA200: 57.33%
-SMA50: 13.86
-AVWAP252: 11.81
-RSI14: 59.00
-MACD_hist: -0.06
-ATR%: 5.29%
-Drawdown%: -13.06%
-5d%: -1.50%
-20d%: 6.68%
-60d%: 88.32%
-Vol_vs_20d%: -59.77%
-EMA20: 16.12
-EMA50: 14.16
-EMA200: 12.25
-vsEMA50: 20.93%
-vsEMA200: 39.73%
-EMA50_slope_5d%: 4.97%
-VALUATION_FIELDS: PE=9.29; YoY_Growth=-0.66%; PE_SECTOR=N/A; EV_EBITDA=7.02; EV_REV=0.54; PS=0.12; FCF_YIELD=22.03%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-4; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=5
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-2
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 5.29
-FVA_HINT: 12.84
-PE_HINT: 9.20
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=33.33%; EXTENDED=No
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-- Young adults embrace 'financial nihilism' with risky crypto, stock bets as American dream feels unattainable (Neutral, CNBC)
-- Fast-paced Momentum Stock Kohl's  ( KSS )  Is Still Trading at a Bargain (Somewhat-Bullish, Zacks Commentary)
-
-TICKER: ELVA.TO
-COMPANY: ELVA.TO
-CURRENT_PRICE: $10.33
-vsSMA20: 19.20%
-vsSMA50: 42.32%
-vsSMA200: 120.35%
-SMA50: 7.26
-AVWAP252: 5.99
-RSI14: 67.00
-MACD_hist: 0.13
-ATR%: 4.72%
-Drawdown%: 0.00%
-5d%: 10.36%
-20d%: 36.64%
-60d%: 122.15%
-Vol_vs_20d%: 10.39%
-EMA20: 8.68
-EMA50: 7.48
-EMA200: 5.21
-vsEMA50: 38.10%
-vsEMA200: 98.38%
-EMA50_slope_5d%: 7.31%
-VALUATION_FIELDS: PE=250.25; YoY_Growth=-0.00%; PE_SECTOR=N/A; EV_EBITDA=88.22; EV_REV=7.67; PS=7.55; FCF_YIELD=-2.81%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=+2; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=1
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+1; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
-PROXIES_CATALYSTS: TECH_BREAKOUT=+2; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today
-EXPECTED_VOLATILITY_PCT: 4.72
-FVA_HINT: 6.62
-PE_HINT: 258.25
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=56.04%; EXTENDED=Yes
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-N/A
-
-TICKER: KALA
-COMPANY: KALA
-CURRENT_PRICE: $19.14
-vsSMA20: 21.92%
-vsSMA50: 77.75%
-vsSMA200: 172.48%
-SMA50: 10.77
-AVWAP252: 9.07
-RSI14: 66.00
-MACD_hist: -0.01
-ATR%: 10.51%
-Drawdown%: -2.52%
-5d%: 9.12%
-20d%: 98.29%
-60d%: 295.35%
-Vol_vs_20d%: -17.55%
-EMA20: 15.80
-EMA50: 12.05
-EMA200: 7.79
-vsEMA50: 58.78%
-vsEMA200: 145.59%
-EMA50_slope_5d%: 13.09%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=0.09%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=N/A; PS=N/A; FCF_YIELD=-12.32%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=5; RISK_DRAWDOWN=2
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-4
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 6.00
-FVA_HINT: 9.92
-PE_HINT: N/A
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=92.94%; EXTENDED=Yes
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-N/A
-
-TICKER: ARWR
-COMPANY: ARWR
-CURRENT_PRICE: $32.83
-vsSMA20: 15.85%
-vsSMA50: 49.53%
-vsSMA200: 80.69%
-SMA50: 21.96
-AVWAP252: 19.08
-RSI14: 69.00
-MACD_hist: 0.14
-ATR%: 4.33%
-Drawdown%: 0.00%
-5d%: 4.19%
-20d%: 50.67%
-60d%: 104.04%
-Vol_vs_20d%: -24.82%
-EMA20: 28.37
-EMA50: 23.90
-EMA200: 19.65
-vsEMA50: 37.39%
-vsEMA200: 67.09%
-EMA50_slope_5d%: 8.07%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=-1.92%; PE_SECTOR=N/A; EV_EBITDA=N/A; EV_REV=7.51; PS=7.92; FCF_YIELD=-1.07%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=1
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+1; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
-PROXIES_CATALYSTS: TECH_BREAKOUT=+1; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=Today
-EXPECTED_VOLATILITY_PCT: 4.33
-FVA_HINT: 20.52
-PE_HINT: N/A
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=59.99%; EXTENDED=Yes
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-News:
-N/A
+### FMCC News
+- N/A
+Impact: 0

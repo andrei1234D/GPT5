@@ -1,11 +1,21 @@
-CGG.TO – CGG.TO
-Base Scores: Market & Sector: 208, Quality (Tech Proxies): 139, Near-Term Catalysts: 100, Technical Valuation: 178, Risks: 14
-News: N/A
-FVA: 14.30 | Buy 13.90–14.70; Stop 13.30; Target 15.79; Max hold time: ≤ 1 year (Anchor: $14.30)
-Final base score: 699
-Valuation: P/E=23.27, PEG=6.73, YoY Growth=3.46%
-Certainty: 60%
-ADVICE: Hold
-Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
-What reduced the score: Extended >FVA (+54%); rich PEG; valuation history weak; drawdown/volatility risk; limited catalysts
-What wasn't clear or contradictory: Strong RSI vs negative MACD_hist; no news/catalyst clarity; high valuation with low growth
+M – M
+
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 162, Near-Term Catalysts: 92, Technical Valuation: 228, Risks: 32
+
+News: "Seasonal retail hiring projected to lowest since 2009; potential demand headwinds for retailers (slightly negative)"
+
+FVA: 13.88
+
+Final base score: 726
+
+Valuation: P/E=9.88, PEG=0.83, YoY Growth=11.93%
+
+Certainty: 62%
+
+ADVICE: [Buy]
+
+Forecast image URL: https://stockscan.io/stocks/M/forecast
+
+What reduced the score: Slightly over FVA (+25%), weak near-term catalysts, mild negative MACD, FCF trend negative
+
+What wasn't clear or contradictory: Macro retail softness vs strong trend; limited catalyst visibility beyond proxies
