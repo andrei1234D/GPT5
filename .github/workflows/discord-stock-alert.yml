@@ -36,7 +36,9 @@ jobs:
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\n" > requirements.txt
+            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\n" > requirements.txt
+          else
+            grep -qxF 'openai' requirements.txt || echo 'openai' >> requirements.txt
           fi
           cat requirements.txt
 
