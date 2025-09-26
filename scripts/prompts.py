@@ -31,11 +31,15 @@ News:
 
 
 Certainty:
-- Rate certainty (0–100) using structure, volume, volatility, and catalyst timing.
+- Assign a certainty score between 0 and 100 based on the *quality, consistency, and durability* of the signal.
+- Take into account all valuation metrics, technical context, growth, PEG, YoY trends, catalysts, and news impact.
+- Scale guidance:
+    • 40 = weak/partial conviction, conflicting signals, low durability.
+    • 62 = decent, but may lack durability or have valuation caveats.
+    • 70 = strong conviction with structural clarity and alignment of metrics.
+    • 80–100 = exceptional conviction — durable breakout or sustainable growth, with reasonable or supportive valuation.
+- After assigning Certainty, **add it to the BASE score** to compute the Final Score.
 
-- Scale: 40 = weak/partial, 62 = decent, but may lack durability. 70 = strong conviction, structural clarity. 80–100 = exceptional — durable breakout + valuation not insane.
-
-- Add Certainty to BASE score before final score is given.
 
 
 Technical Valuation (0–285):

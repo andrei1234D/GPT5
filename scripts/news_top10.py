@@ -83,7 +83,7 @@ You are a financial assistant.
 For each ticker, do the following:
 - Read all provided articles.
 - Summarize the overall news sentiment in 1–2 concise bullet points.
-- Assign ONE overall numerical impact score between -50 (very negative) and +50 (very positive).
+- Assign ONE overall numerical impact score between -100 (very negative) and +100 (very positive).
 - Do not write labels like 'headwind' or '?' — only provide a number.
 
 Strict output rules:
