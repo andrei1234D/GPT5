@@ -21,17 +21,28 @@ def fetch_bulk_news(tickers, days=7, limit=50):
     print(f"[INFO] Fetching bulk news for {len(tickers)} tickers, limit={limit}, days={days}")
     try:
         news_map = get_news_sentiment_bulk(tickers, days=days, limit=limit)
+
+        # Detect possible AlphaVantage rate limit issues
+        if not news_map:
+            print("[WARN] AlphaVantage returned an empty news_map (possible API limit reached).")
+        else:
+            for t, arts in news_map.items():
+                if isinstance(arts, dict) and "Note" in arts.get("message", ""):
+                    print(f"[WARN] API limit message detected for {t}: {arts['message']}")
+
         cutoff = datetime.now(UTC) - timedelta(days=days)
         filtered_map = {}
 
         for t, articles in news_map.items():
+            if not articles:
+                print(f"[WARN] No articles returned for {t} (could be API quota limit).")
             filtered = [
                 a for a in articles
                 if a.get("published_at")
                 and datetime.strptime(a["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
             ]
             filtered_map[t] = filtered
-            print(f"[DEBUG] {t}: {len(filtered)} articles after cutoff")
+            print(f"[DEBUG] {t}: {len(filtered)} articles after cutoff (raw: {len(articles)})")
             for a in filtered[:2]:  # show up to 2 samples
                 print(f"[DEBUG] {t} Article: {a.get('title')} "
                       f"({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})")
@@ -40,6 +51,7 @@ def fetch_bulk_news(tickers, days=7, limit=50):
 
     except Exception as e:
         print(f"[ERROR] Failed to fetch news: {e}")
+        print("[HINT] This could be due to AlphaVantage API quota being exceeded.")
         return {t: [] for t in tickers}
 
 
@@ -58,7 +70,7 @@ def format_news_prompt(news_map):
                 )
             )
     formatted = "\n\n".join(blocks)
-    print("[DEBUG] Formatted news prompt:\n", formatted[:1200], "...\n")  # truncate for readability
+    print("[DEBUG] Formatted news prompt (first 1200 chars):\n", formatted[:1200], "...\n")
     return formatted
 
 
@@ -91,7 +103,7 @@ Impact: +/-XX
 """
     prompt += "\n\n" + format_news_prompt(news_map)
 
-    print("[DEBUG] Final prompt sent to GPT-3.5:\n", prompt[:1500], "...\n")
+    print("[DEBUG] Final prompt sent to GPT-3.5 (first 1500 chars):\n", prompt[:1500], "...\n")
 
     client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(
@@ -116,7 +128,7 @@ Impact: +/-XX
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
         f.write(output)
-    print(f"[INFO] Saved GPT-3.5 news summary to {out_path}")
+    print(f"[INFO] Saved GPT-3.5 news summary to {out_path} ({out_path.stat().st_size} bytes)")
 
 
 if __name__ == "__main__":

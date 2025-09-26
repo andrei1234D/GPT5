@@ -290,7 +290,6 @@ def build_prompt_block(
     "VALUATION_FIELDS: "
     f"PE={_fmt_num(fm.get('PE'))}; "
     f"YoY_Growth={_fmt_pct(fm.get('YoY_Growth'))}; "
-    f"PE_SECTOR=N/A; "
     f"EV_EBITDA={_fmt_num(fm.get('EV_EBITDA'))}; "
     f"EV_REV={_fmt_num(fm.get('EV_REV'))}; "
     f"PS={_fmt_num(fm.get('PS'))}; "
