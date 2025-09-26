@@ -39,38 +39,52 @@ Certainty:
 
 
 Technical Valuation (0–285):
-- Base = 193 if no valuation data.
-- Treat PE, PEG, and YoY Growth as a combined signal, not isolated.
-- Goal: reward stocks where valuation and growth align, penalize when they diverge.
+
+Base score = 193 if no valuation data is available.
+
+PE, PEG, and YoY Growth are evaluated together as a combined signal, not in isolation.
+
+Goal: reward undervalued growth, penalize overvalued stagnation.
 
 Valuation–Growth Union Scoring:
- • Ideal Alignment (undervalued growth):
-   - PEG < 1.3 and YoY Growth > 15% → +60 points
-   - PEG < 1.0 and PE < 20 with strong YoY Growth (>20%) → +80 points (best case union)
+• Ideal Alignment (undervalued growth):
 
- • Fair Alignment:
-   - PEG 1.0–2.0 and PE 10–25 with stable positive YoY Growth → +25 points
-   - PEG 1.3–2.5 but YoY Growth > 20% → +20 points
+PEG < 1.3 and YoY Growth > 0.15 → +60 points
 
- • Overvaluation Signals:
-   - PEG > 3 and PE > 30 with flat/negative YoY Growth → −70 points (worst case)
-   - PEG 2.5–3.0 with PE > 25 → −30 points
+PEG < 1.0 and PE < 20 with YoY Growth > 0.20 → +80 points (best case union)
 
- • Growth Rescue Rule:
-   - If PE > 30 but YoY Growth ≥ 30% → reduce penalty to neutral (0).
-   - If PEG > 2 but PE < 15 → neutralize penalty (growth still cheap).
+• Fair Alignment:
+
+PEG 1.0–2.0 and PE 10–25 with YoY Growth > 0 → +25 points
+
+PEG 1.3–2.5 and YoY Growth > 0.20 → +20 points
+
+• Overvaluation Signals:
+
+PEG > 3 and PE > 30 with YoY Growth ≤ 0 → −70 points (worst case)
+
+PEG 2.5–3.0 with PE > 25 → −30 points
+
+• Growth Rescue Rules:
+
+If PE > 30 but YoY Growth ≥ 0.30, neutralize penalty (0 adjustment).
+
+If PEG > 2 but PE < 15, neutralize penalty (0 adjustment).
 
 Other Adjustments:
- • YoY Growth > 0 → +10 points baseline boost
- • YoY Growth < 0 → −15 points
- • PEG < 0.08 → ignore PEG entirely (treat as N/A, not “extreme undervaluation”).
+• YoY Growth > 0 → +10 points baseline boost
+• YoY Growth < 0 → −15 points
+• PEG < 0.08 → ignore PEG (treat as N/A).
 
+Baseline Logic:
 
-Baseline logic:
-- Each score component starts from a baseline derived from category norms (e.g., 130 for Quality).
-- Missing data = neutral (use baseline, do not penalize).
-- Deviations from baseline (positive or negative) reflect conviction or risk.
-- Avoid score inflation: Only increase components when technical or proxy evidence is clearly above baseline.
+Start from baseline = 193.
+
+Missing data = neutral (baseline only, no penalty).
+
+Deviations from baseline reflect conviction or risk.
+
+Avoid score inflation: only apply boosts when valuation and growth evidence clearly align.
 
 
 

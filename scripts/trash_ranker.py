@@ -608,42 +608,63 @@ class RobustRanker:
             logger.info(f"[Ranker] done: kept {len(ranked)} / {len(universe)} ; leader={ranked[0][0]} score={ranked[0][3]:.2f}")
         return ranked
     def _valuation_boost(self, feats: Dict) -> float:
-        """Apply custom PE/PEG rules to boost/punish scores."""
+        """Valuation scoring with PE, PEG (conditionally), and YoY."""
+
         pe  = safe(feats.get("val_PE"), None)
         peg = safe(feats.get("val_PEG"), None)
+        yoy = safe(feats.get("val_YoY"), None)
 
         if pe is None or pe <= 0:
-            return 0.0
+            return 0.0  # neutral for invalid PE
 
         boost = 0.0
 
-        # --- PE rules ---
-        if pe < 10:
-            boost += 10
-        elif 10 <= pe <= 20:
+        # --- PE scoring ---
+        if pe < 8:
+            boost += 8
+        elif 8 <= pe <= 15:
             boost += 5
+        elif 15 < pe <= 25:
+            boost += 2
+        elif 25 < pe <= 30:
+            boost += -2
         elif pe > 30:
-            boost -= 5
+            boost += -8
 
-        # --- PEG rules ---
-        if peg is not None:
-            if peg < 1 and pe < 10:
-                boost += 40  # MASSIVE green flag
+        # --- YoY growth scoring ---
+        if yoy is not None:
+            yoy_c = max(-5, min(5, yoy))  # cap extremes for stability
+
+            if yoy_c <= 0:
+                boost -= 15  # shrinkage = bad
+            elif 0 < yoy_c < 0.05:
+                boost -= 5   # flat = weak
+            elif 0.05 <= yoy_c <= 0.5:
+                boost += 5   # decent growth (5–50%)
+            elif 0.5 < yoy_c <= 1.0:
+                boost += 10  # strong growth (50–100%)
+            elif 1.0 < yoy_c <= 3.0:
+                boost += 15  # hyper growth (100–300%)
+            else:
+                boost += 5   # extreme growth → small bonus
+
+        # --- PEG scoring (only if growth is real) ---
+        if peg is not None and peg > 0 and yoy is not None and yoy > 0.05:
+            if peg < 1:
+                boost += 15  # cheap vs. growth
             elif 1 <= peg < 2:
-                boost += 10  # fairly valued
-            elif 2 <= peg < 3:
-                boost -= 5   # high
-            elif peg > 3:
-                boost -= 20  # overvalued
+                boost += 5   # fair
+            elif peg > 2:
+                # not neutral → penalty for truly expensive
+                boost -= 10
+                if pe > 30:
+                    boost -= 15  # disaster: high PE + high PEG
 
-            # nuanced conditions
-            if peg > 2 and pe < 15:
-                boost += 5   # above 2 PEG but low PE is okay
-            if peg < 1.3 and pe > 30:
-                boost += 10  # low PEG + high PE okay
-            if peg > 2 and pe > 30:
-                boost -= 40  # MASSIVE red flag
+        # --- Bound final score ---
+        boost = max(-50, min(40, boost))
+
         return boost
+
 
 
 # --- Stratified top-N selector (5 small + 5 large with >=5 P/E present) ---
@@ -866,6 +887,10 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     out_df["merged_final_score"] = (
         out_df["merged_score"] + out_df.get("valuation_boost", 0)
     )
+
+    # ✅ sort by merged_final_score before saving
+    out_df = out_df.sort_values("merged_final_score", ascending=False)
+
     out_df.to_csv(out_path, index=False)
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df
