@@ -116,7 +116,25 @@ jobs:
             echo "No new files to commit"
           else
             git commit -m "Update rejects and stage results (run #${{ github.run_number }})"
-            git push
+            git pull --rebase origin main
+            git push origin main
+          fi
+      - name: Run News Summarizer (GPT-3.5)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+        run: python scripts/news_top10.py
+      - name: Commit news summaries
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/news_summary_top10.txt || true
+          if git diff --cached --quiet; then
+            echo "No new news summaries to commit"
+          else
+            git commit -m "Update news summaries (run #${{ github.run_number }})"
+            git pull --rebase origin main
+            git push origin main
           fi
 
   send-alert:

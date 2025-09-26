@@ -91,7 +91,7 @@ Avoid score inflation: only apply boosts when valuation and growth evidence clea
 
 Advice Rule:
 - write the strong buy/hold/buy exactly as shoown, the formatting is important for parsing the discord message.
-- Final base score = BASE + Certainty ± News impact
+- Final base score = BASE + Certainty ± News's impact numerical value
 - BASE ≥ 720 and Certainty ≥ 72% → 
 ```txt
 ```diff
@@ -122,7 +122,7 @@ TICKER – Company
 
 Base Scores: Market & Sector: <0–265>, Quality (Tech Proxies): <0–265>, Near-Term Catalysts: <0–185>, Technical Valuation: <0–285>, Risks: <0–100>
 
-News: " summarize the bullets (impact) " OR "N/A"
+News: " summarize the bullets (numerical impact value) " OR "N/A"
 
 FVA: <calculated fair value anchor as expected price>
 

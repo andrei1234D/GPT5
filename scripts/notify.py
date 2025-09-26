@@ -1,5 +1,5 @@
 # scripts/notify.py
-import os, re, sys, time, requests, pytz
+import os, sys, time, requests, pytz
 import pandas as pd
 from datetime import datetime, timedelta, UTC
 from pathlib import Path
@@ -20,8 +20,6 @@ from time_utils import seconds_until_target_hour
 from debugger import post_debug_inputs_to_discord
 
 from trash_ranker import pick_top_stratified
-from alphavantage_jit import get_news_sentiment_bulk
-
 
 # --- Timezone
 TZ = pytz.timezone("Europe/Bucharest")
@@ -61,6 +59,32 @@ def fail(msg: str):
     sys.exit(1)
 
 
+def load_news_summary(path="data/news_summary_top10.txt"):
+    """Load the GPT-3.5 condensed news summaries for the top-10 tickers."""
+    if not os.path.exists(path):
+        log(f"[WARN] News summary file not found: {path}")
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+
+    log(f"[INFO] Loaded news summaries from {path}")
+    # Break into blocks by ### ticker
+    blocks = {}
+    current_ticker = None
+    current_lines = []
+    for line in content.splitlines():
+        if line.startswith("### "):
+            if current_ticker and current_lines:
+                blocks[current_ticker] = "\n".join(current_lines).strip()
+            current_ticker = line.replace("### ", "").strip()
+            current_lines = [line]
+        else:
+            current_lines.append(line)
+    if current_ticker and current_lines:
+        blocks[current_ticker] = "\n".join(current_lines).strip()
+    return blocks
+
+
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
@@ -71,9 +95,7 @@ def main():
         return fail(f"{path} not found")
 
     df = pd.read_csv(path)
-
-    # Ensure NaN values don’t nuke PEG/PE/YoY when converted later
-    df = df.where(pd.notnull(df), None)
+    df = df.where(pd.notnull(df), None)  # keep None for NaN
 
     if df.empty:
         return fail("stage2_merged.csv is empty")
@@ -82,23 +104,19 @@ def main():
         df = df.sort_values("merged_final_score", ascending=False).reset_index(drop=True)
     else:
         df = df.sort_values("merged_score", ascending=False).reset_index(drop=True)
-    # Build ranked list from merged
+
+    # Build ranked list
     universe = [(t, "") for t in df["ticker"]]
     feats_map = build_features(universe, batch_size=int(os.getenv("YF_CHUNK_SIZE", "80")))
-    print("[DEBUG] First 5 rows from CSV:")
-    print(df[["ticker", "val_PE", "val_YoY", "val_PEG"]].head())
     ranked = []
     for _, row in df.iterrows():
         t = row["ticker"]
         n = row.get("company", t)
-
         f = feats_map.get(t, {}).get("features", {}) or {}
-        f.update(row.to_dict())  # overlay merged CSV info
-        print(f"[DEBUG] {t} -> val_PE={f.get('val_PE')}, val_YoY={f.get('val_YoY')}, val_PEG={f.get('val_PEG')}")
-
+        f.update(row.to_dict())
         s = row.get("merged_score", 0.0)
         ranked.append((t, n, f, s, {}))
-    
+
     # === 7) Pick stratified Top-10 ===
     top10 = pick_top_stratified(
         ranked,
@@ -110,31 +128,17 @@ def main():
     tickers_top10 = [t for (t, _, _, _, _) in top10]
     log(f"[INFO] Using stratified Top-10 from stage2_merged.csv: {', '.join(tickers_top10)}")
 
-        # === 8) Fetch fundamentals and news ===
+    # === 8) Fetch fundamentals ===
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
     valuations_map = fetch_valuations_for_top(tickers_top10)
 
-    try:
-        news_map = get_news_sentiment_bulk(tickers_top10, limit=50)
-        log(f"[INFO] Pulled news for {len(news_map)} tickers via AlphaVantage (bulk+fallback)")
+    # === 9) Load precomputed news summaries ===
+    news_blocks = load_news_summary()
 
-        # Debug per ticker
-        for t, articles in news_map.items():
-            log(f"[DEBUG] {t}: {len(articles)} articles returned")
-            for a in articles[:2]:
-                log(f"[DEBUG] {t} Article: {a.get('title')} "
-                    f"({a.get('sentiment')}, {a.get('source')}, {a.get('published_at')})")
-
-    except Exception as e:
-        log(f"[WARN] Failed to fetch bulk/per-ticker news: {e}")
-        news_map = {t: [] for t in tickers_top10}
-
-    # === 9) Build blocks ===
     blocks = []
     debug_inputs = {}
     baseline_str = "; ".join([f"{k}={v}" for k, v in BASELINE_HINTS.items()])
-    cutoff = datetime.now(UTC) - timedelta(days=7)
 
     for (t, name, feats, _score, _meta) in top10:
         proxies = derive_proxies(feats, spy_ctx)
@@ -158,32 +162,14 @@ def main():
         vals = valuations_map.get(t) or {}
         pe_hint = vals.get("PE")
         fm = {
-    "PEG": row.get("val_PEG"),
-    "YoY_Growth": row.get("val_YoY"),
-    "PE": row.get("val_PE"),
-    "PS": valuations_map.get(t, {}).get("PS"),
-    "EV_EBITDA": valuations_map.get(t, {}).get("EV_EBITDA"),
-    "EV_REV": valuations_map.get(t, {}).get("EV_REV"),
-    "FCF_YIELD": valuations_map.get(t, {}).get("FCF_YIELD"),
-}
-
-
-        # Apply cutoff filter
-        news_items = [
-            n for n in news_map.get(t, [])
-            if n.get("published_at") and
-               datetime.strptime(n["published_at"], "%Y%m%dT%H%M%S").replace(tzinfo=UTC) >= cutoff
-        ]
-        if news_items:
-            news_lines = [
-                f"- {n['title']} — {n.get('summary','N/A')} "
-                f"({n['sentiment']}, {n['source']}, {n['published_at']})"
-                for n in news_items[:3]
-            ]
-            news_text = "\n".join(news_lines) + "\nImpact: ?"
-        else:
-            news_text = "- N/A\nImpact: 0"
-
+            "PEG": feats.get("val_PEG"),
+            "YoY_Growth": feats.get("val_YoY"),
+            "PE": feats.get("val_PE"),
+            "PS": vals.get("PS"),
+            "EV_EBITDA": vals.get("EV_EBITDA"),
+            "EV_REV": vals.get("EV_REV"),
+            "FCF_YIELD": vals.get("FCF_YIELD"),
+        }
 
         block_text, debug_dict = build_prompt_block(
             t=t, name=name, feats=feats, proxies=proxies, fund_proxy=fund_proxy,
@@ -191,7 +177,13 @@ def main():
             baseline_hints=BASELINE_HINTS, baseline_str=baseline_str,
             pe_hint=pe_hint,
         )
-        block_text += f"\n\n### {t} News\n{news_text}"
+
+        # Attach GPT-3.5 condensed news if available
+        if t in news_blocks:
+            block_text += f"\n\n### {t} News\n{news_blocks[t]}"
+        else:
+            block_text += f"\n\n### {t} News\n- N/A\nImpact: 0"
+
         blocks.append(block_text)
         debug_inputs[t] = debug_dict
 
@@ -201,7 +193,7 @@ def main():
         blocks=blocks_text,
     )
 
-    # === 9b) Save blocks for debugging / reuse ===
+    # === 9b) Save blocks for debugging ===
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
     blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
@@ -212,14 +204,13 @@ def main():
     except Exception as e:
         log(f"[WARN] Failed to save prompt blocks: {e}")
 
-
     # === 10) GPT adjudication ===
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=13000)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # === 11) Save and wait until 08:00 ===
+    # === 11) Save output ===
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
     log("[INFO] Draft saved to daily_pick.txt")
