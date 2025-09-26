@@ -482,6 +482,7 @@ AMSL.L,Advanced Medical Solutions,2025-09-15 17:43:19
 AMSS.VI,ams-OSRAM,2025-09-15 17:43:19
 AMUNP.PA,Amundi,2025-09-15 17:43:19
 AMV,NXU,2025-09-15 17:43:19
+AMVOY,Aumovio,2025-09-26 04:13:54
 ANAE.MC,Acciona,2025-09-15 17:43:19
 ANCN,Chemomab Therapeutics,2025-09-15 17:43:19
 ANDA,Stryve Foods,2025-09-15 17:43:19
@@ -764,6 +765,7 @@ BRGEL.L,BlackRock Greater Europe Investment Trust,name-filter
 BRIGL.L,Blackrock Income & Growth Investment Trust,name-filter
 BRK,Berkshire Hathaway (Class B),2025-09-15 17:45:54
 BRK/A,,persisted
+BRKH,Blaize Holdings,2025-09-26 04:14:27
 BRKS,Azenta,2025-09-15 17:45:54
 BRLI,Nukkleus,2025-09-15 17:45:54
 BRMD,Bristol-Myers Squibb,2025-09-15 17:45:54
@@ -1242,6 +1244,7 @@ DSMA.SW,DSM-Firmenich,2025-09-15 17:50:22
 DSVSF.TO,Discovery Silver,2025-09-15 17:50:22
 DSYP.PA,Dassault Systemes,2025-09-15 17:50:22
 DT3D,,persisted
+DTC,Solo Brands,2025-09-26 04:15:29
 DTEA.TO,DavidsTea,2025-09-15 17:50:22
 DTED.DE,Deutsche Telekom,2025-09-15 17:50:22
 DTGD.DE,Daimler Truck,2025-09-15 17:50:22
@@ -1321,7 +1324,7 @@ ELML.L,Elementis,2025-09-15 17:51:00
 ELO1D,,persisted
 ELP.PA,EssilorLuxottica,2025-09-15 17:51:00
 ELTK.TA,Eltek,2025-09-15 17:51:00
-ELVR,Sayona Mining,2025-09-15 17:51:00
+ELVR,Elevra Lithium,2025-09-15 17:51:00
 ELY,Topgolf Callaway Brands,2025-09-15 17:51:00
 ELYM,Climb Bio,2025-09-15 17:51:00
 ELZE.MC,Asturiana de Laminados,2025-09-15 17:51:00
@@ -1791,7 +1794,7 @@ HMI,Zepp Health,2025-09-15 17:55:36
 HMMA.TO,Hammond Manufacturing,2025-09-15 17:55:36
 HMSBD.ST,H&M Hennes & Mauritz,2025-09-15 17:55:36
 HMSOL.L,Hammerson,2025-09-15 17:55:36
-HNLD.DE,Dr Hoenle,2025-09-15 17:55:36
+HNLD.DE,Hoenle,2025-09-15 17:55:36
 HNR1D,,persisted
 HNRA,EON Resources,2025-09-15 17:55:36
 HO2D,,persisted
@@ -3778,6 +3781,6 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-AMVOY,404/empty-or-short,2025-09-26 04:13:54
-BRKH,404/empty-or-short,2025-09-26 04:14:27
-DTC,404/empty-or-short,2025-09-26 04:15:29
+INDV.L,404/empty-or-short,2025-09-26 19:09:23
+MGN,404/empty-or-short,2025-09-26 19:10:12
+VERV,404/empty-or-short,2025-09-26 19:12:45
