@@ -1,21 +1,23 @@
 M – M
 
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 162, Near-Term Catalysts: 92, Technical Valuation: 228, Risks: 32
+Base Scores: Market & Sector: 175, Quality (Tech Proxies): 164, Near-Term Catalysts: 92, Technical Valuation: 228, Risks: 26
 
-News: "Seasonal retail hiring projected to lowest since 2009; potential demand headwinds for retailers (slightly negative)"
+News: "Seasonal retail hiring projected to be weakest since 2009 (mild headwind)."
 
-FVA: 13.88
+FVA: 13.94
 
-Final base score: 726
+Final base score: 739
 
 Valuation: P/E=9.88, PEG=0.83, YoY Growth=11.93%
 
-Certainty: 62%
+Certainty: 59%
 
-ADVICE: [Buy]
+ADVICE: ```arm
+Hold
+```
 
 Forecast image URL: https://stockscan.io/stocks/M/forecast
 
-What reduced the score: Slightly over FVA (+25%), weak near-term catalysts, mild negative MACD, FCF trend negative
+What reduced the score: Weak volume (-41%), RSI ~49 and negative MACD hist, no active catalysts, minor drawdown risk proxy.
 
-What wasn't clear or contradictory: Macro retail softness vs strong trend; limited catalyst visibility beyond proxies
+What wasn't clear or contradictory: News relevance mixed; growth is positive but not “strong” (>20%), limiting valuation-growth union boost.
