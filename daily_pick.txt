@@ -1,13 +1,21 @@
-PSIX – PSIX
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 110, Technical Valuation: 203, Risks: 50
-News: "N/A"
-FVA: 71.67
-Final base score: 688
-Valuation: P/E=21.56, PEG=13.20, YoY Growth=1.63%
+PRE – PRE
+
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 104, Technical Valuation: 203, Risks: 50
+
+News: "Top momentum pick mention (+40)"
+
+FVA: 8.11
+
+Final base score: 722
+
+Valuation: P/E=N/A, PEG=N/A, YoY Growth=0.26%
+
 Certainty: 60%
-ADVICE: ```arm
-Hold
-```
-Forecast image URL: https://stockscan.io/stocks/PSIX/forecast
-What reduced the score: 45% above FVA (extended), below-average volume, high ATR/drawdown, rich PEG/EV multiples, negative FCF trend.
-What wasn't clear or contradictory: Low PE vs very high PEG; strong trend/RSI near 70 but 5d pullback and no breakout flag; limited catalysts/news.
+
+ADVICE: Hold
+
+Forecast image URL: https://stockscan.io/stocks/PRE/forecast
+
+What reduced the score: 55% above FVA anchor, high ATR/volatility, negative FCF trend and -18.27% FCF yield, weak volume vs 20d
+
+What wasn't clear or contradictory: Missing PE/PEG/EBITDA details; momentum news vs soft fundamentals and overextension near-term

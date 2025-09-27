@@ -63,7 +63,7 @@ EMA200: 12.66
 vsEMA50: 30.00%
 vsEMA200: 92.59%
 EMA50_slope_5d%: 6.72%
-VALUATION_FIELDS: PE=23.67; YoY_Growth=3.46%; EV_EBITDA=19.12; EV_REV=8.76; PS=8.60; FCF_YIELD=3.39%; PEG=6.84
+VALUATION_FIELDS: PE=23.90; YoY_Growth=3.46%; EV_EBITDA=19.12; EV_REV=8.76; PS=8.56; FCF_YIELD=3.40%; PEG=6.91
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
 PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
 PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
@@ -71,7 +71,7 @@ PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_S
 CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
 EXPECTED_VOLATILITY_PCT: 3.40
 FVA_HINT: 15.51
-PE_HINT: 23.90
+PE_HINT: 23.67
 SUGGESTED_BONUSES: NONE
 SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
 RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
@@ -149,7 +149,7 @@ EMA200: 34.36
 vsEMA50: 36.65%
 vsEMA200: 113.76%
 EMA50_slope_5d%: 8.76%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=0.93%; EV_EBITDA=33.76; EV_REV=3.04; PS=1.36; FCF_YIELD=-3.99%; PEG=N/A
+VALUATION_FIELDS: PE=N/A; YoY_Growth=0.93%; EV_EBITDA=33.76; EV_REV=3.04; PS=1.37; FCF_YIELD=-3.98%; PEG=N/A
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
 PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-4; VALUATION_HISTORY=-5; RISK_VOLATILITY=3; RISK_DRAWDOWN=5
 PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=-5; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
@@ -167,8 +167,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SATS News
 ### SATS
-- Whales are bearish on EchoStar SATS, iShares Russell 2000 Value ETF somewhat bullish, Elon Musk criticizes Blue Origin for NASA mission.
-Impact: +5
+- Whales have taken a bearish stance on EchoStar.
+Impact: -30
 
 TICKER: PRE
 COMPANY: PRE
@@ -211,7 +211,7 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 ### PRE News
 ### PRE
 - Prenetics Global Limited is considered a top momentum pick.
-Impact: +10
+Impact: +40
 
 TICKER: SEDG
 COMPANY: SEDG
@@ -253,8 +253,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SEDG News
 ### SEDG
-- Rule-breaking small-cap stocks spotlighted, SolarEdge Technologies showing positive movement, market whales bullish on SolarEdge.
-Impact: +10
+- SolarEdge Technologies is seeing positive market sentiment and investor interest.
+Impact: +35
 
 TICKER: M
 COMPANY: M
