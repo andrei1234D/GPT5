@@ -2,7 +2,7 @@
 - N/A
 Impact: 0
 
-### VNP.TO
+### K.TO
 - N/A
 Impact: 0
 
@@ -10,30 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
-### STOK
+### VNP.TO
+- N/A
+Impact: 0
+
+### EQX.TO
 - N/A
 Impact: 0
 
 ### SATS
-- Whales have taken a bearish stance on EchoStar.
-Impact: -30
-
-### K.TO
-- N/A
-Impact: 0
+- Whales with a bearish stance on EchoStar, Elon Musk criticizes Blue Origin's potential role in NASA mission.
+Impact: -10
 
 ### PRE
-- Prenetics Global Limited is considered a top momentum pick.
-Impact: +40
-
-### BBW
-- American Eagle and Abercrombie & Fitch show strong growth potential.
-Impact: +50
+- Prenetics Global Limited considered a top momentum pick for investors.
+Impact: +15
 
 ### SEDG
-- SolarEdge Technologies is seeing positive market sentiment and investor interest.
-Impact: +35
+- Market whales bullish on SolarEdge Technologies, company advances despite market decline.
+Impact: +20
 
-### AEHR
+### STOK
 - N/A
 Impact: 0
+
+### BBW
+- American Eagle and Abercrombie & Fitch post strong Q2 results, Domino's Pizza shows long-term growth potential.
+Impact: +25
