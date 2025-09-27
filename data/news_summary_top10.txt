@@ -15,8 +15,8 @@ Impact: 0
 Impact: 0
 
 ### SATS
-- Whales are bearish on EchoStar SATS, iShares Russell 2000 Value ETF somewhat bullish, Elon Musk criticizes Blue Origin for NASA mission.
-Impact: +5
+- Whales have taken a bearish stance on EchoStar.
+Impact: -30
 
 ### K.TO
 - N/A
@@ -24,15 +24,15 @@ Impact: 0
 
 ### PRE
 - Prenetics Global Limited is considered a top momentum pick.
-Impact: +10
+Impact: +40
 
 ### BBW
-- American Eagle and Abercrombie & Fitch post strong Q2 results, Domino's Pizza shows long-term growth potential.
-Impact: +15
+- American Eagle and Abercrombie & Fitch show strong growth potential.
+Impact: +50
 
 ### SEDG
-- Rule-breaking small-cap stocks spotlighted, SolarEdge Technologies showing positive movement, market whales bullish on SolarEdge.
-Impact: +10
+- SolarEdge Technologies is seeing positive market sentiment and investor interest.
+Impact: +35
 
 ### AEHR
 - N/A
