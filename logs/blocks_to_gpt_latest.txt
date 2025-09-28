@@ -63,7 +63,7 @@ EMA200: 12.66
 vsEMA50: 30.00%
 vsEMA200: 92.59%
 EMA50_slope_5d%: 6.72%
-VALUATION_FIELDS: PE=23.90; YoY_Growth=3.46%; EV_EBITDA=19.12; EV_REV=8.76; PS=8.56; FCF_YIELD=3.40%; PEG=6.91
+VALUATION_FIELDS: PE=23.67; YoY_Growth=3.46%; EV_EBITDA=19.12; EV_REV=8.76; PS=8.56; FCF_YIELD=3.40%; PEG=6.84
 BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
 PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-2; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
 PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
@@ -167,8 +167,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SATS News
 ### SATS
-- Whales have taken a bearish stance on EchoStar.
-Impact: -30
+- Whales with a bearish stance on EchoStar, Elon Musk criticizes Blue Origin's potential role in NASA mission.
+Impact: -10
 
 TICKER: PRE
 COMPANY: PRE
@@ -210,8 +210,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### PRE News
 ### PRE
-- Prenetics Global Limited is considered a top momentum pick.
-Impact: +40
+- Prenetics Global Limited considered a top momentum pick for investors.
+Impact: +15
 
 TICKER: SEDG
 COMPANY: SEDG
@@ -253,8 +253,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SEDG News
 ### SEDG
-- SolarEdge Technologies is seeing positive market sentiment and investor interest.
-Impact: +35
+- Market whales bullish on SolarEdge Technologies, company advances despite market decline.
+Impact: +20
 
 TICKER: M
 COMPANY: M

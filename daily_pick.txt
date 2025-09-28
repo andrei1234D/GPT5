@@ -1,21 +1,21 @@
-PRE – PRE
+M – M
 
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 104, Technical Valuation: 203, Risks: 50
+Base Scores: Market & Sector: 180, Quality (Tech Proxies): 152, Near-Term Catalysts: 107, Technical Valuation: 203, Risks: 41
 
-News: "Top momentum pick mention (+40)"
+News: "N/A"
 
-FVA: 8.11
+FVA: 14.72 | Buy 14.36–15.08; Stop 13.81; Target 16.07; Max hold time: ≤ 1 year (Anchor: $14.72)
 
-Final base score: 722
+Final base score: 749
 
-Valuation: P/E=N/A, PEG=N/A, YoY Growth=0.26%
+Valuation: P/E=10.23, PEG=0.86, YoY Growth=11.93%
 
-Certainty: 60%
+Certainty: 66%
 
-ADVICE: Hold
+ADVICE: ```ini [Buy] ```
 
-Forecast image URL: https://stockscan.io/stocks/PRE/forecast
+Forecast image URL: https://stockscan.io/stocks/M/forecast
 
-What reduced the score: 55% above FVA anchor, high ATR/volatility, negative FCF trend and -18.27% FCF yield, weak volume vs 20d
+What reduced the score: Slightly extended vs FVA (~+22% after tilt), weak valuation history, negative FCF trend, only moderate growth; average volume quality.
 
-What wasn't clear or contradictory: Missing PE/PEG/EBITDA details; momentum news vs soft fundamentals and overextension near-term
+What wasn't clear or contradictory: ADVICE block format vs 11-line constraint; limited catalyst detail beyond minor breakout.
