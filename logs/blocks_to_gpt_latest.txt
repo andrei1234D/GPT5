@@ -84,49 +84,6 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 - N/A
 Impact: 0
 
-TICKER: VNP.TO
-COMPANY: VNP.TO
-CURRENT_PRICE: $16.25
-vsSMA20: 5.98%
-vsSMA50: 12.45%
-vsSMA200: 77.89%
-SMA50: 14.45
-AVWAP252: 9.11
-RSI14: 56.00
-MACD_hist: 0.02
-ATR%: 3.35%
-Drawdown%: -1.34%
-5d%: 3.90%
-20d%: 8.19%
-60d%: 70.69%
-Vol_vs_20d%: -2.54%
-EMA20: 15.39
-EMA50: 14.17
-EMA200: 10.30
-vsEMA50: 14.71%
-vsEMA200: 57.80%
-EMA50_slope_5d%: 2.74%
-VALUATION_FIELDS: PE=32.50; YoY_Growth=-0.05%; EV_EBITDA=22.36; EV_REV=4.65; PS=4.34; FCF_YIELD=0.56%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=0; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+1; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 3.35
-FVA_HINT: 11.78
-PE_HINT: 32.50
-SUGGESTED_BONUSES: NONE
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=Yes
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=37.95%; EXTENDED=No
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-### VNP.TO News
-### VNP.TO
-- N/A
-Impact: 0
-
 TICKER: SATS
 COMPANY: SATS
 CURRENT_PRICE: $73.45
@@ -167,7 +124,7 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SATS News
 ### SATS
-- Whales with a bearish stance on EchoStar, Elon Musk criticizes Blue Origin's potential role in NASA mission.
+- Whales have taken a bearish stance on EchoStar SATS, but there are bullish expectations in some trades.
 Impact: -10
 
 TICKER: PRE
@@ -210,7 +167,7 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### PRE News
 ### PRE
-- Prenetics Global Limited considered a top momentum pick for investors.
+- Prenetics Global Limited is considered a top momentum pick for investors.
 Impact: +15
 
 TICKER: SEDG
@@ -253,8 +210,50 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### SEDG News
 ### SEDG
-- Market whales bullish on SolarEdge Technologies, company advances despite market decline.
+- Deep-pocketed investors are bullish on SolarEdge Technologies SEDG, with positive market advancements.
 Impact: +20
+
+TICKER: VNP.TO
+COMPANY: VNP.TO
+CURRENT_PRICE: $16.25
+vsSMA20: 5.98%
+vsSMA50: 12.45%
+vsSMA200: 77.89%
+SMA50: 14.45
+AVWAP252: 9.11
+RSI14: 56.00
+MACD_hist: 0.02
+ATR%: 3.35%
+Drawdown%: -1.34%
+5d%: 3.90%
+20d%: 8.19%
+60d%: 70.69%
+Vol_vs_20d%: -2.54%
+EMA20: 15.39
+EMA50: 14.17
+EMA200: 10.30
+vsEMA50: 14.71%
+vsEMA200: 57.80%
+EMA50_slope_5d%: 2.74%
+VALUATION_FIELDS: PE=N/A; YoY_Growth=N/A; EV_EBITDA=22.36; EV_REV=4.65; PS=4.34; FCF_YIELD=0.56%; PEG=N/A
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=0; VALUATION_HISTORY=-5; RISK_VOLATILITY=2; RISK_DRAWDOWN=1
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=+1; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=+2
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=0; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 3.35
+FVA_HINT: 11.78
+PE_HINT: 32.50
+SUGGESTED_BONUSES: NONE
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=Yes
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=37.95%; EXTENDED=No
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### VNP.TO News
+- N/A
+Impact: 0
 
 TICKER: M
 COMPANY: M

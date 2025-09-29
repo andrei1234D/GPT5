@@ -1,21 +1,23 @@
-M – M
+PSIX – PSIX
 
-Base Scores: Market & Sector: 180, Quality (Tech Proxies): 152, Near-Term Catalysts: 107, Technical Valuation: 203, Risks: 41
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 118, Technical Valuation: 203, Risks: 50
 
-News: "N/A"
+News: N/A
 
-FVA: 14.72 | Buy 14.36–15.08; Stop 13.81; Target 16.07; Max hold time: ≤ 1 year (Anchor: $14.72)
+FVA: 70.16 | Buy 66.45–73.59; Stop 61.74; Target 82.79; Max hold time: ≤ 1 year (Anchor: $70.16).
 
-Final base score: 749
+Final base score: 696
 
-Valuation: P/E=10.23, PEG=0.86, YoY Growth=11.93%
+Valuation: P/E=21.56, PEG=13.20, YoY Growth=1.63%
 
-Certainty: 66%
+Certainty: 60%
 
-ADVICE: ```ini [Buy] ```
+```arm
+Hold
+```
 
-Forecast image URL: https://stockscan.io/stocks/M/forecast
+Forecast image URL: https://stockscan.io/stocks/PSIX/forecast
 
-What reduced the score: Slightly extended vs FVA (~+22% after tilt), weak valuation history, negative FCF trend, only moderate growth; average volume quality.
+What reduced the score: 48% above FVA (extended), high PEG, softer volume vs 20d, high ATR%, not near anchor
 
-What wasn't clear or contradictory: ADVICE block format vs 11-line constraint; limited catalyst detail beyond minor breakout.
+What wasn't clear or contradictory: Momentum strong but recent -9.8% 5d pullback; durability vs weak growth/FCF trend unclear
