@@ -1,23 +1,13 @@
-PSIX – PSIX
-
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 118, Technical Valuation: 203, Risks: 50
-
-News: N/A
-
-FVA: 70.16 | Buy 66.45–73.59; Stop 61.74; Target 82.79; Max hold time: ≤ 1 year (Anchor: $70.16).
-
-Final base score: 696
-
-Valuation: P/E=21.56, PEG=13.20, YoY Growth=1.63%
-
-Certainty: 60%
-
-```arm
-Hold
+VNP.TO – VNP.TO
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 183, Near-Term Catalysts: 122, Technical Valuation: 138, Risks: 28
+News: "N/A"
+FVA: $10.91
+Final base score: 693
+Valuation: P/E=32.50, PEG=N/A, YoY Growth=-0.05%
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
 ```
-
-Forecast image URL: https://stockscan.io/stocks/PSIX/forecast
-
-What reduced the score: 48% above FVA (extended), high PEG, softer volume vs 20d, high ATR%, not near anchor
-
-What wasn't clear or contradictory: Momentum strong but recent -9.8% 5d pullback; durability vs weak growth/FCF trend unclear
+Forecast image URL: https://stockscan.io/stocks/VNP.TO/forecast
+What reduced the score: 39% above FVA anchor; weak YoY growth; negative valuation history; FCF trend negative; moderate risk/volatility.
+What wasn't clear or contradictory: PEG unavailable; strong momentum vs soft fundamentals; continuation flagged but volume only modest.
