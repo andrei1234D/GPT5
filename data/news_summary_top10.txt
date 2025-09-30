@@ -1,16 +1,24 @@
-### OGC.TO
+### RAPP
 - N/A
 Impact: 0
 
-### K.TO
+### ARIS.TO
 - N/A
 Impact: 0
 
-### CGG.TO
+### SATS
+- Investors show mixed sentiment towards EchoStar (SATS).
+Impact: +10
+
+### ABX.TO
 - N/A
 Impact: 0
 
-### VNP.TO
+### HUT
+- Market sentiment around Hut 8 (HUT) is slightly positive.
+Impact: +5
+
+### HYMC
 - N/A
 Impact: 0
 
@@ -18,25 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SATS
-- Whales have taken a noticeably bearish stance on EchoStar.
-- Elon Musk throws shade at Jeff Bezos' Blue Origin over possible role in NASA's Artemis 3 mission.
-Impact: -10
-
-### PRE
-- Prenetics Global Limited is considered a top momentum pick.
-Impact: +10
-
-### SEDG
-- Market whales have adopted a bullish approach towards SolarEdge Technologies.
-- SolarEdge Technologies advances while the market declines.
-Impact: +15
-
-### STOK
+### VNP.TO
 - N/A
 Impact: 0
 
-### BBW
-- American Eagle posts near-record Q2 revenues, fueled by bold campaigns and Aerie growth.
-- Abercrombie & Fitch posts record Q2 results as Hollister shines with 19% comp growth.
-Impact: +10
+### OGC.TO
+- N/A
+Impact: 0
+
+### M
+- Stocks with low price-to-sales ratios present attractive entry points.
+Impact: +15
