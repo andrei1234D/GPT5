@@ -1,39 +1,39 @@
-### RAPP
-- N/A
-Impact: 0
-
-### ARIS.TO
-- N/A
-Impact: 0
-
-### SATS
-- Investors show mixed sentiment towards EchoStar (SATS).
-Impact: +10
-
-### ABX.TO
-- N/A
-Impact: 0
-
-### HUT
-- Market sentiment around Hut 8 (HUT) is slightly positive.
-Impact: +5
-
-### HYMC
-- N/A
-Impact: 0
+### HL
+- Hecla Mining is showing positive momentum and growth potential.
+Impact: +30
 
 ### EQX.TO
 - N/A
 Impact: 0
 
-### VNP.TO
-- N/A
-Impact: 0
+### FIX
+- FIX is experiencing growth fueled by tech projects but faces concentration risk.
+Impact: +20
 
 ### OGC.TO
 - N/A
 Impact: 0
 
-### M
-- Stocks with low price-to-sales ratios present attractive entry points.
+### K.TO
+- N/A
+Impact: 0
+
+### PRE
+- Prenetics is considered a top momentum pick with positive news surrounding its CEO and stock performance.
+Impact: +25
+
+### SATS
+- AST SpaceMobile and EchoStar are showing positive trends and potential deal activities.
+Impact: +35
+
+### RIOT
+- Riot Platforms, Inc. is experiencing a slight decline in stock price amidst market gains.
+Impact: -10
+
+### STOK
+- Ultragenyx's appointment of Eric Olson is viewed positively.
 Impact: +15
+
+### HUT
+- Hut 8 is experiencing mixed market sentiment with a recent bearish stance by market whales.
+Impact: -5
