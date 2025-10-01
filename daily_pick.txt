@@ -1,13 +1,11 @@
-VNP.TO – VNP.TO
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 183, Near-Term Catalysts: 122, Technical Valuation: 138, Risks: 28
-News: "N/A"
-FVA: $10.91
-Final base score: 693
-Valuation: P/E=32.50, PEG=N/A, YoY Growth=-0.05%
-Certainty: 66%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/VNP.TO/forecast
-What reduced the score: 39% above FVA anchor; weak YoY growth; negative valuation history; FCF trend negative; moderate risk/volatility.
-What wasn't clear or contradictory: PEG unavailable; strong momentum vs soft fundamentals; continuation flagged but volume only modest.
+ABX.TO – ABX.TO
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 163, Near-Term Catalysts: 100, Technical Valuation: 173, Risks: 10
+News: N/A
+FVA: 31.25
+Final base score: 714
+Valuation: P/E=20.87, PEG=30.44, YoY Growth=0.69%
+Certainty: 62%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/ABX.TO/forecast
+What reduced the score: 39% above FVA anchor; high PEG; weak FCF trend; negative valuation history; modest drawdown risk
+What wasn't clear or contradictory: Growth durability vs. valuation (PEG very high with only modest YoY growth); absence of clear breakout catalyst today
