@@ -1,11 +1,21 @@
-ABX.TO – ABX.TO
-Base Scores: Market & Sector: 206, Quality (Tech Proxies): 163, Near-Term Catalysts: 100, Technical Valuation: 173, Risks: 10
-News: N/A
-FVA: 31.25
-Final base score: 714
-Valuation: P/E=20.87, PEG=30.44, YoY Growth=0.69%
-Certainty: 62%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/ABX.TO/forecast
-What reduced the score: 39% above FVA anchor; high PEG; weak FCF trend; negative valuation history; modest drawdown risk
-What wasn't clear or contradictory: Growth durability vs. valuation (PEG very high with only modest YoY growth); absence of clear breakout catalyst today
+FIX – FIX
+
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 115, Technical Valuation: 193, Risks: 50
+
+News: "Growth from tech projects; concentration risk (+20)"
+
+FVA: 600.99
+
+Final base score: 721
+
+Valuation: P/E=41.32, PEG=N/A, YoY Growth=N/A
+
+Certainty: 78%
+
+ADVICE: ```diff +Strong Buy ```
+
+Forecast image URL: https://stockscan.io/stocks/FIX/forecast
+
+What reduced the score: Extended vs FVA anchor; low vol vs 20d; valuation history weak; FCF trend negative; >15% above EMA50
+
+What wasn't clear or contradictory: PEG and growth data missing; continuation strong but anchor far below price
