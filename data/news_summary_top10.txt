@@ -1,39 +1,39 @@
+### ELD.TO
+- N/A
+Impact: 0
+
 ### HL
-- Hecla Mining is showing positive momentum and growth potential.
-Impact: +30
-
-### EQX.TO
-- N/A
-Impact: 0
-
-### FIX
-- FIX is experiencing growth fueled by tech projects but faces concentration risk.
-Impact: +20
-
-### OGC.TO
-- N/A
-Impact: 0
-
-### K.TO
-- N/A
-Impact: 0
-
-### PRE
-- Prenetics is considered a top momentum pick with positive news surrounding its CEO and stock performance.
-Impact: +25
-
-### SATS
-- AST SpaceMobile and EchoStar are showing positive trends and potential deal activities.
+- Hecla Mining (HL) has shown positive momentum and growth attributes.
 Impact: +35
 
-### RIOT
-- Riot Platforms, Inc. is experiencing a slight decline in stock price amidst market gains.
-Impact: -10
-
-### STOK
-- Ultragenyx's appointment of Eric Olson is viewed positively.
-Impact: +15
+### DPM.TO
+- N/A
+Impact: 0
 
 ### HUT
-- Hut 8 is experiencing mixed market sentiment with a recent bearish stance by market whales.
+- Market sentiment around Hut 8 (HUT) is mixed, with bearish options activity but decreasing short interest.
 Impact: -5
+
+### SATS
+- AST SpaceMobile Inc. (ASTS) and EchoStar (SATS) have seen positive stock surges and developments.
+Impact: +40
+
+### CGG.TO
+- N/A
+Impact: 0
+
+### VNP.TO
+- N/A
+Impact: 0
+
+### GFI
+- Gold Fields (GFI) is performing well and is listed as a Strong Buy momentum stock.
+Impact: +30
+
+### IDCC
+- InterDigital (IDCC) is viewed as a solid investment option with strong performance and growth.
+Impact: +25
+
+### PBPB
+- N/A
+Impact: 0
