@@ -1524,6 +1524,7 @@ FREQ,Korro Bio,2025-09-15 17:53:05
 FRESL.L,Fresnillo,2025-09-15 17:53:05
 FRFHF.TO,Fairfax Financial Holdings,2025-09-15 17:53:05
 FRKD,Franklin Resources,2025-09-15 17:53:05
+FRMI,Fermi,2025-10-02 04:15:27
 FROG.TA,JFrog,2025-09-15 17:53:05
 FRP.PA,Valeo,2025-09-15 17:53:05
 FRT,Federal Realty Investment Trust,name-filter
@@ -2020,7 +2021,7 @@ JFK.SI,EQONEX,2025-09-15 17:57:33
 JFNS.SW,Jungfraubahn,2025-09-15 17:57:33
 JGGIL.L,JPMorgan Global Growth & Income,2025-09-15 17:57:33
 JHX.IR,James Hardie Industries,2025-09-15 17:57:33
-JIIL.L,JPMorgan Indian Investment Trust,name-filter
+JIIL.L,JPMorgan India Growth & Income,name-filter
 JIXD.SS,Jiangxi Copper,2025-09-15 17:57:33
 JLENL,Foresight Environmental Infrastructure,2025-09-15 17:57:33
 JLPL.L,Jubilee Metals,2025-09-15 17:57:33
@@ -2538,6 +2539,7 @@ NOVA,Sunnova Energy International,2025-09-15 18:02:11
 NOVCD.CO,Novo Nordisk,2025-09-15 18:02:11
 NOVNS.SW,Novartis,2025-09-15 18:02:11
 NOVT.TO,Novanta,2025-09-15 18:02:11
+NP1,Neptune Insurance,2025-10-02 04:17:06
 NP5D,,persisted
 NPA,AST SpaceMobile,2025-09-15 18:02:11
 NPK.SI,Verde Agritech,2025-09-15 18:02:11
@@ -3694,6 +3696,7 @@ WLTW.IR,Willis Towers Watson,2025-09-15 18:12:43
 WMTD,Walmart,2025-09-15 18:12:43
 WNLD.OL,Wallenius Wilhelmsen,2025-09-15 18:12:43
 WNNR,Zapata Computing Holdings,2025-09-15 18:12:43
+WOLF,Wolfspeed,2025-10-02 04:19:23
 WOP0D,,persisted
 WOPEY,Woodside Energy,2025-09-15 18:12:43
 WOSGL.L,Watches of Switzerland,2025-09-15 18:12:43
@@ -3788,6 +3791,8 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-FRMI,404/empty-or-short,2025-10-02 04:15:27
-NP1,404/empty-or-short,2025-10-02 04:17:06
-WOLF,404/empty-or-short,2025-10-02 04:19:23
+CBK,404/empty-or-short,2025-10-03 04:14:13
+CCCM,404/empty-or-short,2025-10-03 04:14:13
+PPHCL,404/empty-or-short,2025-10-03 04:16:16
+THRD,404/empty-or-short,2025-10-03 04:16:48
+VLCN,404/empty-or-short,2025-10-03 04:17:01
