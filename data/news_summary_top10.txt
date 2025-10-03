@@ -1,39 +1,39 @@
-### ELD.TO
+### CMCL
+- N/A
+Impact: 0
+
+### OGC.TO
 - N/A
 Impact: 0
 
 ### HL
-- Hecla Mining (HL) has shown positive momentum and growth attributes.
-Impact: +35
+- Hecla Mining (HL) shows positive growth attributes, potentially outperforming the market.
+Impact: +30
 
 ### DPM.TO
 - N/A
 Impact: 0
 
 ### HUT
-- Market sentiment around Hut 8 (HUT) is mixed, with bearish options activity but decreasing short interest.
-Impact: -5
+- Market whales take a bearish stance on Hut 8 (HUT).
+Impact: -10
 
 ### SATS
-- AST SpaceMobile Inc. (ASTS) and EchoStar (SATS) have seen positive stock surges and developments.
-Impact: +40
+- Starlink's technology now supports continuous services with T-Mobile, AST SpaceMobile stock surges.
+Impact: +20
 
-### CGG.TO
+### K.TO
 - N/A
 Impact: 0
 
-### VNP.TO
+### STOK
+- Ultragenyx appoints Eric Olson as Chief Business Officer and Executive Vice President.
+Impact: +10
+
+### EQX.TO
 - N/A
 Impact: 0
 
-### GFI
-- Gold Fields (GFI) is performing well and is listed as a Strong Buy momentum stock.
-Impact: +30
-
-### IDCC
-- InterDigital (IDCC) is viewed as a solid investment option with strong performance and growth.
-Impact: +25
-
-### PBPB
+### EDV.L
 - N/A
 Impact: 0
