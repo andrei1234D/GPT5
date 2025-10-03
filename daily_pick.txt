@@ -1,21 +1,13 @@
-FIX – FIX
-
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 115, Technical Valuation: 193, Risks: 50
-
-News: "Growth from tech projects; concentration risk (+20)"
-
-FVA: 600.99
-
-Final base score: 721
-
-Valuation: P/E=41.32, PEG=N/A, YoY Growth=N/A
-
-Certainty: 78%
-
-ADVICE: ```diff +Strong Buy ```
-
-Forecast image URL: https://stockscan.io/stocks/FIX/forecast
-
-What reduced the score: Extended vs FVA anchor; low vol vs 20d; valuation history weak; FCF trend negative; >15% above EMA50
-
-What wasn't clear or contradictory: PEG and growth data missing; continuation strong but anchor far below price
+CGG.TO – CGG.TO
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 203, Risks: 50
+News: "N/A"
+FVA: 15.65
+Final base score: 764
+Valuation: P/E=24.67, PEG=7.13, YoY Growth=3.46%
+Certainty: 64%
+```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
+What reduced the score: Extended >40% above FVA; high PEG; modest YoY growth; MACD_hist slightly negative; valuation history weak.
+What wasn't clear or contradictory: No specific fundamental catalysts; FVA far below price suggests anchor drift despite breakout/volume confirmation.
