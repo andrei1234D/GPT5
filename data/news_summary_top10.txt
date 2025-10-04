@@ -1,39 +1,39 @@
-### CMCL
-- N/A
-Impact: 0
-
-### OGC.TO
-- N/A
-Impact: 0
-
-### HL
-- Hecla Mining (HL) shows positive growth attributes, potentially outperforming the market.
-Impact: +30
-
-### DPM.TO
-- N/A
-Impact: 0
+### LPTH
+- Overall sentiment is somewhat bullish.
+Impact: +10
 
 ### HUT
-- Market whales take a bearish stance on Hut 8 (HUT).
-Impact: -10
-
-### SATS
-- Starlink's technology now supports continuous services with T-Mobile, AST SpaceMobile stock surges.
-Impact: +20
+- Market whales have taken a bearish stance on Hut 8.
+Impact: -5
 
 ### K.TO
 - N/A
 Impact: 0
 
-### STOK
-- Ultragenyx appoints Eric Olson as Chief Business Officer and Executive Vice President.
-Impact: +10
+### GFI
+- Gold Fields stock has outperformed the market significantly in the last 10 years.
+Impact: +20
 
-### EQX.TO
+### CGG.TO
 - N/A
 Impact: 0
 
+### STOK
+- Ultragenyx appoints Eric Olson as Chief Business Officer and Executive Vice President.
+Impact: +5
+
 ### EDV.L
+- N/A
+Impact: 0
+
+### AMLX
+- N/A
+Impact: 0
+
+### RIOT
+- Riot announces positive production and operations updates for September 2025.
+Impact: +15
+
+### EQX.TO
 - N/A
 Impact: 0
