@@ -1,13 +1,23 @@
-CGG.TO – CGG.TO
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 203, Risks: 50
-News: "N/A"
-FVA: 15.65
-Final base score: 764
-Valuation: P/E=24.67, PEG=7.13, YoY Growth=3.46%
-Certainty: 64%
-```ini
-[Buy]
+HUT – HUT
+
+Base Scores: Market & Sector: 147, Quality (Tech Proxies): 170, Near-Term Catalysts: 122, Technical Valuation: 193, Risks: 27
+
+News: "Market whales take a bearish stance on Hut 8 (HUT). (-10)"
+
+FVA: $22.99
+
+Final base score: 705
+
+Valuation: P/E=28.04, PEG=4.63, YoY Growth=6.06%
+
+Certainty: 56%
+
+```arm
+Hold
 ```
-Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
-What reduced the score: Extended >40% above FVA; high PEG; modest YoY growth; MACD_hist slightly negative; valuation history weak.
-What wasn't clear or contradictory: No specific fundamental catalysts; FVA far below price suggests anchor drift despite breakout/volume confirmation.
+
+Forecast image URL: https://stockscan.io/stocks/HUT/forecast
+
+What reduced the score: 66% above FVA anchor (extended), rich PEG and PS, negative options flow news, elevated volatility risk.
+
+What wasn't clear or contradictory: Breakout with modest MACD/volume follow-through; FVA far below price while continuation flag is off, adding anchor conflict.
