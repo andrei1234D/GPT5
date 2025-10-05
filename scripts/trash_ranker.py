@@ -961,7 +961,8 @@ def compute_yoy_growth(ticker: str, retries: int = 3):
 def compute_pe_yoy_peg(ticker: str):
     """
     Fetch trailing & forward PE, compute forward (or fallback YoY) growth, and PEG.
-    PEG = Forward PE / Forward Growth when available, otherwise trailing PE / YoY.
+    Prefers Yahoo's built-in forward PEG (pegRatio) when available and valid.
+    PEG = PE / Growth if pegRatio missing.
     Returns: (pe, growth, peg, trailing_pe, forward_pe)
     """
     for attempt in range(3):
@@ -986,11 +987,16 @@ def compute_pe_yoy_peg(ticker: str):
             pe = trailing_pe or forward_pe
 
             # --- Growth ---
-            growth = info.get("earningsGrowth") or info.get("revenueGrowth")
+            growth = (
+                info.get("earningsGrowth") or
+                info.get("revenueGrowth") or
+                info.get("earningsQuarterlyGrowth")
+            )
+
             try:
                 if growth is not None:
                     growth = float(growth)
-                    if growth < 0:  # ignore negative growth
+                    if growth <= 0:  # ignore negative growth
                         growth = None
             except Exception:
                 growth = None
@@ -999,17 +1005,35 @@ def compute_pe_yoy_peg(ticker: str):
             if growth is None:
                 growth = compute_yoy_growth(ticker)
 
-            # --- PEG (prefer forward-based PEG) ---
+            # --- PEG (prefer Yahoo forward PEG ratio) ---
             peg = None
-            if forward_pe and growth and growth > 0:
-                peg = forward_pe / growth
-            elif pe and growth and growth > 0:
-                peg = pe / growth
+            peg_yf = info.get("pegRatio")
 
-            if peg is not None and (peg <= 0 or peg > 10):
-                peg = None
+            try:
+                if peg_yf is not None:
+                    peg_yf = float(peg_yf)
+                    # sanity bounds: discard unrealistic ratios
+                    if 0 < peg_yf < 10:
+                        peg = peg_yf
+                        logger.info(f"[PE/PEG] {ticker}: Using Yahoo pegRatio={peg}")
+            except Exception:
+                peg_yf = None
 
-            logger.info(f"[PE/PEG] {ticker}: trailing={trailing_pe}, forward={forward_pe}, growth={growth}, peg={peg}")
+            # fallback if Yahoo pegRatio not valid
+            if peg is None:
+                if forward_pe and growth and growth > 0:
+                    peg = forward_pe / growth
+                elif pe and growth and growth > 0:
+                    peg = pe / growth
+
+                if peg is not None and (peg <= 0 or peg > 10):
+                    peg = None
+
+            logger.info(
+                f"[PE/PEG] {ticker}: trailing={trailing_pe}, forward={forward_pe}, "
+                f"growth={growth}, peg={peg}"
+            )
+
             return pe, growth, peg, trailing_pe, forward_pe
 
         except Exception as e:
