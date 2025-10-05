@@ -164,6 +164,7 @@ def main():
         fm = {
             "PEG": feats.get("val_PEG"),
             "YoY_Growth": feats.get("val_YoY"),
+            "Forward_Growth": feats.get("val_growth_fwd"),
             "PE": feats.get("val_PE"),
             "PS": vals.get("PS"),
             "EV_EBITDA": vals.get("EV_EBITDA"),

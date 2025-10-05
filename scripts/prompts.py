@@ -46,14 +46,15 @@ Technical Valuation (0–285):
 
 Base score = 193 if no valuation data is available.
 
-PE, PEG, and YoY Growth are evaluated together as a combined signal, not in isolation.
+PE, PEG, and Growth (Forward Growth preferred, fallback = YoY Growth) are evaluated together as a combined signal, not in isolation.
 
-Goal: reward undervalued growth, penalize overvalued stagnation.
+Goal: reward undervalued growth (prefer forward EPS or revenue growth), penalize overvalued stagnation.
+If both Forward Growth and YoY Growth are present, prioritize Forward Growth for scoring.
 
 Valuation–Growth Union Scoring:
 • Ideal Alignment (undervalued growth):
 
-PEG < 1.3 and YoY Growth > 0.15 → +60 points
+PEG < 1.3 and Growth > 0.15 → +60 points
 
 PEG < 1.0 and PE < 20 with YoY Growth > 0.20 → +80 points (best case union)
 
@@ -132,7 +133,8 @@ FVA: <calculated fair value anchor as expected price>
 
 Final base score: <0–1100>
 
-Valuation: P/E=<value or 'N/A'>, PEG=<value or 'N/A'>, YoY Growth=<value or 'N/A'>
+Valuation: P/E=<value or 'N/A'>, PEG=<value or 'N/A'>, Growth=<Forward or YoY; prefer Forward>
+
 
 Certainty: <0–100%>
 

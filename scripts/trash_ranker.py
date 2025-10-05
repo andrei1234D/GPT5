@@ -608,61 +608,79 @@ class RobustRanker:
             logger.info(f"[Ranker] done: kept {len(ranked)} / {len(universe)} ; leader={ranked[0][0]} score={ranked[0][3]:.2f}")
         return ranked
     def _valuation_boost(self, feats: Dict) -> float:
-        """Valuation scoring with PE, PEG (conditionally), and YoY."""
+        """
+        Enhanced valuation scoring using PE, PEG, and growth rate (YoY or forward).
+        Prioritizes forward-looking PEG ratios when available and penalizes unstable backward metrics.
+        """
 
-        pe  = safe(feats.get("val_PE"), None)
-        peg = safe(feats.get("val_PEG"), None)
-        yoy = safe(feats.get("val_YoY"), None)
+        pe   = safe(feats.get("val_PE"), None)
+        peg  = safe(feats.get("val_PEG"), None)
+        yoy  = safe(feats.get("val_YoY"), None)
+        gr   = safe(feats.get("val_growth_fwd"), None) or yoy  # allow external forward growth injection
 
         if pe is None or pe <= 0:
-            return 0.0  # neutral for invalid PE
+            return 0.0
 
         boost = 0.0
 
         # --- PE scoring ---
         if pe < 8:
-            boost += 8
+            boost += 10
         elif 8 <= pe <= 15:
-            boost += 5
+            boost += 6
         elif 15 < pe <= 25:
             boost += 2
-        elif 25 < pe <= 30:
-            boost += -2
-        elif pe > 30:
-            boost += -8
+        elif 25 < pe <= 35:
+            boost -= 3
+        elif pe > 35:
+            boost -= 10
 
-        # --- YoY growth scoring ---
-        if yoy is not None:
-            yoy_c = max(-5, min(5, yoy))  # cap extremes for stability
+        # --- Growth scoring (YoY or forward) ---
+        if gr is not None:
+            # Clamp extreme growth values for safety
+            gr = float(gr)
+            if gr < -1: gr = -1
+            if gr > 3: gr = 3
 
-            if yoy_c <= 0:
-                boost -= 15  # shrinkage = bad
-            elif 0 < yoy_c < 0.05:
-                boost -= 5   # flat = weak
-            elif 0.05 <= yoy_c <= 0.5:
-                boost += 5   # decent growth (5–50%)
-            elif 0.5 < yoy_c <= 1.0:
-                boost += 10  # strong growth (50–100%)
-            elif 1.0 < yoy_c <= 3.0:
-                boost += 15  # hyper growth (100–300%)
+            if gr <= 0:
+                boost -= 10  # contraction
+            elif 0 < gr < 0.05:
+                boost -= 3   # flat
+            elif 0.05 <= gr <= 0.3:
+                boost += 5   # healthy
+            elif 0.3 < gr <= 0.8:
+                boost += 10  # strong
+            elif 0.8 < gr <= 1.5:
+                boost += 15  # hypergrowth
+            elif gr > 1.5:
+                boost += 8   # very high growth (limited cap)
+
+        # --- PEG scoring (prefer forward-looking) ---
+        if peg and peg > 0:
+            peg_val = float(peg)
+            # Filter out unrealistic PEGs (>10)
+            if 0 < peg_val <= 10:
+                if peg_val < 0.8:
+                    boost += 15  # undervalued vs. growth
+                elif 0.8 <= peg_val <= 1.5:
+                    boost += 8   # fair value
+                elif 1.5 < peg_val <= 3.0:
+                    boost -= 5   # overvalued
+                else:
+                    boost -= 10  # extremely overvalued
             else:
-                boost += 5   # extreme growth → small bonus
+                boost -= 5
+        else:
+            # If no PEG but we have growth → small fallback bonus
+            if gr and gr > 0.2 and pe < 20:
+                boost += 5
 
-        # --- PEG scoring (only if growth is real) ---
-        if peg is not None and peg > 0 and yoy is not None and yoy > 0.05:
-            if peg < 1:
-                boost += 15  # cheap vs. growth
-            elif 1 <= peg < 2:
-                boost += 5   # fair
-            elif peg > 2:
-                # not neutral → penalty for truly expensive
-                boost -= 10
-                if pe > 30:
-                    boost -= 15  # disaster: high PE + high PEG
+        # --- Penalize mismatch cases ---
+        if yoy and yoy < 0 and pe and pe > 30:
+            boost -= 10  # expensive with negative growth
 
         # --- Bound final score ---
-        boost = max(-50, min(40, boost))
-
+        boost = max(-40, min(40, boost))
         return boost
 
 
@@ -849,10 +867,12 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         feats = row.to_dict()
         ticker = feats.get("ticker", "")
         name   = feats.get("company", feats.get("name", ticker))
-        pe, yoy, peg = compute_pe_yoy_peg(ticker)
+        pe, yoy, peg, trailing_pe, forward_pe = compute_pe_yoy_peg(ticker)
         feats["val_PE"] = pe
         feats["val_YoY"] = yoy
         feats["val_PEG"] = peg
+        feats["val_PE_trailing"] = trailing_pe
+        feats["val_PE_forward"] = forward_pe
         print(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
         universe.append((ticker, name, feats))
 
@@ -878,6 +898,8 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "val_PE": f.get("val_PE"),
             "val_YoY": f.get("val_YoY"),
             "val_PEG": f.get("val_PEG"),
+            "val_PE_trailing": f.get("val_PE_trailing"),
+             "val_PE_forward": f.get("val_PE_forward"),
         }
         row.update({f"tr_{k}": v for k, v in parts.items()})
         row.update({f"merged_{k}": v for k, v in merged_parts.items()})
@@ -896,33 +918,35 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     return out_df
 
 def compute_yoy_growth(ticker: str, retries: int = 3):
-    """Compute YoY net income growth from yfinance financials with retry/backoff."""
+    """Compute *historical* YoY net income growth (fallback for PEG if no analyst data)."""
     for attempt in range(retries):
         try:
             logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt+1})…")
             tk = yf.Ticker(ticker)
             fin = tk.financials
-
-            if fin.empty:
-                logger.debug(f"[YoY] {ticker}: financials empty")
+            if fin is None or fin.empty:
+                fin = tk.annual_financials
+            if fin is None or fin.empty:
+                logger.debug(f"[YoY] {ticker}: No financial data available.")
                 return None
+
             if "Net Income" not in fin.index:
-                logger.debug(f"[YoY] {ticker}: Net Income missing in financials index")
+                logger.debug(f"[YoY] {ticker}: 'Net Income' not found in financials.")
                 return None
 
             net_income = fin.loc["Net Income"].dropna()
-            logger.debug(f"[YoY] {ticker}: Net Income values (newest first) = {net_income.values}")
-
-            values = net_income.values[::-1]  # oldest → newest
-            logger.debug(f"[YoY] {ticker}: Net Income values (chronological) = {values}")
-
-            if len(values) >= 2 and values[-2] != 0:
-                yoy = (values[-1] - values[-2]) / abs(values[-2])
-                logger.info(f"[YoY] {ticker}: Computed YoY growth = {yoy:.4f}")
-                return yoy
-            else:
-                logger.debug(f"[YoY] {ticker}: Not enough history or prior year = 0")
+            if len(net_income) < 2:
                 return None
+
+            # Ensure chronological order (oldest to newest)
+            values = net_income.values[::-1]
+
+            if values[-2] == 0:
+                return None
+
+            yoy = (values[-1] - values[-2]) / abs(values[-2])
+            logger.info(f"[YoY] {ticker}: Historical YoY growth = {yoy:.4f}")
+            return float(yoy)
 
         except YFRateLimitError:
             wait = 60 * (attempt + 1) + random.uniform(1, 5)
@@ -935,49 +959,66 @@ def compute_yoy_growth(ticker: str, retries: int = 3):
 
 
 def compute_pe_yoy_peg(ticker: str):
-    """Fetch PE from yfinance, compute YoY growth & PEG with custom rules."""
-    tries = 0
-    while tries < 3:  # up to 3 retries
+    """
+    Fetch trailing & forward PE, compute forward (or fallback YoY) growth, and PEG.
+    PEG = Forward PE / Forward Growth when available, otherwise trailing PE / YoY.
+    Returns: (pe, growth, peg, trailing_pe, forward_pe)
+    """
+    for attempt in range(3):
         try:
-            logger.debug(f"[PE/PEG] {ticker}: Fetching ticker info…")
             tk = yf.Ticker(ticker)
-            info = tk.info
-            logger.debug(f"[PE/PEG] {ticker}: info keys = {list(info.keys())}")
+            info = tk.info or {}
 
-            pe = info.get("trailingPE") or info.get("forwardPE")
-            logger.debug(f"[PE/PEG] {ticker}: raw PE = {pe}")
+            # --- PE ---
+            trailing_pe = info.get("trailingPE")
+            forward_pe  = info.get("forwardPE")
 
             try:
-                pe = float(pe) if pe is not None else None
+                trailing_pe = float(trailing_pe) if trailing_pe and trailing_pe > 0 else None
             except Exception:
-                logger.warning(f"[PE/PEG] {ticker}: invalid PE value {pe}", exc_info=True)
-                pe = None
+                trailing_pe = None
+            try:
+                forward_pe = float(forward_pe) if forward_pe and forward_pe > 0 else None
+            except Exception:
+                forward_pe = None
 
-            if pe is not None and pe <= 0:
-                logger.debug(f"[PE/PEG] {ticker}: Discarding non-positive PE {pe}")
-                pe = None
+            # pick main PE (prefer trailing)
+            pe = trailing_pe or forward_pe
 
-            yoy = compute_yoy_growth(ticker)
+            # --- Growth ---
+            growth = info.get("earningsGrowth") or info.get("revenueGrowth")
+            try:
+                if growth is not None:
+                    growth = float(growth)
+                    if growth < 0:  # ignore negative growth
+                        growth = None
+            except Exception:
+                growth = None
+
+            # fallback to historical YoY
+            if growth is None:
+                growth = compute_yoy_growth(ticker)
+
+            # --- PEG (prefer forward-based PEG) ---
             peg = None
+            if forward_pe and growth and growth > 0:
+                peg = forward_pe / growth
+            elif pe and growth and growth > 0:
+                peg = pe / growth
 
-            if pe and yoy and yoy > 0:
-                peg = pe / yoy
-                logger.debug(f"[PE/PEG] {ticker}: Raw PEG = {peg}")
-                if peg < 0.08:  # discard unrealistic PEG
-                    logger.debug(f"[PE/PEG] {ticker}: Discarding unrealistic PEG {peg}")
-                    peg = None
+            if peg is not None and (peg <= 0 or peg > 10):
+                peg = None
 
-            logger.info(f"[PE/PEG] {ticker}: Final values -> PE={pe}, YoY={yoy}, PEG={peg}")
-            return pe, yoy, peg
+            logger.info(f"[PE/PEG] {ticker}: trailing={trailing_pe}, forward={forward_pe}, growth={growth}, peg={peg}")
+            return pe, growth, peg, trailing_pe, forward_pe
 
         except Exception as e:
-            tries += 1
             wait = random.choice([3, 5, 7])
-            logger.warning(f"[PE/PEG] {ticker} error on try {tries}: {e}. Retrying in {wait}s…", exc_info=True)
+            logger.warning(f"[PE/PEG] {ticker} error: {e}. Retrying in {wait}s…", exc_info=True)
             time.sleep(wait)
 
-    logger.error(f"[PE/PEG] {ticker}: Failed after {tries} retries")
-    return None, None, None
+    logger.error(f"[PE/PEG] {ticker}: failed after retries")
+    return None, None, None, None, None
 
 
 
