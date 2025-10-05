@@ -1,9 +1,13 @@
 ### LPTH
-- Overall sentiment is somewhat bullish.
+- The Q4 2025 Earnings Call Transcript for LightPath was somewhat bullish according to Motley Fool.
 Impact: +10
 
+### LIF
+- Greif sells its timberlands business for $462M to optimize its portfolio, cut debt, and focus on higher-margin markets.
+Impact: +20
+
 ### HUT
-- Market whales have taken a bearish stance on Hut 8.
+- Market whales have taken a bearish stance on Hut 8 options.
 Impact: -5
 
 ### K.TO
@@ -11,8 +15,8 @@ Impact: -5
 Impact: 0
 
 ### GFI
-- Gold Fields stock has outperformed the market significantly in the last 10 years.
-Impact: +20
+- Gold Fields stock has outperformed the market over the past 10 years.
+Impact: +15
 
 ### CGG.TO
 - N/A
@@ -31,9 +35,5 @@ Impact: 0
 Impact: 0
 
 ### RIOT
-- Riot announces positive production and operations updates for September 2025.
+- Riot Platforms announces positive production and operations updates for September 2025.
 Impact: +15
-
-### EQX.TO
-- N/A
-Impact: 0
