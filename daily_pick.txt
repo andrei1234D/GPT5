@@ -1,23 +1,21 @@
-HUT – HUT
+EDV.L – EDV.L
 
-Base Scores: Market & Sector: 147, Quality (Tech Proxies): 170, Near-Term Catalysts: 122, Technical Valuation: 193, Risks: 27
+Base Scores: Market & Sector: 142, Quality (Tech Proxies): 198, Near-Term Catalysts: 92, Technical Valuation: 188, Risks: 38
 
-News: "Market whales take a bearish stance on Hut 8 (HUT). (-10)"
+News: "N/A"
 
-FVA: $22.99
+FVA: 2218.18; Buy 2166.19–2270.17; Stop 2088.19; Target 2413.16; Max hold time: ≤ 1 year (Anchor: $2218.18)
 
-Final base score: 705
+Final base score: 726
 
-Valuation: P/E=28.04, PEG=4.63, YoY Growth=6.06%
+Valuation: P/E=45.76, PEG=N/A, YoY Growth=-0.44%
 
-Certainty: 56%
+Certainty: 68%
 
-```arm
-Hold
-```
+[Buy]
 
-Forecast image URL: https://stockscan.io/stocks/HUT/forecast
+Forecast image URL: https://stockscan.io/stocks/EDV.L/forecast
 
-What reduced the score: 66% above FVA anchor (extended), rich PEG and PS, negative options flow news, elevated volatility risk.
+What reduced the score: 33% above FVA; high P/E with negative YoY; weak breadth/volume; no imminent breakout trigger.
 
-What wasn't clear or contradictory: Breakout with modest MACD/volume follow-through; FVA far below price while continuation flag is off, adding anchor conflict.
+What wasn't clear or contradictory: PEG N/A; GROWTH_TECH +5 vs negative YoY; cheap EV/EBITDA and strong FCF vs high P/E.
