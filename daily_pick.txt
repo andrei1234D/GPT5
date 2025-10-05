@@ -1,13 +1,21 @@
-PSIX – PSIX
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 110, Technical Valuation: 203, Risks: 50
+EDV.L – EDV.L
+
+Base Scores: Market & Sector: 142, Quality (Tech Proxies): 198, Near-Term Catalysts: 92, Technical Valuation: 188, Risks: 38
+
 News: "N/A"
-FVA: 71.67
-Final base score: 688
-Valuation: P/E=21.56, PEG=13.20, YoY Growth=1.63%
-Certainty: 60%
-ADVICE: ```arm
-Hold
-```
-Forecast image URL: https://stockscan.io/stocks/PSIX/forecast
-What reduced the score: 45% above FVA (extended), below-average volume, high ATR/drawdown, rich PEG/EV multiples, negative FCF trend.
-What wasn't clear or contradictory: Low PE vs very high PEG; strong trend/RSI near 70 but 5d pullback and no breakout flag; limited catalysts/news.
+
+FVA: 2218.18; Buy 2166.19–2270.17; Stop 2088.19; Target 2413.16; Max hold time: ≤ 1 year (Anchor: $2218.18)
+
+Final base score: 726
+
+Valuation: P/E=45.76, PEG=N/A, YoY Growth=-0.44%
+
+Certainty: 68%
+
+[Buy]
+
+Forecast image URL: https://stockscan.io/stocks/EDV.L/forecast
+
+What reduced the score: 33% above FVA; high P/E with negative YoY; weak breadth/volume; no imminent breakout trigger.
+
+What wasn't clear or contradictory: PEG N/A; GROWTH_TECH +5 vs negative YoY; cheap EV/EBITDA and strong FCF vs high P/E.
