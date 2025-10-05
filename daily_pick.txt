@@ -1,21 +1,23 @@
-EDV.L – EDV.L
+HUT – HUT
 
-Base Scores: Market & Sector: 142, Quality (Tech Proxies): 198, Near-Term Catalysts: 92, Technical Valuation: 188, Risks: 38
+Base Scores: Market & Sector: 135, Quality (Tech Proxies): 171, Near-Term Catalysts: 122, Technical Valuation: 203, Risks: 26
 
-News: "N/A"
+News: "Whales bearish on options (-5)"
 
-FVA: 2218.18; Buy 2166.19–2270.17; Stop 2088.19; Target 2413.16; Max hold time: ≤ 1 year (Anchor: $2218.18)
+FVA: 22.51 Buy 21.43–23.59; Stop 19.81; Target 26.56; Max hold time: ≤ 1 year (Anchor: $22.51)
 
-Final base score: 726
+Final base score: 710
 
-Valuation: P/E=45.76, PEG=N/A, YoY Growth=-0.44%
+Valuation: P/E=28.04, PEG=4.63, Growth=YoY 6.06%
 
-Certainty: 68%
+Certainty: 58%
 
-[Buy]
+ADVICE: ```arm
+Hold
+```
 
-Forecast image URL: https://stockscan.io/stocks/EDV.L/forecast
+Forecast image URL: https://stockscan.io/stocks/HUT/forecast
 
-What reduced the score: 33% above FVA; high P/E with negative YoY; weak breadth/volume; no imminent breakout trigger.
+What reduced the score: 65% above FVA (continuation not confirmed), rich PEG/PS, high volatility, negative valuation history, options bearish news.
 
-What wasn't clear or contradictory: PEG N/A; GROWTH_TECH +5 vs negative YoY; cheap EV/EBITDA and strong FCF vs high P/E.
+What wasn't clear or contradictory: No forward growth data; mixed momentum (MACD flat) vs strong RSI/EMA slope; anchor-fit poor today.
