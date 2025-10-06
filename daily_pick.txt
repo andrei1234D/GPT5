@@ -1,23 +1,23 @@
-HUT – HUT
+CDE – CDE
 
-Base Scores: Market & Sector: 135, Quality (Tech Proxies): 171, Near-Term Catalysts: 122, Technical Valuation: 203, Risks: 26
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 100, Technical Valuation: 263, Risks: 50
 
-News: "Whales bearish on options (-5)"
+News: "N/A"
 
-FVA: 22.51 Buy 21.43–23.59; Stop 19.81; Target 26.56; Max hold time: ≤ 1 year (Anchor: $22.51)
+FVA: 10.96 | Buy 10.52–11.40; Stop 9.85; Target 12.63; Max hold time: ≤ 1 year (Anchor: $10.96)
 
-Final base score: 710
+Final base score: 742
 
-Valuation: P/E=28.04, PEG=4.63, Growth=YoY 6.06%
+Valuation: P/E=46.82, PEG=1.00, Growth=YoY 29.86%
 
-Certainty: 58%
+Certainty: 64%
 
-ADVICE: ```arm
-Hold
+```ini
+[Buy]
 ```
 
-Forecast image URL: https://stockscan.io/stocks/HUT/forecast
+Forecast image URL: https://stockscan.io/stocks/CDE/forecast
 
-What reduced the score: 65% above FVA (continuation not confirmed), rich PEG/PS, high volatility, negative valuation history, options bearish news.
+What reduced the score: 71% above FVA anchor, light volume (−35.6% vs 20d), elevated PE, no breakout/catalyst, negative FCF trend.
 
-What wasn't clear or contradictory: No forward growth data; mixed momentum (MACD flat) vs strong RSI/EMA slope; anchor-fit poor today.
+What wasn't clear or contradictory: No forward growth provided; strong EMA slopes and RSI vs flat MACD histogram; valuation history proxy negative despite PEG ~1.00.
