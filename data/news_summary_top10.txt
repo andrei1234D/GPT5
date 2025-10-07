@@ -1,41 +1,39 @@
-### LPTH
-- LightPath (LPTH) had a somewhat bullish sentiment in its Q4 2025 Earnings Call.
-Impact: +15
-
-### EDV.L
-- N/A
-Impact: 0
-
-### CGG.TO
-- N/A
-Impact: 0
-
 ### HUT
-- Market whales have taken a bearish stance on Hut 8 (HUT) options.
-Impact: -5
-
-### CDE
-- N/A
-Impact: 0
-
-### GFI
-- Gold Fields (GFI) has shown strong performance over the past 10 years.
-- GFI was listed as a Zacks Rank #1 momentum and income stock on October 3, 2025.
-Impact: +20
-
-### STOK
-- Ultragenyx Pharmaceutical (RARE) appointed Eric Olson as Chief Business Officer and Executive Vice President, which was viewed somewhat positively.
-Impact: +10
-
-### DPM.TO
-- N/A
-Impact: 0
-
-### K.TO
 - N/A
 Impact: 0
 
 ### HL
-- First Majestic Silver's (HL) stock could be a backdoor AI play, indicating bullish sentiment.
-- Hecla Mining (HL) has shown positive momentum and performance recently.
+- First Majestic Silver could soar amidst the global AI race.
 Impact: +25
+
+### ARIS.TO
+- N/A
+Impact: 0
+
+### BE
+- Bloom Energy and Plug Power show positive stock performance.
+Impact: +20
+
+### WBD
+- AMD makes progress in the AI chip market, while Trump's warning to Hamas may impact geopolitical tensions.
+Impact: +15
+
+### RAPP
+- N/A
+Impact: 0
+
+### EQX.TO
+- N/A
+Impact: 0
+
+### GFI
+- Gold stocks like GFI, AGI, and NG are riding the metal's momentum.
+Impact: +30
+
+### M
+- Macy's stock shows strong momentum and value.
+Impact: +25
+
+### REZI
+- Arista Networks is performing well according to Jim Cramer.
+Impact: +15
