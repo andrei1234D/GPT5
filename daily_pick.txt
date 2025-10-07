@@ -1,23 +1,21 @@
 CDE – CDE
 
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 100, Technical Valuation: 263, Risks: 50
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 107, Technical Valuation: 263, Risks: 50
 
-News: "N/A"
+News: N/A
 
-FVA: 10.96 | Buy 10.52–11.40; Stop 9.85; Target 12.63; Max hold time: ≤ 1 year (Anchor: $10.96)
+FVA: $11.85 | Buy 11.39–12.31; Stop 10.69; Target 13.59; Max hold time: ≤ 1 year (Anchor: $11.85)
 
-Final base score: 742
+Final base score: 747
 
 Valuation: P/E=46.82, PEG=1.00, Growth=YoY 29.86%
 
-Certainty: 64%
+Certainty: 62%
 
-```ini
-[Buy]
-```
+ADVICE: ```ini [Buy] ```
 
 Forecast image URL: https://stockscan.io/stocks/CDE/forecast
 
-What reduced the score: 71% above FVA anchor, light volume (−35.6% vs 20d), elevated PE, no breakout/catalyst, negative FCF trend.
+What reduced the score: 74% above FVA (extended), ATH guard triggered, RSI 80 (overbought), volume below 20d average, high PE; FCF trend weak.
 
-What wasn't clear or contradictory: No forward growth provided; strong EMA slopes and RSI vs flat MACD histogram; valuation history proxy negative despite PEG ~1.00.
+What wasn't clear or contradictory: No forward growth or PEG detail beyond 1.00; breakout flagged with soft volume/MACD near flat; large gap vs anchor clouds 6–12m anchor certainty.
