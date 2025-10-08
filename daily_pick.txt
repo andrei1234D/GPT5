@@ -1,21 +1,23 @@
-CDE – CDE
+GFI – GFI
 
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 107, Technical Valuation: 263, Risks: 50
+Base Scores: Market & Sector: 188, Quality (Tech Proxies): 146, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 32
 
-News: N/A
+News: "Gold stocks like GFI, AGI, and NG are riding the metal's momentum. (+30)"
 
-FVA: $11.85 | Buy 11.39–12.31; Stop 10.69; Target 13.59; Max hold time: ≤ 1 year (Anchor: $11.85)
+FVA: 27.31
 
-Final base score: 747
+Final base score: 757
 
-Valuation: P/E=46.82, PEG=1.00, Growth=YoY 29.86%
+Valuation: P/E=20.13, PEG=N/A, Growth=YoY 1.63%
 
-Certainty: 62%
+Certainty: 66%
 
-ADVICE: ```ini [Buy] ```
+ADVICE: ```ini
+[Buy]
+```
 
-Forecast image URL: https://stockscan.io/stocks/CDE/forecast
+Forecast image URL: https://stockscan.io/stocks/GFI/forecast
 
-What reduced the score: 74% above FVA (extended), ATH guard triggered, RSI 80 (overbought), volume below 20d average, high PE; FCF trend weak.
+What reduced the score: Price ~46% above FVA (extended vs anchor), negative 20d volume breadth, weak growth data, negative FCF trend proxy.
 
-What wasn't clear or contradictory: No forward growth or PEG detail beyond 1.00; breakout flagged with soft volume/MACD near flat; large gap vs anchor clouds 6–12m anchor certainty.
+What wasn't clear or contradictory: Missing PEG and Forward Growth; no explicit breakout catalyst; MACD_hist slightly negative despite strong RSI/slope.
