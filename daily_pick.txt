@@ -1,23 +1,21 @@
-GFI – GFI
+TTI – TTI
 
-Base Scores: Market & Sector: 188, Quality (Tech Proxies): 146, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 32
+Base Scores: Market & Sector: 188, Quality (Tech Proxies): 203, Near-Term Catalysts: 100, Technical Valuation: 173, Risks: 8
 
-News: "Gold stocks like GFI, AGI, and NG are riding the metal's momentum. (+30)"
+News: N/A
 
-FVA: 27.31
+FVA: 4.25
 
-Final base score: 757
+Final base score: 738
 
-Valuation: P/E=20.13, PEG=N/A, Growth=YoY 1.63%
+Valuation: P/E=6.03, PEG=N/A, Growth=YoY 0.37%
 
 Certainty: 66%
 
-ADVICE: ```ini
-[Buy]
-```
+ADVICE: [Buy]
 
-Forecast image URL: https://stockscan.io/stocks/GFI/forecast
+Forecast image URL: https://stockscan.io/stocks/TTI/forecast
 
-What reduced the score: Price ~46% above FVA (extended vs anchor), negative 20d volume breadth, weak growth data, negative FCF trend proxy.
+What reduced the score: 31% above FVA anchor; limited catalysts; negative FCF trend; valuation history weak; elevated volatility/drawdown proxies.
 
-What wasn't clear or contradictory: Missing PEG and Forward Growth; no explicit breakout catalyst; MACD_hist slightly negative despite strong RSI/slope.
+What wasn't clear or contradictory: Forward growth and PEG missing; earnings timing unknown; volume context mixed.
