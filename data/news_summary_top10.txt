@@ -1,42 +1,44 @@
-### GFI
-- Gold miner stocks like GFI are benefiting from record gold rally and Fed rate cut hopes.
-- Gold Fields (GFI) has outperformed the market over the past 10 years with an average annual return of 30.91%.
-Impact: +40
-
 ### AMPX
 - N/A
 Impact: 0
 
-### ABX.TO
+### METCB
 - N/A
 Impact: 0
 
-### HL
-- Hecla Mining (HL) benefited from a significant analyst price target hike and positive market factors.
-- First Majestic Silver's stock could see growth potential as a backdoor AI play.
-Impact: +30
+### WDC
+- Western Digital (WDC) stock closed lower in the latest trading session.
+- Strong revenue outlook driven by product innovation for Western Digital.
+Impact: +15
 
-### RAPP
-- N/A
-Impact: 0
+### SHLS
+- Shoals Technologies (SHLS) announces positive earnings release date and conference call.
+- SHLS stock surges with high trading volume, but further gains uncertain.
+Impact: +10
 
-### SSRM.TO
+### REZI
 - N/A
 Impact: 0
 
 ### HUT
+- Bitfarms (HUT) extends gains with bullish sentiment from investors.
+- Bearish options activity observed for Hut 8 (HUT).
+Impact: +5
+
+### BIDU
+- Positive engagement for Alphabet (GOOGL) stock with strong AI ecosystem growth.
+- Baidu (BIDU) shows potential for growth with global expansion and AI momentum.
+Impact: +20
+
+### BITF.TO
 - N/A
 Impact: 0
 
-### BIDU
-- Hong Kong stocks drop amid AI bubble fears and tracking Wall Street's retreat.
-- Qualcomm's potential to power the next era of smart devices is highlighted.
-Impact: -10
+### AVAH
+- Aveanna Healthcare (AVAH) identified as a top momentum pick for investors.
+- AVAH remains a bargain stock despite fast-paced momentum.
+Impact: +10
 
-### REZI
-- Cramer praises Arista Networks' performance, indicating positive sentiment in the market.
-Impact: +20
-
-### GURU.TO
+### ABX.TO
 - N/A
 Impact: 0
