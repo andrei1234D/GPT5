@@ -1,14 +1,14 @@
-HUT – HUT
+METCB – METCB
 
-Base Scores: Market & Sector: 135, Quality (Tech Proxies): 171, Near-Term Catalysts: 122, Technical Valuation: 203, Risks: 26
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 193, Risks: 50
 
-News: "Whales bearish on options (-5)"
+News: "N/A"
 
-FVA: 22.51 Buy 21.43–23.59; Stop 19.81; Target 26.56; Max hold time: ≤ 1 year (Anchor: $22.51)
+FVA: 13.79; Buy 13.26–14.32; Stop 12.48; Target 15.76; Max hold time: ≤ 1 year (Anchor: $13.79)
 
-Final base score: 710
+Final base score: 748
 
-Valuation: P/E=28.04, PEG=4.63, Growth=YoY 6.06%
+Valuation: P/E=N/A, PEG=N/A, Growth=N/A
 
 Certainty: 58%
 
@@ -16,8 +16,8 @@ ADVICE: ```arm
 Hold
 ```
 
-Forecast image URL: https://stockscan.io/stocks/HUT/forecast
+Forecast image URL: https://stockscan.io/stocks/METCB/forecast
 
-What reduced the score: 65% above FVA (continuation not confirmed), rich PEG/PS, high volatility, negative valuation history, options bearish news.
+What reduced the score: 44% above FVA (extended), valuation history weak, FCF trend negative, missing PE/PEG/growth data
 
-What wasn't clear or contradictory: No forward growth data; mixed momentum (MACD flat) vs strong RSI/EMA slope; anchor-fit poor today.
+What wasn't clear or contradictory: Forward growth and earnings visibility absent; breakout strength vs far-below FVA anchor creates timing conflict
