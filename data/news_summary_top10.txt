@@ -1,44 +1,40 @@
+### TXG.TO
+- N/A
+Impact: 0
+
+### DPM.TO
+- N/A
+Impact: 0
+
+### K.TO
+- N/A
+Impact: 0
+
+### VERI
+- Positive outlook on Veritone's stock potential.
+Impact: +30
+
 ### AMPX
 - N/A
 Impact: 0
 
-### METCB
+### SSRM.TO
 - N/A
 Impact: 0
-
-### WDC
-- Western Digital (WDC) stock closed lower in the latest trading session.
-- Strong revenue outlook driven by product innovation for Western Digital.
-Impact: +15
-
-### SHLS
-- Shoals Technologies (SHLS) announces positive earnings release date and conference call.
-- SHLS stock surges with high trading volume, but further gains uncertain.
-Impact: +10
-
-### REZI
-- N/A
-Impact: 0
-
-### HUT
-- Bitfarms (HUT) extends gains with bullish sentiment from investors.
-- Bearish options activity observed for Hut 8 (HUT).
-Impact: +5
-
-### BIDU
-- Positive engagement for Alphabet (GOOGL) stock with strong AI ecosystem growth.
-- Baidu (BIDU) shows potential for growth with global expansion and AI momentum.
-Impact: +20
-
-### BITF.TO
-- N/A
-Impact: 0
-
-### AVAH
-- Aveanna Healthcare (AVAH) identified as a top momentum pick for investors.
-- AVAH remains a bargain stock despite fast-paced momentum.
-Impact: +10
 
 ### ABX.TO
+- N/A
+Impact: 0
+
+### DRD
+- First Majestic sees significant production increase in Q3.
+- Teck Resources adjusts mine outlook following operational review.
+Impact: +25
+
+### AXTI
+- N/A
+Impact: 0
+
+### CMCL
 - N/A
 Impact: 0
