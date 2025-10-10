@@ -1,21 +1,23 @@
-TTI – TTI
+METCB – METCB
 
-Base Scores: Market & Sector: 188, Quality (Tech Proxies): 203, Near-Term Catalysts: 100, Technical Valuation: 173, Risks: 8
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 193, Risks: 50
 
-News: N/A
+News: "N/A"
 
-FVA: 4.25
+FVA: 13.79; Buy 13.26–14.32; Stop 12.48; Target 15.76; Max hold time: ≤ 1 year (Anchor: $13.79)
 
-Final base score: 738
+Final base score: 748
 
-Valuation: P/E=6.03, PEG=N/A, Growth=YoY 0.37%
+Valuation: P/E=N/A, PEG=N/A, Growth=N/A
 
-Certainty: 66%
+Certainty: 58%
 
-ADVICE: [Buy]
+ADVICE: ```arm
+Hold
+```
 
-Forecast image URL: https://stockscan.io/stocks/TTI/forecast
+Forecast image URL: https://stockscan.io/stocks/METCB/forecast
 
-What reduced the score: 31% above FVA anchor; limited catalysts; negative FCF trend; valuation history weak; elevated volatility/drawdown proxies.
+What reduced the score: 44% above FVA (extended), valuation history weak, FCF trend negative, missing PE/PEG/growth data
 
-What wasn't clear or contradictory: Forward growth and PEG missing; earnings timing unknown; volume context mixed.
+What wasn't clear or contradictory: Forward growth and earnings visibility absent; breakout strength vs far-below FVA anchor creates timing conflict
