@@ -680,7 +680,7 @@ class RobustRanker:
             boost -= 10  # expensive with negative growth
 
         # --- Bound final score ---
-        boost = max(-40, min(40, boost))
+        boost = max(-27, min(27, boost))
         return boost
 
 
