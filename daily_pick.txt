@@ -1,23 +1,11 @@
-METCB – METCB
-
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 193, Risks: 50
-
+DPM.TO – DPM.TO
+Base Scores: Market & Sector: 150, Quality (Tech Proxies): 157, Near-Term Catalysts: 92, Technical Valuation: 193, Risks: 30
 News: "N/A"
-
-FVA: 13.79; Buy 13.26–14.32; Stop 12.48; Target 15.76; Max hold time: ≤ 1 year (Anchor: $13.79)
-
-Final base score: 748
-
-Valuation: P/E=N/A, PEG=N/A, Growth=N/A
-
-Certainty: 58%
-
-ADVICE: ```arm
-Hold
-```
-
-Forecast image URL: https://stockscan.io/stocks/METCB/forecast
-
-What reduced the score: 44% above FVA (extended), valuation history weak, FCF trend negative, missing PE/PEG/growth data
-
-What wasn't clear or contradictory: Forward growth and earnings visibility absent; breakout strength vs far-below FVA anchor creates timing conflict
+Final base score: 692
+Valuation: P/E=17.01, PEG=N/A, Growth=YoY 0.44%
+Certainty: 70%
+ADVICE: ```ini [Buy] ```
+Buy 23.82–25.14; Stop 22.83; Target 26.96; Max hold time: ≤ 1 year (Anchor: $24.48)
+Forecast image URL: https://stockscan.io/stocks/DPM.TO/forecast
+What reduced the score: 34% above FVA; weak YoY growth; -38% volume vs 20d; FCF trend negative; valuation history flagged
+What wasn't clear or contradictory: No forward growth/PEG; no near-term catalysts; MACD flat
