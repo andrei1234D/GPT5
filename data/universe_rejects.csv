@@ -757,6 +757,7 @@ BOWLL.L,Hollywood Bowl,2025-09-15 17:45:54
 BOXD,Becton Dickinson & Co,2025-09-15 17:45:54
 BOYL.L,Bodycote,2025-09-15 17:45:54
 BPCL,Challenger Energy,2025-09-15 17:45:54
+BPCRL.L,BioPharma Credit,2025-10-11 04:14:00
 BPE5D,,persisted
 BPL.L,BP,2025-09-15 17:45:54
 BPT,BP Prudhoe Bay Royalty Trust,name-filter
@@ -1709,6 +1710,7 @@ GSJE.MC,Grupo Empresarial San Jose,2025-09-15 17:54:42
 GSKL.L,GSK,2025-09-15 17:54:42
 GSM.L,Ferroglobe,2025-09-15 17:54:42
 GSMG,Cheer Holding,2025-09-15 17:54:42
+GSRT.AS,Terra Innovatum,2025-10-11 04:15:30
 GSTL,GSTechnologies,2025-09-15 17:54:42
 GSX,Gaotu Techedu,2025-09-15 17:54:55
 GTBIF.TO,Green Thumb Industries,2025-09-15 17:54:55
@@ -3808,5 +3810,4 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-BPCRL.L,404/empty-or-short,2025-10-11 04:14:00
-GSRT.AS,404/empty-or-short,2025-10-11 04:15:30
+DATS,404/empty-or-short,2025-10-12 04:15:21
