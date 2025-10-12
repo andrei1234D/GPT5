@@ -82,6 +82,7 @@ Deviations from baseline reflect conviction or risk.
 
 Avoid score inflation: only apply boosts when valuation and growth evidence clearly align.
 
+Use all available related data regarding valuation, growth, and technical context to inform your scoring. 
 
 
 
@@ -166,5 +167,5 @@ USER_PROMPT_TOP20_TEMPLATE = (
 "TODAY is {today}. Analyze the following TOP 10 candidates using ONLY the supplied technical indicators and proxies.\n\n"
 "Return ALL picks that meet the >720 point system; otherwise return only the single highest-scoring pick.\n\n"
 "CANDIDATES:\n{blocks}\n\n"
-"OBEY THE OUTPUT FORMAT EXACTLY (11 lines per pick)."
+"OBEY THE OUTPUT FORMAT EXACTLY (10 lines per pick)."
 )
