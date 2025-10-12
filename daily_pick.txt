@@ -1,11 +1,25 @@
-DPM.TO – DPM.TO
-Base Scores: Market & Sector: 150, Quality (Tech Proxies): 157, Near-Term Catalysts: 92, Technical Valuation: 193, Risks: 30
+CDE – CDE
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 171, Near-Term Catalysts: 108, Technical Valuation: 213, Risks: 15
+News: "Short interest rose; rising earnings estimates (+25)"
+Final base score: 748
+Valuation: P/E=48.90, PEG=1.04, Growth=YoY 29.86%
+Certainty: 60%
+ADVICE: ```arm Hold ```
+Forecast image URL: https://stockscan.io/stocks/CDE/forecast
+Buy 11.10–12.16; Stop 10.31; Target 13.61; Max hold time: ≤ 1 year (Anchor: $11.63).
+What reduced the score: Extended >40% above FVA/AVWAP, slight MACD fade, weak 20d volume, FCF trend negative, valuation history overhang.
+What wasn't clear or contradictory: No forward growth provided; continuation flag off despite trend; anchor vs “EXTENDED” risk balance.
+
+CGG.TO – CGG.TO
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 203, Near-Term Catalysts: 108, Technical Valuation: 178, Risks: 20
 News: "N/A"
-Final base score: 692
-Valuation: P/E=17.01, PEG=N/A, Growth=YoY 0.44%
-Certainty: 70%
-ADVICE: ```ini [Buy] ```
-Buy 23.82–25.14; Stop 22.83; Target 26.96; Max hold time: ≤ 1 year (Anchor: $24.48)
-Forecast image URL: https://stockscan.io/stocks/DPM.TO/forecast
-What reduced the score: 34% above FVA; weak YoY growth; -38% volume vs 20d; FCF trend negative; valuation history flagged
-What wasn't clear or contradictory: No forward growth/PEG; no near-term catalysts; MACD flat
+Final base score: 731
+Valuation: P/E=24.27, PEG=N/A, Growth=YoY 1.08%
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
+Buy 17.36–18.44; Stop 16.58; Target 19.92; Max hold time: ≤ 1 year (Anchor: $17.90).
+What reduced the score: Mild negative MACD, price >40% above FVA, limited growth data, valuation history penalty.
+What wasn't clear or contradictory: No forward growth/PEG; KO “EXTENDED=No” vs 41% above FVA.
