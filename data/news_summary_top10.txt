@@ -1,7 +1,7 @@
 ### CDE
-- Coeur Mining Inc's short interest has risen significantly.
-- Five growth stocks, including CDE, are standing out with rising earnings estimates.
-Impact: +25
+- Coeur Mining Inc's short interest has risen significantly since its last report.
+- Five growth stocks, including CDE, stand out with rising earnings estimates.
+Impact: +15
 
 ### DPM.TO
 - N/A
@@ -13,8 +13,8 @@ Impact: 0
 
 ### DRD
 - First Majestic's Q3 silver-equivalent production surges 39% year over year.
-- Gold-related companies are shining on Fed rate cut optimism.
-Impact: +20
+- Gold companies like Agnico Eagle Mines and others shine amid Fed rate cut optimism.
+Impact: +10
 
 ### AAUC.TO
 - N/A
@@ -25,20 +25,20 @@ Impact: 0
 Impact: 0
 
 ### INOD
-- Innodata is investing in delivery expansion to strengthen its competitive edge.
-- Innodata's short interest has decreased.
-Impact: +15
+- Innodata boosts delivery capacity to sharpen its edge in the AI services market.
+- Innodata's short interest has decreased since the last report.
+Impact: +10
 
 ### SKYT
 - SkyWater Technology advances while the market declines.
-- Wall Street analysts view SkyWater Technology as a good investment.
-Impact: +10
+- Wall Street analysts consider SkyWater Technology a good investment.
+Impact: +5
 
 ### ARWR
 - N/A
 Impact: 0
 
 ### RIOT
-- Articles discuss Bitcoin mining trends and Bitdeer's self-mining strategy.
-- BitMine stock experiences volatility after a critical report from Kerrisdale.
+- Overview of Bitcoin mining in 2025, including rewards, hardware, pools, and energy.
+- Bitdeer increases self-mining efforts amid cooling demand for rigs.
 Impact: 0
