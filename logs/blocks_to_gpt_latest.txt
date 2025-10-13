@@ -38,9 +38,9 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### CDE News
 ### CDE
-- Coeur Mining Inc's short interest has risen significantly.
-- Five growth stocks, including CDE, are standing out with rising earnings estimates.
-Impact: +25
+- Coeur Mining Inc's short interest has risen significantly since its last report.
+- Five growth stocks, including CDE, stand out with rising earnings estimates.
+Impact: +15
 
 TICKER: DPM.TO
 COMPANY: DPM.TO
@@ -125,9 +125,9 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### INOD News
 ### INOD
-- Innodata is investing in delivery expansion to strengthen its competitive edge.
-- Innodata's short interest has decreased.
-Impact: +15
+- Innodata boosts delivery capacity to sharpen its edge in the AI services market.
+- Innodata's short interest has decreased since the last report.
+Impact: +10
 
 TICKER: ARWR
 COMPANY: ARWR
@@ -212,8 +212,8 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 ### RIOT News
 ### RIOT
-- Articles discuss Bitcoin mining trends and Bitdeer's self-mining strategy.
-- BitMine stock experiences volatility after a critical report from Kerrisdale.
+- Overview of Bitcoin mining in 2025, including rewards, hardware, pools, and energy.
+- Bitdeer increases self-mining efforts amid cooling demand for rigs.
 Impact: 0
 
 TICKER: JAG.TO
@@ -258,48 +258,6 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 - N/A
 Impact: 0
 
-TICKER: KYTX
-COMPANY: KYTX
-CURRENT_PRICE: $6.63
-vsSMA20: 13.96%
-vsSMA50: 47.69%
-vsSMA200: 101.08%
-SMA50: 4.49
-AVWAP252: 3.98
-RSI14: 51.00
-MACD_hist: 0.03
-ATR%: 9.77%
-Drawdown%: -7.66%
-5d%: 12.56%
-20d%: 69.57%
-60d%: 70.00%
-Vol_vs_20d%: -25.78%
-EMA20: 5.80
-EMA50: 4.89
-EMA200: 4.05
-vsEMA50: 35.57%
-vsEMA200: 63.85%
-EMA50_slope_5d%: 7.64%
-VALUATION_FIELDS: PE=N/A; YoY_Growth=-1.11%; EV_EBITDA=N/A; EV_REV=N/A; PS=N/A; FCF_YIELD=-40.62%; PEG=N/A
-BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
-PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-3; VALUATION_HISTORY=-5; RISK_VOLATILITY=5; RISK_DRAWDOWN=4
-PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-3
-PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=+1; EARNINGS_SOON=0
-CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
-EXPECTED_VOLATILITY_PCT: 6.00
-FVA_HINT: 4.24
-PE_HINT: N/A
-SUGGESTED_BONUSES: DIP_5_12
-SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
-RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
-KO_CONTEXT: GAP_PCT=56.37%; EXTENDED=Yes
-PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
-
-
-### KYTX News
-- N/A
-Impact: 0
-
 TICKER: CGG.TO
 COMPANY: CGG.TO
 CURRENT_PRICE: $25.24
@@ -339,6 +297,48 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 
 
 ### CGG.TO News
+- N/A
+Impact: 0
+
+TICKER: KYTX
+COMPANY: KYTX
+CURRENT_PRICE: $6.63
+vsSMA20: 13.96%
+vsSMA50: 47.69%
+vsSMA200: 101.08%
+SMA50: 4.49
+AVWAP252: 3.98
+RSI14: 51.00
+MACD_hist: 0.03
+ATR%: 9.77%
+Drawdown%: -7.66%
+5d%: 12.56%
+20d%: 69.57%
+60d%: 70.00%
+Vol_vs_20d%: -25.78%
+EMA20: 5.80
+EMA50: 4.89
+EMA200: 4.05
+vsEMA50: 35.57%
+vsEMA200: 63.85%
+EMA50_slope_5d%: 7.64%
+VALUATION_FIELDS: PE=N/A; YoY_Growth=-1.11%; EV_EBITDA=N/A; EV_REV=N/A; PS=N/A; FCF_YIELD=-40.62%; PEG=N/A
+BASELINE_HINTS: MKT_SECTOR=132;  Quality (Tech Proxies)=133; Near-Term Catalysts=92; Technical Valuation=193; RISKS=50
+PROXIES: MARKET_TREND=+3; REL_STRENGTH=+5; BREADTH_VOLUME=-3; VALUATION_HISTORY=-5; RISK_VOLATILITY=5; RISK_DRAWDOWN=4
+PROXIES_FUNDAMENTALS: GROWTH_TECH=+5; MARGIN_TREND_TECH=0; FCF_TREND_TECH=-5; OP_EFF_TREND_TECH=-3
+PROXIES_CATALYSTS: TECH_BREAKOUT=0; TECH_BREAKDOWN=0; DIP_REVERSAL=+1; EARNINGS_SOON=0
+CATALYST_TIMING_HINTS: TECH_BREAKOUT=None
+EXPECTED_VOLATILITY_PCT: 6.00
+FVA_HINT: 4.24
+PE_HINT: N/A
+SUGGESTED_BONUSES: DIP_5_12
+SETUP_FLAGS: EARLY_TURN=No; COIL_SETUP=No; CONTINUATION_OK=No
+RISK_GUARDS: ATH_GUARD_ACTIVE=Yes; ATH_TRIGGERED=No; PROBE_ELIGIBLE=No; PROBE_LEVEL=None
+KO_CONTEXT: GAP_PCT=56.37%; EXTENDED=Yes
+PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certainty ≥ 80%). Let EV=clamp(ATR%,1..6). Buy=FVA×(1−0.8×EV/100)…FVA×(1+0.8×EV/100); Stop=FVA×(1−2.0×EV/100); Target=FVA×(1+3.0×EV/100). Fix conflicts: if stop≥buy_low → stop=min(buy_low×0.99,FVA×(1−2.2×EV/100)); if target≤buy_high → target=max(buy_high×1.05,FVA×(1+3.2×EV/100)). Round $ to 2 decimals and output exactly: Buy X–Y; Stop Z; Target T; Max hold time: ≤ 1 year (Anchor: $FVA).
+
+
+### KYTX News
 - N/A
 Impact: 0
 

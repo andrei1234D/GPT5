@@ -1,25 +1,19 @@
 CDE – CDE
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 171, Near-Term Catalysts: 108, Technical Valuation: 213, Risks: 15
-News: "Short interest rose; rising earnings estimates (+25)"
-Final base score: 748
-Valuation: P/E=48.90, PEG=1.04, Growth=YoY 29.86%
-Certainty: 60%
-ADVICE: ```arm Hold ```
-Forecast image URL: https://stockscan.io/stocks/CDE/forecast
-Buy 11.10–12.16; Stop 10.31; Target 13.61; Max hold time: ≤ 1 year (Anchor: $11.63).
-What reduced the score: Extended >40% above FVA/AVWAP, slight MACD fade, weak 20d volume, FCF trend negative, valuation history overhang.
-What wasn't clear or contradictory: No forward growth provided; continuation flag off despite trend; anchor vs “EXTENDED” risk balance.
 
-CGG.TO – CGG.TO
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 203, Near-Term Catalysts: 108, Technical Valuation: 178, Risks: 20
-News: "N/A"
-Final base score: 731
-Valuation: P/E=24.27, PEG=N/A, Growth=YoY 1.08%
-Certainty: 66%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
-Buy 17.36–18.44; Stop 16.58; Target 19.92; Max hold time: ≤ 1 year (Anchor: $17.90).
-What reduced the score: Mild negative MACD, price >40% above FVA, limited growth data, valuation history penalty.
-What wasn't clear or contradictory: No forward growth/PEG; KO “EXTENDED=No” vs 41% above FVA.
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 100, Technical Valuation: 238, Risks: 50
+
+News: "Short interest rising; earnings estimates rising (+15)"
+
+Final base score: 732
+
+Valuation: P/E=48.90, PEG=1.04, Growth=YoY 29.86%
+
+Certainty: 64%
+
+ADVICE: ```ini [Buy] ``` | Buy 11.10–12.16; Stop 10.31; Target 13.61; Max hold time: ≤ 1 year (Anchor: $11.63).
+
+Forecast image URL: https://stockscan.io/stocks/CDE/forecast
+
+What reduced the score: 68% above FVA (extended), high PE, softer volume vs 20d, slight MACD fade, weak FCF trend.
+
+What wasn't clear or contradictory: No forward growth/PEG detail beyond YoY; no explicit breakout timing; sustainability of recent momentum vs extension.
