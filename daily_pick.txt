@@ -1,19 +1,32 @@
 CDE – CDE
-
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 100, Technical Valuation: 238, Risks: 50
-
-News: "Short interest rising; earnings estimates rising (+15)"
-
-Final base score: 732
-
+Base Scores: Market & Sector: 147, Quality (Tech Proxies): 200, Near-Term Catalysts: 115, Technical Valuation: 173, Risks: 23
+News: "Short interest rising; rising earnings estimate mentions" (+15)
+Final base score: 735
 Valuation: P/E=48.90, PEG=1.04, Growth=YoY 29.86%
-
-Certainty: 64%
-
-ADVICE: ```ini [Buy] ``` | Buy 11.10–12.16; Stop 10.31; Target 13.61; Max hold time: ≤ 1 year (Anchor: $11.63).
-
+Certainty: 62%
+ADVICE: [Buy]
 Forecast image URL: https://stockscan.io/stocks/CDE/forecast
+What reduced the score: 80% above FVA (overextended), light volume vs 20d, high PE, negative FCF trend
+What wasn't clear or contradictory: Forward growth/PEG durability unknown; breakout with weak breadth
 
-What reduced the score: 68% above FVA (extended), high PE, softer volume vs 20d, slight MACD fade, weak FCF trend.
+DPM.TO – DPM.TO
+Base Scores: Market & Sector: 147, Quality (Tech Proxies): 212, Near-Term Catalysts: 100, Technical Valuation: 183, Risks: 35
+News: "N/A"
+Final base score: 741
+Valuation: P/E=16.61, PEG=N/A, Growth=YoY 0.44%
+Certainty: 64%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/DPM.TO/forecast
+What reduced the score: Soft volume, FCF trend negative, valuation history weak, 34% over FVA
+What wasn't clear or contradictory: PEG and forward growth missing; no clear near-term catalyst
 
-What wasn't clear or contradictory: No forward growth/PEG detail beyond YoY; no explicit breakout timing; sustainability of recent momentum vs extension.
+CGG.TO – CGG.TO
+Base Scores: Market & Sector: 182, Quality (Tech Proxies): 209, Near-Term Catalysts: 108, Technical Valuation: 143, Risks: 25
+News: "N/A"
+Final base score: 728
+Valuation: P/E=24.27, PEG=N/A, Growth=YoY 1.08%
+Certainty: 61%
+ADVICE: Hold
+Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
+What reduced the score: ~41% above FVA (borderline extended), negative MACD, FCF trend negative, valuation history weak
+What wasn't clear or contradictory: PEG/forward growth missing; strong volume vs 20d but momentum mixed (MACD<0)
