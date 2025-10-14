@@ -1,44 +1,44 @@
-### CDE
-- Coeur Mining Inc's short interest has risen since its last report.
-- Five growth stocks, including CDE, stand out with rising earnings estimates.
-Impact: +15
-
 ### DPM.TO
 - N/A
 Impact: 0
 
-### CMCL
-- N/A
-Impact: 0
-
 ### DRD
-- First Majestic's Q3 silver-equivalent production jumps significantly year over year.
-- Gold mining companies are shining on Fed rate cut optimism.
-Impact: +20
+- Silver-equivalent production for First Majestic surges 39% year over year, driven by record silver production and Los Gatos addition.
+- Gold mining companies like Agnico Eagle Mines, DRDGOLD, Alamos Gold, Gold Fields, and U.S. Gold are benefiting from soaring gold prices.
+Impact: +25
 
-### AAUC.TO
-- N/A
-Impact: 0
+### GFI
+- Gold Fields has outperformed the market over the past 5 years with a strong average annual return.
+- Gold Fields experiences a significant increase in cash flow in H1, supporting its growth momentum.
+Impact: +30
 
 ### SFTBY
 - N/A
 Impact: 0
 
-### INOD
-- Innodata boosts delivery capacity to sharpen its edge in the AI services market.
-- Innodata's short interest has fallen since its last report.
-Impact: +10
+### MU
+- Zacks Rank #1 tech stocks, including MU, present a buying opportunity after a dip.
+- Broadcom shares surge as Wall Street rallies on eased China tensions, boosting risk appetite.
+Impact: +15
+
+### LTBR
+- Lightbridge successfully completes the loading of capsules with advanced nuclear fuel material samples for irradiation testing.
+Impact: +20
 
 ### SKYT
-- SkyWater Technology advances while the market declines.
-- Wall Street analysts view SkyWater Technology as a good investment.
-Impact: +10
+- SkyWater Technology shows positive stock performance amidst market decline.
+- Wall Street analysts view SkyWater Technology as a good investment opportunity.
+Impact: +15
 
-### ARWR
+### INOD
+- Innodata's AI-driven growth and premium valuation spark investor interest.
+- Innodata expands delivery capacity to strengthen its competitive edge in the AI services market.
+Impact: +20
+
+### AMBO
 - N/A
 Impact: 0
 
-### RIOT
-- Articles cover various aspects of Bitcoin mining in 2025.
-- BitMine stocks trade choppy after a critical report from Kerrisdale.
+### TXG.TO
+- N/A
 Impact: 0
