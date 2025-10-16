@@ -1,10 +1,10 @@
-JAG.TO – JAG.TO
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 182, Technical Valuation: 178, Risks: 50
+YQ – YQ
+Base Scores: Market & Sector: 157, Quality (Tech Proxies): 163, Near-Term Catalysts: 137, Technical Valuation: 203, Risks: 4
 News: N/A
-Final base score: 739
-Valuation: P/E=16.18, PEG=N/A, Growth=YoY -1.08%
-Certainty: 64%
-ADVICE: ```ini [Buy] ```
-Forecast image URL: https://stockscan.io/stocks/JAG.TO/forecast
-What reduced the score: >40% above FVA anchor; negative YoY growth; extended/gap context; missing PEG/forward growth
-What wasn't clear or contradictory: Strong breakout volume vs sizable stretch above FVA — sustainability beyond near term uncertain
+Final base score: 723
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.38%
+Certainty: 58%
+ADVICE: Hold
+Forecast image URL: https://stockscan.io/stocks/YQ/forecast
+What reduced the score: Extreme extension >100% above FVA, high ATR/volatility, weak/unknown earnings profile, negative FCF, limited valuation data
+What wasn't clear or contradictory: EV/REV high vs very low PS; missing forward growth/PEG/PE; sustainability of breakout volume unclear
