@@ -1,10 +1,13 @@
-YQ – YQ
-Base Scores: Market & Sector: 157, Quality (Tech Proxies): 163, Near-Term Catalysts: 137, Technical Valuation: 203, Risks: 4
+SFTBY – SFTBY
+
+Base Scores: Market & Sector: 173, Quality (Tech Proxies): 192, Near-Term Catalysts: 165, Technical Valuation: 183, Risks: 21
 News: N/A
-Final base score: 723
-Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.38%
-Certainty: 58%
-ADVICE: Hold
-Forecast image URL: https://stockscan.io/stocks/YQ/forecast
-What reduced the score: Extreme extension >100% above FVA, high ATR/volatility, weak/unknown earnings profile, negative FCF, limited valuation data
-What wasn't clear or contradictory: EV/REV high vs very low PS; missing forward growth/PEG/PE; sustainability of breakout volume unclear
+Final base score: 734
+Valuation: P/E=28.69, PEG=N/A, Growth=YoY 0.07%
+Certainty: 66%
+```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/SFTBY/forecast
+What reduced the score: >60% above FVA anchor, ATH risk, modest YoY growth, negative valuation-history proxy, extended run
+What wasn't clear or contradictory: No PEG/forward growth; extreme FCF yield and ultra-low PS may be data anomalies; mixed signals (cheap EV/Rev vs mid-20s PE)
