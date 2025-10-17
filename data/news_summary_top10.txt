@@ -1,39 +1,45 @@
 ### DRD
-- DRDGOLD posts strong Q3 results with increased sales volume and operating profit momentum.
+- DRD Surges 249% YTD reflecting disciplined management and growth projects.
+- Royal Gold's Q3 stream segment sales volume up 18% sequentially.
 Impact: +35
 
-### SFTBY
-- N/A
-Impact: 0
-
-### CDTX
-- Cidara Therapeutics receives positive FDA breakthrough therapy tag for influenza drug, leading to stock gains.
+### IDCC
+- Wireless industry likely to witness healthy growth with strong demand for networking architecture.
+- Viasat showcases advanced battlefield communications tech for U.S. Army missions.
 Impact: +30
 
-### SKYT
-- SkyWater Technology stock shows mixed performance but attracts investor interest.
+### VNP.TO
+- N/A
+Impact: 0
+
+### LRCX
+- Lam Research falls more steeply than broader market.
+- Investing for the long run could reap huge rewards.
+Impact: -5
+
+### CDTX
+- JP Morgan initiates coverage of Cidara Therapeutics citing game-changing potential of lead asset.
+- Cidara Therapeutics wins FDA Breakthrough Therapy tag for CD388 in influenza.
+Impact: +25
+
+### CLPT
+- N/A
+Impact: 0
+
+### AQST
+- Aquestive Therapeutics surges 7.9% in last session.
+- Latest trend in earnings estimate revisions may not translate into further price increase.
 Impact: +10
 
-### NGD.TO
+### LTBR
 - N/A
 Impact: 0
 
-### AMBO
+### CGG.TO
 - N/A
 Impact: 0
 
-### CMCL
-- N/A
-Impact: 0
-
-### ABX.TO
-- N/A
-Impact: 0
-
-### GFI
-- Gold Fields experiences significant growth and outperforms the market, attracting investor attention.
-Impact: +40
-
-### RAPT
-- N/A
-Impact: 0
+### AMLX
+- Amylyx has seen solid earnings estimate revision activity and belongs to a strong industry.
+- Ongoing investigations into Amylyx Pharmaceuticals may impact long-term shareholders.
+Impact: +15
