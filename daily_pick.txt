@@ -1,13 +1,12 @@
-SFTBY – SFTBY
-
-Base Scores: Market & Sector: 173, Quality (Tech Proxies): 192, Near-Term Catalysts: 165, Technical Valuation: 183, Risks: 21
-News: N/A
-Final base score: 734
-Valuation: P/E=28.69, PEG=N/A, Growth=YoY 0.07%
-Certainty: 66%
-```ini
+IDCC – IDCC
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 50
+News: "Wireless industry set for healthy growth; Viasat showcases advanced battlefield comms (+30)"
+Final base score: 707
+Valuation: P/E=26.11, PEG=N/A, Growth=YoY 0.36%
+Certainty: 67%
+ADVICE: ```ini
 [Buy]
 ```
-Forecast image URL: https://stockscan.io/stocks/SFTBY/forecast
-What reduced the score: >60% above FVA anchor, ATH risk, modest YoY growth, negative valuation-history proxy, extended run
-What wasn't clear or contradictory: No PEG/forward growth; extreme FCF yield and ultra-low PS may be data anomalies; mixed signals (cheap EV/Rev vs mid-20s PE)
+Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
+What reduced the score: 36.9% above FVA anchor; flat YoY growth; low volume vs 20d; mild negative MACD; premium PE/PS; no breakout proxy.
+What wasn't clear or contradictory: Growth proxy strength vs near-flat YoY; continuation trend strong but consolidating; FVA proximity borderline under CONTINUATION_OK.
