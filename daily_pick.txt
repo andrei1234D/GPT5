@@ -1,12 +1,38 @@
+EQX.TO – EQX.TO
+Base Scores: Market & Sector: 186, Quality (Tech Proxies): 151, Near-Term Catalysts: 100, Technical Valuation: 214, Risks: 17
+News: "N/A"
+Final base score: 732
+Valuation: P/E=11.09, PEG=1.03, Growth=YoY 10.75%
+Certainty: 64%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/EQX.TO/forecast
+What reduced the score: 41% over FVA anchor, negative valuation history, FCF trend weak, moderate risk profile
+What wasn't clear or contradictory: No forward growth/PEG history detail; volume slightly below average
+
+DPM.TO – DPM.TO
+Base Scores: Market & Sector: 180, Quality (Tech Proxies): 151, Near-Term Catalysts: 100, Technical Valuation: 211, Risks: 23
+News: "N/A"
+Final base score: 731
+Valuation: P/E=16.68, PEG=N/A, Growth=YoY 0.44%
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/DPM.TO/forecast
+What reduced the score: Minimal YoY growth, negative valuation history, weak FCF trend, lighter volume
+What wasn't clear or contradictory: Missing PEG and forward growth; no explicit near-term catalysts beyond trend
+
 IDCC – IDCC
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 50
-News: "Wireless industry set for healthy growth; Viasat showcases advanced battlefield comms (+30)"
-Final base score: 707
-Valuation: P/E=26.11, PEG=N/A, Growth=YoY 0.36%
-Certainty: 67%
+Base Scores: Market & Sector: 180, Quality (Tech Proxies): 145, Near-Term Catalysts: 92, Technical Valuation: 211, Risks: 33
+News: "5G/cloud/fiber tailwinds; Wireless Equipment industry outlook improving; IDCC positioned to benefit (+30)"
+Final base score: 759
+Valuation: P/E=26.04, PEG=N/A, Growth=YoY 0.36%
+Certainty: 68%
 ADVICE: ```ini
 [Buy]
 ```
 Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
-What reduced the score: 36.9% above FVA anchor; flat YoY growth; low volume vs 20d; mild negative MACD; premium PE/PS; no breakout proxy.
-What wasn't clear or contradictory: Growth proxy strength vs near-flat YoY; continuation trend strong but consolidating; FVA proximity borderline under CONTINUATION_OK.
+What reduced the score: Elevated P/E without PEG, negative valuation history, subdued recent volume
+What wasn't clear or contradictory: No forward growth/PEG; MACD marginally negative vs strong RSI and trend
