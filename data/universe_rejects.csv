@@ -587,6 +587,7 @@ AUDD,Autodesk,2025-09-15 17:44:26
 AUGML.L,Augmentum Fintech,2025-09-15 17:44:26
 AUGRP.PA,Augros Cosmetic Packaging,2025-09-15 17:44:26
 AUPH.TO,Aurinia Pharmaceuticals,2025-09-15 17:44:26
+AURAL.AX,Aura Energy,2025-10-18 04:13:57
 AURC,Better Home & Finance Holding,2025-09-30 04:14:27
 AUREP.PA,Aurea,2025-09-15 17:44:26
 AUST.TO,Austin Gold,2025-09-15 17:44:26
@@ -658,6 +659,7 @@ BCTX.TO,BriaCell Therapeutics,2025-09-15 17:44:59
 BCVNS.SW,Banque Cantonale Vaudoise,2025-09-15 17:44:59
 BCYD.L,Barclays,2025-09-15 17:44:59
 BCYP,SAB Biotherapeutics,2025-09-15 17:44:59
+BDCI,BTC Development,2025-10-18 04:14:03
 BDEVL.L,Barratt Redrow,2025-09-15 17:44:59
 BDN,Brandywine Realty Trust,name-filter
 BDR,Blonder Tongue Laboratories,2025-09-15 17:44:59
@@ -895,6 +897,7 @@ CCH,Utz Brands,2025-09-15 17:46:49
 CCHH,CCH Holdings,2025-10-07 04:14:48
 CCHL.SW,Coca-Cola HBC,2025-09-15 17:46:49
 CCHWF.TO,Cannabist Company Holdings,2025-09-15 17:46:49
+CCIR,Kyivstar,2025-10-18 04:14:21
 CCIV,Lucid,2025-09-15 17:46:49
 CCJ.TO,Cameco,2025-09-15 17:46:49
 CCLB.TO,CCL Industries,2025-09-15 17:46:49
@@ -1180,6 +1183,7 @@ DEVLD.SI,DBS Group,2025-09-15 17:49:44
 DEZD.DE,Deutz,2025-09-15 17:49:44
 DFFN,CervoMed,2025-09-15 17:49:44
 DFHT,CareMax,2025-09-15 17:49:44
+DFPPD.TO,District Metals,2025-10-18 04:14:55
 DG3D,,persisted
 DGEL.L,Diageo,2025-09-15 17:49:44
 DGHI.TO,Digi Power X,2025-09-15 17:49:44
@@ -1368,6 +1372,7 @@ ENRD.DE,Siemens Energy,2025-09-15 17:51:18
 ENRSS.MC,Enerside Energy,2025-09-15 17:51:18
 ENTX.TA,Entera Bio,2025-09-15 17:51:18
 ENURD.HE,Stora Enso,2025-09-15 17:51:18
+ENVIA.AS,Envipco Holding,2025-10-18 04:15:21
 ENXP.AS,Euronext,2025-09-15 17:51:18
 EO5D,,persisted
 EOAND.DE,E.ON,2025-09-15 17:51:18
@@ -2109,6 +2114,7 @@ KMYD,Kimberly-Clark,2025-09-15 17:58:08
 KNBL.L,Kanabo,2025-09-15 17:58:08
 KNINS.SW,Kuehne + Nagel International,2025-09-15 17:58:08
 KNOSL.L,Kainos,2025-09-15 17:58:08
+KNW,USBC,2025-10-18 04:16:38
 KOAD.T,Konami,2025-09-15 17:58:08
 KODL.L,Kodal Minerals,2025-09-15 17:58:08
 KOFP.PA,Kaufman & Broad,2025-09-15 17:58:08
@@ -3108,6 +3114,7 @@ SEDRF,Seadrill,2025-09-15 18:07:08
 SEEL,Seelos Therapeutics,2025-09-15 18:07:08
 SEEL.AX,Seeing Machines,2025-09-15 18:07:08
 SEFERP.PA,Serge Ferrari,2025-09-15 18:07:08
+SEHD.T,Shin-Etsu Chemical,2025-10-18 04:18:39
 SELB,Cartesian Therapeutics,2025-09-15 18:07:08
 SENSS.SW,Sensirion Holding,2025-09-15 18:07:08
 SEOVF.TO,Sernova Biotherapeutics,2025-09-15 18:07:08
@@ -3118,6 +3125,7 @@ SESGP,SES,2025-09-15 18:07:21
 SESLP.PA,Vusion Group,2025-09-15 18:07:21
 SESN,Carisma Therapeutics,2025-09-15 18:07:21
 SEV.AS,Sono Group,2025-09-15 18:07:21
+SEV1,Aptera Motors,2025-10-18 04:18:39
 SEVN,Seven Hills Realty Trust,name-filter
 SFC,Sagicor Financial,2025-09-15 18:07:21
 SFED,Synchrony Financial,2025-09-15 18:07:21
@@ -3278,6 +3286,7 @@ SSNT,QXO,2025-09-15 18:08:39
 SSONL.L,Smithson Investment Trust,name-filter
 SSPGL.L,SSP,2025-09-15 18:08:39
 SSPK,WM Technology,2025-09-15 18:08:39
+SSY,SunLink Health Systems,2025-10-18 04:18:56
 SSYS.TA,Stratasys,2025-09-15 18:08:39
 ST5D,,persisted
 STANL.L,Standard Chartered,2025-09-15 18:08:39
@@ -3815,12 +3824,4 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-AURAL.AX,404/empty-or-short,2025-10-18 04:13:57
-BDCI,404/empty-or-short,2025-10-18 04:14:03
-CCIR,404/empty-or-short,2025-10-18 04:14:21
-DFPPD.TO,404/empty-or-short,2025-10-18 04:14:55
-ENVIA.AS,404/empty-or-short,2025-10-18 04:15:21
-KNW,404/empty-or-short,2025-10-18 04:16:38
-SEHD.T,404/empty-or-short,2025-10-18 04:18:39
-SEV1,404/empty-or-short,2025-10-18 04:18:39
-SSY,404/empty-or-short,2025-10-18 04:18:56
+SNRE,404/empty-or-short,2025-10-19 04:19:52
