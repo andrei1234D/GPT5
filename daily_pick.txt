@@ -1,38 +1,19 @@
-EQX.TO – EQX.TO
-Base Scores: Market & Sector: 186, Quality (Tech Proxies): 151, Near-Term Catalysts: 100, Technical Valuation: 214, Risks: 17
-News: "N/A"
-Final base score: 732
-Valuation: P/E=11.09, PEG=1.03, Growth=YoY 10.75%
-Certainty: 64%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/EQX.TO/forecast
-What reduced the score: 41% over FVA anchor, negative valuation history, FCF trend weak, moderate risk profile
-What wasn't clear or contradictory: No forward growth/PEG history detail; volume slightly below average
+CDE – Coeur Mining
 
-DPM.TO – DPM.TO
-Base Scores: Market & Sector: 180, Quality (Tech Proxies): 151, Near-Term Catalysts: 100, Technical Valuation: 211, Risks: 23
-News: "N/A"
-Final base score: 731
-Valuation: P/E=16.68, PEG=N/A, Growth=YoY 0.44%
-Certainty: 66%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/DPM.TO/forecast
-What reduced the score: Minimal YoY growth, negative valuation history, weak FCF trend, lighter volume
-What wasn't clear or contradictory: Missing PEG and forward growth; no explicit near-term catalysts beyond trend
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 181, Near-Term Catalysts: 104, Technical Valuation: 237, Risks: 12
 
-IDCC – IDCC
-Base Scores: Market & Sector: 180, Quality (Tech Proxies): 145, Near-Term Catalysts: 92, Technical Valuation: 211, Risks: 33
-News: "5G/cloud/fiber tailwinds; Wireless Equipment industry outlook improving; IDCC positioned to benefit (+30)"
-Final base score: 759
-Valuation: P/E=26.04, PEG=N/A, Growth=YoY 0.36%
-Certainty: 68%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
-What reduced the score: Elevated P/E without PEG, negative valuation history, subdued recent volume
-What wasn't clear or contradictory: No forward growth/PEG; MACD marginally negative vs strong RSI and trend
+News: "Surging earnings estimates; likely to beat expectations (+40)"
+
+Final base score: 797
+
+Valuation: P/E=52.62, PEG=1.12, Growth=YoY 29.86%
+
+Certainty: 67%
+
+ADVICE: ```ini [Buy] ```
+
+Forecast image URL: https://stockscan.io/stocks/CDE/forecast | Buy 11.79–12.98; Stop 10.89; Target 14.61; Max hold time: ≤ 1 year (Anchor: $12.38).
+
+What reduced the score: 70% above FVA anchor (extended), high PE>50, elevated volatility/drawdown risk, FCF trend negative, weak valuation history.
+
+What wasn't clear or contradictory: No explicit breakout flag; forward growth not provided; timing clarity limited.
