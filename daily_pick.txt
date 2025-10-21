@@ -1,19 +1,10 @@
-CDE – Coeur Mining
-
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 181, Near-Term Catalysts: 104, Technical Valuation: 237, Risks: 12
-
-News: "Surging earnings estimates; likely to beat expectations (+40)"
-
-Final base score: 797
-
-Valuation: P/E=52.62, PEG=1.12, Growth=YoY 29.86%
-
-Certainty: 67%
-
-ADVICE: ```ini [Buy] ```
-
-Forecast image URL: https://stockscan.io/stocks/CDE/forecast | Buy 11.79–12.98; Stop 10.89; Target 14.61; Max hold time: ≤ 1 year (Anchor: $12.38).
-
-What reduced the score: 70% above FVA anchor (extended), high PE>50, elevated volatility/drawdown risk, FCF trend negative, weak valuation history.
-
-What wasn't clear or contradictory: No explicit breakout flag; forward growth not provided; timing clarity limited.
+IDCC – IDCC
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 203, Near-Term Catalysts: 107, Technical Valuation: 198, Risks: 35
+News: "5G/cloud/fiber tailwind; wireless equipment industry outlook positive (+20)"
+Final base score: 765
+Valuation: P/E=26.04, PEG=N/A, Growth=YoY 0.36%
+Certainty: 70%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
+What reduced the score: Flat YoY growth, premium PE, weak breadth/volume, modest FVA premium
+What wasn't clear or contradictory: Forward growth and PEG missing; breakout flagged Today but volume trend soft
