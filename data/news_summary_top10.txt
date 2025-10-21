@@ -1,43 +1,39 @@
-### CLSK
-- Michael Saylor hints at a fresh Bitcoin purchase despite NAV collapse.
-- Public companies hold $110B BTC, but only early adopters have seen major gains.
-Impact: +30
-
-### TTI
-- N/A
-Impact: 0
-
-### EQX.TO
-- N/A
-Impact: 0
+### CDE
+- Coeur Mining has outperformed the market over the past 5 years with a strong annualized return.
+Impact: +40
 
 ### DPM.TO
 - N/A
 Impact: 0
 
-### CG.TO
+### ABX.TO
 - N/A
 Impact: 0
 
-### CDE
-- Coeur Mining has outperformed the market over the past 5 years.
-- Surging earnings estimates signal upside for Coeur Mining stock.
-Impact: +25
+### NEM
+- Newmont is exploring potential performance metrics and has received a significant exploration permit.
+Impact: +30
+
+### K.TO
+- N/A
+Impact: 0
 
 ### IDCC
-- Motorola Solutions, Ubiquiti, and InterDigital set to benefit from accelerating 5G, cloud, and fiber adoption.
-- Zacks predicts healthy growth for the wireless equipment industry.
-Impact: +20
+- Ubiquiti is focusing on growth through inventory optimization and innovation in networking technology.
+Impact: +35
 
-### AG.TO
+### AEM.TO
+- N/A
+Impact: 0
+
+### BVN
+- N/A
+Impact: 0
+
+### HBM.TO
 - N/A
 Impact: 0
 
 ### GFI
-- Gold Fields, Franco-Nevada, and AngloGold Ashanti show strong momentum amid surging prices.
-- Gold Fields shines with soaring output, rising dividends, and global growth.
-Impact: +35
-
-### SFTBY
-- N/A
-Impact: 0
+- Gold stocks like Gold Fields are showing strong momentum amid surging prices and production growth.
+Impact: +45
