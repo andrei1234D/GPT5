@@ -1,10 +1,21 @@
-IDCC – IDCC
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 203, Near-Term Catalysts: 107, Technical Valuation: 198, Risks: 35
-News: "5G/cloud/fiber tailwind; wireless equipment industry outlook positive (+20)"
-Final base score: 765
-Valuation: P/E=26.04, PEG=N/A, Growth=YoY 0.36%
-Certainty: 70%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
-What reduced the score: Flat YoY growth, premium PE, weak breadth/volume, modest FVA premium
-What wasn't clear or contradictory: Forward growth and PEG missing; breakout flagged Today but volume trend soft
+NVFY – NVFY
+
+Base Scores: Market & Sector: 192, Quality (Tech Proxies): 156, Near-Term Catalysts: 137, Technical Valuation: 203, Risks: 78
+
+News: "N/A"
+
+Final base score: 668
+
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.28%
+
+Certainty: 58%
+
+ADVICE: ```arm
+Hold
+```
+
+Forecast image URL: https://stockscan.io/stocks/NVFY/forecast
+
+What reduced the score: >40% above FVA, MACD flat, negative FCF, moderate RSI, small-cap risk, valuation opacity.
+
+What wasn't clear or contradictory: No PEG/PE/forward growth data; durability of breakout/volume confirmation.
