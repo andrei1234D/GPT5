@@ -1,39 +1,42 @@
-### MU
+### OGC.TO
 - N/A
 Impact: 0
 
-### CLSK
+### SFTBY
 - N/A
 Impact: 0
 
 ### IDCC
-- N/A
-Impact: 0
+- Intel's Q3 earnings may benefit from solid revenues and chip collaborations.
+- T-Mobile's advancements in business connectivity could boost growth.
+Impact: +30
 
 ### GRAL
-- N/A
-Impact: 0
+- Grail's CEO selling shares and positive market movements.
+- Enerpac Tool Group's upbeat results contributing to stock movement.
+Impact: +25
 
 ### KOD
+- Positive market movements affecting various stocks.
+Impact: +15
+
+### MUX
 - N/A
 Impact: 0
 
-### POWL
-- N/A
-Impact: 0
-
-### PSNL
-- N/A
-Impact: 0
-
-### HUT
-- N/A
-Impact: 0
-
-### CLPT
-- N/A
-Impact: 0
+### MU
+- Trade tensions between the U.S. and China affecting tech stocks.
+- Micron's memory technology advancements for AI data centers.
+Impact: +10
 
 ### ARWR
+- N/A
+Impact: 0
+
+### BTO.TO
+- N/A
+Impact: 0
+
+### GLUE
 - N/A
 Impact: 0
