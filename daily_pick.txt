@@ -1,38 +1,19 @@
-IDCC – IDCC
-Base Scores: Market & Sector: 168, Quality (Tech Proxies): 173, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 28
-News: N/A
-Final base score: 727
-Valuation: P/E=26.40, PEG=N/A, Growth=YoY 0.36%
-Certainty: 63%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/IDCC/forecast
-What reduced the score: Minimal growth, MACD_hist negative, valuation history weak, no clear catalyst
-What wasn't clear or contradictory: PEG and forward growth missing; earnings/catalyst timing not provided
+NVFY – NVFY
 
-POWL – POWL
-Base Scores: Market & Sector: 180, Quality (Tech Proxies): 178, Near-Term Catalysts: 100, Technical Valuation: 203, Risks: 17
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 137, Near-Term Catalysts: 182, Technical Valuation: 193, Risks: 30
+
 News: N/A
-Final base score: 744
-Valuation: P/E=24.21, PEG=N/A, Growth=YoY 0.04%
+
+Final base score: 814
+
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.28%
+
 Certainty: 66%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/POWL/forecast
-What reduced the score: Slightly extended vs FVA (~27%), flat YoY growth, FCF trend weak
-What wasn't clear or contradictory: PEG and forward growth missing; no explicit breakout/catalyst timing
 
-XGN – XGN
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 183, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 33
-News: N/A
-Final base score: 728
-Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.14%
-Certainty: 61%
-ADVICE: ```arm
-Hold
-```
-Forecast image URL: https://stockscan.io/stocks/XGN/forecast
-What reduced the score: RSI >70 (overbought), light volume vs 20d, no catalysts, limited growth data
-What wasn't clear or contradictory: PEG and forward growth missing; earnings timing unspecified
+ADVICE: [Buy]
+
+Forecast image URL: https://stockscan.io/stocks/NVFY/forecast
+
+What reduced the score: 57% above FVA anchor ($3.66), high PS (22.05), negative FCF trend, extension risk despite breakout.
+
+What wasn't clear or contradictory: No PE/PEG; lack of forward growth data; sustainability of volume spike not confirmed beyond 1 day.
