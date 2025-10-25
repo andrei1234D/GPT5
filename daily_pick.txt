@@ -1,19 +1,10 @@
-NVFY – NVFY
-
-Base Scores: Market & Sector: 206, Quality (Tech Proxies): 137, Near-Term Catalysts: 182, Technical Valuation: 193, Risks: 30
-
+GURU.TO – GURU.TO
+Base Scores: Market & Sector: 188, Quality (Tech Proxies): 189, Near-Term Catalysts: 182, Technical Valuation: 163, Risks: 25
 News: N/A
-
-Final base score: 814
-
-Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.28%
-
-Certainty: 66%
-
+Final base score: 811
+Valuation: P/E=N/A, PEG=N/A, Growth=0.31% YoY
+Certainty: 64%
 ADVICE: [Buy]
-
-Forecast image URL: https://stockscan.io/stocks/NVFY/forecast
-
-What reduced the score: 57% above FVA anchor ($3.66), high PS (22.05), negative FCF trend, extension risk despite breakout.
-
-What wasn't clear or contradictory: No PE/PEG; lack of forward growth data; sustainability of volume spike not confirmed beyond 1 day.
+Forecast image URL: https://stockscan.io/stocks/GURU.TO/forecast
+What reduced the score: Extreme FVA extension (+87.6% over anchor), thin valuation support (no PE/PEG), small growth, negative FCF; possible blowoff risk
+What wasn't clear or contradictory: YoY growth units inconsistent; no forward growth/PEG; breakout strength vs anchor distance conflict
