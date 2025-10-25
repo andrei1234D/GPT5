@@ -1,39 +1,39 @@
-### OGC.TO
-- N/A
-Impact: 0
-
-### GRAL
-- Grail's CEO Sells shares, Nasdaq gains, partnership with Amazon
-Impact: +25
+### CLSK
+- Sygnum Bank bets on Bitcoin lending with multisign custody model and US energy sec floats faster grid access for AI and crypto miners.
+Impact: +20
 
 ### SFTBY
 - N/A
 Impact: 0
 
+### MU
+- Micron Technology, Seagate Technology, and NCR Voyix lead the thriving Technology Solutions space as AI, cloud, and data modernization fuel growth.
+Impact: +15
+
 ### PSNL
-- Personalis shares surge, strength may not last
+- N/A
+Impact: 0
+
+### VSAT
+- Globalstar poised for a major IoT upside with RM200M release and Globalstar's infrastructure upgrade driving network growth and reliability.
+Impact: +25
+
+### OGC.TO
+- N/A
+Impact: 0
+
+### WBD
+- Zelenskyy calls on US to extend Russian oil sanctions, Nasdaq jumps amid Trump's Russia sanctions, and Apple potentially buying Warner Bros. Discovery seen as a streaming power move.
 Impact: +10
 
-### MU
-- Micron stock up since last earnings report, positive growth and value balance
-Impact: +30
+### GRAL
+- Grail's CEO sells shares for nearly $500,000 and big stocks like WW International and GRAIL moving higher.
+Impact: +15
 
 ### MUX
 - N/A
 Impact: 0
 
-### SHLS
-- Nextracker beats earnings and revenue estimates
-Impact: +15
-
-### AMRC
+### RCUS
 - N/A
 Impact: 0
-
-### AXTI
-- Amphenol surpasses earnings and revenue estimates
-Impact: +20
-
-### LRCX
-- Lam Research poised for growth, solid results, AI-driven outlook
-Impact: +35
