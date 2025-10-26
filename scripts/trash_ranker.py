@@ -918,45 +918,35 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     return out_df
 
 def compute_yoy_growth(ticker: str, retries: int = 3):
-    """Compute *historical* YoY net income growth (fallback for PEG if no analyst data)."""
     for attempt in range(retries):
         try:
             logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt+1})…")
             tk = yf.Ticker(ticker)
-            fin = tk.financials
+            fin = tk.financials or tk.annual_financials
+
             if fin is None or fin.empty:
-                fin = tk.annual_financials
-            if fin is None or fin.empty:
-                logger.debug(f"[YoY] {ticker}: No financial data available.")
                 return None
 
-            if "Net Income" not in fin.index:
-                logger.debug(f"[YoY] {ticker}: 'Net Income' not found in financials.")
-                return None
+            if "Net Income" in fin.index:
+                net_income = fin.loc["Net Income"].dropna().values[::-1]
+                if len(net_income) >= 2 and net_income[-2] != 0:
+                    return (net_income[-1] - net_income[-2]) / abs(net_income[-2])
 
-            net_income = fin.loc["Net Income"].dropna()
-            if len(net_income) < 2:
-                return None
+            # EPS fallback
+            if "Basic EPS" in fin.index:
+                eps = fin.loc["Basic EPS"].dropna().values[::-1]
+                if len(eps) >= 2 and eps[-2] != 0:
+                    eps_growth = (eps[-1] - eps[-2]) / abs(eps[-2])
+                    logger.info(f"[YoY] {ticker}: Fallback EPS YoY growth = {eps_growth:.4f}")
+                    return float(eps_growth)
 
-            # Ensure chronological order (oldest to newest)
-            values = net_income.values[::-1]
+            return None
 
-            if values[-2] == 0:
-                return None
-
-            yoy = (values[-1] - values[-2]) / abs(values[-2])
-            logger.info(f"[YoY] {ticker}: Historical YoY growth = {yoy:.4f}")
-            return float(yoy)
-
-        except YFRateLimitError:
-            wait = 60 * (attempt + 1) + random.uniform(1, 5)
-            logger.warning(f"[YoY] {ticker}: Rate limited, sleeping {wait:.1f}s before retry…")
-            time.sleep(wait)
         except Exception as e:
             logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
-            return None
-    return None
+            time.sleep(60 * (attempt + 1) + random.uniform(1, 5))
 
+    return None
 
 def compute_pe_yoy_peg(ticker: str):
     """
@@ -987,47 +977,53 @@ def compute_pe_yoy_peg(ticker: str):
             pe = trailing_pe or forward_pe
 
             # --- Growth ---
-            growth = (
-                info.get("earningsGrowth") or
-                info.get("revenueGrowth") or
+            growth = None
+            growth_fields = [
+                info.get("earningsGrowth"),
+                info.get("revenueGrowth"),
                 info.get("earningsQuarterlyGrowth")
-            )
+            ]
 
-            try:
-                if growth is not None:
-                    growth = float(growth)
-                    if growth <= 0:  # ignore negative growth
-                        growth = None
-            except Exception:
-                growth = None
+            for g in growth_fields:
+                try:
+                    g = float(g)
+                    if g and g > 0:
+                        growth = g
+                        break  # ✅ Use first valid Yahoo growth, don't overwrite
+                except:
+                    continue
 
-            # fallback to historical YoY
+            # fallback to historical YoY ONLY if no valid growth from Yahoo
             if growth is None:
                 growth = compute_yoy_growth(ticker)
+                if growth is not None:
+                    logger.info(f"[PE/PEG] {ticker}: Using fallback historical YoY growth={growth:.4f}")
 
-            # --- PEG (prefer Yahoo forward PEG ratio) ---
+            # --- PEG ---
             peg = None
             peg_yf = info.get("pegRatio")
 
-            try:
-                if peg_yf is not None:
+            # ✅ Use Yahoo PEG if valid (0 < peg < 10)
+            if peg_yf is not None:
+                try:
                     peg_yf = float(peg_yf)
-                    # sanity bounds: discard unrealistic ratios
                     if 0 < peg_yf < 10:
                         peg = peg_yf
-                        logger.info(f"[PE/PEG] {ticker}: Using Yahoo pegRatio={peg}")
-            except Exception:
-                peg_yf = None
+                        logger.info(f"[PE/PEG] {ticker}: Using Yahoo pegRatio={peg:.2f}")
+                except Exception:
+                    pass
 
-            # fallback if Yahoo pegRatio not valid
-            if peg is None:
-                if forward_pe and growth and growth > 0:
-                    peg = forward_pe / growth
-                elif pe and growth and growth > 0:
+            # fallback PEG only if Yahoo PEG missing/invalid
+            if peg is None and pe and growth and growth > 0:
+                try:
                     peg = pe / growth
-
-                if peg is not None and (peg <= 0 or peg > 10):
+                    if not (0 < peg < 10):
+                        peg = None
+                    else:
+                        logger.info(f"[PE/PEG] {ticker}: Calculated PEG from PE/growth={peg:.2f}")
+                except Exception:
                     peg = None
+
 
             logger.info(
                 f"[PE/PEG] {ticker}: trailing={trailing_pe}, forward={forward_pe}, "
