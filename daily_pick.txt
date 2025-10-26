@@ -1,10 +1,12 @@
-GURU.TO – GURU.TO
-Base Scores: Market & Sector: 188, Quality (Tech Proxies): 189, Near-Term Catalysts: 182, Technical Valuation: 163, Risks: 25
-News: N/A
-Final base score: 811
-Valuation: P/E=N/A, PEG=N/A, Growth=0.31% YoY
-Certainty: 64%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/GURU.TO/forecast
-What reduced the score: Extreme FVA extension (+87.6% over anchor), thin valuation support (no PE/PEG), small growth, negative FCF; possible blowoff risk
-What wasn't clear or contradictory: YoY growth units inconsistent; no forward growth/PEG; breakout strength vs anchor distance conflict
+MU – MU
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 191, Near-Term Catalysts: 107, Technical Valuation: 175, Risks: 27
+News: "Leads Tech Solutions space; AI/cloud/data tailwinds (+15)"
+Final base score: 737
+Valuation: P/E=28.82, PEG=6.62, Growth=YoY 2.57%
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/MU/forecast
+What reduced the score: Overextended vs FVA (~+61%); high PEG; negative FCF; valuation history weak; some volatility risk
+What wasn't clear or contradictory: No forward growth provided; breakout strength vs modest volume delta; limited fundamental clarity beyond YoY growth
