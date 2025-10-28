@@ -918,19 +918,33 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     return out_df
 
 def compute_yoy_growth(ticker: str, retries: int = 3):
+    
     for attempt in range(retries):
         try:
             logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt+1})…")
             tk = yf.Ticker(ticker)
-            fin = tk.financials or tk.annual_financials
 
+            # ✅ FIX: Explicitly check for empty DataFrame
+            fin = tk.financials
             if fin is None or fin.empty:
+                fin = tk.annual_financials
+            if fin is None or fin.empty:
+                logger.debug(f"[YoY] {ticker}: No financial data available.")
                 return None
 
+            # Normalize key names for safety
+            if "Net Income" not in fin.index and "Net Income Applicable To Common Shares" in fin.index:
+                fin.rename(index={"Net Income Applicable To Common Shares": "Net Income"}, inplace=True)
+            if "Basic EPS" not in fin.index and "Diluted EPS" in fin.index:
+                fin.rename(index={"Diluted EPS": "Basic EPS"}, inplace=True)
+
+            # Try Net Income YoY first
             if "Net Income" in fin.index:
                 net_income = fin.loc["Net Income"].dropna().values[::-1]
                 if len(net_income) >= 2 and net_income[-2] != 0:
-                    return (net_income[-1] - net_income[-2]) / abs(net_income[-2])
+                    yoy = (net_income[-1] - net_income[-2]) / abs(net_income[-2])
+                    logger.info(f"[YoY] {ticker}: Historical YoY net income growth = {yoy:.4f}")
+                    return float(yoy)
 
             # EPS fallback
             if "Basic EPS" in fin.index:
@@ -940,12 +954,15 @@ def compute_yoy_growth(ticker: str, retries: int = 3):
                     logger.info(f"[YoY] {ticker}: Fallback EPS YoY growth = {eps_growth:.4f}")
                     return float(eps_growth)
 
+            logger.debug(f"[YoY] {ticker}: No valid YoY growth data found.")
             return None
 
         except Exception as e:
             logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
-            time.sleep(60 * (attempt + 1) + random.uniform(1, 5))
+            wait = 60 * (attempt + 1) + random.uniform(1, 5)
+            time.sleep(wait)
 
+    logger.info(f"[YoY] {ticker}: No valid historical YoY found after retries")
     return None
 
 def compute_pe_yoy_peg(ticker: str):
