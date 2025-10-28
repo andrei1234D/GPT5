@@ -2,7 +2,7 @@
 from __future__ import annotations
 import yfinance as yf
 from yfinance.exceptions import YFRateLimitError
-import time, random
+import time, random, functools
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
 import math
@@ -917,28 +917,38 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     print(f"[merge_stage1_with_tr] Saved merged scores to {out_path}")
     return out_df
 
+@functools.lru_cache(maxsize=256)
+def get_financials_cached(ticker: str):
+    """Cached fetch for financial statements to reduce Yahoo rate hits."""
+    tk = yf.Ticker(ticker)
+    fin = tk.financials
+    if fin is None or fin.empty:
+        fin = tk.annual_financials
+    return fin
+
+
 def compute_yoy_growth(ticker: str, retries: int = 3):
-    
+    """
+    Compute historical YoY growth using Net Income or EPS as fallback.
+    Includes rate-limit handling, backoff, and caching.
+    """
     for attempt in range(retries):
         try:
-            logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt+1})…")
-            tk = yf.Ticker(ticker)
+            logger.debug(f"[YoY] {ticker}: Fetching financials (attempt {attempt + 1})…")
 
-            # ✅ FIX: Explicitly check for empty DataFrame
-            fin = tk.financials
-            if fin is None or fin.empty:
-                fin = tk.annual_financials
+            fin = get_financials_cached(ticker)
+
             if fin is None or fin.empty:
                 logger.debug(f"[YoY] {ticker}: No financial data available.")
                 return None
 
-            # Normalize key names for safety
+            # ✅ Normalize index names for consistency
             if "Net Income" not in fin.index and "Net Income Applicable To Common Shares" in fin.index:
                 fin.rename(index={"Net Income Applicable To Common Shares": "Net Income"}, inplace=True)
             if "Basic EPS" not in fin.index and "Diluted EPS" in fin.index:
                 fin.rename(index={"Diluted EPS": "Basic EPS"}, inplace=True)
 
-            # Try Net Income YoY first
+            # --- Try Net Income YoY first
             if "Net Income" in fin.index:
                 net_income = fin.loc["Net Income"].dropna().values[::-1]
                 if len(net_income) >= 2 and net_income[-2] != 0:
@@ -946,7 +956,7 @@ def compute_yoy_growth(ticker: str, retries: int = 3):
                     logger.info(f"[YoY] {ticker}: Historical YoY net income growth = {yoy:.4f}")
                     return float(yoy)
 
-            # EPS fallback
+            # --- Fallback: EPS YoY
             if "Basic EPS" in fin.index:
                 eps = fin.loc["Basic EPS"].dropna().values[::-1]
                 if len(eps) >= 2 and eps[-2] != 0:
@@ -957,14 +967,22 @@ def compute_yoy_growth(ticker: str, retries: int = 3):
             logger.debug(f"[YoY] {ticker}: No valid YoY growth data found.")
             return None
 
-        except Exception as e:
-            logger.warning(f"[YoY] {ticker} error: {e}", exc_info=True)
-            wait = 60 * (attempt + 1) + random.uniform(1, 5)
+        except YFRateLimitError:
+            # Intelligent exponential backoff with jitter
+            wait = min(1800, 60 * (attempt + 1) + random.uniform(3, 8))
+            logger.warning(f"[YoY] {ticker}: Rate limited by Yahoo. Sleeping {wait:.1f}s before retry…")
             time.sleep(wait)
+            continue
 
-    logger.info(f"[YoY] {ticker}: No valid historical YoY found after retries")
+        except Exception as e:
+            logger.warning(f"[YoY] {ticker} unexpected error: {e}", exc_info=True)
+            wait = 15 * (attempt + 1) + random.uniform(2, 6)
+            logger.info(f"[YoY] {ticker}: Retrying after {wait:.1f}s due to error…")
+            time.sleep(wait)
+            continue
+
+    logger.info(f"[YoY] {ticker}: No valid historical YoY found after {retries} retries.")
     return None
-
 def compute_pe_yoy_peg(ticker: str):
     """
     Fetch trailing & forward PE, compute forward (or fallback YoY) growth, and PEG.
