@@ -1,3 +1,7 @@
+### MU
+- N/A
+Impact: 0
+
 ### KOD
 - N/A
 Impact: 0
@@ -10,14 +14,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SFTBY
-- N/A
-Impact: 0
-
-### MU
-- N/A
-Impact: 0
-
 ### LRCX
 - N/A
 Impact: 0
@@ -26,14 +22,18 @@ Impact: 0
 - N/A
 Impact: 0
 
+### SFTBY
+- N/A
+Impact: 0
+
 ### PSNL
 - N/A
 Impact: 0
 
-### AMD
+### HUT
 - N/A
 Impact: 0
 
-### HUT
+### EME
 - N/A
 Impact: 0
