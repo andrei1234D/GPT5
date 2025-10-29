@@ -1,12 +1,11 @@
-MU – MU
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 191, Near-Term Catalysts: 107, Technical Valuation: 175, Risks: 27
-News: "Leads Tech Solutions space; AI/cloud/data tailwinds (+15)"
-Final base score: 737
-Valuation: P/E=28.82, PEG=6.62, Growth=YoY 2.57%
+SFTBY – SFTBY
+
+Base Scores: Market & Sector: 164, Quality (Tech Proxies): 223, Near-Term Catalysts: 122, Technical Valuation: 193, Risks: 26
+News: "N/A"
+Final base score: 794
+Valuation: P/E=34.07, PEG=N/A, Growth=N/A
 Certainty: 66%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/MU/forecast
-What reduced the score: Overextended vs FVA (~+61%); high PEG; negative FCF; valuation history weak; some volatility risk
-What wasn't clear or contradictory: No forward growth provided; breakout strength vs modest volume delta; limited fundamental clarity beyond YoY growth
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/SFTBY/forecast
+What reduced the score: Extended 71% above FVA anchor; valuation history weak; missing growth/PEG; elevated extension risk.
+What wasn't clear or contradictory: PE present via hint but no Growth/PEG; FCF yield vs negative FCF trend inconsistency; durability beyond breakout not fully evidenced.
