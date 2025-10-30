@@ -1,24 +1,4 @@
-### MU
-- N/A
-Impact: 0
-
-### KOD
-- N/A
-Impact: 0
-
-### STOK
-- N/A
-Impact: 0
-
-### CLSK
-- N/A
-Impact: 0
-
-### LRCX
-- N/A
-Impact: 0
-
-### VSAT
+### FLNC
 - N/A
 Impact: 0
 
@@ -26,14 +6,34 @@ Impact: 0
 - N/A
 Impact: 0
 
+### AMD
+- N/A
+Impact: 0
+
 ### PSNL
 - N/A
 Impact: 0
 
-### HUT
+### LTBR
 - N/A
 Impact: 0
 
-### EME
+### CLSK
+- N/A
+Impact: 0
+
+### TTI
+- N/A
+Impact: 0
+
+### STOK
+- N/A
+Impact: 0
+
+### VSAT
+- N/A
+Impact: 0
+
+### AIRS
 - N/A
 Impact: 0
