@@ -1,11 +1,19 @@
-SFTBY – SFTBY
+LRCX – LRCX
 
-Base Scores: Market & Sector: 164, Quality (Tech Proxies): 223, Near-Term Catalysts: 122, Technical Valuation: 193, Risks: 26
-News: "N/A"
-Final base score: 794
-Valuation: P/E=34.07, PEG=N/A, Growth=N/A
-Certainty: 66%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/SFTBY/forecast
-What reduced the score: Extended 71% above FVA anchor; valuation history weak; missing growth/PEG; elevated extension risk.
-What wasn't clear or contradictory: PE present via hint but no Growth/PEG; FCF yield vs negative FCF trend inconsistency; durability beyond breakout not fully evidenced.
+Base Scores: Market & Sector: 191, Quality (Tech Proxies): 158, Near-Term Catalysts: 122, Technical Valuation: 183, Risks: 23
+
+News: N/A
+
+Final base score: 741
+
+Valuation: P/E=34.35, PEG=N/A, Growth=YoY 0.44%
+
+Certainty: 64%
+
+ADVICE: [Buy] | Buy 105.20–110.94; Stop 100.91; Target 118.84; Max hold time: ≤ 1 year (Anchor: $108.07).
+
+Forecast image URL: https://stockscan.io/stocks/LRCX/forecast
+
+What reduced the score: 49% above FVA (extended), high PE with modest YoY growth, valuation history negative, FCF trend weak.
+
+What wasn't clear or contradictory: Forward growth and PEG missing; catalyst depth beyond breakout not provided.
