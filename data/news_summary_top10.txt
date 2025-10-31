@@ -1,4 +1,8 @@
 ### FLNC
+- U.S. stocks were higher on Friday, with several big stocks moving higher.
+Impact: +10
+
+### CG.TO
 - N/A
 Impact: 0
 
@@ -6,7 +10,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AMD
+### AMRC
+- Terrestrial Energy Inc. begins trading on the Nasdaq Stock Market and receives significant transaction proceeds to support its business plan.
+Impact: +20
+
+### ACMR
+- ACM Research, Inc. beats the stock market upswing and is seen as a buy by Wall Street analysts.
+Impact: +15
+
+### LTBR
 - N/A
 Impact: 0
 
@@ -14,26 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### LTBR
-- N/A
-Impact: 0
+### HUT
+- Thames Capital Management initiates new positions in Bitfarms and Hut 8, acquiring significant shares in both companies.
+Impact: +12
 
-### CLSK
+### LXEO
 - N/A
 Impact: 0
 
 ### TTI
-- N/A
-Impact: 0
-
-### STOK
-- N/A
-Impact: 0
-
-### VSAT
-- N/A
-Impact: 0
-
-### AIRS
-- N/A
-Impact: 0
+- Tetra Technologies meets Q3 earnings estimates, with positive surprises in earnings and revenue.
+Impact: +10
