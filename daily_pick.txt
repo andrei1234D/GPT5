@@ -1,19 +1,11 @@
-LRCX – LRCX
+III.TO – III.TO
 
-Base Scores: Market & Sector: 191, Quality (Tech Proxies): 158, Near-Term Catalysts: 122, Technical Valuation: 183, Risks: 23
-
-News: N/A
-
-Final base score: 741
-
-Valuation: P/E=34.35, PEG=N/A, Growth=YoY 0.44%
-
-Certainty: 64%
-
-ADVICE: [Buy] | Buy 105.20–110.94; Stop 100.91; Target 118.84; Max hold time: ≤ 1 year (Anchor: $108.07).
-
-Forecast image URL: https://stockscan.io/stocks/LRCX/forecast
-
-What reduced the score: 49% above FVA (extended), high PE with modest YoY growth, valuation history negative, FCF trend weak.
-
-What wasn't clear or contradictory: Forward growth and PEG missing; catalyst depth beyond breakout not provided.
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 165, Near-Term Catalysts: 92, Technical Valuation: 193, Risks: 22
+News: "N/A"
+Final base score: 740
+Valuation: P/E=6.20, PEG=6.52, Growth=YoY 0.95%
+Certainty: 62%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/III.TO/forecast
+What reduced the score: Modest RSI (~50), weak immediate catalysts/volume, price ~35% above FVA anchor, high PEG, negative FCF trend.
+What wasn't clear or contradictory: Low YoY growth despite strong trend; PEG vs low PE mismatch; breadth/volume softness vs price strength.
