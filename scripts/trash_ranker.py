@@ -10,6 +10,8 @@ import os
 import logging
 import numpy as np
 
+from data_fetcher import fetch_valuations_for_top
+
 
 """
 New/updated ENV knobs (★ = new here, aligned with quick_scorer):
@@ -867,13 +869,34 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         feats = row.to_dict()
         ticker = feats.get("ticker", "")
         name   = feats.get("company", feats.get("name", ticker))
+
+        # --- Step 1: Base computation from your own logic
         pe, yoy, peg, trailing_pe, forward_pe = compute_pe_yoy_peg(ticker)
         feats["val_PE"] = pe
         feats["val_YoY"] = yoy
         feats["val_PEG"] = peg
         feats["val_PE_trailing"] = trailing_pe
         feats["val_PE_forward"] = forward_pe
+
         print(f"[PE/PEG] {ticker}: PE={pe}, YoY={yoy}, PEG={peg}")
+
+        # --- Step 2: Try to refresh with live Yahoo data if available
+        try:
+            vals = fetch_valuations_for_top([ticker]).get(ticker, {})
+            # Overwrite ONLY if Yahoo returns valid non-null data
+            if vals:
+                if vals.get("PE") is not None:
+                    feats["val_PE"] = vals["PE"]
+                if vals.get("PEG") is not None:
+                    feats["val_PEG"] = vals["PEG"]
+                # For YoY growth: you could use derived growth if available
+                if vals.get("YoY") is not None:
+                    feats["val_YoY"] = vals["YoY"]
+
+                print(f"[YF OVERRIDE] {ticker}: Overwrote with Yahoo → PE={vals.get('PE')}, PEG={vals.get('PEG')}, YoY={vals.get('YoY')}")
+        except Exception as e:
+            logger.warning(f"[YF OVERRIDE] {ticker}: fetch_valuations_for_top failed → {e}")
+
         universe.append((ticker, name, feats))
 
     ranked = ranker.score_universe(universe)
@@ -899,7 +922,7 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
             "val_YoY": f.get("val_YoY"),
             "val_PEG": f.get("val_PEG"),
             "val_PE_trailing": f.get("val_PE_trailing"),
-             "val_PE_forward": f.get("val_PE_forward"),
+            "val_PE_forward": f.get("val_PE_forward"),
         }
         row.update({f"tr_{k}": v for k, v in parts.items()})
         row.update({f"merged_{k}": v for k, v in merged_parts.items()})
@@ -910,7 +933,6 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
         out_df["merged_score"] + out_df.get("valuation_boost", 0)
     )
 
-    # ✅ sort by merged_final_score before saving
     out_df = out_df.sort_values("merged_final_score", ascending=False)
 
     out_df.to_csv(out_path, index=False)
@@ -918,16 +940,13 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     return out_df
 
 @functools.lru_cache(maxsize=256)
-def get_info_cached(ticker: str):
-    """Cached Yahoo info fetch to reduce rate-limit hits."""
+def get_financials_cached(ticker: str):
+    """Cached fetch for financial statements to reduce Yahoo rate hits."""
     tk = yf.Ticker(ticker)
-    try:
-        info = tk.info or {}
-        fast = getattr(tk, "fast_info", {}) or {}
-        info.update(fast)
-        return info
-    except Exception:
-        return {}
+    fin = tk.financials
+    if fin is None or fin.empty:
+        fin = tk.annual_financials
+    return fin
 
 
 def compute_yoy_growth(ticker: str, retries: int = 3):

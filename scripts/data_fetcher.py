@@ -3,8 +3,8 @@ from __future__ import annotations
 import os, time, math, json, logging
 from typing import Dict, List, Optional, Tuple
 
-import os, time, random, functools, yfinance as yf
-from yfinance.exceptions import YFRateLimitError
+import yfinance as yf
+
 # Optional alias helpers. If you don't have these files, we no-op.
 try:
     from aliases import apply_alias, load_aliases_csv
@@ -419,121 +419,58 @@ def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
     return out
 
 # ---------- Full valuations fetch ----------
-@functools.lru_cache(maxsize=256)
-def get_ticker_cached(ticker: str):
-    """Returns a cached Ticker object to reduce repeated Yahoo API calls."""
-    return yf.Ticker(ticker)
-
-@functools.lru_cache(maxsize=256)
-def get_info_cached(ticker: str):
-    """Fetch and cache full info block (including fast_info) for a ticker."""
-    tk = get_ticker_cached(ticker)
-    info = {}
-    try:
-        info = tk.info or {}
-    except Exception:
-        pass
-    try:
-        fast = getattr(tk, "fast_info", {}) or {}
-        info.update(fast)
-    except Exception:
-        pass
-    return info or {}
-
-# --- Helper: robust extractor ---
-def _extract_valuations_with_fallback(ticker: str) -> Dict[str, Optional[float]]:
-    """
-    Unified extractor for PE, PS, EV/EBITDA, EV/REV, PEG, and FCF Yield.
-    Uses cached info + compute_pe_yoy_peg fallback.
-    """
-    vals = {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None}
-
-    info = get_info_cached(ticker)
-    if not info:
-        return vals
-
-    # --- Standard metrics ---
-    for k, aliases in {
-        "PE": ["trailingPE", "trailing_pe", "forwardPE", "forward_pe"],
-        "PS": ["priceToSalesTrailing12Months", "priceToSales"],
-        "EV_EBITDA": ["enterpriseToEbitda", "evToEbitda"],
-        "EV_REV": ["enterpriseToRevenue", "evToRevenue"],
-        "PEG": ["pegRatio", "peg_ratio"],
-        "FCF_YIELD": ["freeCashflowYield", "fcfYield"],
-    }.items():
-        for a in aliases:
-            v = info.get(a)
-            try:
-                if v is not None:
-                    v = float(v)
-                    if v != 0 and not (abs(v) == float("inf")):
-                        vals[k] = v
-                        break
-            except Exception:
-                continue
-
-    # --- Fallback PEG computation if missing ---
-    if vals["PEG"] is None:
-        from trash_ranker import compute_pe_yoy_peg
-        _, growth, peg, *_ = compute_pe_yoy_peg(ticker)
-        if peg is not None:
-            vals["PEG"] = peg
-        elif growth and vals["PE"]:
-            try:
-                peg_calc = vals["PE"] / growth
-                if 0 < peg_calc < 10:
-                    vals["PEG"] = peg_calc
-            except Exception:
-                pass
-
-    return vals
-
-
-# --- Main Function ---
 def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
-    """
-    Fetches valuations for a list of tickers (PE, PS, EV/EBITDA, EV/REV, PEG, FCF Yield),
-    synchronized and rate-limit safe. Uses caching + intelligent backoff.
-    """
-    if os.getenv("DISABLE_VAL_FETCH", "").strip().lower() in {"1", "true", "yes"}:
+    if os.getenv("DISABLE_VAL_FETCH", "").strip().lower() in {"1","true","yes"}:
         return {t: {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None} for t in tickers}
 
+    extra_aliases = {}
+    try:
+        extra_aliases = load_aliases_csv("data/aliases.csv")
+    except Exception:
+        extra_aliases = {}
+
+    cache = _load_cache(_VAL_CACHE_PATH)
+    logger.debug("[val] cache_path=%s", os.path.abspath(_VAL_CACHE_PATH))
     out: Dict[str, Dict[str, Optional[float]]] = {}
-    delay = float(os.getenv("VAL_FETCH_DELAY_S", os.getenv("PE_FETCH_DELAY_S", "0.25")))
+    delay = float(os.getenv("VAL_FETCH_DELAY_S", os.getenv("PE_FETCH_DELAY_S", "0.15")))
 
     for t in tickers:
-        for attempt in range(3):
-            try:
-                vals = _extract_valuations_with_fallback(t)
-                out[t] = vals
+        cached = _from_cache(cache, t, _VAL_CACHE_TTL_S, _VAL_CACHE_PATH)
+        if cached is not None and isinstance(cached.get("vals"), dict):
+            vals_clean = _sanitize_val_block(cached["vals"])
+            out[t] = vals_clean
+            logger.debug("[val] cache %s -> %s", t, {k:_fmt(v) for k,v in vals_clean.items()})
+            continue
 
-                logger.info(
-                    "[val] %s -> PE=%s | PS=%s | EV/EBITDA=%s | EV/REV=%s | PEG=%s | FCF_YIELD=%s%%",
-                    t,
-                    f"{vals['PE']:.2f}" if vals["PE"] else None,
-                    f"{vals['PS']:.2f}" if vals["PS"] else None,
-                    f"{vals['EV_EBITDA']:.2f}" if vals["EV_EBITDA"] else None,
-                    f"{vals['EV_REV']:.2f}" if vals["EV_REV"] else None,
-                    f"{vals['PEG']:.2f}" if vals["PEG"] else None,
-                    f"{vals['FCF_YIELD']:.2f}" if vals["FCF_YIELD"] else None,
-                )
-                break  # success
+        ali = apply_alias(t, extra_aliases)
+        yh = _normalize_symbol_for_yahoo(ali)
 
-            except YFRateLimitError:
-                wait = min(900, 60 * (attempt + 1) + random.uniform(5, 15))
-                logger.warning(f"[val] {t}: Rate limited by Yahoo. Sleeping {wait:.1f}s before retry…")
-                time.sleep(wait)
-                continue
-            except Exception as e:
-                wait = 5 * (attempt + 1)
-                logger.warning(f"[val] {t}: Fetch error: {e}. Retrying in {wait}s…")
-                time.sleep(wait)
-                continue
-
+        try:
+            tk = yf.Ticker(yh)
+            vals, srcs = _extract_valuations_version_safe(tk)
+            out[t] = vals
+            # cache only if at least one field present (avoid caching all-None due to transient errors)
+            if any(v is not None for v in vals.values()):
+                _put_cache(cache, t, {"vals": vals, "sources": srcs})
+            else:
+                logger.debug("[val] %s (%s) returned all None; NOT caching", t, yh)
+            logger.info(
+                "[val] %s (%s) -> PE=%s PS=%s EV/EBITDA=%s EV/REV=%s PEG=%s FCF_YIELD=%s%%",
+                t, yh,
+                _fmt(vals["PE"]), _fmt(vals["PS"]), _fmt(vals["EV_EBITDA"]), _fmt(vals["EV_REV"]),
+                _fmt(vals["PEG"]), _fmt(vals["FCF_YIELD"])
+            )
+        except Exception as e:
+            out[t] = {"PE": None, "PS": None, "EV_EBITDA": None, "EV_REV": None, "PEG": None, "FCF_YIELD": None}
+            if _is_rate_limited(e):
+                logger.warning("[val] rate-limited for %s (%s); NOT caching empty result", t, yh)
+            else:
+                logger.warning("[val] fetch fail %s (%s): %r (NOT caching empty)", t, yh, e)
         time.sleep(delay)
 
-    logger.info("[val] Completed valuations for %d tickers", len(out))
+    _save_cache(_VAL_CACHE_PATH, cache)
     return out
+
 # simple CLIs
 if __name__ == "__main__":
     import sys, json as _json

@@ -12,7 +12,6 @@ from proxies import (
     catalyst_severity_from_feats,
 )
 from fundamentals import fetch_next_earnings_days
-from data_fetcher import fetch_valuations_for_top
 from prompt_blocks import BASELINE_HINTS, build_prompt_block
 from gpt_client import call_gpt5
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
@@ -131,7 +130,19 @@ def main():
     # === 8) Fetch fundamentals ===
     spy_ctx = get_spy_ctx()
     earn_days_map = fetch_next_earnings_days(tickers_top10)
-    valuations_map = fetch_valuations_for_top(tickers_top10)
+    valuations_map = {
+    row["ticker"]: {
+        "PE": row.get("val_PE"),
+        "PEG": row.get("val_PEG"),
+        "YoY": row.get("val_YoY"),
+        "PS": row.get("val_PS"),
+        "EV_EBITDA": row.get("val_EV_EBITDA"),
+        "EV_REV": row.get("val_EV_REV"),
+        "FCF_YIELD": row.get("val_FCF_YIELD"),
+    }
+    for _, row in df.iterrows()
+    if row["ticker"] in tickers_top10
+}
 
     # === 9) Load precomputed news summaries ===
     news_blocks = load_news_summary()
