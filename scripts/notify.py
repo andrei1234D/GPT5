@@ -110,7 +110,7 @@ def main():
     ranked = []
     for _, row in df.iterrows():
         t = row["ticker"]
-        n = (row.get("company") or t)
+        n = (row.get("name") or t)
         f = feats_map.get(t, {}).get("features", {}) or {}
         f.update(row.to_dict())
         s = row.get("merged_score", 0.0)

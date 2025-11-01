@@ -67,7 +67,7 @@ def call_gpt5(
     model: str = None,
     max_tokens: int = None,
     timeout: Optional[float] = None,
-    retries: int = 5,  
+    retries: int = 7,  
 ) -> str:
     """
     Calls the OpenAI Responses API with retries + robust error handling.
@@ -77,7 +77,7 @@ def call_gpt5(
         raise RuntimeError("OPENAI_API_KEY is not set")
 
     model = model or os.getenv("OPENAI_MODEL", "gpt-5")
-    max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "13000")) if max_tokens is None else int(max_tokens)
+    max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "15000")) if max_tokens is None else int(max_tokens)
     timeout = float(os.getenv("OPENAI_TIMEOUT", "360")) if timeout is None else float(timeout)
 
     headers = {

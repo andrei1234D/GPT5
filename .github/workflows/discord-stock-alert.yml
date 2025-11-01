@@ -200,7 +200,7 @@ jobs:
           ALLOW_BLOWOFF_PROBE: '1'
           ATH_GUARD: '1'
           FORCE_CATALYSTS_PARTIAL: '1'
-          OPENAI_TIMEOUT: '360'
+          OPENAI_TIMEOUT: '420'
           LOG_GPT_INPUT: '1'
           LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
