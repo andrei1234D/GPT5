@@ -297,6 +297,7 @@ AGCC,Agencia Comercial Spirits,2025-10-23 04:14:12
 AGE,Serina Therapeutics,2025-09-15 17:41:43
 AGFB.TO,AGF Management,2025-09-15 17:41:43
 AGFXL.L,Argentex,2025-09-15 17:41:43
+AGFY,RYTHM,2025-11-01 10:33:11
 AGILE.MC,Agile Content,2025-09-15 17:41:43
 AGJD,AGCO,2025-09-15 17:41:43
 AGLE,Spyre Therapeutics,2025-09-15 17:41:43
@@ -698,6 +699,7 @@ BGUKL.L,Baillie Gifford UK Growth Trust,name-filter
 BHAC,XCF Global,2025-09-15 17:45:12
 BHG,NeueHealth,2025-09-15 17:45:12
 BHI,Baker Hughes,2025-09-15 17:45:12
+BHLB,Beacon Financial Corp,2025-11-01 10:33:41
 BHM,Bluerock Homes Trust,name-filter
 BHP1D,,persisted
 BHST.TO,BioHarvest Sciences,2025-09-15 17:45:12
@@ -1614,6 +1616,7 @@ GECPP.PA,GECI International,2025-09-15 17:53:42
 GEGD,GEO Group,2025-09-15 17:53:42
 GELNL.L,Gelion,2025-09-15 17:53:42
 GELS.AX,Gelteq,2025-09-15 17:53:42
+GELYY,Geely Automobile,2025-11-01 10:35:09
 GEMDL,Gem Diamonds,2025-09-15 17:53:42
 GEMI,Gemini Space Station,2025-09-15 17:53:42
 GEML,Gemfields,2025-09-15 17:53:42
@@ -2792,6 +2795,7 @@ PKY1D,,persisted
 PLANS.SW,Plazza,2025-09-15 18:04:10
 PLG.TO,Platinum Group Metals,2025-09-15 18:04:10
 PLIN,Bit Origin,2025-09-15 18:04:10
+PLL,Piedmont Lithium,2025-11-01 10:37:04
 PLNHF,Planet 13,2025-09-15 18:04:10
 PLNWP.PA,Planisware,2025-09-15 18:04:10
 PLPL.L,Genuit,2025-09-15 18:04:10
@@ -3622,6 +3626,7 @@ VEDU.TO,Visionary Holdings,2025-09-15 18:11:33
 VEED,Veeva Systems,2025-09-15 18:11:33
 VEILL,Vietnam Enterprise Investments,name-filter
 VENA,MicroAlgo,2025-09-15 18:11:33
+VERB,TON Strategy,2025-11-01 10:38:20
 VERE.MC,Squirrel Media,2025-09-15 18:11:33
 VERV,Verve Therapeutics,2025-09-26 19:12:45
 VETNS.SW,Vetropack Holding,2025-09-15 18:11:33
@@ -3847,8 +3852,3 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-AGFY,404/empty-or-short,2025-11-01 10:33:11
-BHLB,404/empty-or-short,2025-11-01 10:33:41
-GELYY,404/empty-or-short,2025-11-01 10:35:09
-PLL,404/empty-or-short,2025-11-01 10:37:04
-VERB,404/empty-or-short,2025-11-01 10:38:20
