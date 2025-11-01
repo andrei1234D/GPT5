@@ -24,18 +24,16 @@ Impact: 0
 
 ### TTI
 - Company met Q3 earnings estimates with positive revenue surprises.
-Impact: +30
+Impact: +15
+
+### SHLS
+- Enphase Energy exceeded Q3 earnings and revenue estimates significantly.
+Impact: +20
+
+### VRT
+- Vertiv Holdings has outperformed the market significantly over the past 5 years.
+Impact: +25
 
 ### FIX
-- FIX stock shows momentum as it ranks #1 on Zacks' list of momentum stocks.
-- FIX is considered a strong ETF and a smart buy in the HVAC industry.
-Impact: +40
-
-### III.TO
-- N/A
-Impact: 0
-
-### BE
-- Bloom Energy announces a private offering of zero-coupon convertible notes, which affects stock price.
-- GTT reports strong revenue growth for the first nine months of 2025.
+- FIX is highlighted as a strong ETF and a top momentum stock to buy.
 Impact: +20
