@@ -918,13 +918,16 @@ def merge_stage1_with_tr(stage1_path: str, out_path: str = "data/stage2_merged.c
     return out_df
 
 @functools.lru_cache(maxsize=256)
-def get_financials_cached(ticker: str):
-    """Cached fetch for financial statements to reduce Yahoo rate hits."""
+def get_info_cached(ticker: str):
+    """Cached Yahoo info fetch to reduce rate-limit hits."""
     tk = yf.Ticker(ticker)
-    fin = tk.financials
-    if fin is None or fin.empty:
-        fin = tk.annual_financials
-    return fin
+    try:
+        info = tk.info or {}
+        fast = getattr(tk, "fast_info", {}) or {}
+        info.update(fast)
+        return info
+    except Exception:
+        return {}
 
 
 def compute_yoy_growth(ticker: str, retries: int = 3):
