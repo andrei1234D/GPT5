@@ -1,8 +1,4 @@
 ### FLNC
-- U.S. stocks were higher on Friday, with several big stocks moving higher.
-Impact: +10
-
-### CG.TO
 - N/A
 Impact: 0
 
@@ -10,15 +6,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AMRC
-- Terrestrial Energy Inc. begins trading on the Nasdaq Stock Market and receives significant transaction proceeds to support its business plan.
-Impact: +20
+### NXT
+- N/A
+Impact: 0
 
-### ACMR
-- ACM Research, Inc. beats the stock market upswing and is seen as a buy by Wall Street analysts.
-Impact: +15
-
-### LTBR
+### GRGD.TO
 - N/A
 Impact: 0
 
@@ -26,14 +18,24 @@ Impact: 0
 - N/A
 Impact: 0
 
-### HUT
-- Thames Capital Management initiates new positions in Bitfarms and Hut 8, acquiring significant shares in both companies.
-Impact: +12
-
-### LXEO
+### LTBR
 - N/A
 Impact: 0
 
 ### TTI
-- Tetra Technologies meets Q3 earnings estimates, with positive surprises in earnings and revenue.
-Impact: +10
+- Company met Q3 earnings estimates with positive revenue surprises.
+Impact: +30
+
+### FIX
+- FIX stock shows momentum as it ranks #1 on Zacks' list of momentum stocks.
+- FIX is considered a strong ETF and a smart buy in the HVAC industry.
+Impact: +40
+
+### III.TO
+- N/A
+Impact: 0
+
+### BE
+- Bloom Energy announces a private offering of zero-coupon convertible notes, which affects stock price.
+- GTT reports strong revenue growth for the first nine months of 2025.
+Impact: +20
