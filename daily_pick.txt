@@ -1,15 +1,57 @@
-III.TO – Imperial Metals
+NXT – NEXTracker
+Base Scores: Market & Sector: 191, Quality (Tech Proxies): 170, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 29
+News: N/A
+Final base score: 745
+Valuation: P/E=26.22, PEG=3.75, Growth=YoY 0.23%
+Certainty: 60%
+ADVICE: ```arm Hold```
+Forecast image URL: https://stockscan.io/stocks/NXT/forecast
+What reduced the score: Overextended vs FVA anchor (>40%); weak volume; expensive PEG; no active breakout catalyst
+What wasn't clear or contradictory: Forward growth not provided; momentum strong but MACD/volume mixed
 
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 153, Near-Term Catalysts: 122, Technical Valuation: 203, Risks: 33
-News: "N/A"
-Final base score: 733
+SHLS – Shoals Technologies
+Base Scores: Market & Sector: 191, Quality (Tech Proxies): 133, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 17
+News: "Enphase Energy exceeded Q3 earnings and revenue estimates significantly. (+30)"
+Final base score: 722
+Valuation: P/E=87.58, PEG=0.62, Growth=YoY 0.15%
+Certainty: 56%
+ADVICE: ```arm Hold```
+Forecast image URL: https://stockscan.io/stocks/SHLS/forecast
+What reduced the score: Extended >40% above FVA; high P/E; volume contraction; MACD cooling
+What wasn't clear or contradictory: Forward growth/PEG visibility; sector move vs single-name follow-through
+
+VRT – Vertiv
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 170, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 22
+News: "Vertiv has outperformed the market over the past 5 years. (+40)"
+Final base score: 795
+Valuation: P/E=73.05, PEG=0.91, Growth=YoY 1.22%
+Certainty: 62%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/VRT/forecast
+What reduced the score: 40%+ above FVA; rich P/E; limited near-term catalyst; modest YoY growth
+What wasn't clear or contradictory: Forward growth not provided; breadth/volume just average
+
+III.TO – Imperial Metals
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 162, Near-Term Catalysts: 122, Technical Valuation: 203, Risks: 39
+News: N/A
+Final base score: 798
 Valuation: P/E=6.34, PEG=6.67, Growth=YoY 0.95%
 Certainty: 66%
-ADVICE: ```ini [Buy] ```
+ADVICE: ```ini
+[Buy]
+```
 Forecast image URL: https://stockscan.io/stocks/III.TO/forecast
-What reduced the score: High PEG; valuation history drag; negative FCF trend; limited explicit catalysts beyond technical breakout.
-What wasn't clear or contradictory: No forward growth/PEG detail; EV/EBITDA/EV/REV N/A; no fresh news context.
+What reduced the score: ~36% above FVA; PEG elevated (neutralized by low P/E); small-cap risk
+What wasn't clear or contradictory: Forward growth missing; commodity sensitivity to macro
 
-VHC – VirnetX
-
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 135, Near-Term
+NVFY – Nova Lifestyle
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 158, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 27
+News: N/A
+Final base score: 743
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.28%
+Certainty: 57%
+ADVICE: ```arm Hold```
+Forecast image URL: https://stockscan.io/stocks/NVFY/forecast
+What reduced the score: ~40% above FVA; microcap risk; lack

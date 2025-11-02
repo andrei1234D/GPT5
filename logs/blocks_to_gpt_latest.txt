@@ -168,7 +168,7 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 ### SHLS News
 ### SHLS
 - Enphase Energy exceeded Q3 earnings and revenue estimates significantly.
-Impact: +20
+Impact: +30
 
 TICKER: VRT
 COMPANY: Vertiv
@@ -211,7 +211,7 @@ PLAN_SPEC: Use FVA as anchor (|FVA−PRICE| ≤ 25% if CONTINUATION_OK or Certai
 ### VRT News
 ### VRT
 - Vertiv Holdings has outperformed the market significantly over the past 5 years.
-Impact: +25
+Impact: +40
 
 TICKER: III.TO
 COMPANY: Imperial Metals
