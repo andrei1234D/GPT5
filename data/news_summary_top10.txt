@@ -23,19 +23,17 @@ Impact: 0
 Impact: 0
 
 ### TTI
-- Quarterly earnings for Tetra Technologies (TTI) met estimates and showed positive revenue surprises.
-Impact: +25
+- Tetra Technologies (TTI) met Q3 earnings estimates with a positive revenue surprise.
+Impact: +20
 
 ### SHLS
-- Enphase Energy (ENPH) exceeded Q3 earnings and revenue estimates by a significant margin.
+- Enphase Energy (ENPH) exceeded Q3 earnings and revenue estimates significantly.
 Impact: +30
 
 ### VRT
-- Vertiv Holdings (VRT) has outperformed the market over the past 5 years and is highlighted as a top stock to watch.
-- Zacks names Vertiv Holdings as its Bull of the Day for its dominant AI infrastructure.
-Impact: +35
+- Vertiv Holdings (VRT) has outperformed the market in the last 5 years and is highlighted as a top stock to buy.
+Impact: +25
 
 ### FIX
-- FIX is highlighted as a strong HVAC stock with record growth and momentum.
-- FIX, SLP, and STX are top momentum stocks according to Zacks.
-Impact: +30
+- FIX is highlighted as a strong momentum stock to buy, outperforming in the HVAC sector.
+Impact: +25
