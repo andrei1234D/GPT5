@@ -2,38 +2,38 @@
 - N/A
 Impact: 0
 
-### SFTBY
-- N/A
-Impact: 0
-
-### NXT
-- N/A
-Impact: 0
-
 ### GRGD.TO
 - N/A
 Impact: 0
 
-### PSNL
+### VERI
+- Neutral sentiment on Aurora Innovation, Inc.'s Q3 performance.
+Impact: +10
+
+### III.TO
 - N/A
 Impact: 0
 
-### LTBR
+### KOD
+- N/A
+Impact: 0
+
+### CAT
+- Caterpillar Inc. is experiencing positive analyst forecasts and strategic shifts towards AI.
+Impact: +25
+
+### FSLR
+- Positive momentum for First Solar, Inc. with strong earnings and stock performance.
+Impact: +20
+
+### TNZ.TO
 - N/A
 Impact: 0
 
 ### TTI
-- Tetra Technologies (TTI) met Q3 earnings estimates with a positive revenue surprise.
-Impact: +20
+- Positive outlook for Tetra Technologies with meeting earnings estimates.
+Impact: +15
 
-### SHLS
-- Enphase Energy (ENPH) exceeded Q3 earnings and revenue estimates significantly.
-Impact: +30
-
-### VRT
-- Vertiv Holdings (VRT) has outperformed the market in the last 5 years and is highlighted as a top stock to buy.
-Impact: +25
-
-### FIX
-- FIX is highlighted as a strong momentum stock to buy, outperforming in the HVAC sector.
-Impact: +25
+### AGX
+- N/A
+Impact: 0
