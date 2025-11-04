@@ -1,19 +1,11 @@
-III.TO – Imperial Metals
+VHC – VirnetX
 
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 151, Near-Term Catalysts: 122, Technical Valuation: 185, Risks: 65
-
-News: N/A
-
-Final base score: 611
-
-Valuation: P/E=6.34, PEG=6.67, Growth=0.95% YoY
-
-Certainty: 62%
-
-ADVICE: N/A
-
-Forecast image URL: https://stockscan.io/stocks/III.TO/forecast
-
-What reduced the score: 36% above FVA anchor, modest EMA50 slope, high PEG, negative FCF trend, limited breakout volume
-
-What wasn't clear or contradictory: No forward growth or EV/metrics; catalyst depth unclear beyond technical breakout timing
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 189, Near-Term Catalysts: 107, Technical Valuation: 213, Risks: 4
+News: "N/A"
+Final base score: 735
+Valuation: P/E=12.51, PEG=0.27, Growth=YoY 47.00%
+Certainty: 66%
+ADVICE: ```ini [Buy] ```
+Forecast image URL: https://stockscan.io/stocks/VHC/forecast
+What reduced the score: 46% above FVA anchor; RSI >70; very low volume vs 20d; high ATR; valuation-history negative proxy
+What wasn't clear or contradictory: Breakout flagged Today but weak volume; PEG extremely low vs mixed efficiency/FCF proxies
