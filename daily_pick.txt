@@ -1,11 +1,11 @@
-VHC – VirnetX
+FSLR – First Solar
 
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 189, Near-Term Catalysts: 107, Technical Valuation: 213, Risks: 4
-News: "N/A"
-Final base score: 735
-Valuation: P/E=12.51, PEG=0.27, Growth=YoY 47.00%
-Certainty: 66%
-ADVICE: ```ini [Buy] ```
-Forecast image URL: https://stockscan.io/stocks/VHC/forecast
-What reduced the score: 46% above FVA anchor; RSI >70; very low volume vs 20d; high ATR; valuation-history negative proxy
-What wasn't clear or contradictory: Breakout flagged Today but weak volume; PEG extremely low vs mixed efficiency/FCF proxies
+Base Scores: Market & Sector: 190, Quality (Tech Proxies): 181, Near-Term Catalysts: 100, Technical Valuation: 203, Risks: 27
+News: "Strong earnings momentum; stock strength (+20)"
+Final base score: 789
+Valuation: P/E=20.41, PEG=0.37, Growth=YoY 0.46%
+Certainty: 68%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/FSLR/forecast
+What reduced the score: 33% above FVA anchor; no clear breakout catalyst; modest volume expansion; limited forward-growth data.
+What wasn't clear or contradictory: Very low PEG vs small YoY growth; no forward growth provided; continuation strong but stretched vs FVA.
