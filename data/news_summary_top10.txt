@@ -1,16 +1,9 @@
-### FLNC
-- N/A
-Impact: 0
+### FSLR
+- Clean energy stocks are outperforming tech stocks in 2025.
+- First Solar reports strong Q3 earnings, beating sales consensus.
+Impact: +30
 
-### GRGD.TO
-- N/A
-Impact: 0
-
-### VERI
-- Neutral sentiment on Aurora Innovation, Inc.'s Q3 performance.
-Impact: +10
-
-### III.TO
+### NXT
 - N/A
 Impact: 0
 
@@ -18,22 +11,31 @@ Impact: 0
 - N/A
 Impact: 0
 
-### CAT
-- Caterpillar Inc. is experiencing positive analyst forecasts and strategic shifts towards AI.
-Impact: +25
-
-### FSLR
-- Positive momentum for First Solar, Inc. with strong earnings and stock performance.
-Impact: +20
-
-### TNZ.TO
+### SFTBY
 - N/A
 Impact: 0
 
-### TTI
-- Positive outlook for Tetra Technologies with meeting earnings estimates.
-Impact: +15
+### LRCX
+- Electronics stocks like Lam Research show solid growth attributes.
+Impact: +20
 
-### AGX
+### TSEM.TA
+- N/A
+Impact: 0
+
+### RCUS
+- Arcus Biosciences President sells $2 million in stock.
+Impact: 0
+
+### CAT
+- Caterpillar has outperformed the market over the past 10 years.
+- Caterpillar is a trending stock with positive outlook.
+Impact: +25
+
+### POWL
+- Powell Industries rises higher than the market.
+Impact: +10
+
+### VHC
 - N/A
 Impact: 0
