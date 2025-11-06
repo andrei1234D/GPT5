@@ -1,9 +1,8 @@
-### FSLR
-- Clean energy stocks are outperforming tech stocks in 2025.
-- First Solar reports strong Q3 earnings, beating sales consensus.
-Impact: +30
+### TTI
+- N/A
+Impact: 0
 
-### NXT
+### AGX
 - N/A
 Impact: 0
 
@@ -11,31 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SFTBY
-- N/A
-Impact: 0
-
-### LRCX
-- Electronics stocks like Lam Research show solid growth attributes.
-Impact: +20
-
-### TSEM.TA
-- N/A
-Impact: 0
-
-### RCUS
-- Arcus Biosciences President sells $2 million in stock.
-Impact: 0
-
 ### CAT
-- Caterpillar has outperformed the market over the past 10 years.
-- Caterpillar is a trending stock with positive outlook.
-Impact: +25
-
-### POWL
-- Powell Industries rises higher than the market.
-Impact: +10
+- N/A
+Impact: 0
 
 ### VHC
+- N/A
+Impact: 0
+
+### POWL
+- N/A
+Impact: 0
+
+### ARWR
+- N/A
+Impact: 0
+
+### FSLR
+- N/A
+Impact: 0
+
+### MU
+- N/A
+Impact: 0
+
+### AMKR
 - N/A
 Impact: 0
