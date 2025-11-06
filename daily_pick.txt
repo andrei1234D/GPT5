@@ -1,11 +1,25 @@
 FSLR – First Solar
-
-Base Scores: Market & Sector: 190, Quality (Tech Proxies): 181, Near-Term Catalysts: 100, Technical Valuation: 203, Risks: 27
-News: "Strong earnings momentum; stock strength (+20)"
-Final base score: 789
-Valuation: P/E=20.41, PEG=0.37, Growth=YoY 0.46%
-Certainty: 68%
-ADVICE: [Buy]
+Base Scores: Market & Sector: 224, Quality (Tech Proxies): 193, Near-Term Catalysts: 137, Technical Valuation: 153, Risks: 15
+News: "Clean energy stocks are outperforming tech; Q3 sales beat and strong quarter (+30)"
+Final base score: 818
+Valuation: P/E=20.18, PEG=0.37, Growth=YoY N/A
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
+```
 Forecast image URL: https://stockscan.io/stocks/FSLR/forecast
-What reduced the score: 33% above FVA anchor; no clear breakout catalyst; modest volume expansion; limited forward-growth data.
-What wasn't clear or contradictory: Very low PEG vs small YoY growth; no forward growth provided; continuation strong but stretched vs FVA.
+What reduced the score: >40% above FVA anchor; weak valuation history; negative FCF trend; elevated volatility; CONTINUATION_OK=No
+What wasn't clear or contradictory: YoY growth missing despite low PEG; strong breakout vs ATH guard/EXTENDED status
+
+TSEM.TA – Tower Semiconductor
+Base Scores: Market & Sector: 224, Quality (Tech Proxies): 198, Near-Term Catalysts: 137, Technical Valuation: 163, Risks: 21
+News: "N/A"
+Final base score: 805
+Valuation: P/E=48.29, PEG=N/A, Growth=YoY 0.06%
+Certainty: 62%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/TSEM.TA/forecast
+What reduced the score: >40% above FVA anchor; high PE with low YoY growth; weak valuation history; negative FCF trend; extension risk
+What wasn't clear or contradictory: No forward growth detail; breakout Today but PROBE_ELIGIBLE=No—durability vs anchor uncertain
