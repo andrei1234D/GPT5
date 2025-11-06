@@ -432,6 +432,7 @@ ALPA,Longevity Health Holdings,2025-09-15 17:42:57
 ALPDXP.PA,Piscines Desjoyaux,2025-09-15 17:42:57
 ALPJTP.PA,Poujoulat,2025-09-15 17:42:57
 ALPRGP.PA,Prologue,2025-09-15 17:42:57
+ALPS,Alps Group,2025-11-05 04:16:09
 ALQA.MC,Alquiber Quality,2025-09-15 17:42:57
 ALREWP.PA,ReWorld Media,2025-09-15 17:42:57
 ALRIBP.PA,Riber,2025-09-15 17:42:57
@@ -564,7 +565,7 @@ AT11L.L,Ashtead Technology,2025-09-15 17:44:11
 AT1D,,persisted
 AT4D,,persisted
 ATAC,Blue Owl Capital,2025-09-15 17:44:11
-ATAI.AS,ATAI Life Sciences,2025-09-15 17:44:11
+ATAI.AS,Atai Beckley,2025-09-15 17:44:11
 ATAK,DIH Holdings US,2025-09-15 17:44:11
 ATAP.PA,Atari,2025-09-15 17:44:11
 ATEMEP.PA,ATEME,2025-09-15 17:44:11
@@ -675,6 +676,7 @@ BEML.L,Beowulf Mining,2025-09-15 17:44:59
 BENP.PA,Beneteau,2025-09-15 17:44:59
 BERIL.L,BlackRock Energy and Resources Income Trust,name-filter
 BESIA.AS,BE Semiconductor Industries,2025-09-15 17:44:59
+BETA,Beta Technologies,2025-11-05 04:16:35
 BEZD.DE,Berentzen-Gruppe,2025-09-15 17:44:59
 BEZL.L,Beazley,2025-09-15 17:44:59
 BF5BD,,persisted
@@ -931,6 +933,7 @@ CEKD.DE,CeoTronics,2025-09-15 17:47:05
 CENH,Arqit Quantum,2025-09-15 17:47:05
 CENP.PA,Groupe Crit,2025-09-15 17:47:05
 CEPF,Cantor Equity Partners IV,2025-09-15 17:47:05
+CEPV,Cantor Equity Partners V,2025-11-05 04:16:57
 CERC,Avalo Therapeutics,2025-09-15 17:47:05
 CERL.L,Cerillion,2025-09-15 17:47:05
 CET.TO,ACT Energy Technologies,2025-09-15 17:47:05
@@ -1564,6 +1567,7 @@ FSRV,Katapult Holdings,2025-09-15 17:53:23
 FSTAL.L,Fuller Smith & Turner,2025-09-15 17:53:23
 FSVL.L,Fidelity Special Values,2025-09-15 17:53:23
 FTCH,Farfetch,2025-09-15 17:53:23
+FTCL.L,Filtronic,2025-11-05 04:18:02
 FTHWF.TO,Field Trip Health & Wellness,2025-09-15 17:53:23
 FTI.L,TechnipFMC,2025-09-15 17:53:23
 FTKD.DE,flatexDEGIRO,2025-09-15 17:53:23
@@ -2569,6 +2573,7 @@ NNXPF.TO,NanoXplore,2025-09-15 18:02:11
 NOA3D,,persisted
 NOGL.L,Nostrum Oil & Gas,2025-09-15 18:02:11
 NOH1D,,persisted
+NOMA,Nomadar,2025-11-05 04:19:38
 NOVA,Sunnova Energy International,2025-09-15 18:02:11
 NOVCD.CO,Novo Nordisk,2025-09-15 18:02:11
 NOVNS.SW,Novartis,2025-09-15 18:02:11
@@ -2900,6 +2905,7 @@ PXX,P10,2025-09-15 18:05:05
 PYXL.AX,PYX Resources,2025-09-15 18:05:05
 PZCL.L,PZ Cussons,2025-09-15 18:05:05
 PZXD.SS,Ping An Insurance Group Co of China,2025-09-15 18:05:05
+Q,Qnity Electronics,2025-11-05 04:20:12
 QAAD,Quanta Services,2025-09-15 18:05:05
 QAND.AX,Qantas Airways,2025-09-15 18:05:05
 QBRA.TO,Quebecor (Class A),2025-09-15 18:05:05
@@ -3852,9 +3858,6 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-ALPS,404/empty-or-short,2025-11-05 04:16:09
-BETA,404/empty-or-short,2025-11-05 04:16:35
-CEPV,404/empty-or-short,2025-11-05 04:16:57
-FTCL.L,404/empty-or-short,2025-11-05 04:18:02
-NOMA,404/empty-or-short,2025-11-05 04:19:38
-Q,404/empty-or-short,2025-11-05 04:20:12
+ELWT,404/empty-or-short,2025-11-06 04:20:06
+XZO,404/empty-or-short,2025-11-06 04:24:48
+YOSH,404/empty-or-short,2025-11-06 04:24:48
