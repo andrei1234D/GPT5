@@ -1,11 +1,9 @@
-VHC – VirnetX
-
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 92, Technical Valuation: 263, Risks: 50
+KEP – Korea Electric Power
+Base Scores: Market & Sector: 150, Quality (Tech Proxies): 171, Near-Term Catalysts: 92, Technical Valuation: 228, Risks: 30
 News: N/A
-Final base score: 732
-Valuation: P/E=13.08, PEG=0.28, Growth=YoY 47.00%
-Certainty: 62%
-ADVICE: ```ini [Buy] ``` | Buy 16.54–18.20; Stop 15.29; Target 20.50; Max hold time: ≤ 1 year (Anchor: $17.37)
-Forecast image URL: https://stockscan.io/stocks/VHC/forecast
-What reduced the score: 30% above FVA (extended), no catalyst, volume −88% vs 20d, RSI 46 (sub-ideal), weak FCF/ops proxies.
-What wasn't clear or contradictory: CONTINUATION_OK=No despite strong EMA50 slope; ultra‑low PEG flagged but rules say ignore extreme PEG; no timing signal.
+Final base score: 737
+Valuation: P/E=4.65, PEG=0.28, Growth=YoY 16.53%
+Certainty: 66%
+ADVICE: [Buy] | Buy 12.65–12.97; Stop 12.40; Target 13.41; Max hold time: ≤ 1 year (Anchor: $12.81)
+Forecast image URL: https://stockscan.io/stocks/KEP/forecast
+What reduced the score: No breakout signal, muted momentum (RSI ~51, MACD flat), no near-term
