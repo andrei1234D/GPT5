@@ -1,39 +1,45 @@
-### AGX
-- N/A
-Impact: 0
-
-### ARWR
-- N/A
-Impact: 0
-
-### AMKR
-- N/A
-Impact: 0
-
-### AEIS
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
 ### FSLR
+- Clean energy ETFs like ICLN should stay resilient amid global green momentum.
+- First Solar and Canadian Solar are enjoying spectacular momentum gains.
+Impact: +40
+
+### NXT
 - N/A
 Impact: 0
 
 ### TTMI
+- TTM has been upgraded to a Strong Buy, reflecting growing optimism.
+- TTM possesses solid growth attributes that could help it outperform the market.
+Impact: +35
+
+### AGX
+- Advanced Drainage Systems tops Q2 earnings and revenue estimates.
+- Consider investing in AQR mutual funds for lucrative returns.
+Impact: +30
+
+### ECG
+- Everus Construction Group surpasses Q3 earnings and revenue estimates.
+Impact: +25
+
+### LRCX
+- Bet on top liquid stocks like LRCX for maximizing returns.
+- Dividend growth stocks like VRT, TPR, and HCA may offer stability amid market volatility.
+Impact: +35
+
+### ARWR
+- Sarepta's Q3 earnings miss and DMD study failure lead to stock dip.
+- Privium Fund Management sells shares of Arrowhead Pharmaceuticals.
+Impact: -20
+
+### AMKR
+- Amkor Technology has received attention from users, impacting stock prospects.
+- Pinnacle West's Q3 earnings transcript suggests positive outlook.
+Impact: +25
+
+### CLS.TO
 - N/A
 Impact: 0
 
-### KOD
-- N/A
-Impact: 0
-
-### BE
-- N/A
-Impact: 0
-
-### FORM
+### TTI
 - N/A
 Impact: 0
