@@ -1,40 +1,35 @@
 ### FSLR
 - Clean energy ETFs like ICLN should stay resilient amid global green momentum.
 - First Solar and Canadian Solar are enjoying spectacular momentum gains.
-Impact: +40
+Impact: +35
 
 ### NXT
 - N/A
 Impact: 0
 
-### TTMI
-- TTM has been upgraded to a Strong Buy, reflecting growing optimism.
-- TTM possesses solid growth attributes that could help it outperform the market.
-Impact: +35
-
-### AGX
-- Advanced Drainage Systems tops Q2 earnings and revenue estimates.
-- Consider investing in AQR mutual funds for lucrative returns.
-Impact: +30
-
 ### ECG
-- Everus Construction Group surpasses Q3 earnings and revenue estimates.
+- Everus Construction Group, Inc. delivered strong Q3 earnings and revenue surprises.
 Impact: +25
 
 ### LRCX
-- Bet on top liquid stocks like LRCX for maximizing returns.
-- Dividend growth stocks like VRT, TPR, and HCA may offer stability amid market volatility.
-Impact: +35
-
-### ARWR
-- Sarepta's Q3 earnings miss and DMD study failure lead to stock dip.
-- Privium Fund Management sells shares of Arrowhead Pharmaceuticals.
-Impact: -20
+- Top liquid stocks like LRCX have strong liquidity and growth attributes.
+- Dividend growth stocks like LRCX may offer stability amid market volatility.
+Impact: +30
 
 ### AMKR
-- Amkor Technology has received attention from users, impacting stock prospects.
-- Pinnacle West's Q3 earnings transcript suggests positive outlook.
+- Amkor Technology has received attention and its prospects look positive.
+- Pinnacle West reported bullish Q3 earnings.
 Impact: +25
+
+### TTMI
+- TTM has been upgraded to a Strong Buy, reflecting growing optimism.
+- TTMI possesses solid growth attributes for potential market outperformance.
+Impact: +30
+
+### ARWR
+- Sarepta's Q3 earnings miss and DMD study failure have clouded hopes.
+- Privium Fund Management sold shares of Arrowhead Pharmaceuticals.
+Impact: -15
 
 ### CLS.TO
 - N/A
@@ -43,3 +38,8 @@ Impact: 0
 ### TTI
 - N/A
 Impact: 0
+
+### AEIS
+- D-Wave Quantum and IonQ post mixed Q3 earnings results.
+- Advanced Energy stock surged higher due to rapid sales and earnings growth.
+Impact: +15
