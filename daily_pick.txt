@@ -1,9 +1,11 @@
-KEP – Korea Electric Power
-Base Scores: Market & Sector: 150, Quality (Tech Proxies): 171, Near-Term Catalysts: 92, Technical Valuation: 228, Risks: 30
-News: N/A
-Final base score: 737
-Valuation: P/E=4.65, PEG=0.28, Growth=YoY 16.53%
-Certainty: 66%
-ADVICE: [Buy] | Buy 12.65–12.97; Stop 12.40; Target 13.41; Max hold time: ≤ 1 year (Anchor: $12.81)
-Forecast image URL: https://stockscan.io/stocks/KEP/forecast
-What reduced the score: No breakout signal, muted momentum (RSI ~51, MACD flat), no near-term
+FSLR – First Solar
+
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 169, Near-Term Catalysts: 92, Technical Valuation: 206, Risks: 20
+News: "Clean energy ETFs resilient; FSLR showing strong momentum (+40)"
+Final base score: 801
+Valuation: P/E=20.54, PEG=0.37, Growth=0.46% YoY
+Certainty: 68%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/FSLR/forecast
+What reduced the score: 34% above FVA anchor; extended KO-context; soft 20d volume; FCF trend negative; valuation history stretched
+What wasn't clear or contradictory: PEG very low vs muted YoY growth; no explicit breakout catalyst flagged | Buy 192.07–207.17; Stop 180.74; Target 227.95; Max hold time: ≤ 1 year (Anchor: $199.62)
