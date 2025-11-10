@@ -1,11 +1,10 @@
-FSLR – First Solar
-
-Base Scores: Market & Sector: 206, Quality (Tech Proxies): 169, Near-Term Catalysts: 92, Technical Valuation: 206, Risks: 20
-News: "Clean energy ETFs resilient; FSLR showing strong momentum (+40)"
-Final base score: 801
-Valuation: P/E=20.54, PEG=0.37, Growth=0.46% YoY
-Certainty: 68%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/FSLR/forecast
-What reduced the score: 34% above FVA anchor; extended KO-context; soft 20d volume; FCF trend negative; valuation history stretched
-What wasn't clear or contradictory: PEG very low vs muted YoY growth; no explicit breakout catalyst flagged | Buy 192.07–207.17; Stop 180.74; Target 227.95; Max hold time: ≤ 1 year (Anchor: $199.62)
+VHC – VirnetX
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 108, Technical Valuation: 253, Risks: 0
+News: N/A
+Final base score: 688
+Valuation: P/E=12.57, PEG=0.27, Growth=YoY 47.00%
+Certainty: 62%
+ADVICE: ```arm Hold```
+Forecast image URL: https://stockscan.io/stocks/VHC/forecast
+What reduced the score: Overextended vs FVA (~32% above anchor), ultra-low liquidity (Vol_vs_20d -85%), very high volatility (ATR%/risk proxies), negative FCF/OP efficiency proxies.
+What wasn't clear or contradictory: Exceptional PEG with micro-cap-like volatility; momentum mixed (RSI>60 but 5d% -7.4%, tiny MACD_hist); no forward growth data.
