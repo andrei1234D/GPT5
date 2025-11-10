@@ -1,45 +1,44 @@
 ### FSLR
 - Clean energy ETFs like ICLN should stay resilient amid global green momentum.
 - First Solar and Canadian Solar are enjoying spectacular momentum gains.
-Impact: +30
+Impact: +35
 
 ### NXT
 - N/A
 Impact: 0
 
+### AMKR
+- Amkor Technology has received attention from Zacks.com users, impacting its prospects positively.
+Impact: +15
+
 ### TTMI
-- TTM has been upgraded to a Zacks Rank #1, reflecting growing optimism about earnings prospects.
+- TTM Technologies has been upgraded to a Strong Buy, reflecting growing optimism about its earnings prospects.
 - TTM possesses solid growth attributes that could help it outperform the market.
 Impact: +25
 
-### AGX
-- Advanced Drainage Systems tops Q2 earnings and revenue estimates.
-- Consider investing in AQR mutual funds for lucrative returns.
-Impact: +20
+### ARWR
+- Sarepta's Q3 loss and DMD study failure cloud hopes for its therapies.
+- Privium Fund Management selling shares of Arrowhead Pharmaceuticals.
+Impact: -10
 
 ### ECG
-- Everus Construction Group surpasses Q3 earnings and revenue estimates.
-Impact: +15
-
-### LRCX
-- Tech stock and ETF have doubled the Nasdaq Composite in 2025.
-- These dividend stocks balance risk and reward for long-term success.
-Impact: +25
+- Everus Construction Group surpassed earnings and revenue estimates for Q3.
+Impact: +20
 
 ### TSEM.TA
 - N/A
 Impact: 0
 
-### ARWR
-- Sarepta's Q3 loss and failure of key DMD study cloud hopes for PMO therapies.
-- Privium Fund Management sells shares of Arrowhead Pharmaceuticals.
-Impact: -10
-
-### AMKR
-- Amkor Technology has received attention from Zacks.com users.
-- Pinnacle West Q3 earnings show positive prospects.
-Impact: +15
-
-### CLS.TO
+### TTI
 - N/A
 Impact: 0
+
+### AEIS
+- D-Wave Quantum posts a wider Q3 loss but with double revenues year over year.
+- IONQ posts significant revenue growth despite a wider loss.
+Impact: +10
+
+### AGX
+- Advanced Drainage Systems tops Q2 earnings and revenue estimates, showing positive performance.
+- AQR mutual funds like QSMNX, AQMNX, and AIONX are recommended for lucrative returns.
+Impact: +20
