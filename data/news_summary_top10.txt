@@ -1,39 +1,11 @@
-### LUG.TO
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
-### OGC.TO
-- N/A
-Impact: 0
-
-### KOD
-- N/A
-Impact: 0
-
-### RCUS
-- N/A
-Impact: 0
-
-### AEIS
-- Advanced Energy Industries (AEIS) is showing positive momentum in the market.
-Impact: +35
-
-### FSLR
-- Solar energy stocks like First Solar (FSLR) are experiencing strong momentum due to global energy consumption and AI infrastructure.
-Impact: +40
-
 ### MKSI
-- MKS Instruments (MKSI) reports positive Q3 earnings, beating estimates and showing revenue growth.
+- MKS Instruments beats Q3 earnings and revenue estimates, raises outlook for a strong fourth quarter.
 Impact: +30
 
-### EQX.TO
-- N/A
-Impact: 0
+### AEIS
+- Advanced Energy Industries showing positive momentum, poised for growth alongside other semiconductor stocks.
+Impact: +25
 
-### ARWR
-- Arrowhead Pharmaceuticals (ARWR) experiences mixed sentiments with a notable sell-off by Privium Fund Management.
-Impact: -10
+### FLNC
+- Pagaya Technologies reports upbeat Q3 results, raises sales guidance, leading to a sharp rise in stock price.
+Impact: +20
