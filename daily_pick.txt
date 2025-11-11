@@ -1,12 +1,51 @@
 FSLR – First Solar
-Base Scores: Market & Sector: 138, Quality (Tech Proxies): 182, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 23
-News: "Clean-energy ETFs resilient; First Solar momentum continues (+35)"
-Final base score: 729
-Valuation: P/E=20.54, PEG=0.37, Growth=YoY 0.46%
-Certainty: 56%
-```arm
-Hold
+Base Scores: Market & Sector: 149, Quality (Tech Proxies): 203, Near-Term Catalysts: 100, Technical Valuation: 203, Risks: 9
+News: "Solar energy stocks like First Solar (FSLR) are experiencing strong momentum due to global energy consumption and AI infrastructure. (+40)"
+Final base score: 771
+Valuation: P/E=20.92, PEG=0.42, Growth=YoY 0.46%
+Certainty: 67%
+ADVICE: ```ini
+[Buy]
 ```
 Forecast image URL: https://stockscan.io/stocks/FSLR/forecast
-What reduced the score: Extended vs FVA (~36% above), sub-avg volume, FCF trend negative, no breakout catalyst, moderate ATR risk
-What wasn't clear or contradictory: Very low YoY growth vs very low PEG; forward growth missing, volume softness vs strong price action
+What reduced the score: Volume weak vs 20d, FCF trend negative, +30% over FVA anchor
+What wasn't clear or contradictory: PEG suggests strong forward growth but YoY growth is minimal; forward growth data missing
+
+AEIS – Advanced Energy Industries
+Base Scores: Market & Sector: 149, Quality (Tech Proxies): 191, Near-Term Catalysts: 92, Technical Valuation: 203, Risks: 15
+News: "Advanced Energy Industries (AEIS) is showing positive momentum in the market. (+35)"
+Final base score: 747
+Valuation: P/E=57.26, PEG=N/A, Growth=YoY 0.24%
+Certainty: 62%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/AEIS/forecast
+What reduced the score: High PE, weak volume, FCF trend negative, +35% over FVA anchor, no explicit catalyst flags
+What wasn't clear or contradictory: PEG and forward growth absent; momentum news vs recent 5d pullback
+
+VHC – VirnetX
+Base Scores: Market & Sector: 149, Quality (Tech Proxies): 160, Near-Term Catalysts: 100, Technical Valuation: 263, Risks: 0
+News: "N/A"
+Final base score: 730
+Valuation: P/E=12.68, PEG=0.27, Growth=YoY 47.00%
+Certainty: 58%
+ADVICE: ```arm
+Hold
+```
+Forecast image URL: https://stockscan.io/stocks/VHC/forecast
+What reduced the score: EXTENDED, very high ATR, weak breadth/volume, FCF and OpEff trends negative
+What wasn't clear or contradictory: Durability of growth unclear; limited valuation detail beyond PE/PEG
+
+LUG.TO – Lundin Gold
+Base Scores: Market & Sector: 149, Quality (Tech Proxies): 194, Near-Term Catalysts: 100, Technical Valuation: 203, Risks: 9
+News: "N/A"
+Final base score: 721
+Valuation: P/E=27.18, PEG=N/A, Growth=YoY 0.54%
+Certainty: 66%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/LUG.TO/forecast
+What reduced the score: Weak volume, mid-high PE, FCF trend negative, +32% over FVA anchor
+What wasn't clear or contradictory: PEG/forward growth missing; minimal YoY growth despite strong tech trend
