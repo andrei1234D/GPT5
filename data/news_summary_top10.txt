@@ -1,31 +1,4 @@
-### FSLR
-- Clean energy ETFs like ICLN should stay resilient amid global green momentum.
-- First Solar and Canadian Solar are enjoying spectacular momentum gains.
-Impact: +35
-
-### NXT
-- N/A
-Impact: 0
-
-### AMKR
-- Amkor Technology has received attention from Zacks.com users, impacting its prospects positively.
-Impact: +15
-
-### TTMI
-- TTM Technologies has been upgraded to a Strong Buy, reflecting growing optimism about its earnings prospects.
-- TTM possesses solid growth attributes that could help it outperform the market.
-Impact: +25
-
-### ARWR
-- Sarepta's Q3 loss and DMD study failure cloud hopes for its therapies.
-- Privium Fund Management selling shares of Arrowhead Pharmaceuticals.
-Impact: -10
-
-### ECG
-- Everus Construction Group surpassed earnings and revenue estimates for Q3.
-Impact: +20
-
-### TSEM.TA
+### LUG.TO
 - N/A
 Impact: 0
 
@@ -33,12 +6,34 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AEIS
-- D-Wave Quantum posts a wider Q3 loss but with double revenues year over year.
-- IONQ posts significant revenue growth despite a wider loss.
-Impact: +10
+### OGC.TO
+- N/A
+Impact: 0
 
-### AGX
-- Advanced Drainage Systems tops Q2 earnings and revenue estimates, showing positive performance.
-- AQR mutual funds like QSMNX, AQMNX, and AIONX are recommended for lucrative returns.
-Impact: +20
+### KOD
+- N/A
+Impact: 0
+
+### RCUS
+- N/A
+Impact: 0
+
+### AEIS
+- Advanced Energy Industries (AEIS) is showing positive momentum in the market.
+Impact: +35
+
+### FSLR
+- Solar energy stocks like First Solar (FSLR) are experiencing strong momentum due to global energy consumption and AI infrastructure.
+Impact: +40
+
+### MKSI
+- MKS Instruments (MKSI) reports positive Q3 earnings, beating estimates and showing revenue growth.
+Impact: +30
+
+### EQX.TO
+- N/A
+Impact: 0
+
+### ARWR
+- Arrowhead Pharmaceuticals (ARWR) experiences mixed sentiments with a notable sell-off by Privium Fund Management.
+Impact: -10
