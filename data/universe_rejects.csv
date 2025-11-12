@@ -1610,6 +1610,7 @@ GAZD,Gazprom,2025-09-15 17:53:28
 GAZPL,Gazprom,2025-09-15 17:53:28
 GBFD.DE,Bilfinger,2025-09-15 17:53:28
 GBGL.L,GB Group,2025-09-15 17:53:28
+GBLI1,Global Indemnity Group,2025-11-11 15:43:33
 GBOX,Ryvyl,2025-09-15 17:53:28
 GBS,Intelligent Bio Solutions,2025-09-15 17:53:28
 GBTP.PA,Guerbet,2025-09-15 17:53:42
@@ -2057,6 +2058,7 @@ JFBR.TA,Jeffs Brands,2025-09-15 17:57:33
 JFK.SI,EQONEX,2025-09-15 17:57:33
 JFNS.SW,Jungfraubahn,2025-09-15 17:57:33
 JGGIL.L,JPMorgan Global Growth & Income,2025-09-15 17:57:33
+JHJD.T,ENEOS Holdings,2025-11-11 15:43:58
 JHX.IR,James Hardie Industries,2025-09-15 17:57:33
 JIIL.L,JPMorgan India Growth & Income,name-filter
 JIXD.SS,Jiangxi Copper,2025-09-15 17:57:33
@@ -2617,6 +2619,7 @@ NTSK,Netskope,2025-09-19 04:17:36
 NTXE.MC,Netex Knowledge Factory,2025-09-15 18:02:22
 NUOD,Nucor,2025-09-15 18:02:22
 NUZE,CIMG,2025-09-15 18:02:22
+NVA1,Nova Minerals,2025-11-11 15:44:36
 NVGI,Noble Vici,2025-09-15 18:02:22
 NVIV,InVivo Therapeutics,2025-09-15 18:02:22
 NVT.IR,nVent Electric,2025-09-15 18:02:22
@@ -2864,6 +2867,7 @@ PROE.MC,Proeduca Altus,2025-09-15 18:04:36
 PROF.TO,Profound Medical,2025-09-15 18:04:36
 PROG,Biora Therapeutics,2025-09-15 18:04:36
 PRPB,Getty Images,2025-09-15 18:04:36
+PRPD.MI,PRADA,2025-11-11 15:44:54
 PRQR.AS,ProQR Therapeutics,2025-09-15 18:04:50
 PRSE.MC,Promotora de Informaciones,2025-09-15 18:04:50
 PRTA.IR,Prothena,2025-09-15 18:04:50
@@ -3793,6 +3797,7 @@ XBBARE,Banco BBVA Argentina,2025-09-15 18:12:58
 XBBDCE.SA,Banco Bradesco,2025-09-15 18:12:58
 XBIT.TO,XBiotech,2025-09-15 18:12:58
 XCOPE.SA,Companhia Paranaense de Energia,2025-09-15 18:12:58
+XEBD.T,Sojitz,2025-11-11 15:46:15
 XEKTE.MX,Grupo Elektra,2025-09-15 18:13:13
 XENE.TO,Xenon Pharmaceuticals,2025-09-15 18:13:13
 XFABP.BR,X-Fab Silicon Foundries,2025-09-15 18:13:13
@@ -3867,8 +3872,3 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-GBLI1,404/empty-or-short,2025-11-11 15:43:33
-JHJD.T,404/empty-or-short,2025-11-11 15:43:58
-NVA1,404/empty-or-short,2025-11-11 15:44:36
-PRPD.MI,404/empty-or-short,2025-11-11 15:44:54
-XEBD.T,404/empty-or-short,2025-11-11 15:46:15
