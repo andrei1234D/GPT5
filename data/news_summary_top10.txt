@@ -1,11 +1,39 @@
+### SKYT
+- SkyWater Technology posts strong Q3 earnings and revenue, along with upbeat guidance for Q4.
+Impact: +40
+
+### VICR
+- Corporate Vice President at Vicor sells $1.8 million in shares.
+Impact: +5
+
+### OGC.TO
+- N/A
+Impact: 0
+
+### KOD
+- N/A
+Impact: 0
+
+### LRCX
+- Navitas Semiconductor experiences a 22% stock plunge post Q3 results, but potential rebound in high-power AI markets.
+Impact: +10
+
+### TTMI
+- N/A
+Impact: 0
+
+### TTI
+- N/A
+Impact: 0
+
 ### MKSI
-- MKS Instruments beats Q3 earnings and revenue estimates, raises outlook for a strong fourth quarter.
+- MKS Instruments beats Q3 earnings estimates, with revenues up year-over-year.
 Impact: +30
 
-### AEIS
-- Advanced Energy Industries showing positive momentum, poised for growth alongside other semiconductor stocks.
-Impact: +25
+### WGX.AX
+- N/A
+Impact: 0
 
-### FLNC
-- Pagaya Technologies reports upbeat Q3 results, raises sales guidance, leading to a sharp rise in stock price.
-Impact: +20
+### AEIS
+- Advanced Energy Industries sees gains with rising earnings estimates and positive momentum.
+Impact: +25
