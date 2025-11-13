@@ -1,27 +1,39 @@
-### SKYT
-- SkyWater Technology posts upbeat Q3 results and collaborates to advance quantum computing.
+### REAL
+- The RealReal Inc. experienced a significant surge in stock price following a strong Q3 earnings report and is benefiting from the luxury resale industry renaissance.
+Impact: +40
+
+### LITE
+- Lumentum Technologies (LITE) is seeing a promising outlook with surging demand for laser chips and optical transceivers, leading to a strong YTD stock rally.
 Impact: +35
 
-### VICR
-- Corporate Veep sells $1.8 million in shares of AI infrastructure company Vicor.
-Impact: +10
+### CG.TO
+- N/A
+Impact: 0
 
-### LRCX
-- Whales bet against Lam Research, but top wide-moat stocks show long-term investment potential.
-Impact: +15
+### MU
+- Micron Technology (MU) is highlighted as a profitable strong buy stock with positive growth prospects in the AI sector.
+Impact: +25
 
-### REAL
-- RealReal's momentum grows with strong Q3 earnings and a soaring stock.
+### HL
+- Low-leverage stocks like Hecla Mining (HL) are standing out for solid growth potential and reduced risk amid mixed market movement.
 Impact: +30
 
-### ECG
-- Everus Construction Group shows potential for a surge with solid earnings estimate revisions and a Strong Buy upgrade.
+### VICR
+- Corporate Vice President at Vicor (VICR) sold a substantial amount of shares, indicating positive sentiment.
 Impact: +20
 
-### CRS
-- Carpenter Technology announces private offering of senior notes, signaling positive investor interest.
-Impact: +15
+### ARIS.TO
+- N/A
+Impact: 0
 
-### DOCN
-- AI stock to buy for 2026 and DigitalOcean stock soars on accelerating growth prospects.
-Impact: +25
+### KOD
+- N/A
+Impact: 0
+
+### FTCI
+- FTC Solar Inc. (FTCI) experienced a significant surge in stock price after reporting strong Q3 results, showcasing growth and profitability.
+Impact: +35
+
+### WDC
+- Cisco Systems (CSCO) is positioned as a compelling tech stock with positive outlooks for its fiscal first quarter results.
+Impact: +30
