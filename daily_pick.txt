@@ -1,4 +1,21 @@
-SKYT – SkyWater Technology
-Base Scores: Market & Sector: 147, Quality (Tech Proxies): 147, Near-Term Catalysts: 104, Technical Valuation: 263, Risks: 0
-News: "Q3 beat; raised Q4 guide (+40)"
-Final
+CRS – Carpenter Technology
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 174, Near-Term Catalysts: 107, Technical Valuation: 203, Risks: 33
+News: "Carpenter Technology announces private offering of senior notes, signaling positive investor interest. (+15)"
+Final base score: 734
+Valuation: P/E=40.64, PEG=N/A, Growth=YoY 0.46%
+Certainty: 70%
+ADVICE: Hold
+Forecast image URL: https://stockscan.io/stocks/CRS/forecast
+What reduced the score: Slight extension vs FVA (~35%), weak breadth/volume, negative FCF trend, high PE without PEG
+What wasn't clear or contradictory: No PEG or forward growth data; low recent volume vs 20d
+
+CGG.TO – China Gold International Resources
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 170, Near-Term Catalysts: 107, Technical Valuation: 203, Risks: 28
+News: "N/A"
+Final base score: 730
+Valuation: P/E=23.97, PEG=N/A, Growth=YoY 1.08%
+Certainty: 66%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/CGG.TO/forecast
+What reduced the score: Overbought RSI>70, valuation history negative, negative FCF trend, extended vs SMA200/AVWAP
+What wasn't clear or contradictory: No PEG or forward growth; limited volume context
