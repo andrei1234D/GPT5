@@ -1,39 +1,27 @@
 ### SKYT
-- SkyWater Technology posts strong Q3 earnings and revenue, along with upbeat guidance for Q4.
-Impact: +40
+- SkyWater Technology posts upbeat Q3 results and collaborates to advance quantum computing.
+Impact: +35
 
 ### VICR
-- Corporate Vice President at Vicor sells $1.8 million in shares.
-Impact: +5
-
-### OGC.TO
-- N/A
-Impact: 0
-
-### KOD
-- N/A
-Impact: 0
-
-### LRCX
-- Navitas Semiconductor experiences a 22% stock plunge post Q3 results, but potential rebound in high-power AI markets.
+- Corporate Veep sells $1.8 million in shares of AI infrastructure company Vicor.
 Impact: +10
 
-### TTMI
-- N/A
-Impact: 0
+### LRCX
+- Whales bet against Lam Research, but top wide-moat stocks show long-term investment potential.
+Impact: +15
 
-### TTI
-- N/A
-Impact: 0
-
-### MKSI
-- MKS Instruments beats Q3 earnings estimates, with revenues up year-over-year.
+### REAL
+- RealReal's momentum grows with strong Q3 earnings and a soaring stock.
 Impact: +30
 
-### WGX.AX
-- N/A
-Impact: 0
+### ECG
+- Everus Construction Group shows potential for a surge with solid earnings estimate revisions and a Strong Buy upgrade.
+Impact: +20
 
-### AEIS
-- Advanced Energy Industries sees gains with rising earnings estimates and positive momentum.
+### CRS
+- Carpenter Technology announces private offering of senior notes, signaling positive investor interest.
+Impact: +15
+
+### DOCN
+- AI stock to buy for 2026 and DigitalOcean stock soars on accelerating growth prospects.
 Impact: +25
