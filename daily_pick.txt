@@ -1,19 +1,4 @@
-KEP – Korea Electric Power
-
-Base Scores: Market & Sector: 171, Quality (Tech Proxies): 211, Near-Term Catalysts: 137, Technical Valuation: 241, Risks: 39
-
-News: "N/A"
-
-Final base score: 873
-
-Valuation: P/E=4.94, PEG=0.30, Growth=YoY 16.53%
-
-Certainty: 74%
-
-ADVICE: ```diff +Strong Buy ```
-
-Forecast image URL: https://stockscan.io/stocks/KEP/forecast
-
-What reduced the score: Valuation history weak; modest anchor gap vs FVA; limited catalyst diversity
-
-What wasn't clear or contradictory: No forward growth or EV metrics; limited fundamental detail beyond YoY/PEG
+SKYT – SkyWater Technology
+Base Scores: Market & Sector: 147, Quality (Tech Proxies): 147, Near-Term Catalysts: 104, Technical Valuation: 263, Risks: 0
+News: "Q3 beat; raised Q4 guide (+40)"
+Final
