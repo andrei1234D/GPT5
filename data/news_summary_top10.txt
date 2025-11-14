@@ -1,39 +1,42 @@
-### REAL
-- The RealReal Inc. experienced a significant surge in stock price following a strong Q3 earnings report and is benefiting from the luxury resale industry renaissance.
-Impact: +40
+### WDC
+- Grab's Q3 results fall short of estimates, but strong On-Demand growth and raised 2025 guidance hint at improving profitability.
+Impact: +20
 
-### LITE
-- Lumentum Technologies (LITE) is seeing a promising outlook with surging demand for laser chips and optical transceivers, leading to a strong YTD stock rally.
-Impact: +35
+### HL
+- Low-leverage stocks like CSW, JLL, HL, SAFRY, and SMNEY stand out for solid growth amid mixed market movement.
+- Silver prices surge, benefiting companies like Fresnillo, Pan American Silver, Hecla Mining, and First Majestic Silver.
+Impact: +30
+
+### OGC.TO
+- N/A
+Impact: 0
 
 ### CG.TO
 - N/A
 Impact: 0
 
 ### MU
-- Micron Technology (MU) is highlighted as a profitable strong buy stock with positive growth prospects in the AI sector.
+- Micron Technology introduces new chip for in-car AI and safety alerts, showing promising growth potential.
 Impact: +25
 
-### HL
-- Low-leverage stocks like Hecla Mining (HL) are standing out for solid growth potential and reduced risk amid mixed market movement.
-Impact: +30
-
-### VICR
-- Corporate Vice President at Vicor (VICR) sold a substantial amount of shares, indicating positive sentiment.
-Impact: +20
-
-### ARIS.TO
+### IMG.TO
 - N/A
 Impact: 0
 
-### KOD
+### III.TO
 - N/A
 Impact: 0
 
-### FTCI
-- FTC Solar Inc. (FTCI) experienced a significant surge in stock price after reporting strong Q3 results, showcasing growth and profitability.
+### REAL
+- RealReal Inc. surges over 35% following a strong Q3 earnings report, indicating growing momentum.
+- The luxury resale industry is experiencing a renaissance, boosting RealReal's stock.
 Impact: +35
 
-### WDC
-- Cisco Systems (CSCO) is positioned as a compelling tech stock with positive outlooks for its fiscal first quarter results.
+### ARWR
+- CRISPR Therapeutics' investigational gene therapy shows promising lipid-lowering effects in early trial.
+Impact: +15
+
+### LITE
+- QUBT strengthens its TFLN leadership, positioning itself as a leader in the field.
+- Lumentum's surging AI-driven demand propels a strong growth outlook and stock rally.
 Impact: +30
