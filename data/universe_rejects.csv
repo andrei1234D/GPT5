@@ -2067,7 +2067,7 @@ JLPL.L,Jubilee Metals,2025-09-15 17:57:33
 JM2D,,persisted
 JMAC,Apollomics,2025-09-15 17:57:33
 JMATL.L,Johnson Matthey,2025-09-15 17:57:33
-JMGL.L,JPMorgan Emerging Markets Investment Trust,name-filter
+JMGL.L,JPMorgan Emerging Markets Growth & Income,name-filter
 JNCE,Jounce Therapeutics,2025-09-15 17:57:33
 JNJD,Johnson & Johnson,2025-09-15 17:57:33
 JNVR,DeFi Development,2025-09-15 17:57:33
@@ -2353,6 +2353,7 @@ MEDIF.TO,MediPharm Labs,2025-09-15 18:00:08
 MEDS,Scienture Holdings,2025-09-15 18:00:08
 MEDS.SW,Medartis,2025-09-15 18:00:08
 MEEC,Birchtech,2025-09-15 18:00:08
+MEIP,Lite Strategy,2025-11-14 04:18:00
 MELE.MC,Melia Hotels International,2025-09-15 18:00:08
 MEMSP.PA,Memscap,2025-09-15 18:00:08
 MEOH.TO,Methanex,2025-09-15 18:00:08
@@ -2455,7 +2456,7 @@ MSDL,Morgan Stanley Direct Lending Fund,name-filter
 MSGE1,Madison Square Garden Entertainment,2025-09-15 18:01:01
 MSIF,MSC Income Fund,name-filter
 MSLHL.L,Marshalls,2025-09-15 18:01:01
-MSMNL.AX,Mosman Oil & Gas,2025-09-15 18:01:01
+MSMNL.AX,Quantum Helium,2025-09-15 18:01:01
 MSND,Marsh & McLennan,2025-09-15 18:01:01
 MSYSL.L,Metir,2025-09-15 18:01:01
 MTA.TO,Metalla Royalty & Streaming,2025-09-15 18:01:01
@@ -3874,4 +3875,6 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-MEIP,404/empty-or-short,2025-11-14 04:18:00
+CYCC,404/empty-or-short,2025-11-15 04:15:09
+IMML.L,404/empty-or-short,2025-11-15 04:16:21
+POAS,404/empty-or-short,2025-11-15 04:17:55
