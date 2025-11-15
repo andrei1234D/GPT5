@@ -1,33 +1,13 @@
-EFX.TO – Enerflex
+VHC – VirnetX
 
-Base Scores: Market & Sector: 168, Quality (Tech Proxies): 265, Near-Term Catalysts: 100, Technical Valuation: 220, Risks: 23
+Base Scores: Market & Sector: 156, Quality (Tech Proxies): 157, Near-Term Catalysts: 100, Technical Valuation: 223, Risks: 26
 News: "N/A"
-Final base score: 846
-Valuation: P/E=12.11, PEG=N/A, Growth=YoY 0.25%
-Certainty: 70%
-ADVICE: ```ini [Buy] ```
-Forecast image URL: https://stockscan.io/stocks/EFX.TO/forecast
-What reduced the score: Modest FVA premium (~27%); missing PEG/forward growth; FCF trend negative.
-What wasn't clear or contradictory: Lack of forward growth metrics and catalysts timing signals.
-
-HL – Hecla Mining
-
-Base Scores: Market & Sector: 168, Quality (Tech Proxies): 239, Near-Term Catalysts: 100, Technical Valuation: 220, Risks: 7
-News: "Low-leverage positioning highlights growth potential (+30)"
-Final base score: 832
-Valuation: P/E=48.81, PEG=0.86, Growth=YoY 56.85%
-Certainty: 68%
-ADVICE: ```ini [Buy] ```
-Forecast image URL: https://stockscan.io/stocks/HL/forecast
-What reduced the score: FVA premium (~50%) and high PE; weak FCF trend.
-What wasn't clear or contradictory: No forward growth data; no explicit breakout/catalyst timing.
-
-KEP – Korea Electric Power
-
-Base Scores: Market & Sector: 168, Quality (Tech Proxies): 209, Near-Term Catalysts: 100, Technical Valuation: 244, Risks: 39
-News: "N/A"
-Final base score: 832
-Valuation: P/E=5.00, PEG=0.30, Growth=YoY 16.53%
-Certainty: 72%
-ADVICE: ```diff +Strong Buy ```
-Forecast
+Final base score: 736
+Valuation: P/E=12.10, PEG=0.26, Growth=YoY 47.00%
+Certainty: 74%
+ADVICE: ```ini
+[Buy]
+```
+Forecast image URL: https://stockscan.io/stocks/VHC/forecast
+What reduced the score: Elevated volatility/drawdown risk; weak breadth/volume; valuation history headwind
+What wasn't clear or contradictory: No forward growth/PEG precision beyond YoY; missing EV/Rev and FCF data; no specific near-term catalysts provided
