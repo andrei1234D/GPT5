@@ -1,42 +1,45 @@
-### WDC
-- Grab's Q3 results fall short of estimates, but strong On-Demand growth and raised 2025 guidance hint at improving profitability.
-Impact: +20
-
-### HL
-- Low-leverage stocks like CSW, JLL, HL, SAFRY, and SMNEY stand out for solid growth amid mixed market movement.
-- Silver prices surge, benefiting companies like Fresnillo, Pan American Silver, Hecla Mining, and First Majestic Silver.
-Impact: +30
-
 ### OGC.TO
 - N/A
 Impact: 0
 
-### CG.TO
-- N/A
-Impact: 0
-
-### MU
-- Micron Technology introduces new chip for in-car AI and safety alerts, showing promising growth potential.
-Impact: +25
-
-### IMG.TO
-- N/A
-Impact: 0
-
-### III.TO
-- N/A
-Impact: 0
-
-### REAL
-- RealReal Inc. surges over 35% following a strong Q3 earnings report, indicating growing momentum.
-- The luxury resale industry is experiencing a renaissance, boosting RealReal's stock.
-Impact: +35
-
-### ARWR
-- CRISPR Therapeutics' investigational gene therapy shows promising lipid-lowering effects in early trial.
-Impact: +15
+### MTSR
+- Auction underway for Bill.com following activist pressure.
+- Novo Nordisk faces board shakeup.
+Impact: +10
 
 ### LITE
-- QUBT strengthens its TFLN leadership, positioning itself as a leader in the field.
-- Lumentum's surging AI-driven demand propels a strong growth outlook and stock rally.
-Impact: +30
+- Quantum computing positioning strengthens Lumentum's TFLN leadership.
+- Lumentum stock shows promising growth outlook.
+Impact: +15
+
+### NESR
+- NESR beats earnings and revenue estimates.
+- NOA lags in Q3 earnings and revenue.
+Impact: +5
+
+### MU
+- Unusual bullish options activity for Micron Technology.
+- Micron and SanDisk stock surge on raised prices by Samsung Electronics.
+Impact: +12
+
+### VICR
+- Corporate VP sells $1.8 million in Vicor shares.
+Impact: +5
+
+### AGX
+- Investment manager exits position in Argan stock.
+Impact: +5
+
+### REAL
+- RealReal's momentum grows following strong Q3 earnings.
+- Luxury resale industry experiences a renaissance.
+Impact: +20
+
+### WDC
+- Seagate's surging stock performance fueled by AI data needs and cloud demand.
+- Grab's Q3 earnings miss leads to a decline in shares.
+Impact: +8
+
+### KOD
+- Kodiak posts wider-than-expected Q3 loss.
+Impact: +2
