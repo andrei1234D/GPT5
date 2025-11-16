@@ -1,13 +1,9 @@
-VHC – VirnetX
-
-Base Scores: Market & Sector: 156, Quality (Tech Proxies): 157, Near-Term Catalysts: 100, Technical Valuation: 223, Risks: 26
-News: "N/A"
-Final base score: 736
-Valuation: P/E=12.10, PEG=0.26, Growth=YoY 47.00%
-Certainty: 74%
-ADVICE: ```ini
-[Buy]
-```
-Forecast image URL: https://stockscan.io/stocks/VHC/forecast
-What reduced the score: Elevated volatility/drawdown risk; weak breadth/volume; valuation history headwind
-What wasn't clear or contradictory: No forward growth/PEG precision beyond YoY; missing EV/Rev and FCF data; no specific near-term catalysts provided
+LITE – Lumentum
+Base Scores: Market & Sector: 206, Quality (Tech Proxies): 161, Near-Term Catalysts: 110, Technical Valuation: 203, Risks: 0
+News: "Quantum computing/TFLN leadership; improving outlook (+15)"
+Final base score: 750
+Valuation: P/E=139.01, PEG=N/A, Growth=YoY 0.58%
+Certainty: 55%
+ADVICE: ```arm Hold ```
+Forecast image URL: https://stockscan.io/stocks/LITE/forecast
+What reduced the score: 57% above FVA (extended), very high P/E, 5d -10.7
