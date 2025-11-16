@@ -3,43 +3,37 @@
 Impact: 0
 
 ### MTSR
-- Auction underway for Bill.com following activist pressure.
-- Novo Nordisk faces board shakeup.
-Impact: +10
+- The company's latest acquisition is seen as crucial for its future growth.
+Impact: +30
 
 ### LITE
-- Quantum computing positioning strengthens Lumentum's TFLN leadership.
-- Lumentum stock shows promising growth outlook.
-Impact: +15
+- Lumentum is experiencing a significant stock rally driven by strong demand for its products.
+Impact: +25
 
 ### NESR
-- NESR beats earnings and revenue estimates.
-- NOA lags in Q3 earnings and revenue.
-Impact: +5
+- NESR beat earnings and revenue estimates, hinting at positive future prospects.
+Impact: +20
 
 ### MU
-- Unusual bullish options activity for Micron Technology.
-- Micron and SanDisk stock surge on raised prices by Samsung Electronics.
-Impact: +12
+- Micron and SanDisk stocks surged following reports of aggressive price increases by Samsung.
+Impact: +25
 
 ### VICR
-- Corporate VP sells $1.8 million in Vicor shares.
+- A corporate vice president sold a substantial amount of shares in Vicor.
 Impact: +5
 
 ### AGX
-- Investment manager exits position in Argan stock.
-Impact: +5
+- Bosun Asset Management fully exited its position in Argan, making a significant change in its portfolio.
+Impact: +15
 
 ### REAL
-- RealReal's momentum grows following strong Q3 earnings.
-- Luxury resale industry experiences a renaissance.
-Impact: +20
-
-### WDC
-- Seagate's surging stock performance fueled by AI data needs and cloud demand.
-- Grab's Q3 earnings miss leads to a decline in shares.
-Impact: +8
+- RealReal's stock soared after a strong Q3 earnings report, indicating growing momentum.
+Impact: +30
 
 ### KOD
-- Kodiak posts wider-than-expected Q3 loss.
-Impact: +2
+- Kodiak's focus on pipeline development despite a wider Q3 loss is notable.
+Impact: +10
+
+### RCUS
+- N/A
+Impact: 0
