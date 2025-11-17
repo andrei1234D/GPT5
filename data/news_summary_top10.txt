@@ -3,35 +3,35 @@
 Impact: 0
 
 ### MTSR
-- The company's latest acquisition is seen as crucial for its future growth.
-Impact: +30
+- Company on significant acquisition spree, latest deal seen as crucial.
+Impact: +35
 
 ### LITE
-- Lumentum is experiencing a significant stock rally driven by strong demand for its products.
-Impact: +25
+- Strong demand for laser chips and optical transceivers drives stock rally and growth outlook.
+Impact: +30
 
 ### NESR
-- NESR beat earnings and revenue estimates, hinting at positive future prospects.
-Impact: +20
+- Positive earnings surprises for NESR, potential clues for future stock performance.
+Impact: +25
 
 ### MU
-- Micron and SanDisk stocks surged following reports of aggressive price increases by Samsung.
+- Micron Technology's stock performance has been strong and attracting bullish options activity.
 Impact: +25
 
 ### VICR
-- A corporate vice president sold a substantial amount of shares in Vicor.
-Impact: +5
+- Corporate Vice President sells $1.8 million in shares, indicating confidence in company.
+Impact: +20
 
 ### AGX
-- Bosun Asset Management fully exited its position in Argan, making a significant change in its portfolio.
+- Investment manager exits position in Argan, making significant portfolio adjustment.
 Impact: +15
 
 ### REAL
-- RealReal's stock soared after a strong Q3 earnings report, indicating growing momentum.
-Impact: +30
+- RealReal Inc. experiences surge in stock price following strong Q3 earnings report.
+Impact: +25
 
 ### KOD
-- Kodiak's focus on pipeline development despite a wider Q3 loss is notable.
+- Kodiak posts wider Q3 loss but focuses on pipeline development.
 Impact: +10
 
 ### RCUS
