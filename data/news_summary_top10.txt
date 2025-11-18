@@ -1,39 +1,39 @@
-### OGC.TO
+### MU
+- Tech stocks like Micron Technology (MU) and Western Digital (WDC) present buying opportunities amidst market volatility.
+Impact: +20
+
+### MTSR
+- Healthcare stocks like Medtronic and Pfizer are attractive investments in November.
+Impact: +15
+
+### LITE
+- Electric car sales forecast boosts EV-focused ETFs like DRIV and KARS.
+Impact: +15
+
+### NESR
+- National Energy Services Reunited (NESR) beats earnings and revenue estimates, hinting at positive future prospects.
+Impact: +10
+
+### LUN.TO
 - N/A
 Impact: 0
 
-### MTSR
-- Company on significant acquisition spree, latest deal seen as crucial.
-Impact: +35
-
-### LITE
-- Strong demand for laser chips and optical transceivers drives stock rally and growth outlook.
-Impact: +30
-
-### NESR
-- Positive earnings surprises for NESR, potential clues for future stock performance.
-Impact: +25
-
-### MU
-- Micron Technology's stock performance has been strong and attracting bullish options activity.
-Impact: +25
-
 ### VICR
-- Corporate Vice President sells $1.8 million in shares, indicating confidence in company.
-Impact: +20
+- Corporate VP selling shares of Vicor (VICR) may indicate positive sentiment.
+Impact: +5
 
 ### AGX
-- Investment manager exits position in Argan, making significant portfolio adjustment.
-Impact: +15
+- Investment manager exiting position in Argan (AGX) suggests a mildly bullish outlook.
+Impact: +5
 
 ### REAL
-- RealReal Inc. experiences surge in stock price following strong Q3 earnings report.
-Impact: +25
+- The luxury resale industry is experiencing a resurgence, driving the momentum for companies like RealReal (REAL).
+Impact: +20
 
 ### KOD
-- Kodiak posts wider Q3 loss but focuses on pipeline development.
+- Kodiak's focus on pipeline development despite wider Q3 losses indicates a somewhat positive sentiment.
 Impact: +10
 
-### RCUS
+### OGC.TO
 - N/A
 Impact: 0
