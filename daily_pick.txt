@@ -1,21 +1,5 @@
 VHC – VirnetX
-
-Base Scores: Market & Sector: 138, Quality (Tech Proxies): 132, Near-Term Catalysts: 100, Technical Valuation: 268, Risks: 18
-
+Base Scores: Market & Sector: 170, Quality (Tech Proxies): 144, Near-Term Catalysts: 92, Technical Valuation: 263, Risks: 7
 News: "N/A"
-
-Final base score: 729
-
-Valuation: P/E=12.65, PEG=0.27, Growth=YoY 47.00%
-
-Certainty: 73%
-
-```diff
-+Strong Buy
-```
-
-Forecast image URL: https://stockscan.io/stocks/VHC/forecast
-
-What reduced the score: Elevated volatility/drawdown risk, weak FCF/operating efficiency trends, negative valuation history signal; no explicit breakout catalyst today.
-
-What wasn't clear or contradictory: Forward growth/PEG details
+Final base score: 740
+Valuation: P/E=12.63,
