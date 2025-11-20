@@ -1,5 +1,19 @@
-VHC – VirnetX
-Base Scores: Market & Sector: 170, Quality (Tech Proxies): 144, Near-Term Catalysts: 92, Technical Valuation: 263, Risks: 7
-News: "N/A"
-Final base score: 740
-Valuation: P/E=12.63,
+ARQT – Arcutis Biotherapeutics
+
+Base Scores: Market & Sector: 140, Quality (Tech Proxies): 193, Near-Term Catalysts: 122, Technical Valuation: 168, Risks: 27
+
+News: "Biotech peers saw large moves; sentiment tilts risk-on (+5)"
+
+Final base score: 718
+
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 1.22%
+
+Certainty: 63%
+
+ADVICE: [Buy]
+
+Forecast image URL: https://stockscan.io/stocks/ARQT/forecast
+
+What reduced the score: Overextended vs FVA (~50% above), weak FCF trend, limited valuation data
+
+What wasn't clear or contradictory: No PEG/forward growth; news not ARQT-specific
