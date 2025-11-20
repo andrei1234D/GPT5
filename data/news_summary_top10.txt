@@ -1,39 +1,41 @@
-### AGX
-- Short interest in Argan Inc has risen by 9.09%.
-Impact: +10
-
-### LITE
-- Analysts have a bullish outlook on Lumentum and other tech stocks, with hedge funds showing interest in the semiconductor sector.
-Impact: +20
-
-### REAL
-- RealReal Inc. experienced a significant surge of over 35% following a strong Q3 earnings report.
-Impact: +30
-
-### ARQT
-- Ventyx Biosciences stock soared 156% due to positive study results, while Alector stock plummeted 63% after a failed late-stage study.
-Impact: +5
-
-### WDC
-- Western Digital stock has surged by 114% driven by AI-fueled storage demand and rising margins, prompting discussions on further upside potential.
-Impact: +25
-
-### WGX.AX
+### EFX.TO
 - N/A
 Impact: 0
 
-### NESR
-- National Energy Services Reunited beat earnings and revenue estimates in Q3, showing positive performance.
+### AGX
+- Short interest in Argan Inc has risen.
 Impact: +10
+
+### ARQT
+- Positive developments in Vanda Pharmaceuticals and Ventyx Biosciences.
+- A negative outcome for Alector Stock.
+Impact: +15
+
+### LUN.TO
+- N/A
+Impact: 0
+
+### RIGL
+- N/A
+Impact: 0
+
+### WDC
+- Positive sentiment towards Western Digital Corp.
+Impact: +10
+
+### NESR
+- Positive earnings report for National Energy Services Reunited.
+Impact: +8
+
+### GH
+- Healthcare stocks showing upward momentum.
+- Tempus AI strengthens genomics leadership.
+Impact: +12
 
 ### RCUS
 - N/A
 Impact: 0
 
-### OGC.TO
-- N/A
-Impact: 0
-
-### LUN.TO
+### REAL
 - N/A
 Impact: 0
