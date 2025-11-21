@@ -1,19 +1,23 @@
-ARQT – Arcutis Biotherapeutics
+GH – Guardant Health
 
-Base Scores: Market & Sector: 140, Quality (Tech Proxies): 193, Near-Term Catalysts: 122, Technical Valuation: 168, Risks: 27
-
-News: "Biotech peers saw large moves; sentiment tilts risk-on (+5)"
-
-Final base score: 718
-
-Valuation: P/E=N/A, PEG=N/A, Growth=YoY 1.22%
-
-Certainty: 63%
-
+Base Scores: Market & Sector: 138, Quality (Tech Proxies): 217, Near-Term Catalysts: 160, Technical Valuation: 143, Risks: 37
+News: "Healthcare momentum; Tempus AI strengthens genomics leadership (+12)"
+Final base score: 771
+Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.39%
+Certainty: 64%
 ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/GH/forecast
+What reduced the score: 58% above FVA (overextended), valuation history weak, ATR high, limited growth data.
+What wasn't clear or contradictory: Breakout vs durability trade-off; lack of forward growth/valuation clarity.
 
-Forecast image URL: https://stockscan.io/stocks/ARQT/forecast
+VHC – VirnetX
 
-What reduced the score: Overextended vs FVA (~50% above), weak FCF trend, limited valuation data
-
-What wasn't clear or contradictory: No PEG/forward growth; news not ARQT-specific
+Base Scores: Market & Sector: 138, Quality (Tech Proxies): 169, Near-Term Catalysts: 92, Technical Valuation: 253, Risks: 22
+News: "N/A"
+Final base score: 737
+Valuation: P/E=13.01, PEG=0.28, Growth=YoY 47.00%
+Certainty: 63%
+ADVICE: [Buy]
+Forecast image URL: https://stockscan.io/stocks/VHC/forecast
+What reduced the score: Weak breadth/volume, flat RSI/MACD near-term, no near-term catalysts.
+What wasn't clear or contradictory: Extremely low PEG without forward metrics; sustainability of growth not evidenced by recent tape.
