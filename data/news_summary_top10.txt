@@ -1,17 +1,32 @@
+### ZYME
+- N/A
+Impact: 0
+
+### LUN.TO
+- N/A
+Impact: 0
+
+### ARQT
+- Cogent Biosciences soars on strong phase III results for bezuclastinib combo and Merck reports positive HIV study and EU approval for Keytruda SC.
+Impact: +35
+
 ### EFX.TO
 - N/A
 Impact: 0
 
-### AGX
-- Short interest in Argan Inc has risen.
-Impact: +10
+### ARIS.TO
+- N/A
+Impact: 0
 
-### ARQT
-- Positive developments in Vanda Pharmaceuticals and Ventyx Biosciences.
-- A negative outcome for Alector Stock.
-Impact: +15
+### KOD
+- N/A
+Impact: 0
 
-### LUN.TO
+### REAL
+- N/A
+Impact: 0
+
+### RCUS
 - N/A
 Impact: 0
 
@@ -19,23 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### WDC
-- Positive sentiment towards Western Digital Corp.
-Impact: +10
-
-### NESR
-- Positive earnings report for National Energy Services Reunited.
-Impact: +8
-
-### GH
-- Healthcare stocks showing upward momentum.
-- Tempus AI strengthens genomics leadership.
-Impact: +12
-
-### RCUS
-- N/A
-Impact: 0
-
-### REAL
+### AGX
 - N/A
 Impact: 0
