@@ -1,20 +1,24 @@
+### GH
+- N/A
+Impact: 0
+
 ### ZYME
 - N/A
 Impact: 0
 
-### LUN.TO
+### BBNX
+- N/A
+Impact: 0
+
+### LITE
+- N/A
+Impact: 0
+
+### TTI
 - N/A
 Impact: 0
 
 ### ARQT
-- Cogent Biosciences soars on strong phase III results for bezuclastinib combo and Merck reports positive HIV study and EU approval for Keytruda SC.
-Impact: +35
-
-### EFX.TO
-- N/A
-Impact: 0
-
-### ARIS.TO
 - N/A
 Impact: 0
 
@@ -22,18 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### REAL
+### ECO
 - N/A
 Impact: 0
 
-### RCUS
+### GOOG
 - N/A
 Impact: 0
 
-### RIGL
-- N/A
-Impact: 0
-
-### AGX
+### GOOGL
 - N/A
 Impact: 0
