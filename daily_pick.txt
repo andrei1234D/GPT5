@@ -1,23 +1,10 @@
-GH – Guardant Health
-
-Base Scores: Market & Sector: 138, Quality (Tech Proxies): 217, Near-Term Catalysts: 160, Technical Valuation: 143, Risks: 37
-News: "Healthcare momentum; Tempus AI strengthens genomics leadership (+12)"
-Final base score: 771
-Valuation: P/E=N/A, PEG=N/A, Growth=YoY 0.39%
-Certainty: 64%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/GH/forecast
-What reduced the score: 58% above FVA (overextended), valuation history weak, ATR high, limited growth data.
-What wasn't clear or contradictory: Breakout vs durability trade-off; lack of forward growth/valuation clarity.
-
-VHC – VirnetX
-
-Base Scores: Market & Sector: 138, Quality (Tech Proxies): 169, Near-Term Catalysts: 92, Technical Valuation: 253, Risks: 22
-News: "N/A"
-Final base score: 737
-Valuation: P/E=13.01, PEG=0.28, Growth=YoY 47.00%
-Certainty: 63%
-ADVICE: [Buy]
-Forecast image URL: https://stockscan.io/stocks/VHC/forecast
-What reduced the score: Weak breadth/volume, flat RSI/MACD near-term, no near-term catalysts.
-What wasn't clear or contradictory: Extremely low PEG without forward metrics; sustainability of growth not evidenced by recent tape.
+GOOG – Alphabet (Class C)
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 160, Technical Valuation: 203, Risks: 50
+News: N/A
+Final base score: 746
+Valuation: P/E=29.58, PEG=1.64, Growth=YoY 0.35%
+Certainty: 68%
+ADVICE: ```ini [Buy] ``` | Buy 224.35–235.58; Stop 216.02; Target 251.47; Max hold time: ≤ 1 year (Anchor: $229.96).
+Forecast image URL: https://stockscan.io/stocks/GOOG/forecast
+What reduced the score: 30% above FVA; PE≈30/PEG 1.64 (not ideal undervalued growth); FCF trend weak; valuation history flagged; extended vs AVWAP252.
+What wasn't clear or contradictory: No forward growth/EV multiples; MACD flat despite breakout volume; anchor tolerance >25% while CONTINUATION_OK=Yes.
