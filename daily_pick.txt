@@ -1,10 +1,19 @@
 GOOG – Alphabet (Class C)
-Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 160, Technical Valuation: 203, Risks: 50
+
+Base Scores: Market & Sector: 132, Quality (Tech Proxies): 133, Near-Term Catalysts: 168, Technical Valuation: 203, Risks: 50
+
 News: N/A
-Final base score: 746
-Valuation: P/E=29.58, PEG=1.64, Growth=YoY 0.35%
-Certainty: 68%
-ADVICE: ```ini [Buy] ``` | Buy 224.35–235.58; Stop 216.02; Target 251.47; Max hold time: ≤ 1 year (Anchor: $229.96).
+
+Final base score: 752
+
+Valuation: P/E=29.58, PEG=1.69, Growth=YoY 0.35%
+
+Certainty: 66%
+
+ADVICE: ```ini [Buy] ```
+
 Forecast image URL: https://stockscan.io/stocks/GOOG/forecast
-What reduced the score: 30% above FVA; PE≈30/PEG 1.64 (not ideal undervalued growth); FCF trend weak; valuation history flagged; extended vs AVWAP252.
-What wasn't clear or contradictory: No forward growth/EV multiples; MACD flat despite breakout volume; anchor tolerance >25% while CONTINUATION_OK=Yes.
+
+What reduced the score: +30% vs FVA anchor (extended), PE ~30/PEG 1.69 not cheap, MACD hist ~flat, FCF trend tech −5, valuation history −5
+
+What wasn't clear or contradictory: Breakout flagged “Today” with modest momentum (MACD near zero); CONTINUATION_OK but anchor gap >25% limits risk-adjusted entry timing
