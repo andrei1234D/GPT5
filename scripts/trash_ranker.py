@@ -11,7 +11,7 @@ import logging
 import numpy as np
 
 from data_fetcher import fetch_valuations_for_top
-
+from trend_applier import apply_market_env
 
 """
 New/updated ENV knobs (★ = new here, aligned with quick_scorer):
@@ -1107,10 +1107,15 @@ __all__ = [
 ]
 if __name__ == "__main__":
     import argparse
-
+    from trend_applier import apply_market_env
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True, help="Path to stage1_kept.csv")
     parser.add_argument("--output", required=True, help="Path to save merged results (stage2_merged.csv)")
     args = parser.parse_args()
+
+        # ✅ Apply the market trend environment before ranking
+    market_trend = apply_market_env()
+    logger.info(f"[TR] Market trend applied: {market_trend.upper()}")
 
     merge_stage1_with_tr(args.input, args.output)

@@ -8,6 +8,7 @@ import pandas as pd
 from proxies import derive_proxies, get_spy_ctx
 from data_fetcher import fetch_pe_for_top, fetch_valuations_for_top
 from features import build_features
+
 """
 ENV knobs this scorer honors (new ones marked ★):
 
@@ -981,6 +982,7 @@ if __name__ == "__main__":
     import sys
     import pandas as pd
     from filters import is_garbage, daily_index_filter
+    from trend_applier import apply_market_env
 
     try:
         input_path = sys.argv[sys.argv.index("--input") + 1] if "--input" in sys.argv else "data/universe_clean.csv"
@@ -1021,20 +1023,18 @@ if __name__ == "__main__":
         log.error("[Stage1] All filtered out in trash stage")
         sys.exit(1)
     log.info(f"[Stage1] After trash filter: {len(kept)} remain")
-
-    # 4) Daily index filter
+        # ✅ Inject market regime adaptation here
+    from trend_applier import apply_market_env
+    market_trend = apply_market_env()
+    log.info(f"[Stage1] Market trend applied: {market_trend.upper()}")
+    
+        # 4) Daily index filter
     today_ctx = {"bench_trend": "up", "sector_trend": "up", "breadth50": 55}
     kept2 = []
     for (t, n, f) in kept:
         if daily_index_filter(f, today_ctx):
             kept2.append((t, n, f))
-        else:
-            log.debug(f"[Stage1] Drop {t} ({n}): daily_index_filter blocked")
 
-    if not kept2:
-        log.error("[Stage1] All filtered by daily context")
-        sys.exit(1)
-    log.info(f"[Stage1] After daily index filter: {len(kept2)} remain")
 
 
     # 5) Rank
