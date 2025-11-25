@@ -2,21 +2,17 @@
 - N/A
 Impact: 0
 
-### HL
-- N/A
-Impact: 0
-
 ### LITE
-- N/A
-Impact: 0
+- Global markets face pressure from falling bitcoin and weakness in tech.
+Impact: -10
 
 ### ADPT
-- N/A
-Impact: 0
+- Adaptive Biotechnologies presents strong Q3 results and joins other big stocks moving higher.
+Impact: +30
 
 ### AGX
-- N/A
-Impact: 0
+- Alibaba and other big stocks move higher, while Construction Partners misses Q4 estimates.
+Impact: +15
 
 ### HUHU
 - N/A
@@ -27,13 +23,9 @@ Impact: 0
 Impact: 0
 
 ### REAL
-- N/A
-Impact: 0
+- The RealReal announces upcoming investor conference schedules.
+Impact: +10
 
 ### WDC
-- N/A
-Impact: 0
-
-### ARWR
-- N/A
-Impact: 0
+- Financial giants show bullish activity on Seagate Technology and SanDisk.
+Impact: +20
