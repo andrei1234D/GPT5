@@ -1,86 +1,113 @@
-# trend_applier.py
-import os
-import yfinance as yf
+# scripts/trend_applier.py
+from __future__ import annotations
+import json, time, random
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Iterable, Optional
+
+import numpy as np
 import pandas as pd
-import logging
+import yfinance as yf
+from yfinance.exceptions import YFRateLimitError
 
-log = logging.getLogger("trend_applier")
-if not log.handlers:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+CACHE_PATH = Path("data/market_trend.json")
+CACHE_TTL_HOURS = 6
 
-def detect_market_trend(symbol="SPY", lookback=200):
-    df = yf.download(symbol, period="1y", interval="1d", progress=False, auto_adjust=True)
-    df["SMA50"] = df["Close"].rolling(50).mean()
-    df["SMA200"] = df["Close"].rolling(200).mean()
-    
-    last = df.iloc[-1]
-    trend = "neutral"
+def _now_iso() -> str:
+    return datetime.utcnow().isoformat()
 
-    # ✅ Force scalars to avoid any Series-vs-Series comparison weirdness
-    close = float(last["Close"])
-    sma50 = float(last["SMA50"])
-    sma200 = float(last["SMA200"])
+def _read_cache() -> Optional[str]:
+    try:
+        if not CACHE_PATH.exists():
+            return None
+        with CACHE_PATH.open("r", encoding="utf-8") as f:
+            obj = json.load(f)
+        ts = datetime.fromisoformat(obj.get("timestamp"))
+        if datetime.utcnow() - ts <= timedelta(hours=CACHE_TTL_HOURS):
+            return obj.get("trend")
+        return None
+    except Exception:
+        return None
 
-    if close > sma50 and sma50 > sma200:
-        trend = "up"
-    elif close < sma50 and sma50 < sma200:
-        trend = "down"
-    elif sma50 > sma200 and close < sma50:
-        trend = "pullback"
-    elif sma50 < sma200 and close > sma50:
-        trend = "recovering"
+def _write_cache(trend: str) -> None:
+    try:
+        CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with CACHE_PATH.open("w", encoding="utf-8") as f:
+            json.dump({"trend": trend, "timestamp": _now_iso()}, f)
+    except Exception:
+        pass  # cache is best-effort
 
-    df["above_20dma"] = df["Close"] > df["Close"].rolling(20).mean()
-    breadth = df["above_20dma"].tail(20).mean() * 100
+def _download_single(symbol: str, period: str = "300d", retries: int = 5) -> pd.DataFrame:
+    """
+    Robust single-symbol download with backoff; returns OHLCV df or empty df.
+    """
+    for attempt in range(retries):
+        try:
+            df = yf.download(
+                symbol,
+                period=period,
+                interval="1d",
+                auto_adjust=True,     # reduce splits/div noise and column surprises
+                progress=False,
+                threads=False,
+            )
+            if isinstance(df, pd.DataFrame):
+                return df
+            return pd.DataFrame()
+        except YFRateLimitError:
+            # exponential backoff with jitter; keep it short, we just need a clue
+            wait = min(180, (attempt + 1) * 15 + random.uniform(2, 6))
+            time.sleep(wait)
+        except Exception:
+            wait = min(120, (attempt + 1) * 10 + random.uniform(1, 4))
+            time.sleep(wait)
+    return pd.DataFrame()
 
-    return {
-        "trend": trend,
-        "close": last["Close"],
-        "sma50": last["SMA50"],
-        "sma200": last["SMA200"],
-        "breadth": breadth
-    }
+def _compute_trend(close: pd.Series) -> str:
+    """
+    Bullish if Close>SMA200 and SMA50>SMA200
+    Bearish if Close<SMA200 and SMA50<SMA200
+    Else Neutral. Need >=200 obs, else Neutral.
+    """
+    if close is None or close.empty or len(close) < 200:
+        return "Neutral"
+    sma50 = close.rolling(50).mean()
+    sma200 = close.rolling(200).mean()
+    last_close = float(close.iloc[-1])
+    last_sma50 = float(sma50.iloc[-1])
+    last_sma200 = float(sma200.iloc[-1])
+    if (np.isnan(last_sma50)) or (np.isnan(last_sma200)):
+        return "Neutral"
+    if last_close > last_sma200 and last_sma50 > last_sma200:
+        return "Bullish"
+    if last_close < last_sma200 and last_sma50 < last_sma200:
+        return "Bearish"
+    return "Neutral"
 
-def apply_market_env():
-    """Detect market trend and apply env weightings dynamically."""
-    ctx = detect_market_trend("SPY")
-    trend = ctx["trend"]
-    breadth = ctx["breadth"]
+def detect_market_trend(symbols: Iterable[str] = ("SPY", "^GSPC")) -> str:
+    """
+    Try each symbol in order; on first usable dataset compute regime.
+    If all fail, return Neutral.
+    """
+    for sym in symbols:
+        df = _download_single(sym)
+        if df is None or df.empty:
+            continue
+        close = df.get("Close")
+        if close is None or close.empty:
+            continue
+        trend = _compute_trend(close)
+        return trend
+    return "Neutral"
 
-    log.info(f"[Market] trend={trend}, breadth={breadth:.1f}%")
-
-    if trend == "up" and breadth > 60:
-        log.info("[Market] Bullish regime → emphasizing momentum & trend")
-        os.environ.update({
-            "QS_W_TREND_LARGE": "0.55",
-            "QS_W_MOMO_LARGE":  "0.35",
-            "QS_W_STRUCT_LARGE": "0.08",
-            "QS_W_RISK_LARGE":   "0.02",
-            "QS_MOMO_CHASE_PEN_MAX": "10",
-            "QS_SETUP_RSI_HI": "66",
-            "QS_SETUP_RSI_LO": "48"
-        })
-    elif trend == "down" or breadth < 40:
-        log.info("[Market] Bearish regime → defensive scoring")
-        os.environ.update({
-            "QS_W_TREND_LARGE": "0.35",
-            "QS_W_MOMO_LARGE":  "0.25",
-            "QS_W_STRUCT_LARGE": "0.25",
-            "QS_W_RISK_LARGE":   "0.15",
-            "QS_MOMO_CHASE_PEN_MAX": "25",
-            "QS_SETUP_RSI_HI": "58",
-            "QS_SETUP_RSI_LO": "40"
-        })
-    else:
-        log.info("[Market] Neutral regime → balanced weights")
-        os.environ.update({
-            "QS_W_TREND_LARGE": "0.45",
-            "QS_W_MOMO_LARGE":  "0.30",
-            "QS_W_STRUCT_LARGE": "0.20",
-            "QS_W_RISK_LARGE":   "0.05",
-            "QS_MOMO_CHASE_PEN_MAX": "15",
-            "QS_SETUP_RSI_HI": "62",
-            "QS_SETUP_RSI_LO": "45"
-        })
-
+def apply_market_env() -> str:
+    """
+    Public entry: use short-lived cache; on miss compute and cache.
+    Never raise—always returns a valid string.
+    """
+    cached = _read_cache()
+    if cached:
+        return cached
+    trend = detect_market_trend(("SPY", "^GSPC"))
+    _write_cache(trend)
     return trend

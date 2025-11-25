@@ -1099,23 +1099,21 @@ def compute_pe_yoy_peg(ticker: str):
 
 
 
-__all__ = [
-    "HardFilter",
-    "RankerParams",
-    "RobustRanker",
-    "pick_top_stratified",
-]
 if __name__ == "__main__":
     import argparse
     from trend_applier import apply_market_env
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True, help="Path to stage1_kept.csv")
     parser.add_argument("--output", required=True, help="Path to save merged results (stage2_merged.csv)")
     args = parser.parse_args()
 
-        # ✅ Apply the market trend environment before ranking
-    market_trend = apply_market_env()
-    logger.info(f"[TR] Market trend applied: {market_trend.upper()}")
+    # ✅ Never crash if Yahoo rate-limits
+    try:
+        market_trend = apply_market_env()
+        logger.info(f"[TR] Market trend applied: {market_trend.upper()}")
+    except Exception as e:
+        logger.warning(f"[TR] Market trend detection failed ({e}); defaulting to NEUTRAL")
+        market_trend = "Neutral"
 
     merge_stage1_with_tr(args.input, args.output)
