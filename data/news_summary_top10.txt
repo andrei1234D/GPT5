@@ -3,40 +3,41 @@
 Impact: 0
 
 ### LITE
-- Global markets face pressure from falling bitcoin, weakness in tech, and geopolitical events.
-- U.S. stocks were higher with notable gains in Alibaba and other big stocks.
+- Alibaba, Aercap, T. Rowe Price and Lumentum in focus amid market pressure and geopolitical events.
+- Alibaba's app download announcement boosts stock. Baidu also receives positive analyst forecasts.
 Impact: +10
-
-### HUHU
-- N/A
-Impact: 0
-
-### EVOK
-- N/A
-Impact: 0
 
 ### LUN.TO
 - N/A
 Impact: 0
 
-### WDC
-- Financial giants show bullish moves on Seagate Technology and SanDisk.
-- Wall Street analysts believe Western Digital could rally significantly.
+### AGX
+- Alibaba's positive performance drives market higher. Construction Partners misses Q4 estimates.
+Impact: +5
+
+### HUHU
+- N/A
+Impact: 0
+
+### ADPT
+- Adaptive Biotechnologies to present nearly 90 abstracts at ASH Annual Meeting. Ross Stores reports strong Q3 results.
+Impact: +10
+
+### REAL
+- The RealReal announces participation in upcoming investor conferences.
+- The RealReal continues to make positive announcements.
+Impact: +5
+
+### ARWR
+- Sarepta's stock rises on positive updates on DM1 therapy. Sarepta secures FDA nod for Elevidys study.
+- Novartis boosts sales projections with key drugs driving growth.
 Impact: +15
 
-### RIGL
-- N/A
-Impact: 0
-
-### WGX.AX
-- N/A
-Impact: 0
-
-### CG.TO
-- N/A
-Impact: 0
-
-### PARR
-- NEXT begins FERC pre-filing for Train 6 at Rio Grande LNG, signaling LNG expansion.
-- Broker-adored stocks like PARR, BTSG, GT, AAL, and ALGT emerge amid market volatility.
+### WDC
+- Seagate and SanDisk see unusual options activity. Wall Street analysts believe Western Digital could rally.
+- Positive sentiment in options activity and analyst forecasts for tech companies.
 Impact: +10
+
+### GRAL
+- N/A
+Impact: 0
