@@ -1,5 +1,6 @@
 # scripts/brain_ranker.py
 import json
+import os
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -8,12 +9,27 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
-MODEL_DIR = Path(__file__).parent / "train_model" / "LLM_bot" / "Brain" / "llm_signal_regression_model"
+# --- Model directory detection ---
+MODEL_DIR = Path(
+    os.getenv("BRAIN_MODEL_DIR", Path(__file__).parent / "train_model" / "LLM_bot" / "Brain" / "llm_signal_regression_model")
+)
 MODEL_PATH = MODEL_DIR / "model.safetensors"
+
 
 def _load_model():
     if not MODEL_DIR.exists():
         raise FileNotFoundError(f"Brain model directory not found: {MODEL_DIR}")
+
+    # Detect missing or LFS placeholder
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(f"Model weights not found at {MODEL_PATH}")
+    if MODEL_PATH.stat().st_size < 1024 * 1024:  # too small => likely LFS pointer
+        head = MODEL_PATH.read_bytes()[:200].decode("utf-8", "ignore")
+        if "git-lfs" in head.lower():
+            raise RuntimeError(
+                f"{MODEL_PATH} looks like a Git LFS pointer (size={MODEL_PATH.stat().st_size}).\n"
+                f"Make sure to enable LFS in checkout: with: lfs: true"
+            )
 
     print(f"[BRAIN] Loading model from {MODEL_DIR} ...")
     tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
@@ -21,7 +37,7 @@ def _load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
-    print(f"[BRAIN] Loaded on {device}")
+    print(f"[BRAIN] Model ready on {device}")
     return tokenizer, model, device
 
 
@@ -35,11 +51,9 @@ def _safe_float(v):
 
 
 def build_prompt_from_record(rec: dict) -> str:
-    """
-    Rebuilds the same style of prompt used during training.
-    """
+    """Rebuilds the same style of prompt used during training."""
     ticker = rec.get("Ticker", "UNKNOWN")
-    date = rec.get("Date", "N/A")  # ms timestamp, same as training after cleaning
+    date = rec.get("Date", "N/A")
 
     current_price = _safe_float(rec.get("current_price"))
     avg_open_3 = _safe_float(rec.get("avg_open_past_3_days"))
@@ -88,11 +102,7 @@ def rank_with_brain(
     top_k: int = 10,
     batch_size: int = 8,
 ) -> Tuple[List[str], Dict[str, float]]:
-    """
-    Run the Brain model on LLM_today_data and return:
-      - ordered list of top_k tickers
-      - dict {ticker: brain_score_raw}
-    """
+    """Run the Brain model on LLM_today_data and return top tickers."""
     records = _load_llm_today_records(llm_data_path)
     if not records:
         raise RuntimeError("No records in LLM_today_data.jsonl")
@@ -106,9 +116,8 @@ def rank_with_brain(
         tickers.append(rec.get("Ticker", "UNKNOWN"))
 
     scores: List[float] = []
-
     for i in range(0, len(prompts), batch_size):
-        batch_prompts = prompts[i : i + batch_size]
+        batch_prompts = prompts[i:i + batch_size]
         enc = tokenizer(
             batch_prompts,
             padding=True,
@@ -128,14 +137,12 @@ def rank_with_brain(
     if len(scores) != len(tickers):
         raise RuntimeError("Mismatch between scores and tickers length")
 
-    # Map ticker -> score (if duplicates, keep max)
     ticker_score: Dict[str, float] = {}
     for t, s in zip(tickers, scores):
         s_float = float(s)
         if t not in ticker_score or s_float > ticker_score[t]:
             ticker_score[t] = s_float
 
-    # Sort by score desc
     ordered = sorted(ticker_score.items(), key=lambda kv: kv[1], reverse=True)
     top_k = min(top_k, len(ordered))
     top_tickers = [t for (t, _) in ordered[:top_k]]
