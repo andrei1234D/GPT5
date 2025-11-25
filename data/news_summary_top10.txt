@@ -1,39 +1,12 @@
-### GH
+### EVOK
 - N/A
 Impact: 0
 
-### ZYME
-- N/A
-Impact: 0
-
-### BBNX
+### LUG.TO
 - N/A
 Impact: 0
 
 ### LITE
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
-### ARQT
-- N/A
-Impact: 0
-
-### KOD
-- N/A
-Impact: 0
-
-### ECO
-- N/A
-Impact: 0
-
-### GOOG
-- N/A
-Impact: 0
-
-### GOOGL
-- N/A
-Impact: 0
+- Global markets face pressure from falling bitcoin, weakness in tech, and geopolitical concerns.
+- U.S. stocks were higher with positive movements in big stocks like Alibaba and Tesla.
+Impact: +10
