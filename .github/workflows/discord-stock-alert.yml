@@ -36,9 +36,11 @@ jobs:
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\n" > requirements.txt
+            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\n" > requirements.txt
           else
             grep -qxF 'openai' requirements.txt || echo 'openai' >> requirements.txt
+            grep -qxF 'torch' requirements.txt || echo 'torch' >> requirements.txt
+            grep -qxF 'transformers' requirements.txt || echo 'transformers' >> requirements.txt
           fi
           cat requirements.txt
 
@@ -151,7 +153,11 @@ jobs:
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\n" > requirements.txt
+            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\n" > requirements.txt
+          else
+            grep -qxF 'openai' requirements.txt || echo 'openai' >> requirements.txt
+            grep -qxF 'torch' requirements.txt || echo 'torch' >> requirements.txt
+            grep -qxF 'transformers' requirements.txt || echo 'transformers' >> requirements.txt
           fi
           cat requirements.txt
 
