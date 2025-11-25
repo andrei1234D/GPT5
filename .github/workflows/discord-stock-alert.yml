@@ -266,13 +266,26 @@ jobs:
 
       - name: Commit notifier outputs
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Make sure we’re up to date, even if main moved.
+          git fetch origin main
+
+          # Stage the files we care about AND any modified/deleted tracked files.
           git add -f logs/blocks_to_gpt_latest.txt daily_pick.txt data/LLM_today_data.jsonl || true
+          git add -u || true
+
+          # If nothing is staged, bail early.
           if git diff --cached --quiet; then
             echo "No new notifier files to commit"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Update notifier outputs (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          # Commit first (clean index), then rebase with autostash to avoid "unstaged changes" errors.
+          git commit -m "Update notifier outputs (run #${{ github.run_number }})"
+          git -c pull.rebase=true pull --autostash --rebase origin main
+
+          # Push our rebased commit.
+          git push origin HEAD:main
