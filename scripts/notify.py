@@ -1,8 +1,10 @@
+# scripts/notify.py
 import os
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+import json
 
 import pandas as pd
 import pytz
@@ -14,16 +16,13 @@ from time_utils import seconds_until_target_hour
 
 from llm_data_builder import build_llm_today_data
 from brain_ranker import rank_with_brain
-from gpt_block_builder import build_gpt_blocks
 
 # --- Timezone
 TZ = pytz.timezone("Europe/Bucharest")
 
-
 # --- Helpers
 def log(m: str) -> None:
     print(m, flush=True)
-
 
 def need_env(name: str) -> str:
     v = os.getenv(name)
@@ -32,18 +31,15 @@ def need_env(name: str) -> str:
         sys.exit(1)
     return v
 
-
 OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
 DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
 
 ALLOW_BLOWOFF_PROBE = os.getenv("ALLOW_BLOWOFF_PROBE", "0") == "1"
-SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20 + """
-... (your strict PLAN rules here, unchanged) ...
-"""
+# leave SYSTEM prompt unchanged; we feed a minimal CSV as the user blocks
+SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20
 
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
-
 
 def fail(msg: str):
     log(f"[ERROR] {msg}")
@@ -57,49 +53,61 @@ def fail(msg: str):
         pass
     sys.exit(1)
 
-
-def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict:
-    """Load the GPT-3.5 condensed news summaries for the top-10 tickers."""
-    if not os.path.exists(path):
-        log(f"[WARN] News summary file not found: {path}")
+# ---------- LLM jsonl loader (for minimal 10 indices) ----------
+def _load_llm_records(path: str) -> dict[str, dict]:
+    p = Path(path)
+    if not p.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read().strip()
+    recs: dict[str, dict] = {}
+    with p.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+                t = str(rec.get("Ticker"))
+                if t:
+                    recs[t] = rec
+            except Exception:
+                continue
+    return recs
 
-    log(f"[INFO] Loaded news summaries from {path}")
-    blocks = {}
-    current_ticker = None
-    current_lines = []
-    for line in content.splitlines():
-        if line.startswith("### "):
-            if current_ticker and current_lines:
-                blocks[current_ticker] = "\n".join(current_lines).strip()
-            current_ticker = line.replace("### ", "").strip()
-            current_lines = [line]
-        else:
-            current_lines.append(line)
-    if current_ticker and current_lines:
-        blocks[current_ticker] = "\n".join(current_lines).strip()
-    return blocks
+def _num(v):
+    try:
+        return float(v)
+    except Exception:
+        return None
 
+def _fmt(v):
+    # write numeric as plain (no trailing zeros explosion); keep None as empty
+    if v is None:
+        return ""
+    try:
+        fv = float(v)
+        # compact formatting (up to 6 decimals if needed)
+        s = f"{fv:.6f}".rstrip("0").rstrip(".")
+        return s
+    except Exception:
+        return str(v)
 
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
-    # === 6) Load Stage-2 merged results (needed just to ensure it's there) ===
-    path = "data/stage2_merged.csv"
-    if not os.path.exists(path):
-        return fail(f"{path} not found")
+    # === Ensure stage2 is present ===
+    stage2_path = "data/stage2_merged.csv"
+    if not os.path.exists(stage2_path):
+        return fail(f"{stage2_path} not found")
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(stage2_path)
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    # === 7) Build LLM_today_data for Brain (top-30 tickers) ===
+    # === Build LLM_today_data for Brain (top-30 tickers) ===
     try:
         tickers_llm = build_llm_today_data(
-            stage2_path=path,
+            stage2_path=stage2_path,
             out_path="data/LLM_today_data.jsonl",
             top_n=30,
         )
@@ -108,7 +116,7 @@ def main():
 
     log(f"[INFO] Built LLM_today_data.jsonl for {len(tickers_llm)} tickers.")
 
-    # === 8) Run Brain to get top-10 tickers and Brain scores ===
+    # === Run Brain: get top-10 tickers + scores ===
     try:
         tickers_top10, brain_scores = rank_with_brain(
             llm_data_path="data/LLM_today_data.jsonl",
@@ -122,42 +130,80 @@ def main():
 
     log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers_top10)}")
 
-    # === 9) Load precomputed news summaries (still optional) ===
-    news_blocks = load_news_summary()
+    # === Load LLM records to extract the EXACT 10 indices we want ===
+    llm_map = _load_llm_records("data/LLM_today_data.jsonl")
 
-    # === 10) Build light GPT-5 blocks (BrainScore + key indices) ===
-    blocks_text = build_gpt_blocks(
-        top_tickers=tickers_top10,
-        brain_scores=brain_scores,
-        llm_data_path="data/LLM_today_data.jsonl",
-        stage2_path=path,
-        news_blocks=news_blocks,
-    )
+    # Columns: exactly 10 indices + BrainScore (ticker is first col)
+    header = [
+        "Ticker",
+        "BrainScore",
+        "current_price",
+        "RSI14",
+        "MACD_hist",
+        "Momentum",
+        "ATRpct",
+        "volatility_30",
+        "pos_30d",
+        "EMA50",
+        "EMA200",
+        "MarketTrend",
+    ]
 
-    now = datetime.now(TZ)
-    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
-        today=now.strftime("%b %d"),
-        blocks=blocks_text,
-    )
+    rows = []
+    for t in tickers_top10:
+        rec = llm_map.get(t, {})
+        row = [
+            t,
+            _fmt(brain_scores.get(t)),
+            _fmt(_num(rec.get("current_price"))),
+            _fmt(_num(rec.get("RSI14"))),
+            _fmt(_num(rec.get("MACD_hist"))),
+            _fmt(_num(rec.get("Momentum"))),
+            _fmt(_num(rec.get("ATR%"))),            # stored as "ATR%" in jsonl
+            _fmt(_num(rec.get("volatility_30"))),
+            _fmt(_num(rec.get("pos_30d"))),
+            _fmt(_num(rec.get("EMA50"))),
+            _fmt(_num(rec.get("EMA200"))),
+            str(rec.get("MarketTrend", "")),
+        ]
+        rows.append(row)
 
-    # === 10b) Save blocks for debugging ===
+    # === Save minimal payload for traceability (ONLY 10 indices + BrainScore) ===
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
     blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
-    try:
-        with blocks_path.open("w", encoding="utf-8") as f:
-            f.write(blocks_text)
-        log(f"[INFO] Wrote prompt blocks to {blocks_path}")
-    except Exception as e:
-        log(f"[WARN] Failed to save prompt blocks: {e}")
 
-    # === 11) GPT adjudication (LIGHTER) ===
+    # Write as CSV (comma-separated, header + 10 rows)
+    with blocks_path.open("w", encoding="utf-8") as f:
+        f.write(",".join(header) + "\n")
+        for row in rows:
+            # escape commas only in MarketTrend if needed (unlikely)
+            safe_row = [r.replace(",", " ") if isinstance(r, str) else r for r in row]
+            f.write(",".join(safe_row) + "\n")
+
+    log(f"[INFO] Wrote minimal GPT payload to {blocks_path}")
+
+    # === Feed GPT the SAME minimal CSV as blocks ===
+    # Put the CSV under the "CANDIDATES:" section
+    csv_content = blocks_path.read_text(encoding="utf-8").strip()
+    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
+        today=now.strftime("%b %d"),
+        blocks=csv_content,
+    )
+
+    # Also save the exact user + system prompts for full reproducibility
+    with (logs_dir / "gpt_user_prompt.txt").open("w", encoding="utf-8") as f:
+        f.write(user_prompt)
+    with (logs_dir / "gpt_system_prompt.txt").open("w", encoding="utf-8") as f:
+        f.write(SYSTEM_PROMPT_TOP20_EXT)
+
+    # === GPT call ===
     try:
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=4500)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
 
-    # === 12) Save output ===
+    # === Save output ===
     with open("daily_pick.txt", "w", encoding="utf-8") as f:
         f.write(final_text)
     log("[INFO] Draft saved to daily_pick.txt")
@@ -168,7 +214,7 @@ def main():
         if wait_s > 0:
             time.sleep(wait_s)
 
-    # === 13) Send to Discord ===
+    # === Send to Discord ===
     embed = {
         "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
         "description": final_text,
@@ -179,7 +225,6 @@ def main():
         log("[INFO] Posted alert to Discord ✅")
     except Exception as e:
         log(f"[ERROR] Discord webhook error: {repr(e)}")
-
 
 if __name__ == "__main__":
     main()
