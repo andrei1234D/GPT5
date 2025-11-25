@@ -2,11 +2,38 @@
 - N/A
 Impact: 0
 
-### LUG.TO
+### LITE
+- Global markets face pressure from falling bitcoin and weakness in tech.
+Impact: +10
+
+### HUHU
 - N/A
 Impact: 0
 
-### LITE
-- Global markets face pressure from falling bitcoin, weakness in tech, and geopolitical concerns.
-- U.S. stocks were higher with positive movements in big stocks like Alibaba and Tesla.
-Impact: +10
+### ADPT
+- Adaptive Biotechnologies announces positive results and joins other stocks moving higher.
+Impact: +20
+
+### LUN.TO
+- N/A
+Impact: 0
+
+### ARMP
+- N/A
+Impact: 0
+
+### BLTE
+- N/A
+Impact: 0
+
+### GSAT
+- N/A
+Impact: 0
+
+### CG.TO
+- N/A
+Impact: 0
+
+### WDC
+- N/A
+Impact: 0
