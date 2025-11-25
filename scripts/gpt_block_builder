@@ -1,138 +1,146 @@
-SYSTEM_PROMPT_TOP20 = """
-You are a tactical stock analyst focused on finding stocks that are:
-- timely
-- trade-ready
-- in motion over the next 6–12 months (but you may also note strong shorter-term setups).
+# scripts/gpt_block_builder.py
+import json
+from pathlib import Path
+from typing import Dict, List, Tuple
 
-You are running in **LIGHT MODE**.
-
-You will receive at most 10 pre-selected candidates per day.  
-For each candidate you see:
-- BrainScore (0–1000): a precomputed quality score that already blends many signals.
-- A small set of technical metrics: price, 30-day volatility, RSI14, MACD, Momentum_10D, ATR%, 30-day range position.
-- Trend information: TrendTag, MarketTrend.
-- Optional valuation hints: PE and PEG.
-- A very short news snippet or "N/A".
-
-**How to think:**
-- Treat **BrainScore** as the primary ranking signal.
-- Use the metrics only to:
-  - confirm or slightly upgrade/downgrade conviction
-  - highlight risks
-  - avoid obvious exhaustion / blow-off conditions.
-- Prefer:
-  - clear trend structure (TrendTag StrongUp / Up)
-  - RSI in the 55–70 zone
-  - reasonable volatility / ATR
-  - technical context that supports continuation rather than a one-off spike.
-- Penalize:
-  - TrendTag Down when BrainScore is only moderate
-  - extreme RSI (>75) or very high volatility
-  - metrics that imply a blow-off or chaotic behaviour
-  - obviously bad or uncertain news.
-
-Be decisive and concise. Do **not** use outside information; only use the block you are given.
-
-------------------------------------------------------------
-SCORING & COMPONENTS
-------------------------------------------------------------
-
-Base Score:
-- Start from BASE ≈ BrainScore (0–1000). You may scale it slightly (e.g. ± up to ~10–15%) based on the metrics and news.
-- Keep the final BASE in the range 0–1100.
-- Upgrades (examples):
-  - StrongUp trend + supportive RSI + acceptable volatility.
-  - Positive / supportive news that matches the technical picture.
-- Downgrades (examples):
-  - Extreme RSI, huge volatility, or TrendTag Down against a Bullish market.
-  - News that clearly increases risk or uncertainty.
-
-Components:
-- Decompose BASE into the following components:
-  - Market & Sector (0–265)
-  - Quality (Tech Proxies) (0–265)
-  - Near-Term Catalysts (0–185)
-  - Technical Valuation (0–285)
-  - Risks (0–100)
-- These components do **not** have to match any strict formula; they must just be:
-  - internally consistent
-  - believable given the metrics, BrainScore, and news
-  - aligned with your written explanation of what helped/hurt the score.
-
-Certainty:
-- Assign a certainty score between 0 and 100 based on the *coherence and durability* of the setup:
-  • 40 = weak/partial conviction, conflicting signals, low durability.  
-  • 62 = decent but with caveats or higher noise.  
-  • 70 = strong conviction with clear technical structure.  
-  • 80–100 = exceptional conviction — clean, durable setup with supportive context.
-- Certainty is **reported separately**. Use BASE (after your adjustments) as the "Final base score".
-
-The news block already includes:
-- 1–3 lines
-- A final integer: e.g. `Impact: -2` or `Impact: +4`
-
-You must:
-- **use exactly the integer given**
-- NOT create a new one
-- NOT rename it
-- NOT change its sign
-------------------------------------------------------------
-ADVICE RULE
-------------------------------------------------------------
-
-ADVICE depends on the **Final base score (BASE after your adjustments)** and Certainty.
-
-- Final base score = BASE (after all your adjustments; you do NOT need any extra arithmetic).
-
-- If BASE ≥ 720 and Certainty ≥ 72% →  
-```txt
-```diff
-+Strong Buy
-
-- If BASE ≥ 650 and Certainty ≥ 62% →  
-```txt
-```ini
-[Buy]
-
-- If BASE ≥ 580 and Certainty ≥ 55% →  
-```txt
-```arm
-Hold
-
-- Else → `N/A`
-
-Use these exact code-block formats for Strong Buy / Buy / Hold so the message can be parsed.
-
-------------------------------------------------------------
-OUTPUT FORMAT (MANDATORY)
-------------------------------------------------------------
-
-For each pick, output **exactly 10 lines**, in this order:
-
-1. `TICKER – Company`  (if no company name is given, just use the ticker)
-2. `Base Scores: Market & Sector: <0–265>, Quality (Tech Proxies): <0–265>, Near-Term Catalysts: <0–185>, Technical Valuation: <0–285>, Risks: <0–100>`
-3. `News: "<short summary (numerical impact value)>"`  OR exactly `News: "N/A"`
-4. `Final base score: <0–1100>`
-5. `Valuation: P/E=<value or 'N/A'>, PEG=<value or 'N/A'>, Growth=<Forward or YoY or 'N/A'>`
-6. `Certainty: <0–100%>`
-7. `ADVICE: <one of the code blocks above, or 'N/A'>`
-8. `Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast`
-9. `What reduced the score: <very brief risk flags, missing values, or structural issues>`
-10. `What wasn't clear or contradictory: <very brief notes, or 'N/A'>`
-"""
+import numpy as np
+import pandas as pd
 
 
-SYSTEM_PROMPT_TOP20 = SYSTEM_PROMPT_TOP20  # keep as single string; no extra extras
+def _load_llm_records(path: str) -> Dict[str, dict]:
+    recs: Dict[str, dict] = {}
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"{path} not found")
+    with p.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            t = str(rec.get("Ticker"))
+            recs[t] = rec
+    return recs
 
 
-USER_PROMPT_TOP20_TEMPLATE = (
-    "TODAY is {today}. You are given up to 10 pre-filtered stock candidates. "
-    "Each candidate includes a BrainScore (0–1000), a handful of core technical metrics, "
-    "optional valuation hints, and a very short news snippet.\n\n"
-    "Use BrainScore as the primary ranking signal and use the metrics only to refine the score, "
-    "highlight risks, and assign ADVICE (Strong Buy / Buy / Hold / N/A).\n\n"
-    "If more than one stock meets the ≥720 point system, return ALL of them. "
-    "If none meet that level, return only the single highest-scoring pick.\n\n"
-    "CANDIDATES:\n{blocks}\n\n"
-    "OBEY THE OUTPUT FORMAT EXACTLY (10 lines per pick)."
-)
+def _load_stage2_vals(path: str) -> Dict[str, dict]:
+    p = Path(path)
+    if not p.exists():
+        return {}
+    df = pd.read_csv(p)
+    df["ticker"] = df["ticker"].astype(str)
+    vals: Dict[str, dict] = {}
+    for _, row in df.iterrows():
+        t = row["ticker"]
+        vals[t] = {
+            "PE": row.get("val_PE", np.nan),
+            "PEG": row.get("val_PEG", np.nan),
+            "YoY": row.get("val_YoY", np.nan),
+        }
+    return vals
+
+
+def _safe_float(v, default="N/A", fmt=None):
+    if v is None or (isinstance(v, float) and (np.isnan(v))):
+        return default
+    try:
+        x = float(v)
+    except Exception:
+        return default
+    if fmt is None:
+        return x
+    return fmt.format(x)
+
+
+def _trend_tag(price, ema50, ema200):
+    try:
+        price = float(price)
+        ema50 = float(ema50)
+        ema200 = float(ema200)
+    except Exception:
+        return "Unknown"
+    if price > ema50 > ema200:
+        return "StrongUp"
+    if price > ema200 and ema50 > ema200:
+        return "Up"
+    if price < ema50 < ema200:
+        return "Down"
+    return "Sideways"
+
+
+def build_gpt_blocks(
+    top_tickers: List[str],
+    brain_scores: Dict[str, float],
+    llm_data_path: str = "data/LLM_today_data.jsonl",
+    stage2_path: str = "data/stage2_merged.csv",
+    news_blocks: Dict[str, str] | None = None,
+) -> str:
+    """
+    Build compact text blocks for GPT-5, one block per ticker.
+    """
+    llm_recs = _load_llm_records(llm_data_path)
+    vals_map = _load_stage2_vals(stage2_path)
+    news_blocks = news_blocks or {}
+
+    blocks: List[str] = []
+
+    for rank, t in enumerate(top_tickers, start=1):
+        rec = llm_recs.get(t)
+        if rec is None:
+            # skip silently if missing from LLM data
+            continue
+
+        brain_score = brain_scores.get(t, 0.0)
+
+        price = rec.get("current_price")
+        vol30 = rec.get("volatility_30")
+        rsi14 = rec.get("RSI14")
+        macd = rec.get("MACD")
+        momentum = rec.get("Momentum")
+        atrp = rec.get("ATR%")
+        avg_low_30 = rec.get("avg_low_30")
+        avg_high_30 = rec.get("avg_high_30")
+        pos_30d = rec.get("pos_30d")
+        ema50 = rec.get("EMA50")
+        ema200 = rec.get("EMA200")
+        mkt_trend = rec.get("MarketTrend", "Unknown")
+
+        trend_tag = _trend_tag(price, ema50, ema200)
+
+        vals = vals_map.get(t, {})
+        pe = vals.get("PE", None)
+        peg = vals.get("PEG", None)
+
+        news_text = news_blocks.get(t, "N/A")
+
+        block = []
+        block.append(f"### TICKER: {t}")
+        block.append(f"BrainScore: {brain_score:.2f} (rank {rank}/{len(top_tickers)})")
+        block.append("Core metrics:")
+        block.append(
+            f"- Price: {_safe_float(price, 'N/A', '{:.2f}')}"
+        )
+        block.append(
+            f"- 30D Volatility: {_safe_float(vol30, 'N/A', '{:.4f}')}"
+        )
+        block.append(f"- RSI14: {_safe_float(rsi14, 'N/A', '{:.2f}')}")
+        block.append(f"- MACD: {_safe_float(macd, 'N/A', '{:.3f}')}")
+        block.append(f"- Momentum_10D: {_safe_float(momentum, 'N/A', '{:.2f}')}")
+        block.append(f"- ATR%: {_safe_float(atrp, 'N/A', '{:.2f}')}")
+        block.append(
+            f"- 30D Range Position: {_safe_float(pos_30d, 'N/A', '{:.2f}')}"
+        )
+        block.append(f"- TrendTag: {trend_tag}")
+        block.append(f"- MarketTrend: {mkt_trend}")
+        block.append(
+            f"- Valuation_PE: {_safe_float(pe, 'N/A', '{:.2f}')}, PEG: {_safe_float(peg, 'N/A', '{:.2f}')}"
+        )
+
+        if news_text == "N/A":
+            block.append("Brief News:\n- N/A")
+        else:
+            block.append(f"Brief News:\n{news_text}")
+
+        blocks.append("\n".join(block))
+
+    return "\n\n".join(blocks)
