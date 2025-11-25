@@ -140,6 +140,35 @@ jobs:
             git commit -m "Update news summaries (run #${{ github.run_number }})"
             git push origin main
           fi
+      - name: Build LLM_today_data.jsonl
+        run: python scripts/llm_data_builder.py
+
+      - name: Commit LLM_today_data.jsonl
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/LLM_today_data.jsonl || true
+          if git diff --cached --quiet; then
+            echo "No new LLM data to commit"
+          else
+            git commit -m "Add LLM_today_data.jsonl (run #${{ github.run_number }})"
+            git push origin main
+          fi
+
+      - name: Run Brain Ranker
+        run: python scripts/brain_ranker.py
+
+      - name: Commit Brain Scores
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f logs/brain_scores_latest.csv logs/brain_scores_latest.json || true
+          if git diff --cached --quiet; then
+            echo "No new brain scores to commit"
+          else
+            git commit -m "Update brain scores (run #${{ github.run_number }})"
+            git push origin main
+          fi
   send-alert:
     runs-on: ubuntu-latest
     needs: prepare-data
@@ -223,4 +252,3 @@ jobs:
             git pull --rebase origin main
             git push origin main
           fi
-
