@@ -3,41 +3,41 @@
 Impact: 0
 
 ### LITE
-- Alibaba, Aercap, T. Rowe Price and Lumentum in focus amid market pressure and geopolitical events.
-- Alibaba's app download announcement boosts stock. Baidu also receives positive analyst forecasts.
+- Global markets face pressure from falling bitcoin, weakness in tech, and geopolitical tensions.
+- U.S. stocks were higher, with Alibaba Group rising sharply on app download announcement.
 Impact: +10
+
+### ADPT
+- Adaptive Biotechnologies presents nearly 90 abstracts featuring clonoSEQ MRD testing across blood cancers.
+- Ross Stores reports strong Q3 results, raising FY25 GAAP EPS guidance.
+Impact: +15
 
 ### LUN.TO
 - N/A
 Impact: 0
 
 ### AGX
-- Alibaba's positive performance drives market higher. Construction Partners misses Q4 estimates.
+- U.S. stocks were higher, with Alibaba Group rising sharply and Construction Partners missing Q4 estimates.
 Impact: +5
 
 ### HUHU
 - N/A
 Impact: 0
 
-### ADPT
-- Adaptive Biotechnologies to present nearly 90 abstracts at ASH Annual Meeting. Ross Stores reports strong Q3 results.
-Impact: +10
+### EVOK
+- N/A
+Impact: 0
 
 ### REAL
 - The RealReal announces participation in upcoming investor conferences.
-- The RealReal continues to make positive announcements.
 Impact: +5
 
 ### ARWR
-- Sarepta's stock rises on positive updates on DM1 therapy. Sarepta secures FDA nod for Elevidys study.
-- Novartis boosts sales projections with key drugs driving growth.
-Impact: +15
+- Sarepta's stock rises on positive updates on DM1 therapy and FDA approval for Elevidys study.
+- Novartis boosts sales projections as key drugs drive growth.
+Impact: +20
 
 ### WDC
-- Seagate and SanDisk see unusual options activity. Wall Street analysts believe Western Digital could rally.
-- Positive sentiment in options activity and analyst forecasts for tech companies.
-Impact: +10
-
-### GRAL
-- N/A
-Impact: 0
+- Financial giants show bullish options activity on Seagate Technology Holdings and SanDisk.
+- Wall Street analysts believe Western Digital could rally 25.3%.
+Impact: +15
