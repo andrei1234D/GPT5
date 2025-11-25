@@ -2,42 +2,41 @@
 - N/A
 Impact: 0
 
-### ERO.TO
-- N/A
-Impact: 0
-
 ### LITE
-- Global markets face pressure from falling bitcoin, weakness in tech, and a packed geopolitical and economic week.
-- U.S. stocks were higher, with Alibaba Group Holding Ltd rising sharply during Monday's session.
-Impact: +15
+- Global markets face pressure from falling bitcoin, weakness in tech, and geopolitical events.
+- U.S. stocks were higher with notable gains in Alibaba and other big stocks.
+Impact: +10
 
 ### HUHU
 - N/A
 Impact: 0
 
-### GRGD.TO
+### EVOK
 - N/A
 Impact: 0
-
-### ADPT
-- Adaptive Biotechnologies announces nearly 90 abstracts featuring clonoSEQ MRD testing across a range of blood cancers to be presented at the 67th ASH Annual Meeting.
-- Ross Stores posts strong Q3 results, leading to a rise in shares.
-Impact: +20
 
 ### LUN.TO
 - N/A
 Impact: 0
 
 ### WDC
-- Financial giants have made bullish moves on Seagate Technology Holdings and SanDisk.
-- Wall Street analysts believe Western Digital could rally 25.3%.
-Impact: +25
-
-### GSAT
-- IBM stands out as the stronger pick in a comparison with ASTS in the connectivity innovator space.
-- Questex's Fierce Network announces finalists for the 2025 Fierce Network Innovation Awards.
-Impact: +5
+- Financial giants show bullish moves on Seagate Technology and SanDisk.
+- Wall Street analysts believe Western Digital could rally significantly.
+Impact: +15
 
 ### RIGL
 - N/A
 Impact: 0
+
+### WGX.AX
+- N/A
+Impact: 0
+
+### CG.TO
+- N/A
+Impact: 0
+
+### PARR
+- NEXT begins FERC pre-filing for Train 6 at Rio Grande LNG, signaling LNG expansion.
+- Broker-adored stocks like PARR, BTSG, GT, AAL, and ALGT emerge amid market volatility.
+Impact: +10
