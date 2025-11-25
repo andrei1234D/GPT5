@@ -8,6 +8,7 @@ YF_TEST_INTERVAL = os.getenv("YF_TEST_INTERVAL", "1d")
 MIN_OK_ROWS      = int(os.getenv("ALIASES_MIN_ROWS", "20"))
 MAX_PER_RUN      = int(os.getenv("ALIASES_MAX_PER_RUN", "250"))
 
+
 # Map Trading212-style hyphen suffixes to Yahoo’s dot suffixes
 SUFFIX_MAP = {
     "L": "L",   # London
