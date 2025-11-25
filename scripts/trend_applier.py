@@ -9,20 +9,25 @@ if not log.handlers:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 def detect_market_trend(symbol="SPY", lookback=200):
-    df = yf.download(symbol, period="1y", interval="1d", progress=False)
+    df = yf.download(symbol, period="1y", interval="1d", progress=False, auto_adjust=True)
     df["SMA50"] = df["Close"].rolling(50).mean()
     df["SMA200"] = df["Close"].rolling(200).mean()
     
     last = df.iloc[-1]
     trend = "neutral"
 
-    if last["Close"] > last["SMA50"] > last["SMA200"]:
+    # ✅ Force scalars to avoid any Series-vs-Series comparison weirdness
+    close = float(last["Close"])
+    sma50 = float(last["SMA50"])
+    sma200 = float(last["SMA200"])
+
+    if close > sma50 and sma50 > sma200:
         trend = "up"
-    elif last["Close"] < last["SMA50"] < last["SMA200"]:
+    elif close < sma50 and sma50 < sma200:
         trend = "down"
-    elif last["SMA50"] > last["SMA200"] and last["Close"] < last["SMA50"]:
+    elif sma50 > sma200 and close < sma50:
         trend = "pullback"
-    elif last["SMA50"] < last["SMA200"] and last["Close"] > last["SMA50"]:
+    elif sma50 < sma200 and close > sma50:
         trend = "recovering"
 
     df["above_20dma"] = df["Close"] > df["Close"].rolling(20).mean()
