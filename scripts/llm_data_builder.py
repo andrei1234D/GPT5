@@ -148,7 +148,7 @@ def _build_single_record(latest: pd.Series, market_trend: str) -> dict:
 def build_llm_today_data(
     stage2_path: str = "data/stage2_merged.csv",
     out_path: str = "data/LLM_today_data.jsonl",
-    top_n: int = 30,
+    top_n: int = 35,
     history_years: int = 2,
 ) -> list[str]:
     stage2_path = Path(stage2_path)

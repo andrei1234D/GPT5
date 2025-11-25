@@ -8,8 +8,8 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
-MODEL_DIR = (Path(__file__).resolve().parent / "Brain llm signal regression model").resolve()
-
+MODEL_DIR = Path(__file__).parent / "train_model" / "LLM_bot" / "Brain" / "llm_signal_regression_model"
+MODEL_PATH = MODEL_DIR / "model.safetensors"
 
 def _load_model():
     if not MODEL_DIR.exists():
