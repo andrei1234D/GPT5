@@ -1,12 +1,12 @@
-BW – BW
-Base Scores: Market & Sector: 190, Quality (Tech Proxies): 150, Near-Term Catalysts: 70, Technical Valuation: 155, Risks: 25
+VTYX – Ventyx Biosciences
+Base Scores: Market & Sector: 165, Quality (Tech Proxies): 155, Near-Term Catalysts: 80, Technical Valuation: 178, Risks: 30
 News: "N/A"
-Final base score: 590
+Final base score: 608
 Valuation: P/E=N/A, PEG=N/A, Growth=N/A
-Certainty: 60%
+Certainty: 62%
 ADVICE: ```arm
 Hold
 ```
-Forecast image URL: https://stockscan.io/stocks/BW/forecast
-What reduced the score: MACD negative, near-term momentum soft, elevated ATR%/volatility, no clear catalysts
-What wasn't clear or contradictory: RSI supportive but momentum weak; durability of the move without news is uncertain
+Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
+What reduced the score: Small-cap biotech risk, slight negative MACD, no clear catalysts/news, moderate volatility
+What wasn't clear or contradictory: TrendTag not provided; catalyst visibility low; position-in-range scale not explicit
