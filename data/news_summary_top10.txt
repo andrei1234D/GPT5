@@ -1,39 +1,11 @@
-### BW
-- N/A
-Impact: 0
-
-### VTYX
-- N/A
-Impact: 0
-
 ### FTRE
-- Fortrea presents at healthcare conferences and completes senior notes tender offer.
-Impact: +15
-
-### AXTI
-- N/A
-Impact: 0
-
-### EBS
-- N/A
-Impact: 0
-
-### ARMP
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
-### REAL
-- The RealReal announces participation in upcoming investor conferences.
-Impact: +5
-
-### RIGL
-- N/A
-Impact: 0
+- Fortrea presents at upcoming conferences and completes a successful senior notes tender offer.
+Impact: +25
 
 ### WDC
-- Financial giants show bullish activity on Seagate Technology Hldgs and SanDisk.
-Impact: +10
+- NetApp and Seagate Technology show positive performance with bullish options activity, while SanDisk has unusual options activity.
+Impact: +20
+
+### MU
+- Micron Technology experiences bearish options activity, but still considered a strong buy in the technology sector.
+Impact: +15
