@@ -62,36 +62,35 @@ NO BUY
 OUTPUT FORMAT (MANDATORY)
 For downstream parsing, output **exactly 8 lines** per pick in this order:
 
-1. `TICKER – Company` (if no company name is given, just use the ticker)
 
-2. `News: "<short summary (numerical impact value)>"` OR exactly `News: "N/A"`
+Daily Stock Pick — 2025-11-26
 
-3. `Initial base score (BrainScore + News Impact): <value>`
+VTYX – Ventyx Biosciences
 
-4. `ADVICE DECISION: <SEE THE RULE ABOVE FOR EXACT FORMATTING>`
+News: "N/A | Impact: 0"
 
-5. `Certainty: <0–100%>`
+Initial base score (BrainScore + News Impact): 563.611877
 
-6. `Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast`
+ADVICE DECISION: N/A
 
-7. `What reduced the score: <very brief risk flags, missing values, or structural issues>`
+Certainty: 60%
 
-8. `Verifier note: <1-line summary of why you agreed or suggested an adjustment; cite any external sources used>`
+Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
+
+What reduced the score: RSI near overbought; MACD_hist negative; high ATRpct/volatility; neutral market trend; no news catalyst
+
+Verifier note: Confirmed BrainScore; mixed momentum (EMA50>EMA200, pos_30d>0) but elevated risk and slight overbought readings align with a sub-buy BASE—no adjustment warranted.
+
 
 Be concise and factual. Keep your language suitable for automated parsing and for human review.
 """
-
-
-SYSTEM_PROMPT_TOP20 = SYSTEM_PROMPT_TOP20
-
-
 USER_PROMPT_TOP20_TEMPLATE = (
     "TODAY is {today}. You are given up to 10 pre-filtered stock candidates. "
     "Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.\n\n"
     "Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. "
     "You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.\n\n"
     "Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, "
-    "provide a Certainty (0–100%), and output the VERIFIER_DECISION using the exact code blocks.\n\n"
+    "provide a Certainty (0–100%)"
     "CANDIDATES:\n{blocks}\n\n"
     "REMEMBER: preserve the news Impact integer exactly; do not alter it.\n\n"
     "OBEY THE OUTPUT FORMAT EXACTLY (8 lines per pick)."
