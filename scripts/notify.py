@@ -131,13 +131,24 @@ def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
-    # 1) Ensure stage2 exists (sanity check)
+    # 1) Ensure stage2 exists (sanity check) + build ticker -> name map
     stage2_path = "data/stage2_merged.csv"
     if not os.path.exists(stage2_path):
         return fail(f"{stage2_path} not found")
     df = pd.read_csv(stage2_path)
     if df.empty:
         return fail("stage2_merged.csv is empty")
+
+    # Build a safe mapping from ticker -> company name
+    name_map: dict[str, str] = {}
+    if "ticker" in df.columns:
+        for _, row in df.iterrows():
+            t = str(row.get("ticker") or "")
+            if not t:
+                continue
+            n = row.get("name")
+            if isinstance(n, str):
+                name_map[t] = n
 
     # 2) Ensure LLM_today_data.jsonl exists (built in prepare-data job)
     llm_today_path = "data/LLM_today_data.jsonl"
@@ -163,6 +174,7 @@ def main():
 
     # 5) Build MINIMAL CSV used for GPT input + traceability
     header = [
+        "TickerName",   # NEW: "BW - Babcock & Wilcox Enterprises"
         "Ticker",
         "BrainScore",
         "current_price",
@@ -188,14 +200,18 @@ def main():
         writer.writerow(header)
         for t in tickers_top10:
             rec = llm_map.get(t, {})
+            name = name_map.get(t, "")
+            ticker_name = f"{t} - {name}" if name else t
+
             row = [
-                t,
+                ticker_name,                           # TickerName column
+                t,                                     # raw Ticker
                 _fmt(brain_scores.get(t)),
                 _fmt(_num(rec.get("current_price"))),
                 _fmt(_num(rec.get("RSI14"))),
                 _fmt(_num(rec.get("MACD_hist"))),
                 _fmt(_num(rec.get("Momentum"))),
-                _fmt(_num(rec.get("ATR%"))),  # stored as "ATR%" in jsonl
+                _fmt(_num(rec.get("ATR%"))),           # stored as "ATR%" in jsonl
                 _fmt(_num(rec.get("volatility_30"))),
                 _fmt(_num(rec.get("pos_30d"))),
                 _fmt(_num(rec.get("EMA50"))),
@@ -230,8 +246,6 @@ def main():
 
     # 9) Optional wait until 08:00
     if not force:
-        from time_utils import seconds_until_target_hour
-
         wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
         log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
         if wait_s > 0:
