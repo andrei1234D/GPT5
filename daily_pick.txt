@@ -1,0 +1,12 @@
+BW – BW
+Base Scores: Market & Sector: 190, Quality (Tech Proxies): 150, Near-Term Catalysts: 70, Technical Valuation: 155, Risks: 25
+News: "N/A"
+Final base score: 590
+Valuation: P/E=N/A, PEG=N/A, Growth=N/A
+Certainty: 60%
+ADVICE: ```arm
+Hold
+```
+Forecast image URL: https://stockscan.io/stocks/BW/forecast
+What reduced the score: MACD negative, near-term momentum soft, elevated ATR%/volatility, no clear catalysts
+What wasn't clear or contradictory: RSI supportive but momentum weak; durability of the move without news is uncertain

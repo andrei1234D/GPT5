@@ -1,0 +1,20 @@
+TODAY is Nov 26. You are given up to 10 pre-filtered stock candidates. Each candidate includes a BrainScore (0–1000), a handful of core technical metrics, optional valuation hints, and a very short news snippet.
+
+Use BrainScore as the primary ranking signal and use the metrics only to refine the score, highlight risks, and assign ADVICE (Strong Buy / Buy / Hold / N/A).
+
+If more than one stock meets the ≥720 point system, return ALL of them. If none meet that level, return only the single highest-scoring pick.
+
+CANDIDATES:
+Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News
+BW,571.193787,5.89,62.30248,-0.1051,-0.95,13.742421,0.125149,2.335612,4.432896,2.519836,Bullish,N/A | Impact: 0
+VTYX,562.900574,10.46,68.52793,-0.089056,1.03,7.48771,0.10698,4.028431,6.751538,3.862941,Bullish,N/A
+AXTI,490.249146,9.23,51.219504,-0.256225,-1.330001,12.768924,0.124046,1.845438,7.16402,4.119507,Bullish,N/A
+ARMP,391.2565,7.1,66.82243,-0.020467,0.35,9.788733,0.1985,1.78041,5.10777,3.277918,Bullish,N/A
+TTI,380.974518,7.5,54.178676,-0.07739,-0.74,6.866668,0.067607,0.546012,6.768199,4.954438,Bullish,N/A
+REAL,369.010834,14.48,64.940238,-0.001491,-1,7.467443,0.070608,2.802155,11.666926,8.449037,Bullish,"The RealReal announces investor conferences, showing positive sentiment. | Impact: +10"
+RIGL,367.388306,49.560001,70.918195,1.125237,11.610001,6.26081,0.070471,6.371317,35.749149,27.779569,Bullish,N/A
+WDC,363.989044,155.410004,47.048456,-2.814636,-14.580002,6.844568,0.067778,1.595119,134.014839,90.816019,Bullish,"Seagate Technology and SanDisk see unusual options activity, while Wall Street analysts bullish on Western Digital. | Impact: +20"
+ANRO,356.252289,13.36,58.168903,-0.216766,-0.04,11.376175,0.134965,1.429945,10.040824,6.239538,Bullish,N/A
+PEPG,337.8414,6.05,65.191151,0.084608,1.4,9.479338,0.097486,2.993211,4.392495,3.474271,Bullish,N/A
+
+OBEY THE OUTPUT FORMAT EXACTLY (10 lines per pick).
