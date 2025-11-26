@@ -3,20 +3,12 @@
 Impact: 0
 
 ### HL
-- N/A
-Impact: 0
+- Hecla Mining shows positive momentum, with record cash flow and potential as a top stock pick.
+Impact: +35
 
 ### LITE
-- N/A
-Impact: 0
-
-### ADPT
-- N/A
-Impact: 0
-
-### AGX
-- N/A
-Impact: 0
+- Market focus on Alibaba, Aercap, T. Rowe Price, and Lumentum amid global market pressures and positive stock movements.
+Impact: +20
 
 ### HUHU
 - N/A
@@ -27,13 +19,21 @@ Impact: 0
 Impact: 0
 
 ### REAL
-- N/A
-Impact: 0
+- The RealReal announces participation in upcoming investor conferences, signaling positive prospects.
+Impact: +25
 
 ### WDC
+- Bullish options activity on Seagate and SanDisk, along with positive analyst outlook on Western Digital, indicate potential upside.
+Impact: +30
+
+### GRAL
 - N/A
 Impact: 0
 
-### GRAL
+### LUG.TO
+- N/A
+Impact: 0
+
+### WGX.AX
 - N/A
 Impact: 0
