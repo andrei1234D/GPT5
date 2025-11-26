@@ -172,6 +172,26 @@ def main():
     llm_map = _load_llm_records(llm_today_path)
     news_map = load_news_summary("data/news_summary_top10.txt")
 
+    # 4.5) Filter: select only top 1 unless multiple have BrainScore >= 720
+    score_threshold = 720.0
+    candidates = [
+        (t, brain_scores.get(t, 0))
+        for t in tickers_top10
+    ]
+    # Sort by score descending (should already be sorted, but ensure)
+    candidates.sort(key=lambda x: x[1], reverse=True)
+    
+    # Include top 1, then add any others with score >= threshold
+    tickers_to_gpt = []
+    if candidates:
+        tickers_to_gpt = [candidates[0][0]]  # always include top 1
+        for t, score in candidates[1:]:
+            if _num(score) and _num(score) >= score_threshold:
+                tickers_to_gpt.append(t)
+    
+    log(f"[INFO] Filtered candidates: {len(tickers_to_gpt)} ticker(s) selected from top-10 (threshold={score_threshold})")
+    log(f"[INFO] Tickers for GPT: {', '.join(tickers_to_gpt)}")
+
     # 5) Build MINIMAL CSV used for GPT input + traceability
     header = [
         "TickerName",   # NEW: "BW - Babcock & Wilcox Enterprises"
@@ -198,7 +218,7 @@ def main():
     with blocks_path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)
-        for t in tickers_top10:
+        for t in tickers_to_gpt:
             rec = llm_map.get(t, {})
             name = name_map.get(t, "")
             ticker_name = f"{t} - {name}" if name else t

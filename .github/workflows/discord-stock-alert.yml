@@ -204,6 +204,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Sync with latest main (news + brain scores)
+        run: |
+          git fetch origin main
+          git pull --rebase origin main
+
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
