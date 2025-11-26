@@ -1,81 +1,16 @@
 # scripts/news_top10.py
 import os
-import pandas as pd
+import json
 import openai
 from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
-from trash_ranker import pick_top_stratified  # <-- align selection logic
+from brain_ranker import rank_with_brain
 from alphavantage_jit import get_news_sentiment_bulk
 
 
 def log(msg: str):
     print(msg, flush=True)
-
-
-def load_ranked_from_stage2(path: str = "data/stage2_merged.csv"):
-    """
-    Build a 'ranked' list usable by pick_top_stratified:
-      [(ticker, name, feats_dict, score, parts), ...]
-    Score preference: merged_final_score > merged_score
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"{path} not found")
-
-    df = pd.read_csv(path)
-    if df.empty:
-        raise ValueError(f"{path} is empty")
-
-    # Keep None for NaN (so optional fields remain missing, not NaN)
-    df = df.where(pd.notnull(df), None)
-
-    ranked = []
-    for _, row in df.iterrows():
-        feats = row.to_dict()
-        t = feats.get("ticker") or feats.get("symbol")
-        if not t:
-            # Skip rows without a ticker
-            continue
-        name = feats.get("company") or feats.get("name") or t
-        score = feats.get("merged_final_score")
-        if score is None:
-            score = feats.get("merged_score", 0.0)
-
-        ranked.append((t, name, feats, float(score or 0.0), {}))
-
-    # Sort by the same preference used in pick_top_stratified's fallback
-    ranked.sort(
-        key=lambda x: (
-            x[2].get("merged_final_score")
-            or x[2].get("_merged_score")
-            or x[3]
-        ),
-        reverse=True,
-    )
-    log(f"[INFO] Loaded {len(ranked)} rows from {path}")
-    return ranked
-
-
-def select_top10_via_stratified(ranked):
-    """
-    Use the exact same quotas as notify.py via env overrides.
-    Defaults: total=10, min_small=5, min_large=5, pe_min=5
-    """
-    total = int(os.getenv("STAGE2_TOTAL", "10"))
-    min_small = int(os.getenv("STAGE2_MIN_SMALL", "5"))
-    min_large = int(os.getenv("STAGE2_MIN_LARGE", "5"))
-    pe_min = int(os.getenv("STAGE2_MIN_PE", "5"))
-
-    picked = pick_top_stratified(
-        ranked,
-        total=total,
-        min_small=min_small,
-        min_large=min_large,
-        pe_min=pe_min,
-    )
-    tickers = [t for (t, _, _, _, _) in picked]
-    log(f"[INFO] Stratified Top-{total}: {', '.join(tickers)}")
-    return picked, tickers
 
 
 def fetch_bulk_news(tickers, days=7, limit=50):
@@ -139,15 +74,23 @@ def format_news_prompt(tickers, news_map):
 
 
 def main():
-    # 1) Build ranked list from Stage-2 and select via the SAME stratified picker
-    ranked = load_ranked_from_stage2("data/stage2_merged.csv")
-    picked, tickers = select_top10_via_stratified(ranked)
-
-    # Persist the exact selection for downstream validation/debug
-    sel_path = Path("data/top10_selected.txt")
-    sel_path.parent.mkdir(parents=True, exist_ok=True)
-    sel_path.write_text("\n".join(tickers), encoding="utf-8")
-    log(f"[INFO] Wrote selected tickers to {sel_path}")
+    # 1) Get Brain-ranked top 10 from LLM data (same as notify.py will use)
+    llm_today_path = "data/LLM_today_data.jsonl"
+    if not os.path.exists(llm_today_path):
+        raise FileNotFoundError(f"{llm_today_path} not found. It should be built by llm_data_builder.py")
+    
+    try:
+        tickers, brain_scores = rank_with_brain(
+            llm_data_path=llm_today_path,
+            top_k=10,
+        )
+    except Exception as e:
+        raise RuntimeError(f"Brain ranking failed: {repr(e)}")
+    
+    if not tickers:
+        raise RuntimeError("Brain returned no top tickers.")
+    
+    log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers)}")
 
     # 2) Fetch news for exactly these tickers
     days = int(os.getenv("NEWS_DAYS", "7"))
