@@ -2,17 +2,21 @@
 - N/A
 Impact: 0
 
-### LITE
-- Global markets face pressure from falling bitcoin and weakness in tech.
-Impact: -10
-
-### ADPT
-- Adaptive Biotechnologies presents strong Q3 results and joins other big stocks moving higher.
+### HL
+- Hecla Mining showing positive momentum with record cash flow and potential as a top momentum pick.
 Impact: +30
 
-### AGX
-- Alibaba and other big stocks move higher, while Construction Partners misses Q4 estimates.
+### LITE
+- Global markets facing pressure, but big stocks like Alibaba and Baidu moving higher.
 Impact: +15
+
+### ADPT
+- Adaptive Biotechnologies presenting MRD testing abstracts and Ross Stores posts strong Q3 results.
+Impact: +10
+
+### AGX
+- Alibaba and other big stocks moving higher, while Construction Partners misses earnings estimates.
+Impact: +5
 
 ### HUHU
 - N/A
@@ -23,9 +27,13 @@ Impact: 0
 Impact: 0
 
 ### REAL
-- The RealReal announces upcoming investor conference schedules.
+- The RealReal announces investor conferences, showing positive sentiment.
 Impact: +10
 
+### WGX.AX
+- N/A
+Impact: 0
+
 ### WDC
-- Financial giants show bullish activity on Seagate Technology and SanDisk.
+- Seagate Technology and SanDisk see unusual options activity, while Wall Street analysts bullish on Western Digital.
 Impact: +20
