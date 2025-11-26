@@ -1,39 +1,39 @@
+### VTYX
+- N/A
+Impact: 0
+
 ### BW
 - N/A
 Impact: 0
 
-### HL
+### FTRE
+- Fortrea announces participation in upcoming conferences and completes a senior notes tender offer.
+Impact: +20
+
+### AXTI
 - N/A
 Impact: 0
 
-### LITE
+### ARMP
 - N/A
 Impact: 0
 
-### ADPT
+### EBS
 - N/A
 Impact: 0
 
-### AGX
+### TTI
 - N/A
 Impact: 0
 
-### HUHU
-- N/A
-Impact: 0
-
-### EVOK
+### RIGL
 - N/A
 Impact: 0
 
 ### REAL
-- N/A
-Impact: 0
+- The RealReal announces participation in investor conferences.
+Impact: +10
 
 ### WDC
-- N/A
-Impact: 0
-
-### GRAL
-- N/A
-Impact: 0
+- Financial giants show bullish moves on Seagate Technology Hldgs and SanDisk.
+Impact: +15
