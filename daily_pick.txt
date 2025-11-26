@@ -1,12 +1,83 @@
+BW – Babcock & Wilcox Enterprises
+News: "N/A | Impact: 0"
+Initial base score (BrainScore + News Impact): 571.194
+Final base score: 571.194
+Certainty: 58%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/BW/forecast
+What reduced the score: negative MACD_hist, negative Momentum, very high ATR%, elevated volatility
+Verifier note: Confirmed Brain; uptrend (EMA50>EMA200, pos_30d>0) but near-term momentum is weak and risk high; no adjustment. No external sources used.
+
 VTYX – Ventyx Biosciences
-Base Scores: Market & Sector: 165, Quality (Tech Proxies): 155, Near-Term Catalysts: 80, Technical Valuation: 178, Risks: 30
 News: "N/A"
-Final base score: 608
-Valuation: P/E=N/A, PEG=N/A, Growth=N/A
-Certainty: 62%
-ADVICE: ```arm
-Hold
-```
+Initial base score (BrainScore + News Impact): 562.901
+Final base score: 562.901
+Certainty: 56%
+VERIFIER_DECISION: N/A
 Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
-What reduced the score: Small-cap biotech risk, slight negative MACD, no clear catalysts/news, moderate volatility
-What wasn't clear or contradictory: TrendTag not provided; catalyst visibility low; position-in-range scale not explicit
+What reduced the score: RSI near overbought, slightly negative MACD_hist, high ATR%
+Verifier note: Confirmed Brain; strong trend (EMA50>EMA200, pos_30d>0, Momentum>0) tempered by overbought risk and weak MACD; no adjustment. No external sources used.
+
+AXTI – AXT
+News: "N/A"
+Initial base score (BrainScore + News Impact): 490.249
+Final base score: 490.249
+Certainty: 52%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/AXTI/forecast
+What reduced the score: negative MACD_hist, negative Momentum, high ATR%/volatility
+Verifier note: Confirmed Brain; longer-term trend up (EMA50>EMA200) but near-term momentum is soft; no adjustment. No external sources used.
+
+ARMP – Armata Pharmaceuticals
+News: "N/A"
+Initial base score (BrainScore + News Impact): 391.257
+Final base score: 391.257
+Certainty: 50%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/ARMP/forecast
+What reduced the score: very high volatility, high ATR%, MACD_hist slightly negative
+Verifier note: Confirmed Brain; constructive trend (EMA50>EMA200, pos_30d>0) but biotech volatility and mixed momentum cap confidence; no adjustment. No external sources used.
+
+TTI – TETRA Technologies
+News: "N/A"
+Initial base score (BrainScore + News Impact): 380.974
+Final base score: 380.974
+Certainty: 52%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/TTI/forecast
+What reduced the score: negative MACD_hist, negative Momentum, elevated ATR%
+Verifier note: Confirmed Brain; trend tilt bullish (EMA50>EMA200) but immediate momentum headwinds keep score muted; no adjustment. No external sources used.
+
+REAL – RealReal
+News: "N/A | Impact: 0"
+Initial base score (BrainScore + News Impact): 369.011
+Final base score: 369.011
+Certainty: 54%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/REAL/forecast
+What reduced the score: elevated RSI, flat-to-negative MACD_hist, high ATR%
+Verifier note: Confirmed Brain; improving trend (EMA50>EMA200, pos_30d>0) but overbought risk and lack of news; no adjustment. No external sources used.
+
+RIGL – Rigel Pharmaceuticals
+News: "N/A"
+Initial base score (BrainScore + News Impact): 367.388
+Final base score: 367.388
+Certainty: 57%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/RIGL/forecast
+What reduced the score: RSI overbought, extended 30d move, elevated ATR%
+Verifier note: Confirmed Brain; strong momentum (MACD_hist>0, Momentum high, EMA50>EMA200) but extension raises pullback risk; no adjustment. No external sources used.
+
+WDC – Western Digital
+News: "N/A | Impact: 0"
+Initial base score (BrainScore + News Impact): 363.989
+Final base score: 363.989
+Certainty: 53%
+VERIFIER_DECISION: N/A
+Forecast image URL: https://stockscan.io/stocks/WDC/forecast
+What reduced the score: strongly negative MACD_hist and Momentum, only neutral RSI, elevated ATR%
+Verifier note: Confirmed Brain; long-term trend up (EMA50>EMA200) but near-term momentum weak, so no upgrade; no adjustment. No external sources used.
+
+ANRO – Alto Neuroscience
+News: "N/A"
+Initial base score (BrainScore +
