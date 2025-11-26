@@ -1,12 +1,10 @@
-VTYX – Ventyx Biosciences
-Base Scores: Market & Sector: 165, Quality (Tech Proxies): 155, Near-Term Catalysts: 80, Technical Valuation: 178, Risks: 30
-News: "N/A"
-Final base score: 608
+BW – Babcock & Wilcox Enterprises
+Base Scores: Market & Sector: 198, Quality (Tech Proxies): 172, Near-Term Catalysts: 92, Technical Valuation: 173, Risks: 58
+News: "N/A (Impact: 0)"
+Final base score: 595
 Valuation: P/E=N/A, PEG=N/A, Growth=N/A
-Certainty: 62%
-ADVICE: ```arm
-Hold
-```
-Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
-What reduced the score: Small-cap biotech risk, slight negative MACD, no clear catalysts/news, moderate volatility
-What wasn't clear or contradictory: TrendTag not provided; catalyst visibility low; position-in-range scale not explicit
+Certainty: 58%
+ADVICE: ```arm Hold```
+Forecast image URL: https://stockscan.io/stocks/BW/forecast
+What reduced the score: High ATR/volatility; negative MACD hist; near-term momentum soft; micro-cap risk; no clear catalysts
+What wasn't clear or contradictory: 30-day range position seems off-scale; TrendTag not explicit; news flow absent
