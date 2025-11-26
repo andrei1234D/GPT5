@@ -273,8 +273,13 @@ jobs:
           # Make sure we’re up to date, even if main moved.
           git fetch origin main
 
-          # Stage the files we care about AND any modified/deleted tracked files.
-          git add -f logs/blocks_to_gpt_latest.txt daily_pick.txt data/LLM_today_data.jsonl || true
+          # Stage GPT-related artifacts only (LLM_today_data.jsonl is handled in prepare-data).
+          git add -f \
+            logs/blocks_to_gpt_latest.txt \
+            logs/gpt_user_prompt.txt \
+            logs/gpt_system_prompt.txt \
+            daily_pick.txt || true
+
           git add -u || true
 
           # If nothing is staged, bail early.
@@ -283,9 +288,7 @@ jobs:
             exit 0
           fi
 
-          # Commit first (clean index), then rebase with autostash to avoid "unstaged changes" errors.
           git commit -m "Update notifier outputs (run #${{ github.run_number }})"
           git -c pull.rebase=true pull --autostash --rebase origin main
-
-          # Push our rebased commit.
           git push origin HEAD:main
+

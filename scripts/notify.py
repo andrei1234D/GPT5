@@ -14,14 +14,14 @@ import requests
 from gpt_client import call_gpt5
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
-
-from llm_data_builder import build_llm_today_data
 from brain_ranker import rank_with_brain
 
 TZ = pytz.timezone("Europe/Bucharest")
 
+
 def log(m: str) -> None:
     print(m, flush=True)
+
 
 def need_env(name: str) -> str:
     v = os.getenv(name)
@@ -30,12 +30,14 @@ def need_env(name: str) -> str:
         sys.exit(1)
     return v
 
+
 OPENAI_API_KEY = need_env("OPENAI_API_KEY")
 DISCORD_WEBHOOK_URL = need_env("DISCORD_WEBHOOK_URL")
 DISCORD_DEBUG_WEBHOOK_URL = os.getenv("DISCORD_DEBUG_WEBHOOK_URL") or DISCORD_WEBHOOK_URL
 
 SYSTEM_PROMPT_TOP20_EXT = SYSTEM_PROMPT_TOP20
 force = os.getenv("FORCE_RUN", "").lower() in {"1", "true", "yes"}
+
 
 def fail(msg: str):
     log(f"[ERROR] {msg}")
@@ -48,6 +50,7 @@ def fail(msg: str):
     except Exception:
         pass
     sys.exit(1)
+
 
 # ---------- helpers ----------
 def _load_llm_records(path: str) -> dict[str, dict]:
@@ -69,11 +72,13 @@ def _load_llm_records(path: str) -> dict[str, dict]:
                 out[t] = rec
     return out
 
+
 def _num(v):
     try:
         return float(v)
     except Exception:
         return None
+
 
 def _fmt(v):
     if v is None:
@@ -84,6 +89,7 @@ def _fmt(v):
         return s
     except Exception:
         return str(v)
+
 
 def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, str]:
     """
@@ -106,9 +112,7 @@ def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, st
         if line.startswith("### "):
             # flush previous
             if ticker is not None:
-                # strip header marker from stored lines
                 bullets = [l for l in lines_accum if l.strip() and not l.startswith("###")]
-                # collapse newlines into a compact single line
                 compact = " | ".join(x.strip("- ").strip() for x in bullets if x.strip())
                 blocks[ticker] = compact or "N/A"
             ticker = line.replace("### ", "").strip()
@@ -122,11 +126,12 @@ def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, st
 
     return blocks
 
+
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
-    # 1) Ensure stage2 exists
+    # 1) Ensure stage2 exists (sanity check)
     stage2_path = "data/stage2_merged.csv"
     if not os.path.exists(stage2_path):
         return fail(f"{stage2_path} not found")
@@ -134,21 +139,16 @@ def main():
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    # 2) Build LLM_today_data.jsonl (top 30)
-    try:
-        tickers_llm = build_llm_today_data(
-            stage2_path=stage2_path,
-            out_path="data/LLM_today_data.jsonl",
-            top_n=30,
-        )
-    except Exception as e:
-        return fail(f"LLM_today_data build failed: {repr(e)}")
-    log(f"[INFO] Built LLM_today_data.jsonl for {len(tickers_llm)} tickers.")
+    # 2) Ensure LLM_today_data.jsonl exists (built in prepare-data job)
+    llm_today_path = "data/LLM_today_data.jsonl"
+    if not os.path.exists(llm_today_path):
+        return fail(f"{llm_today_path} not found. It should be built in the prepare-data job.")
+    log(f"[INFO] Found {llm_today_path}")
 
-    # 3) Brain rank — top 10 + scores
+    # 3) Brain rank — top 10 + scores (using LLM_today_data.jsonl)
     try:
         tickers_top10, brain_scores = rank_with_brain(
-            llm_data_path="data/LLM_today_data.jsonl",
+            llm_data_path=llm_today_path,
             top_k=10,
         )
     except Exception as e:
@@ -158,7 +158,7 @@ def main():
     log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers_top10)}")
 
     # 4) Load LLM records + News
-    llm_map = _load_llm_records("data/LLM_today_data.jsonl")
+    llm_map = _load_llm_records(llm_today_path)
     news_map = load_news_summary("data/news_summary_top10.txt")
 
     # 5) Build MINIMAL CSV used for GPT input + traceability
@@ -195,7 +195,7 @@ def main():
                 _fmt(_num(rec.get("RSI14"))),
                 _fmt(_num(rec.get("MACD_hist"))),
                 _fmt(_num(rec.get("Momentum"))),
-                _fmt(_num(rec.get("ATR%"))),              # stored as "ATR%" in jsonl
+                _fmt(_num(rec.get("ATR%"))),  # stored as "ATR%" in jsonl
                 _fmt(_num(rec.get("volatility_30"))),
                 _fmt(_num(rec.get("pos_30d"))),
                 _fmt(_num(rec.get("EMA50"))),
@@ -230,6 +230,8 @@ def main():
 
     # 9) Optional wait until 08:00
     if not force:
+        from time_utils import seconds_until_target_hour
+
         wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
         log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
         if wait_s > 0:
@@ -246,6 +248,7 @@ def main():
         log("[INFO] Posted alert to Discord ✅")
     except Exception as e:
         log(f"[ERROR] Discord webhook error: {repr(e)}")
+
 
 if __name__ == "__main__":
     main()
