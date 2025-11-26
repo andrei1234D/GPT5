@@ -1,9 +1,8 @@
 BW – Babcock & Wilcox Enterprises
-News: "N/A | Impact: 0"
+News: "N/A"
 Initial base score (BrainScore + News Impact): 571.193787
-Final base score: 571.193787
-Certainty: 53%
-VERIFIER_DECISION: N/A
+ADVICE DECISION: N/A
+Certainty: 57%
 Forecast image URL: https://stockscan.io/stocks/BW/forecast
-What reduced the score: Negative MACD_hist and Momentum, elevated ATR%/volatility, small-cap risk, no supportive news
-Verifier note: Confirmed BrainScore; uptrend signals (RSI>60, EMA50>EMA200, positive 30d position) are offset by weak momentum (MACD_hist<0, Momentum<0) and high ATR%, so no adjustment warranted.
+What reduced the score: Negative MACD_hist and Momentum; elevated ATR% and 30d volatility; no news catalyst.
+Verifier note: Confirmed BrainScore; mixed signals (RSI>60 and bullish trend vs. bearish MACD/momentum and high ATR) support a sub-buy stance; no external sources used.

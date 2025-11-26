@@ -6,8 +6,8 @@ Your job: verify the BrainScore — confirm it or suggest a small adjustment (ma
 
 CANDIDATES:
 TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News
-BW - Babcock & Wilcox Enterprises,BW,571.193787,5.89,62.30248,-0.1051,-0.95,13.742421,0.125149,2.335612,4.432896,2.519836,Bullish,N/A | Impact: 0
+BW - Babcock & Wilcox Enterprises,BW,571.193787,5.89,62.30248,-0.1051,-0.95,13.742421,0.125149,2.335612,4.432896,2.519836,Bullish,N/A
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 
-OBEY THE OUTPUT FORMAT EXACTLY (9 lines per pick).
+OBEY THE OUTPUT FORMAT EXACTLY (8 lines per pick).
