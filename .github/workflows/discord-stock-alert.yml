@@ -159,6 +159,19 @@ jobs:
           BRAIN_MODEL_DIR: scripts/train_model/LLM_bot/Brain/llm_signal_regression_model
         run: python scripts/brain_ranker.py
 
+      - name: Commit Brain Ranked Outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/LLM_today_scores.jsonl data/brain_ranked_scores.csv || true
+          if git diff --cached --quiet; then
+            echo "No new brain-ranked scores to commit"
+            exit 0
+          fi
+          git pull --rebase origin main || true
+          git commit -m "Add brain-ranked LLM_today_scores + brain_ranked_scores (run #${{ github.run_number }})"
+          git push origin main
+
       - name: Run News Summarizer (GPT-3.5) — uses Brain's top-10
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -212,7 +225,7 @@ jobs:
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\nsafetensors\n" > requirements.txt
+            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ttorch\ntransformers\nsafetensors\n" > requirements.txt
           else
             for p in openai torch transformers safetensors; do
               grep -qxF "$p" requirements.txt || echo "$p" >> requirements.txt
@@ -277,10 +290,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Make sure we’re up to date, even if main moved.
           git fetch origin main
 
-          # Stage GPT-related artifacts only (LLM_today_data.jsonl is handled in prepare-data).
           git add -f \
             logs/blocks_to_gpt_latest.txt \
             logs/gpt_user_prompt.txt \
@@ -289,7 +300,6 @@ jobs:
 
           git add -u || true
 
-          # If nothing is staged, bail early.
           if git diff --cached --quiet; then
             echo "No new notifier files to commit"
             exit 0
@@ -298,4 +308,3 @@ jobs:
           git commit -m "Update notifier outputs (run #${{ github.run_number }})"
           git -c pull.rebase=true pull --autostash --rebase origin main
           git push origin HEAD:main
-

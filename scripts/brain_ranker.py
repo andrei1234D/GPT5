@@ -103,6 +103,7 @@ def rank_with_brain(
     batch_size: int = 8,
 ) -> Tuple[List[str], Dict[str, float]]:
     """Run the Brain model on LLM_today_data and return top tickers."""
+
     records = _load_llm_today_records(llm_data_path)
     if not records:
         raise RuntimeError("No records in LLM_today_data.jsonl")
@@ -151,6 +152,34 @@ def rank_with_brain(
     print("[BRAIN] Top tickers by Brain score:")
     for rank, t in enumerate(top_tickers, start=1):
         print(f"  #{rank}: {t} → {top_scores[t]:.2f}")
+
+    # -------------------------------------------------------
+    # NEW FEATURE: Write ranked results to JSONL + CSV
+    # -------------------------------------------------------
+
+    out_jsonl = Path("data/LLM_today_scores.jsonl")
+    out_csv = Path("data/brain_ranked_scores.csv")
+
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
+
+    rows = [{"Ticker": t, "BrainScore": s} for t, s in ordered]
+
+    # Write JSONL
+    with out_jsonl.open("w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+
+    # Write CSV
+    import csv
+    with out_csv.open("w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Ticker", "BrainScore"])
+        for r in rows:
+            w.writerow([r["Ticker"], r["BrainScore"]])
+
+    print(f"[BRAIN] Wrote brain-ranked scores to:")
+    print(f"         - {out_jsonl}")
+    print(f"         - {out_csv}")
 
     return top_tickers, top_scores
 
