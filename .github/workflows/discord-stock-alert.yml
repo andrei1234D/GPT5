@@ -225,7 +225,7 @@ jobs:
       - name: Ensure dependency manifest
         run: |
           if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ttorch\ntransformers\nsafetensors\n" > requirements.txt
+            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\nsafetensors\n" > requirements.txt
           else
             for p in openai torch transformers safetensors; do
               grep -qxF "$p" requirements.txt || echo "$p" >> requirements.txt
