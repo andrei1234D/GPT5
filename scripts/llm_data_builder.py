@@ -1,5 +1,6 @@
 # scripts/llm_data_builder.py
 import json
+import os
 import time
 from pathlib import Path
 
@@ -148,7 +149,7 @@ def _build_single_record(latest: pd.Series, market_trend: str) -> dict:
 def build_llm_today_data(
     stage2_path: str = "data/stage2_merged.csv",
     out_path: str = "data/LLM_today_data.jsonl",
-    top_n: int = 35,
+    top_n: int = 50,
     history_years: int = 2,
 ) -> list[str]:
     stage2_path = Path(stage2_path)
@@ -158,87 +159,114 @@ def build_llm_today_data(
         raise FileNotFoundError(f"{stage2_path} not found")
 
     df_stage2 = pd.read_csv(stage2_path)
-    if "merged_score" in df_stage2.columns:
-        df_stage2 = df_stage2.sort_values("merged_score", ascending=False)
+    # Prefer the final merged score if present (keeps LLM selection aligned with final stage ranking)
+    score_col = None
+    if "merged_final_score" in df_stage2.columns:
+        score_col = "merged_final_score"
+    elif "merged_score" in df_stage2.columns:
+        score_col = "merged_score"
     else:
-        raise KeyError("merged_score column not found in stage2_merged.csv")
+        raise KeyError("Neither 'merged_final_score' nor 'merged_score' column found in stage2_merged.csv")
 
-    tickers = df_stage2["ticker"].dropna().astype(str).drop_duplicates().head(top_n * 2).tolist()
-    print(f"[LLM_DATA] Selected top {len(tickers)} tickers for Brain input (oversample).")
+    df_stage2 = df_stage2.sort_values(score_col, ascending=False)
+
+    # Oversample more aggressively to tolerate yfinance misses; we'll try until we write `top_n` records.
+    oversample_factor = int(os.getenv("LLM_OVERSAMPLE_FACTOR", "4"))
+    candidate_count = max(top_n * oversample_factor, top_n + 10)
+    tickers = df_stage2["ticker"].dropna().astype(str).drop_duplicates().head(candidate_count).tolist()
+    print(f"[LLM_DATA] Selected top {len(tickers)} candidate tickers for Brain input (oversample_factor={oversample_factor}).")
 
     market_trend = get_market_trend()
     print(f"[LLM_DATA] MarketTrend={market_trend}")
 
     out_records, written_tickers = [], []
-    for t in tickers:
+    skip_reasons: dict[str, str] = {}
+
+    chunk_size = int(os.getenv("LLM_YF_CHUNK_SIZE", "50"))
+    batch_sleep = float(os.getenv("LLM_YF_BATCH_SLEEP", "0.5"))
+
+    try:
+        from data_fetcher import download_history_cached_dict
+    except Exception:
+        download_history_cached_dict = None
+
+    for i in range(0, len(tickers), chunk_size):
+        batch = tickers[i : i + chunk_size]
         if len(out_records) >= top_n:
             break
 
-        try:
-            print(f"[LLM_DATA] Downloading history for {t} ...")
-            data = yf.download(t, period=f"{history_years}y", interval="1d", auto_adjust=False, progress=False)
-        except Exception as e:
-            print(f"[LLM_DATA][WARN] yfinance failed for {t}: {e}")
-            continue
-
-        if data is None or data.empty:
-            print(f"[LLM_DATA][WARN] No data for {t}, skipping.")
-            continue
-
-        # 🔧 Flatten MultiIndex columns if present (EVOK case)
-        if isinstance(data.columns, pd.MultiIndex):
-            try:
-                data = data.droplevel(1, axis=1)
-            except Exception:
+        if download_history_cached_dict:
+            data_batch = download_history_cached_dict(batch, period=f"{history_years}y", interval="1d", auto_adjust=False)
+        else:
+            # fallback to individual downloads
+            data_batch = {}
+            for t in batch:
                 try:
-                    data = data.xs(t, axis=1, level=-1)
+                    data_batch[t] = yf.download(t, period=f"{history_years}y", interval="1d", auto_adjust=False, progress=False)
                 except Exception:
-                    print(f"[LLM_DATA][WARN] Could not flatten columns for {t}. Skipping.")
-                    continue
+                    data_batch[t] = pd.DataFrame()
 
-        required_cols = {"Open", "High", "Low", "Close"}
-        if not required_cols.issubset(set(map(str, data.columns))):
-            print(f"[LLM_DATA][WARN] Missing OHLC columns for {t}: {list(data.columns)}. Skipping.")
-            continue
+        for t in batch:
+            if len(out_records) >= top_n:
+                break
 
-        data = data.dropna(subset=["Open", "High", "Low", "Close"])
-        if data.empty:
-            print(f"[LLM_DATA][WARN] Only NaNs for {t}, skipping.")
-            continue
+            data = data_batch.get(t)
+            if data is None or (isinstance(data, pd.DataFrame) and data.empty):
+                reason = "no data returned by yfinance"
+                print(f"[LLM_DATA][WARN] {reason} for {t}, skipping.")
+                skip_reasons[t] = reason
+                continue
 
-        df_t = compute_indicators(data)
-        df_t = df_t.reset_index().rename(columns={"Date": "Date"})
-        df_t["Ticker"] = t
-        df_t["MarketTrend"] = market_trend
-        df_t["Year"] = pd.to_datetime(df_t["Date"]).dt.year
+            # If the batch downloader returned a per-ticker DataFrame already, use it.
+            df_raw = data
 
-        df_t["Prev_Open"] = df_t["Open"].shift(1)
-        df_t["Prev_High"] = df_t["High"].shift(1)
-        df_t["Prev_Low"] = df_t["Low"].shift(1)
-        df_t["Prev_Close"] = df_t["Close"].shift(1)
+            required_cols = {"Open", "High", "Low", "Close"}
+            if not required_cols.issubset(set(map(str, df_raw.columns))):
+                reason = f"missing OHLC columns: {list(df_raw.columns)}"
+                print(f"[LLM_DATA][WARN] {reason} for {t}. Skipping.")
+                skip_reasons[t] = reason
+                continue
 
-        df_t = df_t.rename(
-            columns={
-                "Open": "open_raw",
-                "High": "avg_high_raw",
-                "Low": "avg_low_raw",
-                "Close": "close_raw",
-            }
-        )
+            df_raw = df_raw.dropna(subset=["Open", "High", "Low", "Close"])
+            if df_raw.empty:
+                reason = "only NaNs after dropping OHLC"
+                print(f"[LLM_DATA][WARN] {reason} for {t}, skipping.")
+                skip_reasons[t] = reason
+                continue
 
-        df_t["avg_open_past_3_days"] = df_t["Prev_Open"].rolling(3, min_periods=1).mean()
-        df_t["avg_close_past_3_days"] = df_t["Prev_Close"].rolling(3, min_periods=1).mean()
-        df_t["avg_low_30"] = df_t["avg_low_raw"].rolling(30, min_periods=1).mean()
-        df_t["avg_high_30"] = df_t["avg_high_raw"].rolling(30, min_periods=1).mean()
-        df_t["volatility_30"] = (df_t["avg_high_30"] - df_t["avg_low_30"]) / df_t["avg_low_30"]
-        df_t["current_price"] = df_t["close_raw"]
+            df_t = compute_indicators(df_raw)
+            df_t = df_t.reset_index().rename(columns={"Date": "Date"})
+            df_t["Ticker"] = t
+            df_t["MarketTrend"] = market_trend
+            df_t["Year"] = pd.to_datetime(df_t["Date"]).dt.year
 
-        latest = df_t.sort_values("Date").iloc[-1]
-        rec = _build_single_record(latest, market_trend)
-        out_records.append(rec)
-        written_tickers.append(t)
+            df_t["Prev_Open"] = df_t["Open"].shift(1)
+            df_t["Prev_High"] = df_t["High"].shift(1)
+            df_t["Prev_Low"] = df_t["Low"].shift(1)
+            df_t["Prev_Close"] = df_t["Close"].shift(1)
 
-        time.sleep(0.25)
+            df_t = df_t.rename(
+                columns={
+                    "Open": "open_raw",
+                    "High": "avg_high_raw",
+                    "Low": "avg_low_raw",
+                    "Close": "close_raw",
+                }
+            )
+
+            df_t["avg_open_past_3_days"] = df_t["Prev_Open"].rolling(3, min_periods=1).mean()
+            df_t["avg_close_past_3_days"] = df_t["Prev_Close"].rolling(3, min_periods=1).mean()
+            df_t["avg_low_30"] = df_t["avg_low_raw"].rolling(30, min_periods=1).mean()
+            df_t["avg_high_30"] = df_t["avg_high_raw"].rolling(30, min_periods=1).mean()
+            df_t["volatility_30"] = (df_t["avg_high_30"] - df_t["avg_low_30"]) / df_t["avg_low_30"]
+            df_t["current_price"] = df_t["close_raw"]
+
+            latest = df_t.sort_values("Date").iloc[-1]
+            rec = _build_single_record(latest, market_trend)
+            out_records.append(rec)
+            written_tickers.append(t)
+
+        time.sleep(batch_sleep)
 
     if not out_records:
         raise RuntimeError("No LLM records produced – all downloads failed?")
@@ -251,6 +279,26 @@ def build_llm_today_data(
     print(f"[LLM_DATA] Wrote {len(out_records)} records → {out_path}")
     if len(out_records) < top_n:
         print(f"[LLM_DATA][WARN] Only {len(out_records)}/{top_n} built due to missing data.")
+    # Write a diagnostics/reconciliation file mapping stage2 candidates -> produced tickers and skip reasons
+    diag = {
+        "stage2_top_n": df_stage2["ticker"].dropna().astype(str).drop_duplicates().head(top_n).tolist(),
+        "stage2_candidates_count": candidate_count,
+        "oversample_factor": oversample_factor,
+        "stage2_candidates": tickers,
+        "produced_count": len(out_records),
+        "produced_tickers": written_tickers,
+        "skipped_reasons": skip_reasons,
+        "market_trend": market_trend,
+    }
+
+    logs_path = Path("logs")
+    logs_path.mkdir(parents=True, exist_ok=True)
+    diag_path = logs_path / "llm_stage2_reconciliation.json"
+    with diag_path.open("w", encoding="utf-8") as f:
+        json.dump(diag, f, indent=2)
+
+    print(f"[LLM_DATA] Wrote diagnostics → {diag_path}")
+
     return written_tickers
 
 

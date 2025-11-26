@@ -7,8 +7,8 @@ from typing import Iterable, Optional
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
 from yfinance.exceptions import YFRateLimitError
+from data_fetcher import download_history_cached_dict
 
 CACHE_PATH = Path("data/market_trend.json")
 CACHE_TTL_HOURS = 6
@@ -41,26 +41,14 @@ def _download_single(symbol: str, period: str = "300d", retries: int = 5) -> pd.
     """
     Robust single-symbol download with backoff; returns OHLCV df or empty df.
     """
-    for attempt in range(retries):
-        try:
-            df = yf.download(
-                symbol,
-                period=period,
-                interval="1d",
-                auto_adjust=True,     # reduce splits/div noise and column surprises
-                progress=False,
-                threads=False,
-            )
-            if isinstance(df, pd.DataFrame):
-                return df
-            return pd.DataFrame()
-        except YFRateLimitError:
-            # exponential backoff with jitter; keep it short, we just need a clue
-            wait = min(180, (attempt + 1) * 15 + random.uniform(2, 6))
-            time.sleep(wait)
-        except Exception:
-            wait = min(120, (attempt + 1) * 10 + random.uniform(1, 4))
-            time.sleep(wait)
+    # Use the cached batch downloader to minimize calls
+    try:
+        got = download_history_cached_dict([symbol], period=period, interval="1d", auto_adjust=True)
+        df = got.get(symbol)
+        if isinstance(df, pd.DataFrame):
+            return df
+    except Exception:
+        pass
     return pd.DataFrame()
 
 def _compute_trend(close: pd.Series) -> str:

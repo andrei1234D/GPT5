@@ -4,6 +4,10 @@ import os, time, math, json, logging
 from typing import Dict, List, Optional, Tuple
 
 import yfinance as yf
+import hashlib
+import pickle
+from pathlib import Path
+import pandas as pd
 
 # Optional alias helpers. If you don't have these files, we no-op.
 try:
@@ -469,6 +473,111 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
         time.sleep(delay)
 
     _save_cache(_VAL_CACHE_PATH, cache)
+    return out
+
+
+# ---------- Cached history downloader (batch-aware) ----------
+YF_HISTORY_CACHE_DIR = os.getenv("YF_HISTORY_CACHE_DIR", "data/yf_history_cache")
+YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
+
+
+def _cache_path_for(ticker: str, period: Optional[str], start: Optional[str], end: Optional[str], interval: str) -> Path:
+    key = f"{ticker}__{period or (start or '')}__{end or ''}__{interval}"
+    # safe filename
+    name = hashlib.sha1(key.encode("utf-8")).hexdigest()
+    return Path(YF_HISTORY_CACHE_DIR) / f"{ticker}_{name}.pkl"
+
+
+def download_history_cached_dict(
+    tickers: List[str],
+    period: Optional[str] = None,
+    start: Optional[str] = None,
+    end: Optional[str] = None,
+    interval: str = "1d",
+    auto_adjust: bool = False,
+    progress: bool = False,
+    group_by: Optional[str] = "ticker",
+    threads: bool = True,
+) -> Dict[str, pd.DataFrame]:
+    """Return a dict {ticker: DataFrame} with cached per-ticker history.
+
+    Only downloads missing or expired tickers in a single yf.download batch when possible.
+    """
+    os.makedirs(YF_HISTORY_CACHE_DIR, exist_ok=True)
+    out: Dict[str, pd.DataFrame] = {}
+    to_download: List[str] = []
+    norm_map: Dict[str, str] = {}
+
+    # normalize symbols and decide cache hits
+    extra_aliases = {}
+    try:
+        extra_aliases = load_aliases_csv("data/aliases.csv")
+    except Exception:
+        extra_aliases = {}
+
+    for t in tickers:
+        ali = apply_alias(t, extra_aliases)
+        ysym = _normalize_symbol_for_yahoo(ali)
+        norm_map[t] = ysym
+        p = _cache_path_for(t, period, start, end, interval)
+        if p.exists() and (time.time() - p.stat().st_mtime) <= YF_HISTORY_CACHE_TTL_S:
+            try:
+                df = pd.read_pickle(p)
+                out[t] = df
+                continue
+            except Exception:
+                pass
+        to_download.append(t)
+
+    if to_download:
+        # Build list of normalized symbols to request in one batch
+        syms = [norm_map[t] for t in to_download]
+        try:
+            print(f"[data_fetcher] yf.download batch for {len(syms)} symbols")
+            data = yf.download(
+                tickers=" ".join(syms),
+                period=period,
+                start=start,
+                end=end,
+                interval=interval,
+                auto_adjust=auto_adjust,
+                progress=progress,
+                group_by=group_by,
+                threads=threads,
+            )
+        except Exception as e:
+            print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
+            data = None
+
+        # Extract per-ticker frames from the batch result
+        for orig in to_download:
+            ysym = norm_map.get(orig)
+            df_raw = None
+            try:
+                if data is None:
+                    df_raw = pd.DataFrame()
+                elif isinstance(data.columns, pd.MultiIndex):
+                    # try (ticker, field) orientation
+                    try:
+                        df_raw = data.xs(ysym, axis=1, level=0, drop_level=True)
+                    except Exception:
+                        try:
+                            df_raw = data[ysym]
+                        except Exception:
+                            df_raw = pd.DataFrame()
+                else:
+                    # single-ticker or single-frame
+                    df_raw = data.copy()
+            except Exception:
+                df_raw = pd.DataFrame()
+
+            # write to cache if we have something
+            try:
+                pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+            except Exception:
+                pass
+            out[orig] = df_raw
+
     return out
 
 # simple CLIs
