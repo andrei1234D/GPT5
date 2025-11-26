@@ -1,8 +1,8 @@
-BW – Babcock & Wilcox Enterprises
-News: "N/A"
-Initial base score (BrainScore + News Impact): 571.193787
+VTYX – Ventyx Biosciences
+News: "N/A | Impact: 0"
+Initial base score (BrainScore + News Impact): 563.611877
 ADVICE DECISION: N/A
-Certainty: 57%
-Forecast image URL: https://stockscan.io/stocks/BW/forecast
-What reduced the score: Negative MACD_hist and Momentum; elevated ATR% and 30d volatility; no news catalyst.
-Verifier note: Confirmed BrainScore; mixed signals (RSI>60 and bullish trend vs. bearish MACD/momentum and high ATR) support a sub-buy stance; no external sources used.
+Certainty: 60%
+Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
+What reduced the score: RSI near overbought; MACD_hist negative; high ATRpct/volatility; neutral market trend; no news catalyst
+Verifier note: Confirmed BrainScore; mixed momentum (EMA50>EMA200, pos_30d>0) but elevated risk and slight overbought readings align with a sub-buy BASE—no adjustment warranted.
