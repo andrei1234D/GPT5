@@ -3,20 +3,20 @@
 Impact: 0
 
 ### HL
-- Hecla Mining showing positive momentum with record cash flow and potential as a top momentum pick.
-Impact: +30
+- N/A
+Impact: 0
 
 ### LITE
-- Global markets facing pressure, but big stocks like Alibaba and Baidu moving higher.
-Impact: +15
+- N/A
+Impact: 0
 
 ### ADPT
-- Adaptive Biotechnologies presenting MRD testing abstracts and Ross Stores posts strong Q3 results.
-Impact: +10
+- N/A
+Impact: 0
 
 ### AGX
-- Alibaba and other big stocks moving higher, while Construction Partners misses earnings estimates.
-Impact: +5
+- N/A
+Impact: 0
 
 ### HUHU
 - N/A
@@ -27,13 +27,13 @@ Impact: 0
 Impact: 0
 
 ### REAL
-- The RealReal announces investor conferences, showing positive sentiment.
-Impact: +10
-
-### WGX.AX
 - N/A
 Impact: 0
 
 ### WDC
-- Seagate Technology and SanDisk see unusual options activity, while Wall Street analysts bullish on Western Digital.
-Impact: +20
+- N/A
+Impact: 0
+
+### GRAL
+- N/A
+Impact: 0
