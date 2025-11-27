@@ -168,9 +168,44 @@ def main():
         return fail("Brain returned no top tickers.")
     log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers_top10)}")
 
-    # 4) Load LLM records + News
+       # 4) Load LLM records + News
     llm_map = _load_llm_records(llm_today_path)
     news_map = load_news_summary("data/news_summary_top10.txt")
+
+    # --- 4.1) Parse and integrate News Impact into BrainScores ---
+    import re
+
+    news_text_path = "data/news_summary_top10.txt"
+    impact_pattern = re.compile(r"###\s*([A-Z0-9._-]+).*?Impact:\s*([+-]?\d+)", re.DOTALL)
+    news_impact: dict[str, int] = {}
+
+    if os.path.exists(news_text_path):
+        txt = Path(news_text_path).read_text(encoding="utf-8")
+        for match in impact_pattern.finditer(txt):
+            ticker, impact_str = match.groups()
+            try:
+                news_impact[ticker] = int(impact_str)
+            except Exception:
+                continue
+    else:
+        log(f"[WARN] Missing {news_text_path}, skipping news impact integration")
+
+    if not news_impact:
+        log("[WARN] No Impact lines found in news summary; all news impacts = 0")
+
+    # Apply additive rule: AdjustedScore = BrainScore + NewsImpact
+    adjusted_scores = {}
+    for t in tickers_top10:
+        brain = brain_scores.get(t, 0)
+        impact = news_impact.get(t, 0)
+        adjusted = brain + impact
+        adjusted_scores[t] = adjusted
+        impact_str = f"+{impact}" if impact > 0 else str(impact) if impact != 0 else "NA"
+        log(f"[ADJUST] {t}: BrainScore={brain:.2f}, news impact={impact_str}, adjusted={adjusted:.2f}")
+
+    # Replace brain_scores with adjusted values for all downstream logic
+    brain_scores = adjusted_scores
+    log("[INFO] BrainScores updated with news impact adjustments.")
 
     # 4.5) Filter: select only top 1 unless multiple have BrainScore >= 720
     score_threshold = 720.0
@@ -226,7 +261,7 @@ def main():
             row = [
                 ticker_name,                           # TickerName column
                 t,                                     # raw Ticker
-                _fmt(brain_scores.get(t)),
+                _fmt(brain_scores.get(t)),             # already adjusted
                 _fmt(_num(rec.get("current_price"))),
                 _fmt(_num(rec.get("RSI14"))),
                 _fmt(_num(rec.get("MACD_hist"))),
@@ -242,47 +277,3 @@ def main():
             writer.writerow(row)
 
     log(f"[INFO] Wrote minimal GPT payload (incl. News) to {blocks_path}")
-
-    # 6) Build user prompt using the SAME CSV
-    csv_content = blocks_path.read_text(encoding="utf-8").strip()
-    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
-        today=now.strftime("%b %d"),
-        blocks=csv_content,
-    )
-
-    # Save prompts for reproducibility
-    (logs_dir / "gpt_user_prompt.txt").write_text(user_prompt, encoding="utf-8")
-    (logs_dir / "gpt_system_prompt.txt").write_text(SYSTEM_PROMPT_TOP20_EXT, encoding="utf-8")
-
-    # 7) GPT call
-    try:
-        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=4500)
-    except Exception as e:
-        return fail(f"GPT-5 failed: {repr(e)}")
-
-    # 8) Save output
-    Path("daily_pick.txt").write_text(final_text, encoding="utf-8")
-    log("[INFO] Draft saved to daily_pick.txt")
-
-    # 9) Optional wait until 08:00
-    if not force:
-        wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
-        log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
-        if wait_s > 0:
-            time.sleep(wait_s)
-
-    # 10) Send to Discord
-    embed = {
-        "title": f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}",
-        "description": final_text,
-    }
-    payload = {"username": "Daily Stock Alert", "embeds": [embed]}
-    try:
-        requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=60).raise_for_status()
-        log("[INFO] Posted alert to Discord ✅")
-    except Exception as e:
-        log(f"[ERROR] Discord webhook error: {repr(e)}")
-
-
-if __name__ == "__main__":
-    main()
