@@ -1,14 +1,11 @@
 ### FTRE
-- Fortrea to Present at Upcoming Citi and Evercore Healthcare Conferences
-- Investigation Concerning Fiduciary Duties of Fortrea Holdings Officers
-Impact: +10
+- Fortrea presents at upcoming conferences and completes senior notes tender offer.
+Impact: +20
 
 ### WDC
-- NetApp's Q2 Earnings & Revenues Surpass Estimates, Stock Up
-- Bullish Options Activity for Seagate Technology and SanDisk
-Impact: +5
+- NetApp's Q2 earnings surpass estimates, Seagate and SanDisk see bullish options activity.
+Impact: +15
 
 ### MU
-- Bearish Options Activity for Micron Technology
-- Zacks Rank Highlights Strong Buy Computer and Technology Stocks
-Impact: -5
+- NVIDIA and Micron highlighted as profitable AI winners for 2026.
+Impact: +25
