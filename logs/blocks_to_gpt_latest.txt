@@ -1,2 +1,2 @@
 TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News
-VTYX - Ventyx Biosciences,VTYX,563.611877,10.46,68.52793,-0.089056,1.03,7.48771,0.10698,4.028431,6.751538,3.862941,Neutral,N/A | Impact: 0
+BW - Babcock & Wilcox Enterprises,BW,571.193787,5.89,62.30248,-0.1051,-0.95,13.742421,0.125149,2.335612,4.432896,2.519836,Bullish,N/A

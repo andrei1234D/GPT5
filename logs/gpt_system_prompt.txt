@@ -62,20 +62,24 @@ NO BUY
 OUTPUT FORMAT (MANDATORY)
 For downstream parsing, output **exactly 8 lines** per pick in this order:
 
-1. `TICKER – Company` (if no company name is given, just use the ticker)
 
-2. `News: "<short summary (numerical impact value)>"` OR exactly `News: "N/A"`
+Daily Stock Pick — 2025-11-26
 
-3. `Initial base score (BrainScore + News Impact): <value>`
+VTYX – Ventyx Biosciences
 
-4. `ADVICE DECISION: <SEE THE RULE ABOVE FOR EXACT FORMATTING>`
+News: "N/A | Impact: 0"
 
-5. `Certainty: <0–100%>`
+Initial base score (BrainScore + News Impact): 563.611877
 
-6. `Forecast image URL: https://stockscan.io/stocks/<TICKER>/forecast`
+ADVICE DECISION: N/A
 
-7. `What reduced the score: <very brief risk flags, missing values, or structural issues>`
+Certainty: 60%
 
-8. `Verifier note: <1-line summary of why you agreed or suggested an adjustment; cite any external sources used>`
+Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
+
+What reduced the score: RSI near overbought; MACD_hist negative; high ATRpct/volatility; neutral market trend; no news catalyst
+
+Verifier note: Confirmed BrainScore; mixed momentum (EMA50>EMA200, pos_30d>0) but elevated risk and slight overbought readings align with a sub-buy BASE—no adjustment warranted.
+
 
 Be concise and factual. Keep your language suitable for automated parsing and for human review.

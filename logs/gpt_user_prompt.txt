@@ -1,12 +1,10 @@
-TODAY is Nov 26. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
+TODAY is Nov 27. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
 
 Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.
 
-Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%), and output the VERIFIER_DECISION using the exact code blocks.
-
-CANDIDATES:
+Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News
-VTYX - Ventyx Biosciences,VTYX,563.611877,10.46,68.52793,-0.089056,1.03,7.48771,0.10698,4.028431,6.751538,3.862941,Neutral,N/A | Impact: 0
+BW - Babcock & Wilcox Enterprises,BW,571.193787,5.89,62.30248,-0.1051,-0.95,13.742421,0.125149,2.335612,4.432896,2.519836,Bullish,N/A
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 
