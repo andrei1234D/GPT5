@@ -2,7 +2,6 @@ ticker,company
 A,Agilent Technologies
 AA,Alcoa
 AACG,ATA Creativity Global
-AACT,Kodiak AI
 AAGIY,AIA
 AAL,American Airlines
 AAM,AA Mission Acquisition Corp
@@ -717,6 +716,7 @@ CEMX.TO,CEMATRIX
 CENX,Century Aluminum
 CEP,Cantor Equity Partners
 CEPO,Cantor Equity Partners I
+CEPSL.L,CEPS
 CEPT,Cantor Equity Partners II
 CEPU,Central Puerto
 CERS,Cerus
@@ -982,7 +982,7 @@ CWD,CaliberCos
 CWEB.TO,Charlottes Web
 CWEN,Clearway Energy
 CWH,Camping World
-CWK.L,Cushman & Wakefield
+CWK,Cushman & Wakefield
 CWT,California Water Service
 CX,Cemex
 CXAI,CXApp
@@ -2002,6 +2002,7 @@ K.TO,Kinross Gold
 KALA,KALA BIO
 KAPA,Kairos Pharma
 KAVL,Kaival Brands Innovations
+KB,KB Financial Group
 KBC.BR,KBC Group
 KBCA.BR,KBC Ancora
 KBDC,Kayne Anderson BDC
@@ -2354,6 +2355,7 @@ MIRM,Mirum Pharmaceuticals
 MITK,Mitek Systems
 MITQ,Moving Image Technologies
 MITSY,Mitsui & Co
+MKAL.TO,Mkango Resources
 MKC,McCormick & Co
 MKDW,MKD Tech
 MKKGY,Merck
