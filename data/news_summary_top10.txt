@@ -2,7 +2,19 @@
 - N/A
 Impact: 0
 
+### HUT
+- N/A
+Impact: 0
+
 ### BW
+- N/A
+Impact: 0
+
+### FTRE
+- N/A
+Impact: 0
+
+### OPGN
 - N/A
 Impact: 0
 
@@ -10,16 +22,12 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ARMP
+### WDC
 - N/A
 Impact: 0
 
-### WDC
-- NetApp's Q2 Earnings & Revenues Surpass Estimates, Stock Up — NTAP posts higher earnings and lifts its fiscal outlook as AI demand, cloud storage momentum and all-flash strength drive quarterly growth.
-Impact: +30
-
 ### LITE
-- The Zacks Analyst Blog Highlights Alibaba, Aercap, T. Rowe Price and Lumentum — Alibaba, Aercap, T. Rowe Price and Lumentum are in focus as global markets face pressure from falling bitcoin, weakness in tech and a packed geopolitical and economic week.
+- N/A
 Impact: 0
 
 ### TTI
@@ -27,13 +35,5 @@ Impact: 0
 Impact: 0
 
 ### MU
-- NVIDIA and Micron Stand Out as Likely Profitable AI Winners for 2026 — NVIDIA stands out among profitable AI picks as strong net income ratios help spotlight leaders positioned for 2026 momentum.
-Impact: +40
-
-### BLTE
-- Alibaba, Oscar Health, Ondas Holdings, Lumentum, Tesla And Other Big Stocks Moving Higher On Monday - Argan  ( NYSE:AGX ) , Aduro Clean Technologies  ( NASDAQ:ADUR )  — U.S. stocks were higher, with the Dow Jones gaining around 250 points on Monday. Shares of Alibaba Group Holding Ltd - ADR ( NYSE:BABA ) rose sharply during Monday's session after the e-commerce company announced the number of downloads its new app reached.
-Impact: +20
-
-### ANRO
 - N/A
 Impact: 0
