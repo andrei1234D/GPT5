@@ -6,7 +6,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### BW
+### EBS
 - N/A
 Impact: 0
 
@@ -22,7 +22,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### WDC
+### MU
+- Analysts raise price targets for Micron Technology and Western Digital due to increasing demand for DRAM and positive industry outlook.
+Impact: +35
+
+### EFX.TO
 - N/A
 Impact: 0
 
@@ -30,10 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TTI
-- N/A
-Impact: 0
-
-### MU
+### HUHU
 - N/A
 Impact: 0
