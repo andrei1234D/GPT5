@@ -23,17 +23,5 @@ Impact: 0
 Impact: 0
 
 ### MU
-- Analysts raise price targets for Micron Technology and Western Digital due to increasing demand for DRAM and positive industry outlook.
+- Micron Technology Inc. is expanding chip production in Japan with government support and positive analyst outlook.
 Impact: +35
-
-### EFX.TO
-- N/A
-Impact: 0
-
-### LITE
-- N/A
-Impact: 0
-
-### HUHU
-- N/A
-Impact: 0
