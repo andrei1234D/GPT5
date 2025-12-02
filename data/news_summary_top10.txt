@@ -2,19 +2,7 @@
 - N/A
 Impact: 0
 
-### HUT
-- N/A
-Impact: 0
-
-### EBS
-- N/A
-Impact: 0
-
-### FTRE
-- N/A
-Impact: 0
-
-### OPGN
+### ARMP
 - N/A
 Impact: 0
 
@@ -22,6 +10,19 @@ Impact: 0
 - N/A
 Impact: 0
 
+### RIGL
+- N/A
+Impact: 0
+
+### REAL
+- N/A
+Impact: 0
+
+### GLUE
+- N/A
+Impact: 0
+
 ### MU
-- Micron Technology Inc. is expanding chip production in Japan with government support and positive analyst outlook.
-Impact: +35
+- Morgan Stanley named ASML as its Top Pick in European semiconductors, citing strengthening demand in memory and logic.
+- Micron (MU) is expected to beat estimates in its upcoming earnings report, supported by positive sentiment and a strong performance in recent quarters.
+Impact: +30
