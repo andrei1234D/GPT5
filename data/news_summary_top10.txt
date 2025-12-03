@@ -1,8 +1,4 @@
-### VTYX
-- N/A
-Impact: 0
-
-### ARMP
+### PSNL
 - N/A
 Impact: 0
 
@@ -10,11 +6,19 @@ Impact: 0
 - N/A
 Impact: 0
 
+### FTRE
+- N/A
+Impact: 0
+
+### BW
+- N/A
+Impact: 0
+
 ### RIGL
 - N/A
 Impact: 0
 
-### REAL
+### MU
 - N/A
 Impact: 0
 
@@ -22,7 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MU
-- Morgan Stanley named ASML as its Top Pick in European semiconductors, citing strengthening demand in memory and logic.
-- Micron (MU) is expected to beat estimates in its upcoming earnings report, supported by positive sentiment and a strong performance in recent quarters.
-Impact: +30
+### KOD
+- N/A
+Impact: 0
+
+### FIGS
+- N/A
+Impact: 0
+
+### UPWK
+- N/A
+Impact: 0
