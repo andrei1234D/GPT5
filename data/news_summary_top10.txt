@@ -1,3 +1,7 @@
+### RAPT
+- N/A
+Impact: 0
+
 ### PSNL
 - N/A
 Impact: 0
@@ -6,7 +10,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### FTRE
+### AIP
+- N/A
+Impact: 0
+
+### SKYT
+- N/A
+Impact: 0
+
+### EBS
 - N/A
 Impact: 0
 
@@ -18,22 +30,10 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MU
-- N/A
-Impact: 0
-
 ### GLUE
 - N/A
 Impact: 0
 
 ### KOD
-- N/A
-Impact: 0
-
-### FIGS
-- N/A
-Impact: 0
-
-### UPWK
 - N/A
 Impact: 0
