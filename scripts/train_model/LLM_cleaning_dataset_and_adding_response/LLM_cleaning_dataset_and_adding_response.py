@@ -20,7 +20,7 @@ from tqdm import tqdm
 # ==========================================================
 # CONFIG
 # ==========================================================
-INPUT_PATH = Path("../LLM_Training_data/full_market_2018_2025.parquet")
+INPUT_PATH = Path("../LLM_Training_data/full_market_2007_2025.parquet")
 OUTPUT_PATH = Path("../LLM_Training_data/LLM_Training_data_with_response.parquet")
 TEMP_PATH = Path("../LLM_Training_data/temp_checkpoint.parquet")
 HOLD_DAYS = 126
@@ -180,6 +180,24 @@ if "close_raw" in df_final.columns:
     df_final["current_price"] = df_final["close_raw"]
 else:
     print("[WARNING] 'close_raw' column not found — could not create 'current_price'.")
+
+
+# ==========================================================
+# FINAL SANITY FILTER (very small but very effective)
+# ==========================================================
+price_cols = ["open_raw", "avg_low_raw", "avg_high_raw", "close_raw"]
+price_cols = [c for c in price_cols if c in df_final.columns]
+
+if price_cols:
+    before = len(df_final)
+    df_final = df_final[
+        (df_final[price_cols].gt(0.01).all(axis=1)) &
+        (df_final[price_cols].lt(10000).all(axis=1))
+    ]
+    after = len(df_final)
+    print(f"[INFO] Final sanity filter kept {after:,} / {before:,} rows.")
+
+
 
 # ==========================================================
 # SAVE
