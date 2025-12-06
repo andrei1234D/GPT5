@@ -6,11 +6,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AXTI
+### COHN
 - N/A
 Impact: 0
 
-### COHN
+### AXTI
 - N/A
 Impact: 0
 
@@ -30,7 +30,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### EFX.TO
+### BLTE
 - N/A
 Impact: 0
 
