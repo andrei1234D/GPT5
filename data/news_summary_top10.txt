@@ -2,6 +2,14 @@
 - N/A
 Impact: 0
 
+### CIEN
+- N/A
+Impact: 0
+
+### GH
+- N/A
+Impact: 0
+
 ### COHN
 - N/A
 Impact: 0
@@ -27,13 +35,5 @@ Impact: 0
 Impact: 0
 
 ### RIGL
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
-### GLTO
 - N/A
 Impact: 0
