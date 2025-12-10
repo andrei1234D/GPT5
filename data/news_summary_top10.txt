@@ -1,16 +1,20 @@
-### AXTI
-- N/A
-Impact: 0
-
-### CIEN
-- N/A
-Impact: 0
-
-### GH
+### RIGL
 - N/A
 Impact: 0
 
 ### COHN
+- N/A
+Impact: 0
+
+### BLTE
+- N/A
+Impact: 0
+
+### BW
+- N/A
+Impact: 0
+
+### SKYT
 - N/A
 Impact: 0
 
@@ -22,18 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### BLTE
+### TTI
 - N/A
 Impact: 0
 
-### SKYT
+### CELC
 - N/A
 Impact: 0
 
-### BW
-- N/A
-Impact: 0
-
-### RIGL
+### WDC
 - N/A
 Impact: 0
