@@ -1,12 +1,8 @@
-### RIGL
+### NUTX
 - N/A
 Impact: 0
 
-### COHN
-- N/A
-Impact: 0
-
-### BLTE
+### FULC
 - N/A
 Impact: 0
 
@@ -14,7 +10,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SKYT
+### RIGL
+- N/A
+Impact: 0
+
+### BLTE
 - N/A
 Impact: 0
 
@@ -22,11 +22,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### REAL
+### GNFT
 - N/A
 Impact: 0
 
-### TTI
+### HUT
 - N/A
 Impact: 0
 
@@ -34,6 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### WDC
+### TTI
 - N/A
 Impact: 0
