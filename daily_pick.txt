@@ -1,8 +1,0 @@
-Daily Stock Pick — 2025-11-27
-BW – Babcock & Wilcox Enterprises
-News: "N/A | Impact: 0"
-Initial base score (BrainScore + News Impact): 571.193787
-ADVICE DECISION: N/A
-Certainty: 62%
-What reduced the score: Negative MACD_hist and Momentum; elevated ATRpct/volatility; RSI elevated; no news catalyst despite bullish market trend
-Verifier note: Confirmed BrainScore; constructive trend (EMA50>EMA200, pos_30d>0, market bullish) is offset by short-term bearish momentum and high risk—no adjustment warranted.

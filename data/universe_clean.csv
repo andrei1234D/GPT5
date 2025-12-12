@@ -2,7 +2,6 @@ ticker,company
 A,Agilent Technologies
 AA,Alcoa
 AACG,ATA Creativity Global
-AACT,Kodiak AI
 AAGIY,AIA
 AAL,American Airlines
 AAM,AA Mission Acquisition Corp
@@ -135,7 +134,6 @@ AIXI,Xiao I
 AJG,Arthur J Gallagher & Co
 AKAM,Akamai Technologies
 AKBA,Akebia Therapeutics
-AKRO,Akero Therapeutics
 AL,Air Lease
 ALA.TO,AltaGas
 ALAB,Astera Labs
@@ -204,7 +202,7 @@ AMPL,Amplitude
 AMPX,Amprius Technologies
 AMPY,Amplify Energy
 AMRC,Ameresco
-AMRK,A-Mark Precious Metals
+AMRK,Gold.com
 AMRN,Amarin
 AMRX,Amneal Pharmaceuticals
 AMRZ.SW,Amrize
@@ -243,7 +241,6 @@ APA,APA
 APAM,Artisan Partners Asset Management
 APCX,AppTech Payments
 APD,Air Products and Chemicals
-APDN,BNB Plus
 APEI,American Public Education
 APGE,Apogee Therapeutics
 APH,Amphenol
@@ -335,6 +332,7 @@ ASTC,Astrotech
 ASTI,Ascent Solar Technologies
 ASTL.TO,Algoma Steel
 ASX,ASE Technology
+ASYS,Amtech Systems
 ATAT,Atour Lifestyle Holdings
 ATD.TO,Alimentation Couche-Tard
 ATEN,A10 Networks
@@ -351,7 +349,7 @@ ATLC,Atlanticus
 ATLX,Atlas Lithium
 ATMC,Alphatime
 ATMU,Atmus Filtration Technologies
-ATMV,AlphaVest Acquisition
+ATMV,AMC Robotics
 ATNM,Actinium Pharmaceuticals
 ATO,Atmos Energy
 ATOM,Atomera
@@ -651,6 +649,7 @@ CAL,Caleres
 CALA,Calithera Biosciences
 CALM,Cal-Maine Foods
 CALX,Calix
+CAMB.BR,Campine
 CAMT.TA,Camtek
 CAN,Canaan
 CANF,Can-Fite BioPharma
@@ -715,7 +714,7 @@ CELH,Celsius
 CELZ,Creative Medical Technology
 CEMX.TO,CEMATRIX
 CENX,Century Aluminum
-CEP,Cantor Equity Partners
+CEP,Twenty One Capital
 CEPO,Cantor Equity Partners I
 CEPT,Cantor Equity Partners II
 CEPU,Central Puerto
@@ -746,6 +745,7 @@ CGTL,Creative Global Technology
 CGTX,Cognition Therapeutics
 CGX.TO,Cineplex
 CGY.TO,Calian Group
+CHAC,Crane Harbor Acquisition
 CHAR,Charlton Aria Acquisition
 CHCI,Comstock Holding Companies
 CHD,Church & Dwight Co
@@ -827,7 +827,6 @@ CNDT,Conduent
 CNE.TO,Canacol Energy
 CNET,ZW Data Action Technologies
 CNEY,CN Energy
-CNFR,Presurance Holdings
 CNGL,Canna-Global Acquisition Corp
 CNK,Cinemark
 CNL.TO,Collective Mining
@@ -982,7 +981,7 @@ CWD,CaliberCos
 CWEB.TO,Charlottes Web
 CWEN,Clearway Energy
 CWH,Camping World
-CWK.L,Cushman & Wakefield
+CWK,Cushman & Wakefield
 CWT,California Water Service
 CX,Cemex
 CXAI,CXApp
@@ -1042,6 +1041,7 @@ DFY.TO,Definity Financial
 DG,Dollar General
 DGII,Digi International
 DGLY,Digital Ally
+DGNR,CCC Intelligent Solutions
 DGNX,Diginex
 DGX,Quest Diagnostics
 DHER.DE,Delivery Hero
@@ -1049,6 +1049,7 @@ DHI,DR Horton
 DHR,Danaher
 DHT,DHT
 DIE.BR,D'ieteren
+DIN,Dine Brands Global
 DIOD,Diodes
 DIS,Walt Disney
 DIV.TO,Diversified Royalty
@@ -1213,6 +1214,7 @@ ELOX,Eloxx Pharmaceuticals
 ELPC,Companhia Paranaense de Energia
 ELPW,eLong Power
 ELS,Equity LifeStyle Properties
+ELSE,Electro-Sensors
 ELTP,Elite Pharmaceuticals
 ELVA.TO,Electrovaya
 ELWS,Earlyworks
@@ -1321,7 +1323,7 @@ EXR,Extra Space Storage
 EXTR,Extreme Networks
 EYE,National Vision
 EYEG,Kiora Pharmaceuticals
-EYPT,EyePoint Pharmaceuticals
+EYPT,EyePoint
 EZGO,Ezgo Technologies
 EZPW,EZCORP
 F,Ford Motor
@@ -1667,12 +1669,12 @@ HAIN,Hain Celestial
 HAL,Halliburton
 HALMY,Halma
 HALO,Halozyme Therapeutics
+HANAL,Hansa Investment
 HAO,Haoxi Health Technology
 HAS,Hasbro
 HASI,HA Sustainable Infrastructure Capital
 HAYW,Hayward
 HBAN,Huntington Bancshares
-HBI,Hanesbrands
 HBM.TO,Hudbay Minerals
 HBT,HBT Financial
 HCA,HCA Healthcare
@@ -1776,7 +1778,7 @@ HUIZ,Huize
 HUM,Humana
 HUN,Huntsman
 HURC,Hurco Companies
-HUSA,Houston American Energy
+HUSA,Abundia Global Impact Group
 HUT,Hut 8 Mining
 HUYA,HUYA
 HVII,Hennessy Capital Investment Corp VII
@@ -1891,6 +1893,7 @@ INTR,Inter & Co
 INTU,Intuit
 INTZ,Intrusion
 INUV,Inuvo
+INV,Innventure
 INVA,Innoviva
 INVE,Identiv
 INVH,Invitation Homes
@@ -1907,7 +1910,6 @@ IPAR,Interparfums
 IPCO.TO,International Petroleum
 IPCX,Inflection Point Acquisition
 IPDN,Professional Diversity Network
-IPG,Interpublic Group of Companies
 IPHA,Innate Pharma
 IPI,Intrepid Potash
 IPO.TO,InPlay Oil
@@ -2002,6 +2004,7 @@ K.TO,Kinross Gold
 KALA,KALA BIO
 KAPA,Kairos Pharma
 KAVL,Kaival Brands Innovations
+KB,KB Financial Group
 KBC.BR,KBC Group
 KBCA.BR,KBC Ancora
 KBDC,Kayne Anderson BDC
@@ -2166,6 +2169,7 @@ LMAT,LeMaitre Vascular
 LMB,Limbach
 LMND,Lemonade
 LMPX,LMP Automotive
+LMRI,Lumexa Imaging Holdings
 LMT,Lockheed Martin
 LNC,Lincoln National
 LND,BrasilAgro - Co Brasileira de Propriedades Agricolas
@@ -2380,7 +2384,6 @@ MNSO,MINISO Group
 MNST,Monster Beverage
 MNTK,Montauk Renewables
 MO,Altria
-MOB,Mobilicom
 MOBQ,Mobiquity Technologies
 MOD,Modine Manufacturing
 MODD,Modular Medical
@@ -2646,7 +2649,7 @@ NYXH.BR,Nyxoah
 O,Realty Income
 OAKU,Oak Woods Acquisition
 OBE.TO,Obsidian Energy
-OBLG,Oblong
+OBLG,TaoWeave
 OC,Owens Corning
 OCFT,OneConnect Financial Technology
 OCG,Oriental Culture
@@ -2703,7 +2706,6 @@ OPHC,OptimumBank
 OPK,OPKO Health
 OPRA,Opera
 OPRX,OptimizeRx
-OPT,Opthea
 OPTT,Ocean Power Technologies
 OPXS,Optex Systems
 OR.TO,OR Royalties
@@ -2835,7 +2837,6 @@ PHX.TO,PHX Energy Services
 PI,Impinj
 PIF.TO,Polaris Renewable Energy
 PII,Polaris
-PINC,Premier
 PINS,Pinterest
 PK,Park Hotels & Resorts
 PKE,Park Aerospace
@@ -3069,6 +3070,7 @@ RICK,RCI Hospitality
 RIGL,Rigel Pharmaceuticals
 RILY,B Riley Financial
 RIO,Rio Tinto
+RIO.TO,Rio2
 RIOL.L,Rio Tinto
 RIOT,Riot Platforms
 RITR,Reitar Logtech
@@ -3330,10 +3332,10 @@ SOLV,Solventum
 SON,Sonoco Products
 SON.LS,Sonae
 SONM,Sonim Technologies
-SONN,Sonnet BioTherapeutics
 SONO,Sonos
 SONX,Sonendo
 SOPA,Society Pass
+SOPH.SW,Sophia Genetics
 SOS,SOS
 SOTK,Sono-Tek
 SOUN,SoundHound AI
@@ -3352,7 +3354,6 @@ SPOK,Spok
 SPOL.L,Sportech
 SPOT,Spotify Technology
 SPPL,Simpple
-SPR,Spirit AeroSystems
 SPRB,Spruce Biosciences
 SPRO,Spero Therapeutics
 SPRS,Surge Components
@@ -3545,7 +3546,7 @@ TKA.VI,Telekom Austria
 TKC,Turkcell Iletisim Hizmetleri
 TKLF,Tokyo Lifestyle Co
 TKO.TO,Taseko Mines
-TLG.TO,Troilus Gold
+TLG.TO,Troilus Mining
 TLIH,Ten-League International Holdings
 TLIS,Talis Biomedical
 TLK,Telkom Indonesia
@@ -3637,7 +3638,6 @@ TTEK,Tetra Tech
 TTI,TETRA Technologies
 TTMI,TTM Technologies
 TTNM.TO,Titanium Transportation Group
-TTNP,Black Titan
 TTOO,T2 Biosystems
 TTWO,Take-Two Interactive Software
 TURB,Turbo Energy
@@ -3755,6 +3755,7 @@ VCIG,VCI Global
 VCM.TO,Vecima Networks
 VCNX,Vaccinex
 VCYT,Veracyte
+VECO,Veeco Instruments
 VEEE,Twin Vee PowerCats
 VEEV,Veeva Systems
 VENU,Venu Holding
@@ -3816,7 +3817,6 @@ VRCA,Verrica Pharmaceuticals
 VRME,VerifyMe
 VRNOF,Verano
 VRNS,Varonis Systems
-VRNT,Verint Systems
 VRPX,Virpax Pharmaceuticals
 VRSK,Verisk Analytics
 VRSN,VeriSign
@@ -3981,6 +3981,7 @@ XPL,Solitario Resources
 XPO,XPO
 XPOF,Xponential Fitness
 XPON,Expion360
+XRPN,Armada Acquisition
 XRX,Xerox
 XSNX,Novaccess Global
 XTC.TO,Exco Technologies
