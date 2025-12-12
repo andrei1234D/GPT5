@@ -1,7 +1,3 @@
-### NUTX
-- N/A
-Impact: 0
-
 ### FULC
 - N/A
 Impact: 0
@@ -14,7 +10,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### BLTE
+### HUT
 - N/A
 Impact: 0
 
@@ -22,18 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
+### NUTX
+- N/A
+Impact: 0
+
+### SKYT
+- N/A
+Impact: 0
+
 ### GNFT
 - N/A
 Impact: 0
 
-### HUT
+### TTI
 - N/A
 Impact: 0
 
 ### CELC
-- N/A
-Impact: 0
-
-### TTI
 - N/A
 Impact: 0
