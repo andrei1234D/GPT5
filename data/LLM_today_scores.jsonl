@@ -1,50 +1,50 @@
-{"Ticker": "PANL", "BrainScore": 571.091552734375}
-{"Ticker": "FULC", "BrainScore": 518.0625}
-{"Ticker": "BW", "BrainScore": 480.4535217285156}
-{"Ticker": "NUTX", "BrainScore": 435.5756530761719}
-{"Ticker": "BLTE", "BrainScore": 393.177001953125}
-{"Ticker": "TTI", "BrainScore": 379.32379150390625}
-{"Ticker": "KSS", "BrainScore": 369.63568115234375}
-{"Ticker": "CGEM", "BrainScore": 355.3524169921875}
-{"Ticker": "LITE", "BrainScore": 353.0627746582031}
-{"Ticker": "GLUE", "BrainScore": 339.1978759765625}
-{"Ticker": "CELC", "BrainScore": 336.0700988769531}
-{"Ticker": "WDC", "BrainScore": 326.327880859375}
-{"Ticker": "STOK", "BrainScore": 324.7769775390625}
-{"Ticker": "OUT", "BrainScore": 320.0400085449219}
-{"Ticker": "NRIX", "BrainScore": 316.366943359375}
-{"Ticker": "KNT.TO", "BrainScore": 310.99884033203125}
-{"Ticker": "PRPO", "BrainScore": 309.7122802734375}
-{"Ticker": "OESX", "BrainScore": 309.123779296875}
-{"Ticker": "COMM", "BrainScore": 308.4948425292969}
-{"Ticker": "TYRA", "BrainScore": 302.082763671875}
-{"Ticker": "MAZE", "BrainScore": 298.73699951171875}
-{"Ticker": "COMP", "BrainScore": 274.4537048339844}
-{"Ticker": "EXAS", "BrainScore": 274.13653564453125}
-{"Ticker": "MBX", "BrainScore": 273.60791015625}
-{"Ticker": "EXE.TO", "BrainScore": 273.4971923828125}
-{"Ticker": "ZYME", "BrainScore": 271.3262939453125}
-{"Ticker": "GMED", "BrainScore": 259.1480712890625}
-{"Ticker": "FBRX", "BrainScore": 258.1946716308594}
-{"Ticker": "CIEN", "BrainScore": 256.22906494140625}
-{"Ticker": "CSTL", "BrainScore": 240.2987823486328}
-{"Ticker": "LQDA", "BrainScore": 238.57530212402344}
-{"Ticker": "MU", "BrainScore": 238.46412658691406}
-{"Ticker": "ARQT", "BrainScore": 225.88314819335938}
-{"Ticker": "KOD", "BrainScore": 204.5654296875}
-{"Ticker": "SQM", "BrainScore": 198.4580078125}
-{"Ticker": "ERO.TO", "BrainScore": 172.0299835205078}
-{"Ticker": "GRGD.TO", "BrainScore": 162.4987030029297}
-{"Ticker": "EXPE", "BrainScore": 152.5267791748047}
-{"Ticker": "CG.TO", "BrainScore": 151.4630126953125}
-{"Ticker": "IMG.TO", "BrainScore": 148.80661010742188}
-{"Ticker": "PEN", "BrainScore": 135.00759887695312}
-{"Ticker": "NEM", "BrainScore": 126.61919403076172}
-{"Ticker": "EBR", "BrainScore": 120.31417083740234}
-{"Ticker": "HAE", "BrainScore": 113.43329620361328}
-{"Ticker": "ABX.TO", "BrainScore": 110.47441864013672}
-{"Ticker": "TSEM.TA", "BrainScore": 109.49193572998047}
-{"Ticker": "DPM.TO", "BrainScore": 103.78971862792969}
-{"Ticker": "OGC.TO", "BrainScore": 99.65621948242188}
-{"Ticker": "LSRCY", "BrainScore": 97.5372085571289}
-{"Ticker": "CDTX", "BrainScore": 67.98481750488281}
+{"Ticker":"AA","pred_score":51.03977900941285}
+{"Ticker":"AAGIY","pred_score":51.03977900941285}
+{"Ticker":"AAL","pred_score":51.03977900941285}
+{"Ticker":"AAOI","pred_score":51.03977900941285}
+{"Ticker":"AAPL","pred_score":51.03977900941285}
+{"Ticker":"AARD","pred_score":51.03977900941285}
+{"Ticker":"AAUC.TO","pred_score":51.03977900941285}
+{"Ticker":"ABG","pred_score":51.03977900941285}
+{"Ticker":"ABI.BR","pred_score":51.03977900941285}
+{"Ticker":"ABRA.TO","pred_score":51.03977900941285}
+{"Ticker":"ABVX","pred_score":51.03977900941285}
+{"Ticker":"ABX.TO","pred_score":51.03977900941285}
+{"Ticker":"ACA","pred_score":51.03977900941285}
+{"Ticker":"ACAD","pred_score":51.03977900941285}
+{"Ticker":"ACGL","pred_score":51.03977900941285}
+{"Ticker":"ACI","pred_score":51.03977900941285}
+{"Ticker":"ACIC","pred_score":51.03977900941285}
+{"Ticker":"ACLLY","pred_score":51.03977900941285}
+{"Ticker":"ACLS","pred_score":51.03977900941285}
+{"Ticker":"ACMR","pred_score":51.03977900941285}
+{"Ticker":"ACR","pred_score":51.03977900941285}
+{"Ticker":"ACRE","pred_score":51.03977900941285}
+{"Ticker":"ADBE","pred_score":51.03977900941285}
+{"Ticker":"ADDYY","pred_score":51.03977900941285}
+{"Ticker":"ADEN.TO","pred_score":51.03977900941285}
+{"Ticker":"ADI","pred_score":51.03977900941285}
+{"Ticker":"ADM","pred_score":51.03977900941285}
+{"Ticker":"ADMA","pred_score":51.03977900941285}
+{"Ticker":"ADN.TO","pred_score":51.03977900941285}
+{"Ticker":"ADRNY","pred_score":51.03977900941285}
+{"Ticker":"ADSK","pred_score":51.03977900941285}
+{"Ticker":"ADT","pred_score":51.03977900941285}
+{"Ticker":"ADTN","pred_score":51.03977900941285}
+{"Ticker":"AEIS","pred_score":51.03977900941285}
+{"Ticker":"AEM.TO","pred_score":51.03977900941285}
+{"Ticker":"AEO","pred_score":51.03977900941285}
+{"Ticker":"AES","pred_score":51.03977900941285}
+{"Ticker":"AEYE","pred_score":51.03977900941285}
+{"Ticker":"AFG","pred_score":51.03977900941285}
+{"Ticker":"AFL","pred_score":51.03977900941285}
+{"Ticker":"AFRM","pred_score":51.03977900941285}
+{"Ticker":"AG.TO","pred_score":51.03977900941285}
+{"Ticker":"AGCO","pred_score":51.03977900941285}
+{"Ticker":"AGI.TO","pred_score":51.03977900941285}
+{"Ticker":"AGM","pred_score":51.03977900941285}
+{"Ticker":"AGNC","pred_score":51.03977900941285}
+{"Ticker":"AGX","pred_score":51.03977900941285}
+{"Ticker":"AHCO","pred_score":51.03977900941285}
+{"Ticker":"AII","pred_score":51.03977900941285}
+{"Ticker":"AII.TO","pred_score":51.03977900941285}
