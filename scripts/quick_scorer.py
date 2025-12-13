@@ -965,7 +965,7 @@ def load_universe(path: str = "data/universe_clean.csv"):
     if not os.path.exists(path):
         raise FileNotFoundError(f"Universe file not found: {path}")
 
-    df = pd.read_csv(path).head(120)
+    df = pd.read_csv(path)
     if df.empty:
         raise ValueError(f"Universe file {path} is empty")
 
