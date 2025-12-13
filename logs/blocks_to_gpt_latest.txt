@@ -1,0 +1,2 @@
+TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
+ABG - Asbury Automotive,ABG,66.039779,248.570007,0.34138,0.369418,1.017728,1.037091,0.966221,0.023983,0.924103,2.250884,1.007014,0.42289,0.965851,85.790374,12.0,"Asbury Automotive promotes Clara to CEO, with Hult becoming executive chairman. | Institutional investors increase stake in Asbury Automotive Group, with positive quarterly earnings. | Impact: +15"

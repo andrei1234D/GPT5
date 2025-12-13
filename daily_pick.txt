@@ -1,0 +1,8 @@
+Daily Stock Pick — 2025-12-13
+ABG – Asbury Automotive
+News: "Asbury Automotive promotes Clara to CEO, with Hult becoming executive chairman. | Institutional investors increase stake in Asbury Automotive Group, with positive quarterly earnings. | Impact: +15"
+Initial base score (BrainScore + News Impact): 81.039779
+ADVICE DECISION: N/A
+Certainty: 60%
+Forecast image URL: https://stockscan.io/stocks/ABG/forecast
+Verifier note: Confirmed BrainScore. Momentum short/intermediate-term >1 (63D/126D) and positive news help, but RSI_14 is extreme (85.79), pos_30d is very extended (~0.97), 30D volatility is elevated (~0.34), and 252D momentum <1—suggesting near-term overbought risk. No adjustment to BASE warranted.
