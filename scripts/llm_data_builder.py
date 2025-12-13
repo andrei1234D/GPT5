@@ -1,8 +1,11 @@
 # scripts/llm_data_builder.py
+from __future__ import annotations
+
 import json
 import os
 import time
 from pathlib import Path
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,70 +13,12 @@ import yfinance as yf
 
 
 # ==========================================================
-# MARKET TREND CONTEXT (same logic as training)
+# Helpers
 # ==========================================================
-def get_market_trend() -> str:
-    spx = yf.download("^GSPC", start="2020-01-01", auto_adjust=False, progress=False)
-    if spx.empty:
-        return "Neutral"
-
-    spx["SMA50"] = spx["Close"].rolling(50).mean()
-    spx["SMA200"] = spx["Close"].rolling(200).mean()
-
-    if len(spx) < 200:
-        return "Neutral"
-
-    last_close = float(spx["Close"].iloc[-1])
-    last_sma50 = float(spx["SMA50"].iloc[-1])
-    last_sma200 = float(spx["SMA200"].iloc[-1])
-
-    if last_close > last_sma200 and last_sma50 > last_sma200:
-        return "Bullish"
-    elif last_close < last_sma200 and last_sma50 < last_sma200:
-        return "Bearish"
-    return "Neutral"
-
-
-# ==========================================================
-# TECHNICALS (copied from training script)
-# ==========================================================
-def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-
-    # Moving averages
-    df["SMA20"] = df["Close"].rolling(20).mean()
-    df["SMA50"] = df["Close"].rolling(50).mean()
-    df["SMA200"] = df["Close"].rolling(200).mean()
-    df["EMA20"] = df["Close"].ewm(span=20).mean()
-    df["EMA50"] = df["Close"].ewm(span=50).mean()
-    df["EMA200"] = df["Close"].ewm(span=200).mean()
-
-    # RSI 14
-    delta = df["Close"].diff()
-    gain = np.where(delta > 0, delta, 0)
-    loss = np.where(delta < 0, -delta, 0)
-    roll_up = pd.Series(gain, index=df.index).rolling(14).mean()
-    roll_down = pd.Series(loss, index=df.index).rolling(14).mean()
-    rs = roll_up / (roll_down + 1e-9)
-    df["RSI14"] = 100 - (100 / (1 + rs))
-
-    # MACD
-    ema12 = df["Close"].ewm(span=12).mean()
-    ema26 = df["Close"].ewm(span=26).mean()
-    df["MACD"] = ema12 - ema26
-    df["MACD_signal"] = df["MACD"].ewm(span=9).mean()
-    df["MACD_hist"] = df["MACD"] - df["MACD_signal"]
-
-    # Volatility/ATR
-    df["ATR"] = (df["High"] - df["Low"]).rolling(14).mean()
-    df["ATR%"] = df["ATR"] / df["Close"] * 100
-    df["Volatility"] = df["Close"].pct_change().rolling(20).std() * np.sqrt(252)
-
-    # Momentum & OBV
-    df["Momentum"] = df["Close"] - df["Close"].shift(10)
-    df["OBV"] = (np.sign(df["Close"].diff()) * df["Volume"]).fillna(0).cumsum()
-
-    return df
+def safe_div(a, b):
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    return np.divide(a, b, out=np.zeros_like(a, dtype=float), where=np.isfinite(a) & np.isfinite(b) & (b != 0))
 
 
 def _to_float_or_none(v):
@@ -88,62 +33,186 @@ def _to_float_or_none(v):
     return v
 
 
-def _build_single_record(latest: pd.Series, market_trend: str) -> dict:
-    ts = pd.to_datetime(latest["Date"])
-    date_ms = int(ts.value // 10**6)
+def _as_float_series(df: pd.DataFrame, col: str) -> pd.Series:
+    if col not in df.columns:
+        return pd.Series(index=df.index, dtype=float)
+    return pd.to_numeric(df[col], errors="coerce")
 
-    def g(col, default=None):
-        return latest.get(col, default)
 
-    avg_low_30 = g("avg_low_30")
-    avg_high_30 = g("avg_high_30")
-    price = g("close_raw")
+def compute_RSI(close: pd.Series, window: int = 14) -> pd.Series:
+    close = pd.to_numeric(close, errors="coerce")
+    delta = close.diff()
+    gain = delta.clip(lower=0)
+    loss = (-delta).clip(lower=0)
+    avg_gain = gain.rolling(window, min_periods=window).mean()
+    avg_loss = loss.rolling(window, min_periods=window).mean()
+    rs = safe_div(avg_gain.values, (avg_loss.values + 1e-12))
+    rsi = 100.0 - (100.0 / (1.0 + rs))
+    return pd.Series(rsi, index=close.index)
 
-    if avg_low_30 is not None and avg_high_30 is not None:
-        try:
-            rng = float(avg_high_30) - float(avg_low_30)
-            pos_30d = (float(price) - float(avg_low_30)) / (rng + 1e-9)
-        except Exception:
-            pos_30d = None
-    else:
-        pos_30d = None
 
-    return {
-        "Date": date_ms,
-        "open_raw": _to_float_or_none(g("open_raw")),
-        "avg_high_raw": _to_float_or_none(g("avg_high_raw")),
-        "avg_low_raw": _to_float_or_none(g("avg_low_raw")),
-        "close_raw": _to_float_or_none(g("close_raw")),
-        "SMA20": _to_float_or_none(g("SMA20")),
-        "SMA50": _to_float_or_none(g("SMA50")),
-        "SMA200": _to_float_or_none(g("SMA200")),
-        "EMA20": _to_float_or_none(g("EMA20")),
-        "EMA50": _to_float_or_none(g("EMA50")),
-        "EMA200": _to_float_or_none(g("EMA200")),
-        "RSI14": _to_float_or_none(g("RSI14")),
-        "MACD": _to_float_or_none(g("MACD")),
-        "MACD_signal": _to_float_or_none(g("MACD_signal")),
-        "MACD_hist": _to_float_or_none(g("MACD_hist")),
-        "ATR": _to_float_or_none(g("ATR")),
-        "ATR%": _to_float_or_none(g("ATR%")),
-        "Volatility": _to_float_or_none(g("Volatility")),
-        "Momentum": _to_float_or_none(g("Momentum")),
-        "OBV": _to_float_or_none(g("OBV")),
-        "MarketTrend": g("MarketTrend") or market_trend,
-        "Ticker": g("Ticker"),
-        "Year": int(g("Year")),
-        "Prev_Open": _to_float_or_none(g("Prev_Open")),
-        "Prev_High": _to_float_or_none(g("Prev_High")),
-        "Prev_Low": _to_float_or_none(g("Prev_Low")),
-        "Prev_Close": _to_float_or_none(g("Prev_Close")),
-        "avg_open_past_3_days": _to_float_or_none(g("avg_open_past_3_days")),
-        "avg_close_past_3_days": _to_float_or_none(g("avg_close_past_3_days")),
-        "avg_low_30": _to_float_or_none(avg_low_30),
-        "avg_high_30": _to_float_or_none(avg_high_30),
-        "volatility_30": _to_float_or_none(g("volatility_30")),
-        "current_price": _to_float_or_none(g("current_price")),
-        "pos_30d": _to_float_or_none(pos_30d),
-    }
+def compute_volatility_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Computes:
+      - Volatility_30D / Volatility_252D (annualized)
+      - High_30D / Low_30D
+      - High_52W / Low_52W
+      - SMA20
+    """
+    df = df.copy()
+    Close = _as_float_series(df, "Close")
+    High = _as_float_series(df, "High")
+    Low = _as_float_series(df, "Low")
+
+    ret = Close.pct_change(fill_method=None)
+
+    df["Volatility_30D"] = ret.rolling(30, min_periods=20).std() * np.sqrt(252.0)
+    df["Volatility_252D"] = ret.rolling(252, min_periods=200).std() * np.sqrt(252.0)
+
+    df["High_30D"] = High.rolling(30, min_periods=20).max()
+    df["Low_30D"] = Low.rolling(30, min_periods=20).min()
+    df["High_52W"] = High.rolling(252, min_periods=200).max()
+    df["Low_52W"] = Low.rolling(252, min_periods=200).min()
+
+    df["SMA20"] = Close.rolling(20, min_periods=10).mean()
+    return df
+
+
+def compute_growth_formulas(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Your provided feature engineering, adapted to a single-ticker time series DF with
+    columns: Open, High, Low, Close, Volume.
+    """
+    df = compute_volatility_features(df)
+
+    Close = _as_float_series(df, "Close")
+    High52 = _as_float_series(df, "High_52W")
+    Low52 = _as_float_series(df, "Low_52W")
+    High30 = _as_float_series(df, "High_30D")
+    Low30 = _as_float_series(df, "Low_30D")
+    Vol30 = _as_float_series(df, "Volatility_30D")
+    Vol252 = _as_float_series(df, "Volatility_252D")
+    SMA20 = _as_float_series(df, "SMA20")
+
+    Volume = _as_float_series(df, "Volume") if "Volume" in df.columns else pd.Series(index=df.index, dtype=float)
+
+    # Momentum
+    df["Momentum_63D"] = safe_div(Close.values, Close.shift(63).values)
+    df["Momentum_126D"] = safe_div(Close.values, Close.shift(126).values)
+    df["Momentum_252D"] = safe_div(Close.values, Close.shift(252).values)
+
+    # AMT
+    df["AMT"] = np.where(df["Momentum_126D"] > 1.1, df["Momentum_252D"], 0.0)
+
+    # SMC
+    smc_part1 = safe_div(df["Momentum_252D"].values, Vol30.values)
+    smc_part2 = safe_div(Close.values, High52.values)
+    df["SMC"] = smc_part1 * smc_part2
+
+    # TSS
+    df["TSS"] = (df["Momentum_63D"] + df["Momentum_126D"] + df["Momentum_252D"]) / 3.0
+
+    # RMI
+    num = safe_div(Close.values, Low30.values)
+    denom = safe_div(High30.values, Low30.values)
+    df["RMI"] = safe_div(num, denom + 1e-6)
+
+    # ABS
+    range_52 = High52 - Low52
+    abs_ratio = safe_div((Close - Low52).values, range_52.values)
+    df["ABS"] = abs_ratio * Vol30.values
+
+    # VAM
+    df["VAM"] = safe_div(df["Momentum_63D"].values, 1.0 + Vol30.values)
+
+    # RSE
+    ret = Close.pct_change(fill_method=None)
+    roll_mean = ret.rolling(63, min_periods=20).mean()
+    roll_std = ret.rolling(63, min_periods=20).std()
+    df["RSE"] = safe_div(roll_mean.values, roll_std.values)
+
+    # CBP
+    df["CBP"] = safe_div(Vol30.values, Vol252.values)
+
+    # SMA slope 3M
+    sma_past = SMA20.shift(63)
+    df["SMA_Slope_3M"] = safe_div((SMA20 - sma_past).values, sma_past.values)
+
+    # Returns
+    df["Ret_5D"] = Close.pct_change(5)
+    df["Ret_10D"] = Close.pct_change(10)
+
+    # Positions
+    range_30 = High30 - Low30
+    df["pos_52w"] = safe_div((Close - Low52).values, range_52.values)
+    df["pos_30d"] = safe_div((Close - Low30).values, range_30.values)
+
+    # Volume features
+    vol_roll_mean_20 = Volume.rolling(20, min_periods=5).mean()
+    df["Volume_SMA20"] = vol_roll_mean_20
+    df["Volume_Trend"] = safe_div(Volume.values, (vol_roll_mean_20.values + 1e-6))
+
+    # RSI
+    df["RSI_14"] = compute_RSI(Close, window=14)
+
+    # Builder extras
+    df["avg_close_past_3_days"] = Close.rolling(3, min_periods=1).mean()
+    df["avg_volatility_30D"] = _as_float_series(df, "Volatility_30D").rolling(30, min_periods=20).mean()
+    df["current_price"] = Close
+
+    return df
+
+
+def _cs_z(x: pd.Series) -> pd.Series:
+    x = pd.to_numeric(x, errors="coerce")
+    mu = x.mean()
+    sd = x.std(ddof=0)
+    if not np.isfinite(sd) or sd == 0:
+        return pd.Series(np.zeros(len(x), dtype=float), index=x.index)
+    return (x - mu) / (sd + 1e-12)
+
+
+def _cs_rank01(x: pd.Series) -> pd.Series:
+    x = pd.to_numeric(x, errors="coerce")
+    # percentile rank in [0,1]
+    return x.rank(pct=True, method="average")
+
+
+def _attach_cross_sectional(df_latest: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds *_cs_z and *_cs_rank columns to match your feature list.
+    """
+    df = df_latest.copy()
+
+    cs_sources = [
+        "Momentum_63D", "Momentum_126D", "Momentum_252D",
+        "Volatility_30D", "Volatility_252D",
+        "RSE", "CBP", "SMC", "TSS", "VAM", "ABS", "AMT",
+        "pos_52w", "pos_30d",
+    ]
+
+    for col in cs_sources:
+        df[f"{col}_cs_z"] = _cs_z(df[col])
+        df[f"{col}_cs_rank"] = _cs_rank01(df[col])
+
+    return df
+
+
+def _pick_common_asof_date(data_by_ticker: Dict[str, pd.DataFrame]) -> pd.Timestamp:
+    """
+    To keep cross-sectional features meaningful, align all tickers to a common date.
+    We choose the minimum of each ticker's last available date (common-asof).
+    """
+    last_dates = []
+    for t, d in data_by_ticker.items():
+        if d is None or d.empty:
+            continue
+        idx = d.index
+        if isinstance(idx, pd.DatetimeIndex) and len(idx) > 0:
+            last_dates.append(idx.max())
+    if not last_dates:
+        raise RuntimeError("No valid ticker histories to compute a common as-of date.")
+    return min(last_dates)
 
 
 def build_llm_today_data(
@@ -151,7 +220,11 @@ def build_llm_today_data(
     out_path: str = "data/LLM_today_data.jsonl",
     top_n: int = 50,
     history_years: int = 2,
-) -> list[str]:
+) -> List[str]:
+    """
+    Builds LLM_today_data.jsonl but now it contains YOUR tabular features (not prompts).
+    Records are aligned to a common as-of date across tickers so cs_* features are comparable.
+    """
     stage2_path = Path(stage2_path)
     out_path = Path(out_path)
 
@@ -159,8 +232,7 @@ def build_llm_today_data(
         raise FileNotFoundError(f"{stage2_path} not found")
 
     df_stage2 = pd.read_csv(stage2_path)
-    # Prefer the final merged score if present (keeps LLM selection aligned with final stage ranking)
-    score_col = None
+
     if "merged_final_score" in df_stage2.columns:
         score_col = "merged_final_score"
     elif "merged_score" in df_stage2.columns:
@@ -170,136 +242,154 @@ def build_llm_today_data(
 
     df_stage2 = df_stage2.sort_values(score_col, ascending=False)
 
-    # Oversample more aggressively to tolerate yfinance misses; we'll try until we write `top_n` records.
     oversample_factor = int(os.getenv("LLM_OVERSAMPLE_FACTOR", "4"))
     candidate_count = max(top_n * oversample_factor, top_n + 10)
     tickers = df_stage2["ticker"].dropna().astype(str).drop_duplicates().head(candidate_count).tolist()
-    print(f"[LLM_DATA] Selected top {len(tickers)} candidate tickers for Brain input (oversample_factor={oversample_factor}).")
-
-    market_trend = get_market_trend()
-    print(f"[LLM_DATA] MarketTrend={market_trend}")
-
-    out_records, written_tickers = [], []
-    skip_reasons: dict[str, str] = {}
+    print(f"[LLM_DATA] Selected {len(tickers)} candidate tickers (oversample_factor={oversample_factor}).")
 
     chunk_size = int(os.getenv("LLM_YF_CHUNK_SIZE", "50"))
     batch_sleep = float(os.getenv("LLM_YF_BATCH_SLEEP", "0.5"))
 
-    try:
-        from data_fetcher import download_history_cached_dict
-    except Exception:
-        download_history_cached_dict = None
+    # Download histories
+    data_by_ticker: Dict[str, pd.DataFrame] = {}
+    skip_reasons: Dict[str, str] = {}
 
     for i in range(0, len(tickers), chunk_size):
-        batch = tickers[i : i + chunk_size]
-        if len(out_records) >= top_n:
-            break
+        batch = tickers[i:i + chunk_size]
 
-        if download_history_cached_dict:
-            data_batch = download_history_cached_dict(batch, period=f"{history_years}y", interval="1d", auto_adjust=False)
-        else:
-            # fallback to individual downloads
-            data_batch = {}
+        # Use yfinance multi-download if possible
+        try:
+            # group_by="ticker" gives nested columns; we handle both cases below
+            raw = yf.download(batch, period=f"{history_years}y", interval="1d", auto_adjust=False, progress=False, group_by="ticker")
+        except Exception as e:
+            raw = None
             for t in batch:
-                try:
-                    data_batch[t] = yf.download(t, period=f"{history_years}y", interval="1d", auto_adjust=False, progress=False)
-                except Exception:
-                    data_batch[t] = pd.DataFrame()
+                skip_reasons[t] = f"yfinance batch download failed: {repr(e)}"
 
         for t in batch:
-            if len(out_records) >= top_n:
-                break
-
-            data = data_batch.get(t)
-            if data is None or (isinstance(data, pd.DataFrame) and data.empty):
-                reason = "no data returned by yfinance"
-                print(f"[LLM_DATA][WARN] {reason} for {t}, skipping.")
-                skip_reasons[t] = reason
+            if raw is None:
                 continue
 
-            # If the batch downloader returned a per-ticker DataFrame already, use it.
-            df_raw = data
+            df_t = None
+            try:
+                if isinstance(raw.columns, pd.MultiIndex):
+                    if t in raw.columns.get_level_values(0):
+                        df_t = raw[t].copy()
+                else:
+                    # If only one ticker, yfinance may return a single-level DF
+                    df_t = raw.copy()
 
-            required_cols = {"Open", "High", "Low", "Close"}
-            if not required_cols.issubset(set(map(str, df_raw.columns))):
-                reason = f"missing OHLC columns: {list(df_raw.columns)}"
-                print(f"[LLM_DATA][WARN] {reason} for {t}. Skipping.")
-                skip_reasons[t] = reason
-                continue
+                if df_t is None or df_t.empty:
+                    skip_reasons[t] = "empty history"
+                    continue
 
-            df_raw = df_raw.dropna(subset=["Open", "High", "Low", "Close"])
-            if df_raw.empty:
-                reason = "only NaNs after dropping OHLC"
-                print(f"[LLM_DATA][WARN] {reason} for {t}, skipping.")
-                skip_reasons[t] = reason
-                continue
+                required = {"Open", "High", "Low", "Close"}
+                if not required.issubset(set(map(str, df_t.columns))):
+                    skip_reasons[t] = f"missing OHLC columns: {list(df_t.columns)}"
+                    continue
 
-            df_t = compute_indicators(df_raw)
-            df_t = df_t.reset_index().rename(columns={"Date": "Date"})
-            df_t["Ticker"] = t
-            df_t["MarketTrend"] = market_trend
-            df_t["Year"] = pd.to_datetime(df_t["Date"]).dt.year
+                df_t = df_t.dropna(subset=["Open", "High", "Low", "Close"])
+                if df_t.empty:
+                    skip_reasons[t] = "only NaNs after dropping OHLC"
+                    continue
 
-            df_t["Prev_Open"] = df_t["Open"].shift(1)
-            df_t["Prev_High"] = df_t["High"].shift(1)
-            df_t["Prev_Low"] = df_t["Low"].shift(1)
-            df_t["Prev_Close"] = df_t["Close"].shift(1)
+                # Standardize index as DatetimeIndex
+                if not isinstance(df_t.index, pd.DatetimeIndex):
+                    df_t.index = pd.to_datetime(df_t.index, errors="coerce")
 
-            df_t = df_t.rename(
-                columns={
-                    "Open": "open_raw",
-                    "High": "avg_high_raw",
-                    "Low": "avg_low_raw",
-                    "Close": "close_raw",
-                }
-            )
-
-            df_t["avg_open_past_3_days"] = df_t["Prev_Open"].rolling(3, min_periods=1).mean()
-            df_t["avg_close_past_3_days"] = df_t["Prev_Close"].rolling(3, min_periods=1).mean()
-            df_t["avg_low_30"] = df_t["avg_low_raw"].rolling(30, min_periods=1).mean()
-            df_t["avg_high_30"] = df_t["avg_high_raw"].rolling(30, min_periods=1).mean()
-            df_t["volatility_30"] = (df_t["avg_high_30"] - df_t["avg_low_30"]) / df_t["avg_low_30"]
-            df_t["current_price"] = df_t["close_raw"]
-
-            latest = df_t.sort_values("Date").iloc[-1]
-            rec = _build_single_record(latest, market_trend)
-            out_records.append(rec)
-            written_tickers.append(t)
+                data_by_ticker[t] = df_t
+            except Exception as e:
+                skip_reasons[t] = f"failed to normalize history: {repr(e)}"
 
         time.sleep(batch_sleep)
 
-    if not out_records:
-        raise RuntimeError("No LLM records produced – all downloads failed?")
+    if not data_by_ticker:
+        raise RuntimeError("No ticker histories produced – all downloads failed?")
 
+    common_asof = _pick_common_asof_date(data_by_ticker)
+    print(f"[LLM_DATA] Common as-of date: {common_asof.date()} (min last-date across tickers)")
+
+    # Compute latest-row features per ticker as-of common date
+    rows = []
+    written = []
+
+    for t, hist in data_by_ticker.items():
+        try:
+            # Use data up to common_asof
+            hist2 = hist.loc[hist.index <= common_asof].copy()
+            if hist2.empty:
+                skip_reasons[t] = "no data up to common as-of date"
+                continue
+
+            feats = compute_growth_formulas(hist2)
+
+            latest_dt = feats.index.max()
+            latest = feats.loc[latest_dt].copy()
+
+            # Ensure "Month"
+            month = int(pd.to_datetime(latest_dt).month)
+
+            row = {"Ticker": t, "Date": int(pd.to_datetime(latest_dt).value // 10**6), "Month": month}
+
+            # Pull the exact base features (non-cs) from latest
+            base_cols = [
+                "Volatility_30D", "Volatility_252D", "High_52W", "Low_52W", "High_30D", "Low_30D",
+                "Momentum_63D", "Momentum_126D", "Momentum_252D",
+                "AMT", "SMC", "TSS", "RMI", "ABS", "VAM", "RSE", "CBP",
+                "SMA_Slope_3M", "Ret_5D", "Ret_10D", "pos_52w", "pos_30d",
+                "Volume_SMA20", "Volume_Trend", "RSI_14",
+                "avg_close_past_3_days", "avg_volatility_30D", "current_price",
+            ]
+
+            for c in base_cols:
+                row[c] = _to_float_or_none(latest.get(c))
+
+            rows.append(row)
+            written.append(t)
+        except Exception as e:
+            skip_reasons[t] = f"feature computation failed: {repr(e)}"
+
+        if len(rows) >= top_n:
+            break
+
+    if not rows:
+        raise RuntimeError("No feature rows built – feature computation failed for all tickers?")
+
+    df_latest = pd.DataFrame(rows).set_index("Ticker", drop=False)
+
+    # Add cross-sectional features
+    df_latest = _attach_cross_sectional(df_latest)
+
+    # Final: write JSONL
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
-        for rec in out_records:
+        for _, r in df_latest.iterrows():
+            rec = {k: (None if (pd.isna(v) or v is None) else (float(v) if isinstance(v, (int, float, np.floating)) else v))
+                   for k, v in r.to_dict().items()}
             f.write(json.dumps(rec, separators=(",", ":")) + "\n")
 
-    print(f"[LLM_DATA] Wrote {len(out_records)} records → {out_path}")
-    if len(out_records) < top_n:
-        print(f"[LLM_DATA][WARN] Only {len(out_records)}/{top_n} built due to missing data.")
-    # Write a diagnostics/reconciliation file mapping stage2 candidates -> produced tickers and skip reasons
-    diag = {
-        "stage2_top_n": df_stage2["ticker"].dropna().astype(str).drop_duplicates().head(top_n).tolist(),
-        "stage2_candidates_count": candidate_count,
-        "oversample_factor": oversample_factor,
-        "stage2_candidates": tickers,
-        "produced_count": len(out_records),
-        "produced_tickers": written_tickers,
-        "skipped_reasons": skip_reasons,
-        "market_trend": market_trend,
-    }
+    print(f"[LLM_DATA] Wrote {len(df_latest)} records → {out_path}")
 
+    # Diagnostics
     logs_path = Path("logs")
     logs_path.mkdir(parents=True, exist_ok=True)
     diag_path = logs_path / "llm_stage2_reconciliation.json"
-    with diag_path.open("w", encoding="utf-8") as f:
-        json.dump(diag, f, indent=2)
-
+    diag = {
+        "stage2_path": str(stage2_path),
+        "top_n": top_n,
+        "history_years": history_years,
+        "oversample_factor": oversample_factor,
+        "candidate_count": candidate_count,
+        "requested_candidates": tickers,
+        "produced_count": int(len(df_latest)),
+        "produced_tickers": written,
+        "common_asof_date": str(common_asof),
+        "skipped_reasons": skip_reasons,
+    }
+    diag_path.write_text(json.dumps(diag, indent=2), encoding="utf-8")
     print(f"[LLM_DATA] Wrote diagnostics → {diag_path}")
 
-    return written_tickers
+    return written
 
 
 if __name__ == "__main__":

@@ -23,26 +23,35 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      # -----------------------------
+      # Cache
+      # -----------------------------
       - name: Restore cached data (aliases, universe, etc.)
         uses: actions/cache@v4
         with:
           path: data
-          key: universe-cache-${{ github.run_id }}
+          key: universe-cache-${{ hashFiles('data/universe_clean.csv') }}
           restore-keys: |
             universe-cache-
 
       - name: Purge valuation caches
         run: rm -f data/pe_cache.json data/valuations_cache.json
 
+      # -----------------------------
+      # Requirements (UPDATED)
+      # -----------------------------
       - name: Ensure dependency manifest
         run: |
-          if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\nsafetensors\n" > requirements.txt
-          else
-            for p in openai torch transformers safetensors; do
-              grep -qxF "$p" requirements.txt || echo "$p" >> requirements.txt
-            done
-          fi
+          cat > requirements.txt <<'REQ'
+          numpy
+          pandas
+          yfinance
+          requests
+          pytz
+          openai
+          joblib
+          scikit-learn
+          REQ
           cat requirements.txt
 
       - name: Set up Python
@@ -57,6 +66,9 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
 
+      # -----------------------------
+      # Universe + Stages
+      # -----------------------------
       - name: Build universe from Trading 212
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
@@ -70,7 +82,7 @@ jobs:
           CLEAN_ALLOW_OFFLINE: '1'
         run: python scripts/clean_universe.py
 
-      - name: Auto-build Yahoo aliases from last run’s rejects
+      - name: Auto-build Yahoo aliases
         env:
           ALIASES_FROM: data/universe_rejects.csv
           ALIASES_OUT: data/aliases.csv
@@ -112,20 +124,25 @@ jobs:
           ATH_GUARD: '1'
         run: python scripts/trash_ranker.py --input data/stage1_kept.csv --output data/stage2_merged.csv
 
-      - name: Commit updated rejects + stage outputs
+      # -----------------------------
+      # Commit Stage Outputs
+      # -----------------------------
+      - name: Commit stage outputs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f data/universe.csv data/universe_clean.csv data/universe_rejects.csv \
-                   data/stage1_kept.csv data/stage2_merged.csv logs/top2000_quick_full.csv || true
+          git add -f data/*.csv logs/*.csv || true
           if git diff --cached --quiet; then
-            echo "No new files to commit"
+            echo "No changes"
           else
             git pull --rebase origin main || true
             git commit -m "Update universe + stage outputs (run #${{ github.run_number }})"
             git push origin main
           fi
 
+      # -----------------------------
+      # LLM Data Builder (FEATURE-CORRECT)
+      # -----------------------------
       - name: Build LLM_today_data.jsonl
         run: python scripts/llm_data_builder.py
 
@@ -135,28 +152,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/LLM_today_data.jsonl || true
           if git diff --cached --quiet; then
-            echo "No new LLM data to commit"
+            echo "No new LLM data"
           else
             git pull --rebase origin main || true
             git commit -m "Add LLM_today_data.jsonl (run #${{ github.run_number }})"
             git push origin main
           fi
 
-      - name: Verify Brain model exists and is not an LFS pointer
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path("scripts/train_model/LLM_bot/Brain/llm_signal_regression_model/model.safetensors")
-          print("model exists:", p.exists(), "size:", p.stat().st_size if p.exists() else -1)
-          if not p.exists() or p.stat().st_size < 1024*1024:
-              head = p.read_bytes()[:200].decode("utf-8","ignore") if p.exists() else ""
-              raise SystemExit(f"Model file missing or looks like an LFS pointer.\nHead:\n{head}")
-          print("Brain model OK.")
-          PY
-
-      - name: Run Brain Ranker
-        env:
-          BRAIN_MODEL_DIR: scripts/train_model/LLM_bot/Brain/llm_signal_regression_model
+      # -----------------------------
+      # Brain Ranker (ScoreBot ONLY)
+      # -----------------------------
+      - name: Run Brain Ranker (ScoreBot)
         run: python scripts/brain_ranker.py
 
       - name: Commit Brain Ranked Outputs
@@ -165,14 +171,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/LLM_today_scores.jsonl data/brain_ranked_scores.csv || true
           if git diff --cached --quiet; then
-            echo "No new brain-ranked scores to commit"
-            exit 0
+            echo "No new brain outputs"
+          else
+            git pull --rebase origin main || true
+            git commit -m "Add brain-ranked outputs (run #${{ github.run_number }})"
+            git push origin main
           fi
-          git pull --rebase origin main || true
-          git commit -m "Add brain-ranked LLM_today_scores + brain_ranked_scores (run #${{ github.run_number }})"
-          git push origin main
 
-      - name: Run News Summarizer (GPT-3.5) — uses Brain's top-10
+      # -----------------------------
+      # News
+      # -----------------------------
+      - name: Run News Summarizer
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
@@ -186,57 +195,34 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/news_summary_top10.txt || true
           if git diff --cached --quiet; then
-            echo "No new news summaries to commit"
+            echo "No new news"
           else
             git pull --rebase origin main || true
             git commit -m "Update news summaries (run #${{ github.run_number }})"
             git push origin main
           fi
 
-      - name: Commit Brain Scores
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f logs/brain_scores_latest.csv logs/brain_scores_latest.json || true
-          if git diff --cached --quiet; then
-            echo "No new brain scores to commit"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Update brain scores (run #${{ github.run_number }})"
-            git push origin main
-          fi
-
+  # =====================================================================
+  # SEND ALERT (NO BRAIN RECOMPUTE)
+  # =====================================================================
   send-alert:
     runs-on: ubuntu-latest
     needs: prepare-data
     steps:
-      - name: Checkout repo (with LFS)
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
           fetch-depth: 0
-          lfs: true
 
-      - name: Sync with latest main (news + brain scores)
+      - name: Sync with main
         run: |
           git fetch origin main
           git pull --rebase origin main
 
-      - name: Ensure dependency manifest
-        run: |
-          if [ ! -f requirements.txt ]; then
-            printf "numpy\npandas\nyfinance\nrequests\npytz\nopenai\ntorch\ntransformers\nsafetensors\n" > requirements.txt
-          else
-            for p in openai torch transformers safetensors; do
-              grep -qxF "$p" requirements.txt || echo "$p" >> requirements.txt
-            done
-          fi
-          cat requirements.txt
-
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade --upgrade-strategy eager -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run notifier
         env:
@@ -244,67 +230,19 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
           PYTHONUNBUFFERED: '1'
-          BRAIN_MODEL_DIR: scripts/train_model/LLM_bot/Brain/llm_signal_regression_model
-          FEATURES_LOG_LEVEL: 'INFO'
-          FEATURES_VERBOSE: '0'
-          FEATURES_LOG_EVERY: '500'
-          RANKER_LOG_LEVEL: 'DEBUG'
-          RANKER_VERBOSE: '1'
-          RANKER_LOG_EVERY: '300'
-          QUICK_LOG_LEVEL: 'INFO'
-          STAGE1_MODE: 'quick'
-          STAGE1_KEEP: '2000'
-          STAGE1_WRITE_TOPN_CSV: '1'
-          STAGE1_TOPN_CSV: '2000'
-          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
-          STAGE1_ENHANCER_BONUS_PATH: 'data/stage1_enhancer_bonus.csv'
-          YF_CHUNK_SIZE: '50'
-          YF_MAX_RETRIES: '5'
-          YF_RETRY_SLEEP: '2.5'
-          YF_SLEEP_BETWEEN_CHUNKS: '2'
-          YF_SLEEP_PER_REQUEST: '0.5'
-          YF_SLEEP_FALLBACK: '0.3'
-          YF_MIN_ROWS: '40'
-          QS_ET_BONUS_TREND: '6'
-          QS_ET_BONUS_MOMO: '8'
-          QS_ET_BONUS_STRUCT: '5'
-          QS_USE_FVA: '1'
-          QS_VAL_OVERLAY: '1'
-          QS_PE_WEIGHT: '0.015'
-          QS_PE_WEIGHT_LARGE: '0.02'
-          QS_PE_WEIGHT_SMALL: '0.005'
-          RANKER_PROFILE: 'C'
-          HARD_DROP_MODE: 'normal'
-          EARLY_TURN_MIN_E50_SLOPE: '2.0'
-          ALLOW_BLOWOFF_PROBE: '1'
-          ATH_GUARD: '1'
-          FORCE_CATALYSTS_PARTIAL: '1'
           OPENAI_TIMEOUT: '420'
           LOG_GPT_INPUT: '1'
-          LOG_GPT_INPUT_STDOUT: '0'
         run: python scripts/notify.py
 
       - name: Commit notifier outputs
         run: |
-          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin main
-
-          git add -f \
-            logs/blocks_to_gpt_latest.txt \
-            logs/gpt_user_prompt.txt \
-            logs/gpt_system_prompt.txt \
-            daily_pick.txt || true
-
-          git add -u || true
-
+          git add -f logs/*.txt daily_pick.txt || true
           if git diff --cached --quiet; then
-            echo "No new notifier files to commit"
-            exit 0
+            echo "No notifier output"
+          else
+            git pull --rebase origin main || true-+
+            git commit -m "Update notifier outputs (run #${{ github.run_number }})"
+            git push origin main
           fi
-
-          git commit -m "Update notifier outputs (run #${{ github.run_number }})"
-          git -c pull.rebase=true pull --autostash --rebase origin main
-          git push origin HEAD:main

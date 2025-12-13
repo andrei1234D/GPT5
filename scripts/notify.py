@@ -110,7 +110,6 @@ def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, st
     lines_accum = []
     for line in txt.splitlines():
         if line.startswith("### "):
-            # flush previous
             if ticker is not None:
                 bullets = [l for l in lines_accum if l.strip() and not l.startswith("###")]
                 compact = " | ".join(x.strip("- ").strip() for x in bullets if x.strip())
@@ -139,7 +138,7 @@ def main():
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    # Build a safe mapping from ticker -> company name
+    # Build ticker -> company name map
     name_map: dict[str, str] = {}
     if "ticker" in df.columns:
         for _, row in df.iterrows():
@@ -150,15 +149,16 @@ def main():
             if isinstance(n, str):
                 name_map[t] = n
 
-    # 2) Ensure LLM_today_data.jsonl exists (built in prepare-data job)
+    # 2) Ensure feature JSONL exists (built in prepare-data job)
     llm_today_path = "data/LLM_today_data.jsonl"
     if not os.path.exists(llm_today_path):
         return fail(f"{llm_today_path} not found. It should be built in the prepare-data job.")
     log(f"[INFO] Found {llm_today_path}")
 
-    # 3) Brain rank — top 10 + scores (using LLM_today_data.jsonl)
+    # 3) Brain rank — top 10 + pred_scores (ScoreBotSlim)
     try:
-        tickers_top10, brain_scores = rank_with_brain(
+        tickers_top10, pred_scores = rank_with_brain(
+            stage2_path=stage2_path,
             llm_data_path=llm_today_path,
             top_k=10,
         )
@@ -168,13 +168,12 @@ def main():
         return fail("Brain returned no top tickers.")
     log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers_top10)}")
 
-       # 4) Load LLM records + News
+    # 4) Load feature records + News
     llm_map = _load_llm_records(llm_today_path)
     news_map = load_news_summary("data/news_summary_top10.txt")
 
-    # --- 4.1) Parse and integrate News Impact into BrainScores ---
+    # 4.1) Parse and integrate News Impact into pred_scores
     import re
-
     news_text_path = "data/news_summary_top10.txt"
     impact_pattern = re.compile(r"###\s*([A-Z0-9._-]+).*?Impact:\s*([+-]?\d+)", re.DOTALL)
     news_impact: dict[str, int] = {}
@@ -193,55 +192,53 @@ def main():
     if not news_impact:
         log("[WARN] No Impact lines found in news summary; all news impacts = 0")
 
-    # Apply additive rule: AdjustedScore = BrainScore + NewsImpact
     adjusted_scores = {}
     for t in tickers_top10:
-        brain = brain_scores.get(t, 0)
-        impact = news_impact.get(t, 0)
+        brain = float(pred_scores.get(t, 0.0))
+        impact = int(news_impact.get(t, 0))
         adjusted = brain + impact
         adjusted_scores[t] = adjusted
         impact_str = f"+{impact}" if impact > 0 else str(impact) if impact != 0 else "NA"
-        log(f"[ADJUST] {t}: BrainScore={brain:.2f}, news impact={impact_str}, adjusted={adjusted:.2f}")
+        log(f"[ADJUST] {t}: pred_score={brain:.2f}, news impact={impact_str}, adjusted={adjusted:.2f}")
 
-    # Replace brain_scores with adjusted values for all downstream logic
-    brain_scores = adjusted_scores
-    log("[INFO] BrainScores updated with news impact adjustments.")
+    pred_scores = adjusted_scores
+    log("[INFO] pred_scores updated with news impact adjustments.")
 
-    # 4.5) Filter: select only top 1 unless multiple have BrainScore >= 720
+    # 4.5) Filter: select only top 1 unless multiple have pred_score >= 720
     score_threshold = 720.0
-    candidates = [
-        (t, brain_scores.get(t, 0))
-        for t in tickers_top10
-    ]
-    # Sort by score descending (should already be sorted, but ensure)
-    candidates.sort(key=lambda x: x[1], reverse=True)
-    
-    # Include top 1, then add any others with score >= threshold
+    candidates = [(t, pred_scores.get(t, 0.0)) for t in tickers_top10]
+    candidates.sort(key=lambda x: float(x[1]), reverse=True)
+
     tickers_to_gpt = []
     if candidates:
-        tickers_to_gpt = [candidates[0][0]]  # always include top 1
-        for t, score in candidates[1:]:
-            if _num(score) and _num(score) >= score_threshold:
+        tickers_to_gpt = [candidates[0][0]]
+        for t, sc in candidates[1:]:
+            if _num(sc) is not None and float(sc) >= score_threshold:
                 tickers_to_gpt.append(t)
-    
-    log(f"[INFO] Filtered candidates: {len(tickers_to_gpt)} ticker(s) selected from top-10 (threshold={score_threshold})")
+
+    log(f"[INFO] Filtered candidates: {len(tickers_to_gpt)} ticker(s) selected (threshold={score_threshold})")
     log(f"[INFO] Tickers for GPT: {', '.join(tickers_to_gpt)}")
 
-    # 5) Build MINIMAL CSV used for GPT input + traceability
+    # 5) Build MINIMAL CSV for GPT + traceability (UPDATED)
+    # NOTE: llm_today_data.jsonl now contains your engineered features.
     header = [
-        "TickerName",   # NEW: "BW - Babcock & Wilcox Enterprises"
+        "TickerName",
         "Ticker",
-        "BrainScore",
+        "pred_score",          # renamed from BrainScore
         "current_price",
-        "RSI14",
-        "MACD_hist",
-        "Momentum",
-        "ATRpct",
-        "volatility_30",
+        "Volatility_30D",
+        "Volatility_252D",
+        "Momentum_63D",
+        "Momentum_126D",
+        "Momentum_252D",
+        "RSE",
+        "CBP",
+        "SMC",
+        "TSS",
+        "pos_52w",
         "pos_30d",
-        "EMA50",
-        "EMA200",
-        "MarketTrend",
+        "RSI_14",
+        "Month",
         "News",
     ]
 
@@ -249,7 +246,6 @@ def main():
     logs_dir.mkdir(parents=True, exist_ok=True)
     blocks_path = logs_dir / "blocks_to_gpt_latest.txt"
 
-    # write with csv for safe quoting (especially News)
     with blocks_path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)
@@ -259,21 +255,29 @@ def main():
             ticker_name = f"{t} - {name}" if name else t
 
             row = [
-                ticker_name,                           # TickerName column
-                t,                                     # raw Ticker
-                _fmt(brain_scores.get(t)),             # already adjusted
+                ticker_name,
+                t,
+                _fmt(pred_scores.get(t)),
                 _fmt(_num(rec.get("current_price"))),
-                _fmt(_num(rec.get("RSI14"))),
-                _fmt(_num(rec.get("MACD_hist"))),
-                _fmt(_num(rec.get("Momentum"))),
-                _fmt(_num(rec.get("ATR%"))),           # stored as "ATR%" in jsonl
-                _fmt(_num(rec.get("volatility_30"))),
+                _fmt(_num(rec.get("Volatility_30D"))),
+                _fmt(_num(rec.get("Volatility_252D"))),
+                _fmt(_num(rec.get("Momentum_63D"))),
+                _fmt(_num(rec.get("Momentum_126D"))),
+                _fmt(_num(rec.get("Momentum_252D"))),
+                _fmt(_num(rec.get("RSE"))),
+                _fmt(_num(rec.get("CBP"))),
+                _fmt(_num(rec.get("SMC"))),
+                _fmt(_num(rec.get("TSS"))),
+                _fmt(_num(rec.get("pos_52w"))),
                 _fmt(_num(rec.get("pos_30d"))),
-                _fmt(_num(rec.get("EMA50"))),
-                _fmt(_num(rec.get("EMA200"))),
-                str(rec.get("MarketTrend", "")),
+                _fmt(_num(rec.get("RSI_14"))),
+                str(rec.get("Month", "")),
                 news_map.get(t, "N/A"),
             ]
             writer.writerow(row)
 
     log(f"[INFO] Wrote minimal GPT payload (incl. News) to {blocks_path}")
+
+
+if __name__ == "__main__":
+    main()
