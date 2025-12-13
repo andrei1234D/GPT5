@@ -1,4 +1,3 @@
-# scripts/scorebot_runtime.py
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,130 +7,92 @@ import numpy as np
 import pandas as pd
 
 
-def _as_1d(x: Any, n: int | None = None) -> np.ndarray:
-    """Coerce model outputs to 1D float array length n."""
-    if isinstance(x, pd.Series):
-        arr = x.to_numpy()
-    elif isinstance(x, pd.DataFrame):
-        arr = x.to_numpy()
-    else:
-        arr = np.asarray(x)
-
-    if arr.ndim == 0:
-        if n is None:
-            raise ValueError("Scalar output with unknown n")
-        return np.full((n,), float(arr), dtype=float)
-
-    if arr.ndim == 1:
-        out = arr.astype(float, copy=False)
-        if n is not None and out.shape[0] != n:
-            raise ValueError(f"Length mismatch: got {out.shape[0]}, expected {n}")
-        return out
-
-    if arr.ndim == 2:
-        # Prefer binary proba P(class=1) when available.
-        if arr.shape[1] >= 2:
-            out = arr.max(axis=1).astype(float, copy=False)
-        else:
-            out = arr.reshape(-1).astype(float, copy=False)
-        if n is not None and out.shape[0] != n:
-            raise ValueError(f"Length mismatch: got {out.shape[0]}, expected {n}")
-        return out
-
-    raise ValueError(f"Unsupported output shape: {arr.shape}")
+# -----------------------------
+# Helpers
+# -----------------------------
+def _ensure_1d(x: Any, n: int) -> np.ndarray:
+    arr = np.asarray(x, dtype=float)
+    if arr.ndim == 1 and arr.shape[0] == n:
+        return arr
+    raise ValueError(f"Expected 1D array of length {n}, got {arr.shape}")
 
 
-def _model_score(model: Any, X: pd.DataFrame) -> np.ndarray:
-    n = len(X)
-    if hasattr(model, "predict_proba"):
-        try:
-            proba = model.predict_proba(X)
-            y = _as_1d(proba, n=n)
-            return y
-        except Exception as e:
-            print(f"[DEBUG] predict_proba failed for {type(model)}: {e}")
-    preds = model.predict(X)
-    arr = np.asarray(preds).reshape(-1)
-    print("[DEBUG] predict unique:", np.unique(arr)[:10], "count=", len(np.unique(arr)))
-
-    return _as_1d(preds, n=n)
+def _proba_to_score(
+    proba: np.ndarray,
+    reps: np.ndarray,
+) -> np.ndarray:
+    """
+    EXACT training logic:
+    score = sum_c p(c) * rep[c]
+    """
+    proba = np.asarray(proba, dtype=float)
+    if proba.ndim != 2 or proba.shape[1] != len(reps):
+        raise ValueError(f"Bad proba shape {proba.shape}, reps={reps}")
+    return (proba * reps.reshape(1, -1)).sum(axis=1)
 
 
+def _build_reps(thr: dict) -> np.ndarray:
+    mid = thr["mid_thr"]
+    high = thr["high_thr"]
+    return np.array(
+        [mid - 50.0, (mid + high) / 2.0, high + 50.0],
+        dtype=float,
+    )
+
+
+# -----------------------------
+# ScoreBotSlim (RAW score only)
+# -----------------------------
 @dataclass
 class ScoreBotSlim:
-    """Matches your SLIM pickle: models/weights are dicts."""
     models: Dict[str, Any]
     feature_cols: list[str]
     weights: Dict[str, float]
+    reps_by_model: Dict[str, list] | None = None
+    thr_by_model: Dict[str, dict] | None = None
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
         X = df.loc[:, self.feature_cols]
         n = len(X)
         out = np.zeros(n, dtype=float)
 
-        print("[DEBUG] X shape:", X.shape)
-        print("[DEBUG] X dtypes head:\n", X.dtypes.head(10))
-
-        # compute each model score once (avoid recomputing)
-        model_scores = {}
-
         for name, model in self.models.items():
             w = float(self.weights.get(name, 0.0))
             if w == 0.0:
                 continue
 
-            s = _model_score(model, X)
-            s = np.asarray(s, dtype=float).reshape(-1)
+            # ---- MULTICLASS (training path) ----
+            if hasattr(model, "predict_proba"):
+                proba = model.predict_proba(X)
 
-            if s.shape[0] != n:
-                raise RuntimeError(
-                    f"[ERROR] {name} produced {s.shape[0]} scores, expected {n}"
-                )
+                if self.reps_by_model and name in self.reps_by_model:
+                    reps = np.asarray(self.reps_by_model[name], dtype=float)
+                elif self.thr_by_model and name in self.thr_by_model:
+                    reps = _build_reps(self.thr_by_model[name])
+                else:
+                    raise RuntimeError(f"Missing reps for model '{name}'")
 
-            model_scores[name] = s
+                s = _proba_to_score(proba, reps)
 
-            print(
-                f"[DEBUG] {name}: "
-                f"unique={len(np.unique(s))} "
-                f"min={s.min():.6f} "
-                f"max={s.max():.6f}"
-            )
+            # ---- REGRESSION (fallback) ----
+            else:
+                preds = model.predict(X)
+                s = _ensure_1d(preds, n)
 
-        for name, s in model_scores.items():
-            w = float(self.weights.get(name, 0.0))
-            contrib = w * s
-            out += contrib
-
-            print(
-                f"[DEBUG] {name} weighted: "
-                f"min={contrib.min():.6f} "
-                f"max={contrib.max():.6f}"
-            )
-
-        print(
-            f"[DEBUG] raw_score: "
-            f"unique={len(np.unique(out))} "
-            f"min={out.min():.6f} "
-            f"max={out.max():.6f}"
-        )
+            out += w * s
 
         return pd.Series(out, index=df.index, name="raw_score")
 
-
     def predict_one(self, feature_dict: dict) -> float:
         row = pd.DataFrame([feature_dict]).loc[:, self.feature_cols]
-        s = 0.0
-        for name, model in self.models.items():
-            w = float(self.weights.get(name, 0.0))
-            if w == 0.0:
-                continue
-            s += w * float(_model_score(model, row)[0])
-        return float(s)
+        return float(self.predict_df(row).iloc[0])
 
 
+# -----------------------------
+# Calibrated wrapper
+# -----------------------------
 @dataclass
 class CalibratedScoreBot:
-    """Matches your SLIM pickle (IsotonicRegression calibrator)."""
     base_bot: Any
     calibrator_name: str | None = None
     calibrator_params: dict | None = None
@@ -143,17 +104,11 @@ class CalibratedScoreBot:
     def feature_cols(self) -> list[str]:
         return list(getattr(self.base_bot, "feature_cols", []))
 
-    def _apply_cal(self, raw_1d: np.ndarray) -> np.ndarray:
-        x = np.asarray(raw_1d, dtype=float).reshape(-1)
-        if self.calibrator is None:
-            raise RuntimeError("Missing calibrator on CalibratedScoreBot")
-
-        if hasattr(self.calibrator, "predict"):
-            y = self.calibrator.predict(x)
-        else:
-            y = self.calibrator(x)
-
-        y = np.asarray(y, dtype=float).reshape(-1)
+    def _apply_cal(self, raw: np.ndarray) -> np.ndarray:
+        x = np.asarray(raw, dtype=float).reshape(-1)
+        if not hasattr(self.calibrator, "predict"):
+            raise RuntimeError("Invalid calibrator")
+        y = self.calibrator.predict(x)
         return np.clip(y, self.clip_low, self.clip_high)
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
@@ -162,9 +117,8 @@ class CalibratedScoreBot:
         return pd.Series(cal, index=df.index, name="pred_score")
 
     def predict_one(self, feature_dict: dict) -> float:
-        raw = float(self.base_bot.predict_one(feature_dict))
-        return float(self._apply_cal(np.asarray([raw]))[0])
+        return float(self.predict_df(pd.DataFrame([feature_dict])).iloc[0])
 
 
-# Backwards-compatible aliases for older imports
+# Backward alias
 CalibratedScoreBotSlim = CalibratedScoreBot

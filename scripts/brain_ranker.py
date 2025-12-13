@@ -32,35 +32,25 @@ def _load_scorebot(path: Path):
     if not path.exists():
         raise FileNotFoundError(f"ScoreBot pickle not found: {path}")
 
-    # Map notebook-defined class names to runtime equivalents for unpickling.
     main_mod = sys.modules.get("__main__")
     setattr(main_mod, "ScoreBotSlim", ScoreBotSlim)
     setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBot)
     setattr(main_mod, "CalibratedScoreBotSlim", CalibratedScoreBot)
 
     payload = joblib.load(str(path))
-    bot = payload.get("bot")
-    if bot is None:
-        raise RuntimeError("Pickle payload missing 'bot' key")
+    bot = payload["bot"]
 
-    feature_cols = payload.get("feature_cols") or getattr(bot, "feature_cols", None)
+    feature_cols = payload.get("feature_cols")
     if not feature_cols:
-        raise RuntimeError("Missing feature_cols in payload and bot")
+        raise RuntimeError("Missing feature_cols")
 
-    # Defensive: inject feature_cols/weights into base bot if missing.
-    base = getattr(bot, "base_bot", None)
-    if base is not None:
-        if getattr(base, "feature_cols", None) in (None, [], ()):
-            try:
-                base.feature_cols = list(feature_cols)
-            except Exception:
-                pass
-        w = payload.get("weights")
-        if isinstance(w, dict) and getattr(base, "weights", None) in (None, [], ()):
-            try:
-                base.weights = dict(w)
-            except Exception:
-                pass
+    base = bot.base_bot
+
+    # inject critical training metadata
+    base.feature_cols = feature_cols
+    base.weights = payload["weights"]
+    base.reps_by_model = payload.get("reps_by_model", {})
+    base.thr_by_model = payload.get("thr_by_model", {})
 
     return bot, list(feature_cols)
 

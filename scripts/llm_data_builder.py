@@ -218,7 +218,7 @@ def _pick_common_asof_date(data_by_ticker: Dict[str, pd.DataFrame]) -> pd.Timest
 def build_llm_today_data(
     stage2_path: str = "data/stage2_merged.csv",
     out_path: str = "data/LLM_today_data.jsonl",
-    top_n: int = 50,
+    top_n: int =10,
     history_years: int = 2,
 ) -> List[str]:
     """
