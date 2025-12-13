@@ -1,7 +1,7 @@
 # scripts/scorebot_runtime.py
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -10,13 +10,7 @@ import pandas as pd
 
 
 def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
-    """Normalize predictions to a 1D float array of length n.
-
-    Supports:
-      - (n,) regression outputs
-      - (n, k) multiclass probabilities/logits -> reduces to TOP-1 via max(axis=1)
-      - pandas Series/DataFrame
-    """
+    """Normalize predictions to a 1D float array of length n."""
     if isinstance(preds, pd.DataFrame):
         arr = preds.values
     elif isinstance(preds, pd.Series):
@@ -36,7 +30,7 @@ def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
         return out
 
     if arr.ndim == 2:
-        # Artifact is named 'multiclass_top1' -> use TOP-1 reduction.
+        # multiclass_top1 -> reduce to 1 score per row
         out = np.max(arr.astype(float, copy=False), axis=1)
         if n is not None and out.shape[0] != n:
             raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
@@ -74,21 +68,24 @@ class ScoreBotSlim:
     models: Sequence[Any]
     weights: Sequence[float]
     feature_cols: Sequence[str]
-
-    # Where to resolve string model references from
+    # NOTE: do NOT rely on this existing on old pickles; brain_ranker will set it if available
     model_root: Path | None = None
 
-    # Cache for lazily loaded models
-    _model_cache: dict = field(default_factory=dict, init=False, repr=False)
-
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
+        # Backward-compatible: old pickles won't have these attrs
+        if not hasattr(self, "_model_cache") or getattr(self, "_model_cache") is None:
+            setattr(self, "_model_cache", {})
+        if not hasattr(self, "model_root"):
+            setattr(self, "model_root", None)
+
+        cache = getattr(self, "_model_cache")
         X = df.loc[:, list(self.feature_cols)]
         n = len(X)
 
         final: np.ndarray | None = None
 
         for model, w in zip(self.models, self.weights):
-            model_obj = _maybe_load_model(model, self.model_root, self._model_cache)
+            model_obj = _maybe_load_model(model, getattr(self, "model_root", None), cache)
 
             if hasattr(model_obj, "predict_proba"):
                 preds = model_obj.predict_proba(X)
