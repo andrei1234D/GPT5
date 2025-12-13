@@ -128,20 +128,48 @@ jobs:
         run: python scripts/trash_ranker.py --input data/stage1_kept.csv --output data/stage2_merged.csv
 
       # -----------------------------
-      # Commit Stage Outputs
+      # Commit helpers (sync-first + retry push)
       # -----------------------------
-      - name: Commit stage outputs
+      - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # -----------------------------
+      # Commit Stage Outputs (FIXED)
+      # -----------------------------
+      - name: Commit stage outputs
+        run: |
+          set -euo pipefail
+
+          # Sync FIRST (clean working tree)
+          git fetch origin main
+          git rebase origin/main
+
+          # Stage changes
           git add -f data/*.csv logs/*.csv || true
+
           if git diff --cached --quiet; then
             echo "No changes"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Update universe + stage outputs (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          git commit -m "Update universe + stage outputs (run #${{ github.run_number }})"
+
+          # Push with retry (handles remote moving during the run)
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3). Retrying..."
+            sleep 2
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
 
       # -----------------------------
       # LLM Data Builder (FEATURE-CORRECT)
@@ -149,18 +177,34 @@ jobs:
       - name: Build LLM_today_data.jsonl
         run: python scripts/llm_data_builder.py
 
-      - name: Commit LLM_today_data.jsonl
+      - name: Commit LLM_today_data.jsonl (FIXED)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+
+          git fetch origin main
+          git rebase origin/main
+
           git add -f data/LLM_today_data.jsonl || true
           if git diff --cached --quiet; then
             echo "No new LLM data"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Add LLM_today_data.jsonl (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          git commit -m "Add LLM_today_data.jsonl (run #${{ github.run_number }})"
+
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3). Retrying..."
+            sleep 2
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
 
       # -----------------------------
       # Brain Ranker (ScoreBot ONLY)
@@ -168,18 +212,34 @@ jobs:
       - name: Run Brain Ranker (ScoreBot)
         run: python scripts/brain_ranker.py
 
-      - name: Commit Brain Ranked Outputs
+      - name: Commit Brain Ranked Outputs (FIXED)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+
+          git fetch origin main
+          git rebase origin/main
+
           git add -f data/LLM_today_scores.jsonl data/brain_ranked_scores.csv || true
           if git diff --cached --quiet; then
             echo "No new brain outputs"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Add brain-ranked outputs (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          git commit -m "Add brain-ranked outputs (run #${{ github.run_number }})"
+
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3). Retrying..."
+            sleep 2
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
 
       # -----------------------------
       # News
@@ -192,18 +252,34 @@ jobs:
           NEWS_LIMIT: '50'
         run: python scripts/news_top10.py
 
-      - name: Commit news summaries
+      - name: Commit news summaries (FIXED)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+
+          git fetch origin main
+          git rebase origin/main
+
           git add -f data/news_summary_top10.txt || true
           if git diff --cached --quiet; then
             echo "No new news"
-          else
-            git pull --rebase origin main || true
-            git commit -m "Update news summaries (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          git commit -m "Update news summaries (run #${{ github.run_number }})"
+
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3). Retrying..."
+            sleep 2
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
 
   # =====================================================================
   # SEND ALERT (NO BRAIN RECOMPUTE)
@@ -217,14 +293,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+
       - name: Sync with main
         run: |
+          set -euo pipefail
           git fetch origin main
-          git pull --rebase origin main
+          git rebase origin/main
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
 
       - name: Run notifier
@@ -237,15 +326,31 @@ jobs:
           LOG_GPT_INPUT: '1'
         run: python scripts/notify.py
 
-      - name: Commit notifier outputs
+      - name: Commit notifier outputs (FIXED)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+
+          git fetch origin main
+          git rebase origin/main
+
           git add -f logs/*.txt daily_pick.txt || true
           if git diff --cached --quiet; then
             echo "No notifier output"
-          else
-            git pull --rebase origin main || true-+
-            git commit -m "Update notifier outputs (run #${{ github.run_number }})"
-            git push origin main
+            exit 0
           fi
+
+          git commit -m "Update notifier outputs (run #${{ github.run_number }})"
+
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3). Retrying..."
+            sleep 2
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
