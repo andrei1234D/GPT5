@@ -1,39 +1,14 @@
-### AA
-- N/A
-Impact: 0
-
-### AAGIY
-- N/A
-Impact: 0
-
 ### AAL
-- N/A
-Impact: 0
+- American Airlines faces challenges but is implementing initiatives to improve its standing in the market.
+- UBS upgrades American Airlines to "Buy" with a raised price target, indicating a positive outlook for the airline.
+Impact: +30
 
 ### AAOI
-- Applied Optoelectronics stock soared by nearly 23% due to a significant bulk order for its 800 gigabits per second transceivers, despite recent missed estimates.
-Impact: +35
-
-### AAPL
-- N/A
-Impact: 0
-
-### AARD
-- N/A
-Impact: 0
-
-### AAUC.TO
-- N/A
-Impact: 0
-
-### ABG
-- Asbury Automotive Group promotes Dan Clara to CEO as part of its succession plan, with positive quarterly earnings reported.
+- Applied Optoelectronics receives a significant bulk order for its transceivers, leading to a stock price surge.
+- Despite challenging quarterly results, AAOI plans to fund capacity expansion for 800G transceivers through equity, aiming for sustainable profitability.
 Impact: +25
 
-### ABI.BR
-- N/A
-Impact: 0
-
-### ABRA.TO
-- N/A
-Impact: 0
+### AARD
+- Aardvark Therapeutics receives positive trial updates and analyst coverage, leading to a rise in stock price.
+- Aardvark's hunger-suppressing drug candidates have significant market potential, with promising clinical programs.
+Impact: +40
