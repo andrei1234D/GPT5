@@ -4,7 +4,7 @@ Important: the numerical metrics in the CSV are the authoritative, latest values
 
 Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
-CIEN - Ciena,CIEN,86.039779,242.369995,0.615137,0.61491,1.846207,3.269527,3.319228,0.32634,1.00037,5.273417,2.811654,0.971679,0.929431,86.299557,12.0,Ciena Corporation has soared to a 24-year high based on strong earnings performance and a positive outlook for 2026. | Impact: +35
+FULC - Fulcrum Therapeutics,FULC,439.012987,12.8,1.680149,0.9195,1.828571,1.887906,3.19202,0.155669,1.827242,1.544981,2.302832,0.781006,0.652893,57.552082,12.0,N/A | Impact: 0
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 
