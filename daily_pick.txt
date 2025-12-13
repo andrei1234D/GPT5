@@ -1,3 +1,17 @@
 Daily Stock Pick — 2025-12-13
-AAOI – Applied Optoelectronics
-News: "Applied Optoelectronics stock soared by nearly 23%
+
+AARD – Aardvark Therapeutics
+
+News: "Aardvark Therapeutics receives positive trial updates and analyst coverage, leading to a rise in stock price. | Aardvark's hunger-suppressing drug candidates have significant market potential, with promising clinical programs. | Impact: +40"
+
+Initial base score (BrainScore + News Impact): 131.039779
+
+ADVICE DECISION: N/A
+
+Certainty: 56%
+
+Forecast image URL: https://stockscan.io/stocks/AARD/forecast
+
+What reduced the score: Very low BrainScore vs. thresholds; RSI_14 extremely overbought (87.4092); elevated 30D volatility (1.183); stretched 52w position (0.7299)
+
+Verifier note: Confirmed BrainScore baseline; while momentum (pos_30d=0.9457, Momentum_63D/126D>0) and positive news help, overbought/volatility suggest near-term risk—no adjustment to BASE warranted.
