@@ -14,11 +14,7 @@ from scorebot_runtime import ScoreBotSlim, CalibratedScoreBotSlim
 from llm_data_builder import build_llm_today_data
 
 
-# ============================================================
-# Paths (robust, location-safe)
-# ============================================================
 SCRIPTS_DIR = Path(__file__).resolve().parent
-
 SCOREBOT_PATH = (
     SCRIPTS_DIR
     / "train_model"
@@ -28,14 +24,10 @@ SCOREBOT_PATH = (
     / "scorebot_multiclass_top1_CALIBRATED_SLIM.pkl"
 )
 
-LLM_TODAY_JSONL = Path("data/LLM_today_data.jsonl")
 OUT_JSONL = Path("data/LLM_today_scores.jsonl")
 OUT_CSV = Path("data/brain_ranked_scores.csv")
 
 
-# ============================================================
-# ScoreBot loader (handles Colab __main__ pickles)
-# ============================================================
 def _load_scorebot(path: Path):
     if not path.exists():
         raise FileNotFoundError(f"ScoreBot pickle not found: {path}")
@@ -47,7 +39,6 @@ def _load_scorebot(path: Path):
     setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBotSlim)
 
     payload = joblib.load(str(path))
-
     bot = payload.get("bot")
     if bot is None:
         raise RuntimeError("Pickle payload missing 'bot' key")
@@ -56,12 +47,14 @@ def _load_scorebot(path: Path):
     if not feature_cols:
         raise RuntimeError("Missing feature_cols in pickle and bot")
 
+    # IMPORTANT: if base_bot.models contains string paths, resolve relative to the pickle folder
+    base = getattr(bot, "base_bot", None)
+    if base is not None and hasattr(base, "model_root"):
+        base.model_root = path.parent
+
     return bot, list(feature_cols)
 
 
-# ============================================================
-# Utilities
-# ============================================================
 def _read_jsonl(path: Path) -> List[dict]:
     out: List[dict] = []
     with path.open("r", encoding="utf-8") as f:
@@ -72,30 +65,14 @@ def _read_jsonl(path: Path) -> List[dict]:
     return out
 
 
-# ============================================================
-# Main ranking function
-# ============================================================
 def rank_with_brain(
     stage2_path: str = "data/stage2_merged.csv",
     llm_data_path: str = "data/LLM_today_data.jsonl",
     top_k: int = 10,
 ) -> Tuple[List[str], Dict[str, float]]:
-    """
-    Scores tickers using the calibrated ScoreBot and returns TOP-K (default 10).
-    Writes:
-      - data/LLM_today_scores.jsonl
-      - data/brain_ranked_scores.csv
-    """
-
     llm_path = Path(llm_data_path)
-
-    # Build LLM feature data if missing
     if not llm_path.exists():
-        build_llm_today_data(
-            stage2_path=stage2_path,
-            out_path=str(llm_path),
-            top_n=max(50, top_k * 5),
-        )
+        build_llm_today_data(stage2_path=stage2_path, out_path=str(llm_path), top_n=max(50, top_k * 5))
 
     bot, feature_cols = _load_scorebot(SCOREBOT_PATH)
 
@@ -105,20 +82,13 @@ def rank_with_brain(
 
     df = pd.DataFrame(records)
 
-    # Fail fast on feature mismatch
     missing = [c for c in feature_cols if c not in df.columns]
     if missing:
         raise RuntimeError(f"LLM_today_data missing required features: {missing}")
 
-    # --------------------------------------------------------
-    # Predict calibrated score (1D, handled by runtime)
-    # --------------------------------------------------------
     preds = bot.predict_df(df).values
     df["pred_score"] = np.clip(preds.astype(float), 0.0, 1000.0)
 
-    # --------------------------------------------------------
-    # Aggregate duplicates (max score per ticker)
-    # --------------------------------------------------------
     df["Ticker"] = df["Ticker"].astype(str)
     ranked = (
         df.groupby("Ticker", as_index=False)["pred_score"]
@@ -130,30 +100,18 @@ def rank_with_brain(
     top_df = ranked.head(top_k)
 
     top_tickers = top_df["Ticker"].tolist()
-    top_scores = {
-        row["Ticker"]: float(row["pred_score"])
-        for _, row in top_df.iterrows()
-    }
+    top_scores = {row["Ticker"]: float(row["pred_score"]) for _, row in top_df.iterrows()}
 
     print(f"[BRAIN] Top {top_k} tickers by pred_score:")
     for i, t in enumerate(top_tickers, start=1):
         print(f"  #{i}: {t} → {top_scores[t]:.2f}")
 
-    # --------------------------------------------------------
-    # Write outputs
-    # --------------------------------------------------------
     OUT_JSONL.parent.mkdir(parents=True, exist_ok=True)
     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
 
     with OUT_JSONL.open("w", encoding="utf-8") as f:
         for _, r in ranked.iterrows():
-            f.write(
-                json.dumps(
-                    {"Ticker": r["Ticker"], "pred_score": float(r["pred_score"])},
-                    separators=(",", ":"),
-                )
-                + "\n"
-            )
+            f.write(json.dumps({"Ticker": r["Ticker"], "pred_score": float(r["pred_score"])}, separators=(",", ":")) + "\n")
 
     import csv
     with OUT_CSV.open("w", encoding="utf-8", newline="") as f:
@@ -169,8 +127,5 @@ def rank_with_brain(
     return top_tickers, top_scores
 
 
-# ============================================================
-# CLI entrypoint
-# ============================================================
 if __name__ == "__main__":
     rank_with_brain(top_k=10)

@@ -965,7 +965,7 @@ def load_universe(path: str = "data/universe_clean.csv"):
     if not os.path.exists(path):
         raise FileNotFoundError(f"Universe file not found: {path}")
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(path).head(120)
     if df.empty:
         raise ValueError(f"Universe file {path} is empty")
 
@@ -976,7 +976,9 @@ def load_universe(path: str = "data/universe_clean.csv"):
             continue
         name = str(row.get("company") or row.get("name") or "").strip()
         tickers.append((t, name))
+
     return tickers
+
 # === main entrypoint for Stage-1 ===
 if __name__ == "__main__":
     import sys

@@ -1,7 +1,8 @@
 # scripts/scorebot_runtime.py
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Sequence
 
 import numpy as np
@@ -44,11 +45,41 @@ def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
     raise ValueError(f"Unsupported prediction shape: {arr.shape}")
 
 
+def _maybe_load_model(m: Any, model_root: Path | None, cache: dict) -> Any:
+    """If model is a string path, load it once (joblib) relative to model_root."""
+    if not isinstance(m, str):
+        return m
+
+    if m in cache:
+        return cache[m]
+
+    import joblib  # lazy import
+
+    p = Path(m)
+    if not p.is_absolute() and model_root is not None:
+        p = (model_root / p).resolve()
+
+    if not p.exists():
+        raise FileNotFoundError(
+            f"Model reference is a string but file was not found: '{m}' (resolved: {p})"
+        )
+
+    loaded = joblib.load(str(p))
+    cache[m] = loaded
+    return loaded
+
+
 @dataclass
 class ScoreBotSlim:
     models: Sequence[Any]
     weights: Sequence[float]
     feature_cols: Sequence[str]
+
+    # Where to resolve string model references from
+    model_root: Path | None = None
+
+    # Cache for lazily loaded models
+    _model_cache: dict = field(default_factory=dict, init=False, repr=False)
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
         X = df.loc[:, list(self.feature_cols)]
@@ -57,10 +88,12 @@ class ScoreBotSlim:
         final: np.ndarray | None = None
 
         for model, w in zip(self.models, self.weights):
-            if hasattr(model, "predict_proba"):
-                preds = model.predict_proba(X)
+            model_obj = _maybe_load_model(model, self.model_root, self._model_cache)
+
+            if hasattr(model_obj, "predict_proba"):
+                preds = model_obj.predict_proba(X)
             else:
-                preds = model.predict(X)
+                preds = model_obj.predict(X)
 
             p1 = _as_1d(preds, n=n)
             if final is None:

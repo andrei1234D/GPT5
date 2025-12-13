@@ -102,7 +102,7 @@ jobs:
           STAGE1_KEEP: '200'
           STAGE1_WRITE_TOPN_CSV: '1'
           STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
-          YF_CHUNK_SIZE: '50'
+          YF_CHUNK_SIZE: '60'
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
           YF_SLEEP_BETWEEN_CHUNKS: '2'
