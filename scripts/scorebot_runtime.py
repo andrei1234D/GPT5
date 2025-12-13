@@ -31,7 +31,7 @@ def _as_1d(x: Any, n: int | None = None) -> np.ndarray:
     if arr.ndim == 2:
         # Prefer binary proba P(class=1) when available.
         if arr.shape[1] >= 2:
-            out = arr[:, 1].astype(float, copy=False)
+            out = arr.max(axis=1).astype(float, copy=False)
         else:
             out = arr.reshape(-1).astype(float, copy=False)
         if n is not None and out.shape[0] != n:
@@ -42,19 +42,18 @@ def _as_1d(x: Any, n: int | None = None) -> np.ndarray:
 
 
 def _model_score(model: Any, X: pd.DataFrame) -> np.ndarray:
-    """Return a continuous per-row score from an estimator.
-
-    - If predict_proba exists, returns P(class=1) (preferred for classifiers).
-    - Else falls back to predict().
-    """
     n = len(X)
     if hasattr(model, "predict_proba"):
         try:
             proba = model.predict_proba(X)
-            return _as_1d(proba, n=n)
-        except Exception:
-            pass
+            y = _as_1d(proba, n=n)
+            return y
+        except Exception as e:
+            print(f"[DEBUG] predict_proba failed for {type(model)}: {e}")
     preds = model.predict(X)
+    arr = np.asarray(preds).reshape(-1)
+    print("[DEBUG] predict unique:", np.unique(arr)[:10], "count=", len(np.unique(arr)))
+
     return _as_1d(preds, n=n)
 
 
@@ -68,6 +67,15 @@ class ScoreBotSlim:
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
         X = df.loc[:, self.feature_cols]
         out = np.zeros(len(X), dtype=float)
+        print("[DEBUG] X shape:", X.shape)
+        print("[DEBUG] X dtypes head:", X.dtypes.head(10))
+
+        for name, model in self.models.items():
+            w = float(self.weights.get(name, 0.0))
+            if w == 0.0:
+                continue
+            s = _model_score(model, X)
+            print(f"[DEBUG] {name}: score unique={len(np.unique(s))} min={s.min():.6f} max={s.max():.6f}")
 
         for name, model in self.models.items():
             w = float(self.weights.get(name, 0.0))
