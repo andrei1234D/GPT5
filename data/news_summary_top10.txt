@@ -1,14 +1,35 @@
-### AAL
-- American Airlines faces challenges but is implementing initiatives to improve its standing in the market.
-- UBS upgrades American Airlines to "Buy" with a raised price target, indicating a positive outlook for the airline.
-Impact: +30
+### ABX.TO
+- N/A
+Impact: 0
 
-### AAOI
-- Applied Optoelectronics receives a significant bulk order for its transceivers, leading to a stock price surge.
-- Despite challenging quarterly results, AAOI plans to fund capacity expansion for 800G transceivers through equity, aiming for sustainable profitability.
-Impact: +25
+### ARQT
+- N/A
+Impact: 0
 
-### AARD
-- Aardvark Therapeutics receives positive trial updates and analyst coverage, leading to a rise in stock price.
-- Aardvark's hunger-suppressing drug candidates have significant market potential, with promising clinical programs.
-Impact: +40
+### BLTE
+- Babcock & Wilcox is facing financial challenges but has received a notice to proceed with CO2 capture technology for a U.S. power plant, showcasing a positive initiative.
+Impact: -5
+
+### CDTX
+- N/A
+Impact: 0
+
+### CELC
+- N/A
+Impact: 0
+
+### CG.TO
+- N/A
+Impact: 0
+
+### CGEM
+- N/A
+Impact: 0
+
+### CIEN
+- Ciena Corporation has soared to a 24-year high based on strong earnings performance and a positive outlook for 2026.
+Impact: +35
+
+### COMM
+- CommScope stock has hit a 52-week high, with substantial investor confidence and strong financial performance, despite experiencing a pullback after a significant rally.
+Impact: +20
