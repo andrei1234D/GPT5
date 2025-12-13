@@ -1,28 +1,8 @@
-### EBS
+### PANL
 - N/A
 Impact: 0
 
-### SKYT
-- N/A
-Impact: 0
-
-### AXTI
-- N/A
-Impact: 0
-
-### COHN
-- N/A
-Impact: 0
-
-### RIGL
-- N/A
-Impact: 0
-
-### GLTO
-- N/A
-Impact: 0
-
-### REAL
+### FULC
 - N/A
 Impact: 0
 
@@ -30,10 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
-### EFX.TO
+### NUTX
+- N/A
+Impact: 0
+
+### BLTE
 - N/A
 Impact: 0
 
 ### TTI
+- N/A
+Impact: 0
+
+### KSS
+- N/A
+Impact: 0
+
+### CGEM
+- N/A
+Impact: 0
+
+### LITE
+- N/A
+Impact: 0
+
+### GLUE
 - N/A
 Impact: 0

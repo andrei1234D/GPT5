@@ -210,6 +210,7 @@ ABR,Arbor Realty Trust,name-filter
 ABRD.TO,Barrick Mining,2025-09-15 17:41:02
 ABUS.TO,Arbutus Biopharma,2025-09-15 17:41:02
 ABVXP.PA,Abivax,2025-09-15 17:41:02
+ABXXF.TO,Abaxx Technologies,2025-12-11 04:30:20
 ACAB,Abpro Holdings,2025-09-15 17:41:02
 ACAC,Playstudios,2025-09-15 17:41:02
 ACAP.PA,Credit Agricole,2025-09-15 17:41:02
@@ -518,6 +519,7 @@ APAC,DigiAsia,2025-09-15 17:43:35
 APAMA,APERAM,2025-09-15 17:43:35
 APAXL,Apax Global Alpha,2025-09-15 17:43:35
 APCD,Apple,2025-09-15 17:43:35
+APDN,BNB Plus,2025-12-10 04:28:09
 APFL.L,Ecora Resources,2025-09-15 17:43:35
 APNL.L,Applied Nutrition,2025-09-15 17:43:35
 APOP,Quoin Pharmaceuticals,2025-09-15 17:43:35
@@ -713,6 +715,7 @@ BHVN1,Biohaven,2025-09-15 17:45:12
 BIG,Big Lots,2025-09-15 17:45:12
 BIGC,Commerce.com,2025-10-04 06:38:57
 BIGP.PA,Bigben Interactive,2025-09-15 17:45:12
+BILNL.L,Billington Holdings,2025-12-11 04:30:42
 BIMP.PA,BioMerieux,2025-09-15 17:45:12
 BIOC,Biocept,2025-09-15 17:45:12
 BIOGL.L,Biotech Growth Trust,name-filter
@@ -903,7 +906,7 @@ CCC,Clarivate,2025-09-15 17:46:49
 CCC3D,,persisted
 CCCL,Antelope Enterprise,2025-09-15 17:46:49
 CCCL.L,Computacenter,2025-09-15 17:46:49
-CCCM,Columbus Circle Capital Corp I,2025-10-03 04:14:13
+CCCM,ProCap Financial,2025-10-03 04:14:13
 CCE.L,Coca-Cola Europacific Partners,2025-09-15 17:46:49
 CCEPA.L,Coca-Cola Europacific Partners,2025-09-15 17:46:49
 CCEPL.L,Coca-Cola Europacific Partners,2025-09-15 17:46:49
@@ -929,6 +932,7 @@ CDGPL.L,Chapel Down Group,2025-09-15 17:47:05
 CDIP.PA,Christian Dior,2025-09-15 17:47:05
 CDLL.L,Cloudbreak Discovery,2025-09-15 17:47:05
 CDM1D,,persisted
+CDNL,Cardinal Infrastructure Group,2025-12-11 04:30:55
 CDRE.MC,Codere,2025-09-15 17:47:05
 CDSD,Cadence Design Systems,2025-09-15 17:47:05
 CE2D,,persisted
@@ -1205,6 +1209,7 @@ DFPPD.TO,District Metals,2025-10-18 04:14:55
 DG3D,,persisted
 DGEL.L,Diageo,2025-09-15 17:49:44
 DGHI.TO,Digi Power X,2025-09-15 17:49:44
+DGNR,CCC Intelligent Solutions,2025-12-12 04:31:37
 DGOCL,Diversified Energy,2025-11-25 14:47:32
 DGOCL.L,Diversified Energy,2025-09-15 17:49:44
 DGP.PA,Vinci,2025-09-15 17:49:44
@@ -1270,7 +1275,7 @@ DRID.DE,1&1,2025-09-15 17:50:12
 DRUG.TO,Bright Minds Biosciences,2025-09-15 17:50:12
 DRW3D,,persisted
 DRXL.L,Drax,2025-09-15 17:50:12
-DS,Drive Shack,2025-09-15 17:50:22
+DS,Golf Entertainment Group,2025-09-15 17:50:22
 DS3D,,persisted
 DS81D,,persisted
 DSAC,FiscalNote,2025-09-15 17:50:22
@@ -1655,6 +1660,7 @@ GGPL.AX,Greatland Resources,2025-09-15 17:54:01
 GGRE.MC,Greening Group Global,2025-09-15 17:54:01
 GHIV,UWM,2025-09-15 17:54:01
 GHRS.IR,GH Research,2025-09-15 17:54:01
+GHSI,Guardion Health Sciences,2025-12-09 04:24:12
 GIB.TO,CGI,2025-09-15 17:54:01
 GIBA.TO,CGI,2025-09-15 17:54:01
 GIG1,GigCapital7,2025-09-15 17:54:01
@@ -1770,6 +1776,7 @@ HAGD.DE,Hensoldt,2025-09-15 17:54:55
 HAL1A,HAL,2025-09-15 17:54:55
 HALD,Halliburton,2025-09-15 17:55:08
 HAM1D,,persisted
+HANAL,Hansa Investment,2025-12-12 04:32:54
 HAPP,Paranovus Entertainment Technology,2025-09-15 17:55:08
 HASD,Hasbro,2025-09-15 17:55:08
 HASL.L,Hays,2025-09-15 17:55:08
@@ -1806,7 +1813,7 @@ HEICO,Heico,2025-09-15 17:55:21
 HEID.DE,Heidelberg Materials,2025-09-15 17:55:21
 HEIJMA.AS,Koninklijke Heijmans,2025-09-15 17:55:21
 HEIOA.AS,Heineken Holding,2025-09-15 17:55:21
-HELNS.SW,Helvetia,2025-09-15 17:55:21
+HELNS.SW,Helvetia Baloise,2025-09-15 17:55:21
 HEMOL.L,Hemogenyx Pharmaceuticals,2025-09-15 17:55:21
 HEN3D,,persisted
 HEND.DE,Henkel,2025-09-15 17:55:21
@@ -1821,6 +1828,7 @@ HFGL.L,Hilton Food Group,2025-09-15 17:55:21
 HFPCU.TO,Helios Fairfax Partners,2025-09-15 17:55:21
 HGEN,Humanigen,2025-09-15 17:55:21
 HGENL.L,Hydrogen Capital Growth,2025-09-15 17:55:21
+HGRAF.TO,Hydrograph Clean Power,2025-12-11 04:31:45
 HGSH,Green Giant,2025-09-15 17:55:21
 HGTL.L,HgCapital Trust,name-filter
 HHFAD.DE,Hamburger Hafen und Logistik,2025-09-15 17:55:21
@@ -1892,6 +1900,7 @@ HXGD.ST,Hexagon,2025-09-15 17:56:00
 HY9HD,,persisted
 HYAC3,Biote,2025-09-15 17:56:00
 HYAC4,Haymaker Acquisition Corp 4,2025-09-15 17:56:00
+HYNE,Hoyne Bancorp,2025-12-05 04:26:39
 HYRE,HyreCar,2025-09-15 17:56:00
 HYW,Santech,2025-09-15 17:56:00
 HZAC,Vivid Seats,2025-09-15 17:56:00
@@ -2079,6 +2088,7 @@ JLPL.L,Jubilee Metals,2025-09-15 17:57:33
 JM2D,,persisted
 JMAC,Apollomics,2025-09-15 17:57:33
 JMATL.L,Johnson Matthey,2025-09-15 17:57:33
+JMG,JM Group,2025-12-11 04:31:57
 JMGL.L,JPMorgan Emerging Markets Growth & Income,name-filter
 JNCE,Jounce Therapeutics,2025-09-15 17:57:33
 JNJD,Johnson & Johnson,2025-09-15 17:57:33
@@ -2098,7 +2108,7 @@ JUPL.L,Jupiter Fund Management,name-filter
 JUPW,Bonk,2025-09-15 17:57:45
 JUSHF.TO,Jushi,2025-09-15 17:57:45
 JVSA,Hotel101 Global Holdings,2025-09-15 17:57:45
-JWAC,Chijet Motor,2025-09-15 17:57:45
+JWAC,Digital Currency X Technology,2025-09-15 17:57:45
 JWN,Nordstrom,2025-09-15 17:57:45
 K34D,,persisted
 K7XD,,persisted
@@ -2142,6 +2152,7 @@ KLAD,KLA,2025-09-15 17:57:56
 KLAR.L,Klarna,2025-09-15 17:57:56
 KLC1,KinderCare Learning Companies,2025-09-15 17:57:56
 KLR,Kaleyra,2025-09-15 17:58:08
+KLRL.L,Keller,2025-12-09 04:24:39
 KMPH,Zevra Therapeutics,2025-09-15 17:58:08
 KMRL.IR,Kenmare Resources,2025-09-15 17:58:08
 KMYD,Kimberly-Clark,2025-09-15 17:58:08
@@ -2258,6 +2269,7 @@ LMAO,SeaStar Medical,2025-09-15 17:59:02
 LMFA,LM Funding America,name-filter
 LMNS.AS,Lastminute.com,2025-09-15 17:59:02
 LMPL.L,LondonMetric Property,2025-09-15 17:59:02
+LMRI,Lumexa Imaging Holdings,2025-12-12 04:33:57
 LN3D,,persisted
 LNAP.PA,LNA Sante,2025-09-15 17:59:02
 LNND,Lennar,2025-09-15 17:59:02
@@ -2388,6 +2400,9 @@ MHLD,S&P Global,2025-09-15 18:00:23
 MHPCL,MHP,2025-09-15 18:00:23
 MHVYF.T,Mitsubishi Heavy Industries,2025-09-15 18:00:23
 MIAX,Miami International Holdings,2025-09-15 18:00:23
+MICC.AS,Magnum Ice Cream,2025-12-10 04:30:02
+MICCA.AS,Magnum Ice Cream,2025-12-10 04:30:02
+MICCL.AS,Magnum Ice Cream,2025-12-10 04:30:02
 MICT,Tingo Group,2025-09-15 18:00:23
 MIGAD,Strategy,2025-09-15 18:00:23
 MIHD.T,Mitsubishi Heavy Industries,2025-09-15 18:00:23
@@ -2431,9 +2446,10 @@ MNDY.TA,Monday.com,2025-09-15 18:00:37
 MNGL.L,M&G,2025-09-15 18:00:37
 MNKSL.L,Monks Investment Trust,name-filter
 MNMD.TO,Mind Medicine MindMed,2025-09-15 18:00:37
-MNO.L,Meridian Mining UK Societas,2025-09-15 18:00:37
+MNO.L,Meridian Mining,2025-09-15 18:00:37
 MNTN1,MNTN,2025-09-15 18:00:37
 MNTNL,Schiehallion Fund,name-filter
+MOB.AX,Mobilicom,2025-12-09 04:24:57
 MOBD,Monster Beverage,2025-09-15 18:00:51
 MODEL.L,R8 Capital Investments,2025-09-15 18:00:51
 MOG/A,,persisted
@@ -2483,6 +2499,7 @@ MTEK.TA,Maris Tech,2025-09-15 18:01:01
 MTL,Mechel,2025-09-15 18:01:01
 MTL/P,,persisted
 MTLAD,Motorola Solutions,2025-09-15 18:01:14
+MTLL.L,Metals Exploration,2025-12-11 04:32:23
 MTLNL.L,Metlen Energy & Metals,2025-09-15 18:01:14
 MTLS.BR,Materialise,2025-11-22 04:17:36
 MTOL.L,Mitie Group,2025-09-15 18:01:14
@@ -2925,6 +2942,7 @@ PU7D,,persisted
 PUBP.PA,Publicis Groupe,2025-09-15 18:05:05
 PUIGE.MC,Puig Brands,2025-09-15 18:05:05
 PUMD.DE,Puma,2025-09-15 18:05:05
+PURR,Hyperliquid Strategies,2025-12-05 04:28:24
 PVAE.MC,Pescanova,2025-09-15 18:05:05
 PW2D,,persisted
 PWFL,Powerfleet,2025-09-15 18:05:05
@@ -2985,6 +3003,7 @@ RCOP.PA,Remy Cointreau,2025-09-15 18:05:36
 RCRT,Nixxy,2025-09-15 18:05:36
 RCT.L,Redcloud Holdings,2025-09-15 18:05:36
 RE,Everest Group,2025-09-15 18:05:36
+REATL.L,REACT,2025-12-06 04:20:35
 REAX.TO,Real Brokerage,2025-09-15 18:05:36
 RECAF.TO,Reconnaissance Energy Africa,2025-09-15 18:05:36
 REDCL,RED Capital,2025-09-15 18:05:43
@@ -3006,6 +3025,7 @@ REZZF.TO,Global Battery Metals,2025-09-15 18:05:43
 RFP.PA,Eurazeo,2025-09-15 18:05:43
 RG3D,,persisted
 RGLL,Regional REIT,2025-09-15 18:05:43
+RGNT.TA,Regentis Biomaterials,2025-12-05 04:28:31
 RGOD,Regeneron Pharmaceuticals,2025-09-15 18:05:43
 RGRLF.TO,Rio Grande Resources,2025-09-15 18:05:43
 RHEPZ,Regional Health Properties (Preferred),2025-09-15 18:05:53
@@ -3146,7 +3166,7 @@ SCHNS.SW,Schindler Holding,2025-09-15 18:06:55
 SCHPP.PA,Seche Environnement,2025-09-15 18:06:55
 SCMNS.SW,Swisscom,2025-09-15 18:06:55
 SCON,Clearday,2025-09-15 18:06:55
-SCPCF.TO,Scope Technologies,2025-09-15 18:06:55
+SCPCF.TO,Quantum Secure Encryption,2025-09-15 18:06:55
 SCRM.TO,Lionsgate Studios,2025-09-15 18:06:55
 SCRP.PA,SCOR,2025-09-15 18:06:55
 SCTC,Odysight.ai,2025-09-15 18:07:08
@@ -3267,6 +3287,7 @@ SMHND.DE,SUESS MicroTec,2025-09-15 18:08:01
 SMIFL,TwentyFour Select Monthly Income Fund,name-filter
 SMIH,LakeShore Biopharma,2025-09-15 18:08:01
 SMINL.L,Smiths Group,2025-09-15 18:08:01
+SMJF,SMJ International Holdings,2025-12-05 04:28:47
 SMP0D,,persisted
 SMSDL,Samsung Electronics,2025-09-15 18:08:01
 SMSNL,Samsung Electronics,2025-09-15 18:08:01
@@ -3299,6 +3320,7 @@ SOLS,Solstice Advanced Materials,2025-11-01 04:18:41
 SOML,Somero Enterprises,2025-09-15 18:08:16
 SON1D,,persisted
 SOONS.SW,Sonova,2025-09-15 18:08:16
+SOPH.SW,Sophia Genetics,2025-12-12 04:36:32
 SOPP.PA,Sopra Steria,2025-09-15 18:08:16
 SOTD,Southern Co,2025-09-15 18:08:16
 SPAQ3.AS,Allego,2025-09-15 18:08:16
@@ -3525,6 +3547,7 @@ TOMD.T,Toyota Motor,2025-09-15 18:10:16
 TOPW,AsiaStrategy,2025-09-15 18:10:16
 TORGL,Chenavari Toro Income Fund,name-filter
 TOT,TotalEnergies,2025-09-15 18:10:16
+TOT.PA,TotalEnergies,2025-12-09 04:26:01
 TOTA,Clene,2025-09-15 18:10:16
 TPED.DE,PVA TePla,2025-09-15 18:10:16
 TPIC,TPI Composites,2025-10-22 04:20:37
@@ -3570,6 +3593,7 @@ TTAM.BR,Titan America,2025-09-15 18:10:39
 TTGL.L,TT Electronics,2025-09-15 18:10:39
 TTGT1,TechTarget,2025-09-15 18:10:39
 TTM,Tata Motors,2025-09-15 18:10:39
+TTNP,Black Titan,2025-12-05 04:29:15
 TTR11D,,persisted
 TU.TO,TELUS,2025-09-15 18:10:39
 TUBE.MC,Tubacex,2025-09-15 18:10:39
@@ -3809,9 +3833,11 @@ WSBNL,Wishbone Gold,2025-09-15 18:12:58
 WTBL.L,Whitbread,2025-09-15 18:12:58
 WTRH,Waitr,2025-09-15 18:12:58
 WVE.SI,WaVe Life Sciences,2025-09-15 18:12:58
+WVIAL.L,Winvia Entertainment,2025-12-11 04:33:38
 WWE,TKO Group Holdings,2025-09-15 18:12:58
 WWHL.L,Worldwide Healthcare Trust,name-filter
 WYFI,Whitefiber,2025-09-15 18:12:58
+WYNL.L,Wynnstay Group,2025-12-11 04:33:38
 X2SD,,persisted
 XARL.L,Xaar,2025-09-15 18:12:58
 XAU,GoldMoney,2025-09-15 18:12:58
@@ -3894,8 +3920,4 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-HYNE,404/empty-or-short,2025-12-05 04:26:39
-PURR,404/empty-or-short,2025-12-05 04:28:24
-RGNT.TA,404/empty-or-short,2025-12-05 04:28:31
-SMJF,404/empty-or-short,2025-12-05 04:28:47
-TTNP,404/empty-or-short,2025-12-05 04:29:15
+WLTH,404/empty-or-short,2025-12-13 04:23:23

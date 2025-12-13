@@ -296,6 +296,7 @@ def main():
                 try:
                     if (t, "Close") not in data.columns:
                         continue
+
                     df_t = data[t].dropna().copy()
                     if df_t.empty:
                         continue
@@ -318,7 +319,8 @@ def main():
                     ]
                     df_t = df_t[[c for c in keep if c in df_t.columns]]
                     combined_records.append(df_t)
-                    print(f"[OK] Processed {t}")
+                    print(f"[OK] Processed {t} ({len(df_t)} rows kept).")
+
                 except Exception as e:
                     print(f"[ERROR] {t}: {e}")
                     continue
