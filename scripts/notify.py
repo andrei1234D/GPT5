@@ -126,6 +126,20 @@ def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, st
     return blocks
 
 
+def _post_discord(webhook_url: str, title: str, description: str) -> None:
+    """
+    Posts an embed to Discord. Truncates description to stay within Discord limits.
+    """
+    # Discord embed description hard limit is 4096 chars. Keep some buffer.
+    max_desc = 3800
+    if description and len(description) > max_desc:
+        description = description[: max_desc - 50].rstrip() + "\n\n[truncated]"
+
+    embed = {"title": title, "description": description}
+    payload = {"username": "Daily Stock Alert", "embeds": [embed]}
+    requests.post(webhook_url, json=payload, timeout=60).raise_for_status()
+
+
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
@@ -170,11 +184,12 @@ def main():
 
     # 4) Load feature records + News
     llm_map = _load_llm_records(llm_today_path)
-    news_map = load_news_summary("data/news_summary_top10.txt")
-
-    # 4.1) Parse and integrate News Impact into pred_scores
-    import re
     news_text_path = "data/news_summary_top10.txt"
+    news_map = load_news_summary(news_text_path)
+
+    # 4.1) Parse and integrate News Impact into pred_scores (optional)
+    import re
+
     impact_pattern = re.compile(r"###\s*([A-Z0-9._-]+).*?Impact:\s*([+-]?\d+)", re.DOTALL)
     news_impact: dict[str, int] = {}
 
@@ -219,12 +234,11 @@ def main():
     log(f"[INFO] Filtered candidates: {len(tickers_to_gpt)} ticker(s) selected (threshold={score_threshold})")
     log(f"[INFO] Tickers for GPT: {', '.join(tickers_to_gpt)}")
 
-    # 5) Build MINIMAL CSV for GPT + traceability (UPDATED)
-    # NOTE: llm_today_data.jsonl now contains your engineered features.
+    # 5) Build MINIMAL CSV for GPT + traceability
     header = [
         "TickerName",
         "Ticker",
-        "pred_score",          # renamed from BrainScore
+        "pred_score",
         "current_price",
         "Volatility_30D",
         "Volatility_252D",
@@ -277,6 +291,50 @@ def main():
             writer.writerow(row)
 
     log(f"[INFO] Wrote minimal GPT payload (incl. News) to {blocks_path}")
+
+    # 6) Build user prompt using the SAME CSV
+    csv_content = blocks_path.read_text(encoding="utf-8").strip()
+    user_prompt = USER_PROMPT_TOP20_TEMPLATE.format(
+        today=now.strftime("%b %d"),
+        blocks=csv_content,
+    )
+
+    # Save prompts for reproducibility
+    (logs_dir / "gpt_user_prompt.txt").write_text(user_prompt, encoding="utf-8")
+    (logs_dir / "gpt_system_prompt.txt").write_text(SYSTEM_PROMPT_TOP20_EXT, encoding="utf-8")
+
+    # 7) GPT call (generate final alert text)
+    try:
+        final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=4500)
+    except Exception as e:
+        return fail(f"GPT-5 failed: {repr(e)}")
+
+    # 8) Save output
+    Path("daily_pick.txt").write_text(final_text, encoding="utf-8")
+    log("[INFO] Draft saved to daily_pick.txt")
+
+    # 9) Optional wait until 08:00 Europe/Bucharest
+    if not force:
+        wait_s = max(0, seconds_until_target_hour(8, 0, TZ))
+        log(f"[INFO] Waiting {wait_s} seconds until 08:00 Europe/Bucharest…")
+        if wait_s > 0:
+            time.sleep(wait_s)
+
+    # 10) Send to Discord (main + optional debug)
+    title = f"Daily Stock Pick — {datetime.now(TZ).strftime('%Y-%m-%d')}"
+    try:
+        _post_discord(DISCORD_WEBHOOK_URL, title=title, description=final_text)
+        log("[INFO] Posted alert to Discord ✅")
+    except Exception as e:
+        log(f"[ERROR] Discord webhook error: {repr(e)}")
+
+    # Optional: also post to debug webhook if provided and different
+    try:
+        if DISCORD_DEBUG_WEBHOOK_URL and DISCORD_DEBUG_WEBHOOK_URL != DISCORD_WEBHOOK_URL:
+            _post_discord(DISCORD_DEBUG_WEBHOOK_URL, title=title + " [debug]", description=final_text)
+            log("[INFO] Posted alert to Discord (debug) ✅")
+    except Exception as e:
+        log(f"[WARN] Discord debug webhook error: {repr(e)}")
 
 
 if __name__ == "__main__":
