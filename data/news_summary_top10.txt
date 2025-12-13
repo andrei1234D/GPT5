@@ -11,13 +11,12 @@ Impact: 0
 Impact: 0
 
 ### AAOI
-- N/A
-Impact: 0
+- Applied Optoelectronics stock soared by nearly 23% due to a significant bulk order for its 800 gigabits per second transceivers, despite recent missed estimates.
+Impact: +35
 
 ### AAPL
-- Berkshire Hathaway reduces stake in Apple, but it remains their largest position.
-- Lawsuit against Skyworks Solutions impacts stock price. 
-Impact: -10
+- N/A
+Impact: 0
 
 ### AARD
 - N/A
@@ -28,9 +27,8 @@ Impact: 0
 Impact: 0
 
 ### ABG
-- Asbury Automotive promotes Clara to CEO, with Hult becoming executive chairman.
-- Institutional investors increase stake in Asbury Automotive Group, with positive quarterly earnings. 
-Impact: +15
+- Asbury Automotive Group promotes Dan Clara to CEO as part of its succession plan, with positive quarterly earnings reported.
+Impact: +25
 
 ### ABI.BR
 - N/A
