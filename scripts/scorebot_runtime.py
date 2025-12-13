@@ -1,67 +1,97 @@
 # scripts/scorebot_runtime.py
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Any, Sequence
+
 import numpy as np
 import pandas as pd
 
 
+def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
+    """Normalize predictions to a 1D float array of length n.
+
+    Supports:
+      - (n,) regression outputs
+      - (n, k) multiclass probabilities/logits -> reduces to TOP-1 via max(axis=1)
+      - pandas Series/DataFrame
+    """
+    if isinstance(preds, pd.DataFrame):
+        arr = preds.values
+    elif isinstance(preds, pd.Series):
+        arr = preds.values
+    else:
+        arr = np.asarray(preds)
+
+    if arr.ndim == 0:
+        if n is None:
+            raise ValueError("Scalar prediction with unknown n_samples.")
+        return np.full((n,), float(arr), dtype=float)
+
+    if arr.ndim == 1:
+        out = arr.astype(float, copy=False)
+        if n is not None and out.shape[0] != n:
+            raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
+        return out
+
+    if arr.ndim == 2:
+        # Artifact is named 'multiclass_top1' -> use TOP-1 reduction.
+        out = np.max(arr.astype(float, copy=False), axis=1)
+        if n is not None and out.shape[0] != n:
+            raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
+        return out
+
+    raise ValueError(f"Unsupported prediction shape: {arr.shape}")
+
+
+@dataclass
 class ScoreBotSlim:
-    """
-    Runtime-only ensemble.
-    Stores ONLY models + weights + feature_cols.
-    """
-    def __init__(self, models: dict, feature_cols, weights: dict):
-        self.models = dict(models)
-        self.feature_cols = list(feature_cols)
-        self.weights = dict(weights)
+    models: Sequence[Any]
+    weights: Sequence[float]
+    feature_cols: Sequence[str]
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
-        X = df[self.feature_cols]
-        final = np.zeros(len(df), dtype=float)
-        for name, model in self.models.items():
-            w = float(self.weights.get(name, 0.0))
-            if w == 0.0:
-                continue
-            preds = model.predict(X)
-            final += w * np.asarray(preds, dtype=float)
-        return pd.Series(final, index=df.index)
+        X = df.loc[:, list(self.feature_cols)]
+        n = len(X)
 
-    def predict_one(self, feature_dict: dict) -> float:
-        row = pd.DataFrame([feature_dict])[self.feature_cols]
-        final = 0.0
-        for name, model in self.models.items():
-            w = float(self.weights.get(name, 0.0))
-            if w == 0.0:
-                continue
-            final += w * float(model.predict(row)[0])
-        return float(final)
+        final: np.ndarray | None = None
+
+        for model, w in zip(self.models, self.weights):
+            if hasattr(model, "predict_proba"):
+                preds = model.predict_proba(X)
+            else:
+                preds = model.predict(X)
+
+            p1 = _as_1d(preds, n=n)
+            if final is None:
+                final = np.zeros((n,), dtype=float)
+            final += float(w) * p1
+
+        if final is None:
+            final = np.zeros((n,), dtype=float)
+
+        return pd.Series(final, index=df.index, name="raw_score")
 
 
+@dataclass
 class CalibratedScoreBotSlim:
-    """
-    Wraps a ScoreBotSlim and applies a fitted calibration function to raw predictions.
-    """
-    def __init__(self, base_bot, calibrator_name, calibrator_params, calibrator_obj_or_fn):
-        self.base_bot = base_bot
-        self.calibrator_name = calibrator_name
-        self.calibrator_params = calibrator_params
-        self.calibrator = calibrator_obj_or_fn
-        self.feature_cols = getattr(base_bot, "feature_cols", None)
-
-    def _apply_cal(self, raw_preds: np.ndarray) -> np.ndarray:
-        raw_preds = np.asarray(raw_preds, dtype=float).reshape(-1)
-        if hasattr(self.calibrator, "predict"):
-            out = self.calibrator.predict(raw_preds)
-        else:
-            out = self.calibrator(raw_preds)
-        return np.clip(np.asarray(out, dtype=float), 0.0, 1000.0)
+    base_bot: Any
+    calibrator: Any
+    clip_low: float = 0.0
+    clip_high: float = 1000.0
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
         raw = self.base_bot.predict_df(df).values
-        cal = self._apply_cal(raw)
-        return pd.Series(cal, index=df.index)
+        raw_1d = _as_1d(raw, n=len(df))
 
-    def predict_one(self, feature_dict: dict) -> float:
-        raw = float(self.base_bot.predict_one(feature_dict))
-        cal = float(self._apply_cal(np.array([raw]))[0])
-        return cal
+        if hasattr(self.calibrator, "predict_proba"):
+            cal = self.calibrator.predict_proba(raw_1d.reshape(-1, 1))
+            cal_1d = _as_1d(cal, n=len(df))
+        elif hasattr(self.calibrator, "predict"):
+            cal = self.calibrator.predict(raw_1d.reshape(-1, 1))
+            cal_1d = _as_1d(cal, n=len(df))
+        else:
+            cal_1d = _as_1d(self.calibrator(raw_1d), n=len(df))
+
+        cal_1d = np.clip(cal_1d.astype(float, copy=False), self.clip_low, self.clip_high)
+        return pd.Series(cal_1d, index=df.index, name="pred_score")
