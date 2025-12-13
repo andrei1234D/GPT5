@@ -1,39 +1,41 @@
-### PANL
+### AA
 - N/A
 Impact: 0
 
-### FULC
+### AAGIY
 - N/A
 Impact: 0
 
-### BW
+### AAL
 - N/A
 Impact: 0
 
-### NUTX
+### AAOI
 - N/A
 Impact: 0
 
-### BLTE
+### AAPL
+- Berkshire Hathaway reduces stake in Apple, but it remains their largest position.
+- Lawsuit against Skyworks Solutions impacts stock price. 
+Impact: -10
+
+### AARD
 - N/A
 Impact: 0
 
-### TTI
+### AAUC.TO
 - N/A
 Impact: 0
 
-### KSS
+### ABG
+- Asbury Automotive promotes Clara to CEO, with Hult becoming executive chairman.
+- Institutional investors increase stake in Asbury Automotive Group, with positive quarterly earnings. 
+Impact: +15
+
+### ABI.BR
 - N/A
 Impact: 0
 
-### CGEM
-- N/A
-Impact: 0
-
-### LITE
-- N/A
-Impact: 0
-
-### GLUE
+### ABRA.TO
 - N/A
 Impact: 0
