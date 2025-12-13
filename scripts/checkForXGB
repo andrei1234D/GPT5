@@ -1,0 +1,42 @@
+from pathlib import Path
+import sys
+import joblib
+
+# IMPORTANT: import your runtime classes
+from scorebot_runtime import ScoreBotSlim, CalibratedScoreBotSlim
+
+HERE = Path(__file__).resolve().parent      # .../GPT5/scripts
+REPO = HERE.parent                         # .../GPT5
+
+p = REPO / "scripts" / "train_model" / "LLM_bot" / "Brain" / "pseudo_score_mapping" / "scorebot_multiclass_top1_CALIBRATED_SLIM.pkl"
+
+print("Loading:", p)
+print("Exists:", p.exists())
+
+# Monkey-patch __main__ so pickle can resolve notebook-defined class names
+main_mod = sys.modules.get("__main__")
+setattr(main_mod, "ScoreBotSlim", ScoreBotSlim)
+setattr(main_mod, "CalibratedScoreBotSlim", CalibratedScoreBotSlim)
+setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBotSlim)  # notebook name
+
+payload = joblib.load(str(p))
+
+print("\npayload keys:", list(payload.keys()))
+bot = payload.get("bot")
+print("bot type:", type(bot))
+
+base = getattr(bot, "base_bot", None)
+print("base_bot type:", type(base))
+
+if base is not None:
+    models = getattr(base, "models", None)
+    print("base_bot.models:", models)
+    if isinstance(models, (list, tuple)):
+        print("first 10 models:", models[:10])
+        print("types:", [type(x) for x in models[:10]])
+
+# Check for any registry dict
+for k in ("models", "model_registry", "model_map", "estimators", "artifacts"):
+    v = payload.get(k)
+    if isinstance(v, dict) and v:
+        print(f"\nFOUND payload['{k}'] keys:", list(v.keys())[:50])

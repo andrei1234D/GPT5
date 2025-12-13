@@ -2,149 +2,128 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
 
 
-def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
-    if isinstance(preds, pd.DataFrame):
-        arr = preds.values
-    elif isinstance(preds, pd.Series):
-        arr = preds.values
+def _as_1d(x: Any, n: int | None = None) -> np.ndarray:
+    """Coerce model outputs to 1D float array length n."""
+    if isinstance(x, pd.Series):
+        arr = x.to_numpy()
+    elif isinstance(x, pd.DataFrame):
+        arr = x.to_numpy()
     else:
-        arr = np.asarray(preds)
+        arr = np.asarray(x)
 
     if arr.ndim == 0:
         if n is None:
-            raise ValueError("Scalar prediction with unknown n_samples.")
+            raise ValueError("Scalar output with unknown n")
         return np.full((n,), float(arr), dtype=float)
 
     if arr.ndim == 1:
         out = arr.astype(float, copy=False)
         if n is not None and out.shape[0] != n:
-            raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
+            raise ValueError(f"Length mismatch: got {out.shape[0]}, expected {n}")
         return out
 
     if arr.ndim == 2:
-        # multiclass_top1 -> reduce to one score per row
-        out = np.max(arr.astype(float, copy=False), axis=1)
+        # Prefer binary proba P(class=1) when available.
+        if arr.shape[1] >= 2:
+            out = arr[:, 1].astype(float, copy=False)
+        else:
+            out = arr.reshape(-1).astype(float, copy=False)
         if n is not None and out.shape[0] != n:
-            raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
+            raise ValueError(f"Length mismatch: got {out.shape[0]}, expected {n}")
         return out
 
-    raise ValueError(f"Unsupported prediction shape: {arr.shape}")
+    raise ValueError(f"Unsupported output shape: {arr.shape}")
 
 
-def _resolve_model_ref(
-    m: Any,
-    model_root: Path | None,
-    cache: dict,
-    registry: Mapping[str, Any] | None,
-) -> Any:
+def _model_score(model: Any, X: pd.DataFrame) -> np.ndarray:
+    """Return a continuous per-row score from an estimator.
+
+    - If predict_proba exists, returns P(class=1) (preferred for classifiers).
+    - Else falls back to predict().
     """
-    Resolve model reference:
-      - if estimator object -> return as-is
-      - if string:
-          1) try registry lookup (alias -> estimator)
-          2) else treat as path and joblib.load() it
-    """
-    if not isinstance(m, str):
-        return m
-
-    # 1) Registry alias
-    if registry is not None and m in registry:
-        return registry[m]
-
-    # 2) Cached path load
-    if m in cache:
-        return cache[m]
-
-    import joblib  # lazy import
-
-    p = Path(m)
-    if not p.is_absolute() and model_root is not None:
-        p = (model_root / p).resolve()
-
-    if not p.exists():
-        raise FileNotFoundError(
-            f"Model reference '{m}' not found as alias in registry and not found as file path "
-            f"(resolved: {p})."
-        )
-
-    loaded = joblib.load(str(p))
-    cache[m] = loaded
-    return loaded
+    n = len(X)
+    if hasattr(model, "predict_proba"):
+        try:
+            proba = model.predict_proba(X)
+            return _as_1d(proba, n=n)
+        except Exception:
+            pass
+    preds = model.predict(X)
+    return _as_1d(preds, n=n)
 
 
 @dataclass
 class ScoreBotSlim:
-    models: Sequence[Any]
-    weights: Sequence[float]
-    feature_cols: Sequence[str]
-
-    # Optional inference-time helpers (may be missing on old pickles)
-    model_root: Path | None = None
-    model_registry: Mapping[str, Any] | None = None
+    """Matches your SLIM pickle: models/weights are dicts."""
+    models: Dict[str, Any]
+    feature_cols: list[str]
+    weights: Dict[str, float]
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
-        # Backward-compatible for old pickles
-        if not hasattr(self, "_model_cache") or getattr(self, "_model_cache") is None:
-            setattr(self, "_model_cache", {})
-        if not hasattr(self, "model_root"):
-            setattr(self, "model_root", None)
-        if not hasattr(self, "model_registry"):
-            setattr(self, "model_registry", None)
+        X = df.loc[:, self.feature_cols]
+        out = np.zeros(len(X), dtype=float)
 
-        cache = getattr(self, "_model_cache")
-        root = getattr(self, "model_root")
-        registry = getattr(self, "model_registry")
+        for name, model in self.models.items():
+            w = float(self.weights.get(name, 0.0))
+            if w == 0.0:
+                continue
+            out += w * _model_score(model, X)
 
-        X = df.loc[:, list(self.feature_cols)]
-        n = len(X)
+        return pd.Series(out, index=df.index, name="raw_score")
 
-        final: np.ndarray | None = None
-
-        for model, w in zip(self.models, self.weights):
-            model_obj = _resolve_model_ref(model, root, cache, registry)
-
-            if hasattr(model_obj, "predict_proba"):
-                preds = model_obj.predict_proba(X)
-            else:
-                preds = model_obj.predict(X)
-
-            p1 = _as_1d(preds, n=n)
-            if final is None:
-                final = np.zeros((n,), dtype=float)
-            final += float(w) * p1
-
-        if final is None:
-            final = np.zeros((n,), dtype=float)
-
-        return pd.Series(final, index=df.index, name="raw_score")
+    def predict_one(self, feature_dict: dict) -> float:
+        row = pd.DataFrame([feature_dict]).loc[:, self.feature_cols]
+        s = 0.0
+        for name, model in self.models.items():
+            w = float(self.weights.get(name, 0.0))
+            if w == 0.0:
+                continue
+            s += w * float(_model_score(model, row)[0])
+        return float(s)
 
 
 @dataclass
-class CalibratedScoreBotSlim:
+class CalibratedScoreBot:
+    """Matches your SLIM pickle (IsotonicRegression calibrator)."""
     base_bot: Any
-    calibrator: Any
+    calibrator_name: str | None = None
+    calibrator_params: dict | None = None
+    calibrator: Any = None
     clip_low: float = 0.0
     clip_high: float = 1000.0
 
-    def predict_df(self, df: pd.DataFrame) -> pd.Series:
-        raw = self.base_bot.predict_df(df).values
-        raw_1d = _as_1d(raw, n=len(df))
+    @property
+    def feature_cols(self) -> list[str]:
+        return list(getattr(self.base_bot, "feature_cols", []))
 
-        if hasattr(self.calibrator, "predict_proba"):
-            cal = self.calibrator.predict_proba(raw_1d.reshape(-1, 1))
-            cal_1d = _as_1d(cal, n=len(df))
-        elif hasattr(self.calibrator, "predict"):
-            cal = self.calibrator.predict(raw_1d.reshape(-1, 1))
-            cal_1d = _as_1d(cal, n=len(df))
+    def _apply_cal(self, raw_1d: np.ndarray) -> np.ndarray:
+        x = np.asarray(raw_1d, dtype=float).reshape(-1)
+        if self.calibrator is None:
+            raise RuntimeError("Missing calibrator on CalibratedScoreBot")
+
+        if hasattr(self.calibrator, "predict"):
+            y = self.calibrator.predict(x)
         else:
-            cal_1d = _as_1d(self.calibrator(raw_1d), n=len(df))
+            y = self.calibrator(x)
 
-        cal_1d = np.clip(cal_1d.astype(float, copy=False), self.clip_low, self.clip_high)
-        return pd.Series(cal_1d, index=df.index, name="pred_score")
+        y = np.asarray(y, dtype=float).reshape(-1)
+        return np.clip(y, self.clip_low, self.clip_high)
+
+    def predict_df(self, df: pd.DataFrame) -> pd.Series:
+        raw = self.base_bot.predict_df(df).to_numpy()
+        cal = self._apply_cal(raw)
+        return pd.Series(cal, index=df.index, name="pred_score")
+
+    def predict_one(self, feature_dict: dict) -> float:
+        raw = float(self.base_bot.predict_one(feature_dict))
+        return float(self._apply_cal(np.asarray([raw]))[0])
+
+
+# Backwards-compatible aliases for older imports
+CalibratedScoreBotSlim = CalibratedScoreBot

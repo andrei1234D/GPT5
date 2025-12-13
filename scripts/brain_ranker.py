@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from scorebot_runtime import ScoreBotSlim, CalibratedScoreBotSlim
+from scorebot_runtime import ScoreBotSlim, CalibratedScoreBot
 from llm_data_builder import build_llm_today_data
 
 
@@ -32,11 +32,11 @@ def _load_scorebot(path: Path):
     if not path.exists():
         raise FileNotFoundError(f"ScoreBot pickle not found: {path}")
 
-    # Map notebook-defined classes to runtime equivalents
+    # Map notebook-defined class names to runtime equivalents for unpickling.
     main_mod = sys.modules.get("__main__")
     setattr(main_mod, "ScoreBotSlim", ScoreBotSlim)
-    setattr(main_mod, "CalibratedScoreBotSlim", CalibratedScoreBotSlim)
-    setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBotSlim)
+    setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBot)
+    setattr(main_mod, "CalibratedScoreBotSlim", CalibratedScoreBot)
 
     payload = joblib.load(str(path))
     bot = payload.get("bot")
@@ -45,12 +45,22 @@ def _load_scorebot(path: Path):
 
     feature_cols = payload.get("feature_cols") or getattr(bot, "feature_cols", None)
     if not feature_cols:
-        raise RuntimeError("Missing feature_cols in pickle and bot")
+        raise RuntimeError("Missing feature_cols in payload and bot")
 
-    # IMPORTANT: if base_bot.models contains string paths, resolve relative to the pickle folder
+    # Defensive: inject feature_cols/weights into base bot if missing.
     base = getattr(bot, "base_bot", None)
-    if base is not None and hasattr(base, "model_root"):
-        base.model_root = path.parent
+    if base is not None:
+        if getattr(base, "feature_cols", None) in (None, [], ()):
+            try:
+                base.feature_cols = list(feature_cols)
+            except Exception:
+                pass
+        w = payload.get("weights")
+        if isinstance(w, dict) and getattr(base, "weights", None) in (None, [], ()):
+            try:
+                base.weights = dict(w)
+            except Exception:
+                pass
 
     return bot, list(feature_cols)
 
@@ -86,7 +96,7 @@ def rank_with_brain(
     if missing:
         raise RuntimeError(f"LLM_today_data missing required features: {missing}")
 
-    preds = bot.predict_df(df).values
+    preds = bot.predict_df(df).to_numpy()
     df["pred_score"] = np.clip(preds.astype(float), 0.0, 1000.0)
 
     df["Ticker"] = df["Ticker"].astype(str)
