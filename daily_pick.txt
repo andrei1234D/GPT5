@@ -1,17 +1,15 @@
 Daily Stock Pick — 2025-12-13
 
-AARD – Aardvark Therapeutics
+CIEN – Ciena
 
-News: "Aardvark Therapeutics receives positive trial updates and analyst coverage, leading to a rise in stock price. | Aardvark's hunger-suppressing drug candidates have significant market potential, with promising clinical programs. | Impact: +40"
+News: "Ciena Corporation has soared to a 24-year high based on strong earnings performance and a positive outlook for 2026. | Impact: +35"
 
-Initial base score (BrainScore + News Impact): 131.039779
+Initial base score (BrainScore + News Impact): 121.039779
 
 ADVICE DECISION: N/A
 
-Certainty: 56%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/AARD/forecast
+Forecast image URL: https://stockscan.io/stocks/CIEN/forecast
 
-What reduced the score: Very low BrainScore vs. thresholds; RSI_14 extremely overbought (87.4092); elevated 30D volatility (1.183); stretched 52w position (0.7299)
-
-Verifier note: Confirmed BrainScore baseline; while momentum (pos_30d=0.9457, Momentum_63D/126D>0) and positive news help, overbought/volatility suggest near-term risk—no adjustment to BASE warranted.
+What reduced the score: Extremely overbought RSI_14 (86.3); stretched 52-week position (pos_52w ~0.97); elevated 30D/252D volatility; risk of near-term mean reversion despite positive news
