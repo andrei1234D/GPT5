@@ -114,7 +114,7 @@ def rank_with_brain(
     # Ensure today data exists
     llm_path = Path(llm_data_path)
     if not llm_path.exists():
-        build_llm_today_data(stage2_path=stage2_path, out_path=str(llm_path), top_n=max(50, top_k * 5))
+        build_llm_today_data(stage2_path=stage2_path, out_path=str(llm_path), top_n=max(10, top_k * 5))
 
     bot, feature_cols, _payload = _load_scorebot(SCOREBOT_PATH)
 
