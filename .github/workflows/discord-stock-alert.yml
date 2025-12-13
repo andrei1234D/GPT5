@@ -139,7 +139,7 @@ jobs:
 
           # Sync FIRST (clean tree)
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
           git add -f data/*.csv logs/*.csv || true
           if git diff --cached --quiet; then
@@ -152,7 +152,7 @@ jobs:
           # Push with retries in case remote moved again
           for i in 1 2 3; do
             git fetch origin main
-            git rebase -X ours origin/main || { git rebase --abort; }
+            git rebase --autostash -X ours origin/main || { git rebase --abort; }
             if git push origin HEAD:main; then
               echo "Push succeeded"
               break
@@ -174,7 +174,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
           git add -f data/LLM_today_data.jsonl || true
           if git diff --cached --quiet; then
@@ -186,7 +186,7 @@ jobs:
 
           for i in 1 2 3; do
             git fetch origin main
-            git rebase -X ours origin/main || { git rebase --abort; }
+            git rebase --autostash -X ours origin/main || { git rebase --abort; }
             if git push origin HEAD:main; then
               echo "Push succeeded"
               break
@@ -208,7 +208,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
           git add -f data/LLM_today_scores.jsonl data/brain_ranked_scores.csv || true
           if git diff --cached --quiet; then
@@ -220,7 +220,7 @@ jobs:
 
           for i in 1 2 3; do
             git fetch origin main
-            git rebase -X ours origin/main || { git rebase --abort; }
+            git rebase --autostash -X ours origin/main || { git rebase --abort; }
             if git push origin HEAD:main; then
               echo "Push succeeded"
               break
@@ -247,7 +247,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
           git add -f data/news_summary_top10.txt || true
           if git diff --cached --quiet; then
@@ -259,7 +259,7 @@ jobs:
 
           for i in 1 2 3; do
             git fetch origin main
-            git rebase -X ours origin/main || { git rebase --abort; }
+            git rebase --autostash -X ours origin/main || { git rebase --abort; }
             if git push origin HEAD:main; then
               echo "Push succeeded"
               break
@@ -285,7 +285,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
       # Recreate requirements.txt in THIS job (jobs do not share workspace)
       - name: Ensure dependency manifest
@@ -334,7 +334,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
 
           git add -f logs/*.txt daily_pick.txt || true
           if git diff --cached --quiet; then
@@ -346,7 +346,7 @@ jobs:
 
           for i in 1 2 3; do
             git fetch origin main
-            git rebase -X ours origin/main || { git rebase --abort; }
+            git rebase --autostash -X ours origin/main || { git rebase --abort; }
             if git push origin HEAD:main; then
               echo "Push succeeded"
               break
