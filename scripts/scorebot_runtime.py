@@ -3,14 +3,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 import pandas as pd
 
 
 def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
-    """Normalize predictions to a 1D float array of length n."""
     if isinstance(preds, pd.DataFrame):
         arr = preds.values
     elif isinstance(preds, pd.Series):
@@ -30,7 +29,7 @@ def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
         return out
 
     if arr.ndim == 2:
-        # multiclass_top1 -> reduce to 1 score per row
+        # multiclass_top1 -> reduce to one score per row
         out = np.max(arr.astype(float, copy=False), axis=1)
         if n is not None and out.shape[0] != n:
             raise ValueError(f"Prediction length mismatch: got {out.shape[0]}, expected {n}")
@@ -39,11 +38,27 @@ def _as_1d(preds: Any, n: int | None = None) -> np.ndarray:
     raise ValueError(f"Unsupported prediction shape: {arr.shape}")
 
 
-def _maybe_load_model(m: Any, model_root: Path | None, cache: dict) -> Any:
-    """If model is a string path, load it once (joblib) relative to model_root."""
+def _resolve_model_ref(
+    m: Any,
+    model_root: Path | None,
+    cache: dict,
+    registry: Mapping[str, Any] | None,
+) -> Any:
+    """
+    Resolve model reference:
+      - if estimator object -> return as-is
+      - if string:
+          1) try registry lookup (alias -> estimator)
+          2) else treat as path and joblib.load() it
+    """
     if not isinstance(m, str):
         return m
 
+    # 1) Registry alias
+    if registry is not None and m in registry:
+        return registry[m]
+
+    # 2) Cached path load
     if m in cache:
         return cache[m]
 
@@ -55,7 +70,8 @@ def _maybe_load_model(m: Any, model_root: Path | None, cache: dict) -> Any:
 
     if not p.exists():
         raise FileNotFoundError(
-            f"Model reference is a string but file was not found: '{m}' (resolved: {p})"
+            f"Model reference '{m}' not found as alias in registry and not found as file path "
+            f"(resolved: {p})."
         )
 
     loaded = joblib.load(str(p))
@@ -68,24 +84,31 @@ class ScoreBotSlim:
     models: Sequence[Any]
     weights: Sequence[float]
     feature_cols: Sequence[str]
-    # NOTE: do NOT rely on this existing on old pickles; brain_ranker will set it if available
+
+    # Optional inference-time helpers (may be missing on old pickles)
     model_root: Path | None = None
+    model_registry: Mapping[str, Any] | None = None
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
-        # Backward-compatible: old pickles won't have these attrs
+        # Backward-compatible for old pickles
         if not hasattr(self, "_model_cache") or getattr(self, "_model_cache") is None:
             setattr(self, "_model_cache", {})
         if not hasattr(self, "model_root"):
             setattr(self, "model_root", None)
+        if not hasattr(self, "model_registry"):
+            setattr(self, "model_registry", None)
 
         cache = getattr(self, "_model_cache")
+        root = getattr(self, "model_root")
+        registry = getattr(self, "model_registry")
+
         X = df.loc[:, list(self.feature_cols)]
         n = len(X)
 
         final: np.ndarray | None = None
 
         for model, w in zip(self.models, self.weights):
-            model_obj = _maybe_load_model(model, getattr(self, "model_root", None), cache)
+            model_obj = _resolve_model_ref(model, root, cache, registry)
 
             if hasattr(model_obj, "predict_proba"):
                 preds = model_obj.predict_proba(X)
