@@ -66,24 +66,57 @@ class ScoreBotSlim:
 
     def predict_df(self, df: pd.DataFrame) -> pd.Series:
         X = df.loc[:, self.feature_cols]
-        out = np.zeros(len(X), dtype=float)
+        n = len(X)
+        out = np.zeros(n, dtype=float)
+
         print("[DEBUG] X shape:", X.shape)
-        print("[DEBUG] X dtypes head:", X.dtypes.head(10))
+        print("[DEBUG] X dtypes head:\n", X.dtypes.head(10))
+
+        # compute each model score once (avoid recomputing)
+        model_scores = {}
 
         for name, model in self.models.items():
             w = float(self.weights.get(name, 0.0))
             if w == 0.0:
                 continue
+
             s = _model_score(model, X)
-            print(f"[DEBUG] {name}: score unique={len(np.unique(s))} min={s.min():.6f} max={s.max():.6f}")
+            s = np.asarray(s, dtype=float).reshape(-1)
 
-        for name, model in self.models.items():
+            if s.shape[0] != n:
+                raise RuntimeError(
+                    f"[ERROR] {name} produced {s.shape[0]} scores, expected {n}"
+                )
+
+            model_scores[name] = s
+
+            print(
+                f"[DEBUG] {name}: "
+                f"unique={len(np.unique(s))} "
+                f"min={s.min():.6f} "
+                f"max={s.max():.6f}"
+            )
+
+        for name, s in model_scores.items():
             w = float(self.weights.get(name, 0.0))
-            if w == 0.0:
-                continue
-            out += w * _model_score(model, X)
+            contrib = w * s
+            out += contrib
+
+            print(
+                f"[DEBUG] {name} weighted: "
+                f"min={contrib.min():.6f} "
+                f"max={contrib.max():.6f}"
+            )
+
+        print(
+            f"[DEBUG] raw_score: "
+            f"unique={len(np.unique(out))} "
+            f"min={out.min():.6f} "
+            f"max={out.max():.6f}"
+        )
 
         return pd.Series(out, index=df.index, name="raw_score")
+
 
     def predict_one(self, feature_dict: dict) -> float:
         row = pd.DataFrame([feature_dict]).loc[:, self.feature_cols]
