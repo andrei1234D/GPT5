@@ -1,22 +1,23 @@
-Daily Stock Pick — 2025-12-14
+Daily Stock Pick — "Dec 14, 2025"
 
-FULC – Fulcrum Therapeutics
+"FULC – Fulcrum Therapeutics"
 
 News: "N/A | Impact: 0"
 
-Initial base score (BrainScore + News Impact): 435.162449
+Score: "(435.162449 + 0 + 0) = 435.162449"
 
-ADVICE DECISION: Apply based on Advice Rules above.
+ADVICE: ```arm NO BUY ```
 
-Certainty: 63%
+Certainty: "60%"
 
-Forecast image URL: https://stockscan.io/stocks/FULC/forecast
+Forecast image URL: "https://stockscan.io/stocks/FULC/forecast"
 
-Verifier note: Treating pred_score as BrainScore. Metrics show solid medium- to long-term momentum (Momentum_63D/126D/252D all positive), RSI_14 ~57 (not overbought), and strong positioning (pos_30d ~0.68, pos_52w ~0.80). However, 30D volatility is elevated vs 252D (1.66 vs 0.92), and there is no news catalyst. These support a sub-buy BASE and I confirm the BrainScore with no adjustment.
+Verifier note: Confirming BrainScore. Support: RSI_14=57.44 (neutral-bullish), strong momentum across 63/126/252D (1.84/1.90/3.21), pos_30d=0.68 and pos_52w=0.80 indicate trend strength. Caution: very high Volatility_30D=1.66 implies elevated risk. No news impact. Net: keep BASE, no adjustment. No external sources used.
 
 ---
-**Legend
-🟢 **Strong Buy** — pred_cal > 480 → “Very rare, top-of-top signal”
-🟡 **Buy** — pred_cal ≈ 460+ → “Often associated with extreme outcomes (900+)”
-🔴 **Ignore** — pred_cal < 430 → “Ignore”
+**Legend**
+🟢🟢🟢 **Strong Buy Ultra** — Score > 550 → “Very rare, top-of-top signal”
+🟢 **Strong Buy** — Score > 490 → “Very rare, top-of-top signal”
+🟡 **Buy** — Score ≈ 460+ → “Often associated with extreme outcomes (900+)”
+🔴 **Ignore** — Score < 430 → “Ignore”
 
