@@ -42,17 +42,17 @@ The news block already includes 1–3 lines and a final integer, for example `Im
 You must preserve the news integer exactly: do not change its value, sign, or name.
 
  ADVICE RULES (use these exact code-block formats):
-- If BASE ≥ 720 →
+- If BASE ≥ 480 →
 ```diff
 +Strong Buy
 ```
 
-- If BASE ≥ 650→
+- If BASE ≥ 460→
 ```ini
 [Buy]
 ```
 
-- If BASE ≥ 580→
+- If BASE ≤ 460→
 ```arm
 NO BUY
 ```
@@ -71,7 +71,7 @@ News: "N/A | Impact: 0"
 
 Initial base score (BrainScore + News Impact): 563.611877
 
-ADVICE DECISION: N/A
+ADVICE DECISION: Apply based on Advice Rules above.
 
 Certainty: 60%
 
