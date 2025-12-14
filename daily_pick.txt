@@ -4,20 +4,20 @@ Daily Stock Pick — "Dec 14, 2025"
 
 News: "N/A | Impact: 0"
 
-Score: "(435.162449 + 0 + 0) = 435.162449"
+Score ML+ News Impact + GPT5 Adjustment: "(435.16 + 0 + 8.70) = 443.87"
 
-ADVICE: ```arm NO BUY ```
+ADVICE: "NO_BUY"
 
-Certainty: "60%"
+Certainty: "62%"
 
 Forecast image URL: "https://stockscan.io/stocks/FULC/forecast"
 
-Verifier note: Confirming BrainScore. Support: RSI_14=57.44 (neutral-bullish), strong momentum across 63/126/252D (1.84/1.90/3.21), pos_30d=0.68 and pos_52w=0.80 indicate trend strength. Caution: very high Volatility_30D=1.66 implies elevated risk. No news impact. Net: keep BASE, no adjustment. No external sources used.
+Verifier note: "BASE = BrainScore + News Impact; modest +2% adjustment for solid momentum (RSI_14 ~57.4, pos_30d ~0.68, strong 63/126/252D momentum) while elevated 30D volatility (1.655) and near 52w highs (pos_52w ~0.80) temper conviction; no news catalyst. Confirming Brain’s cautious stance below Buy."
 
 ---
 **Legend**
-🟢🟢🟢 **Strong Buy Ultra** — Score > 550 → “Very rare, top-of-top signal”
-🟢 **Strong Buy** — Score > 490 → “Very rare, top-of-top signal”
-🟡 **Buy** — Score ≈ 460+ → “Often associated with extreme outcomes (900+)”
-🔴 **Ignore** — Score < 430 → “Ignore”
+🟢🟢🟢 **Ultra Strong Buy** — Score > 540 → “Guaranteed high return”
+🟢 **Strong Buy** — Score > 485 → “Amazing Chances”
+🟡 **Buy** — Score ≈ 460+ → “Great Chances”
+🔴 **Ignore** — Score < 460 → “Ignore”
 
