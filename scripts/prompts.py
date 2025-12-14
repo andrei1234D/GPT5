@@ -69,7 +69,7 @@ Daily Stock Pick — "Date"
 
 News: "N/A | Impact: 0"
 
-Score: "(BrainScore + News Impact+ any adjustment) = FINAL SCORE"
+Score ML+ News Impact + GPT5 Adjustment: "(BrainScore + News Impact+ verifier adjustment(yours only if applicable)) = FINAL SCORE"
 
 ADVICE: "Apply based on Advice Rules above"
 
