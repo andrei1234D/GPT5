@@ -148,10 +148,10 @@ def _append_score_legend(text: str) -> str:
     legend = (
         "\n\n---\n"
         "**Legend**\n"
-        "🟢🟢🟢 **Strong Buy Ultra** — Score > 550 → “Very rare, top-of-top signal”\n"
-        "🟢 **Strong Buy** — Score > 490 → “Very rare, top-of-top signal”\n"
-        "🟡 **Buy** — Score ≈ 460+ → “Often associated with extreme outcomes (900+)”\n"
-        "🔴 **Ignore** — Score < 430 → “Ignore”\n"
+        "🟢🟢🟢 **Ultra Strong Buy** — Score > 540 → “Guaranteed high return”\n"
+        "🟢 **Strong Buy** — Score > 485 → “Amazing Chances”\n"
+        "🟡 **Buy** — Score ≈ 460+ → “Great Chances”\n"
+        "🔴 **Ignore** — Score < 460 → “Ignore”\n"
         "\n"
     )
     return (text or "").rstrip() + legend

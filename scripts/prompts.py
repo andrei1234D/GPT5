@@ -42,7 +42,7 @@ The news block already includes 1–3 lines and a final integer, for example `Im
 You must preserve the news integer exactly: do not change its value, sign, or name.
 
  ADVICE RULES (use these exact code-block formats):
-- If Score ≥ 480 →
+- If Score ≥ 485 →
 ```diff
 +Strong Buy
 ```
@@ -52,7 +52,7 @@ You must preserve the news integer exactly: do not change its value, sign, or na
 [Buy]
 ```
 
-- If Score ≤ 460→
+- If Score ≤ 459→
 ```arm
 NO BUY
 ```
