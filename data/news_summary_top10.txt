@@ -22,15 +22,15 @@ Impact: 0
 - N/A
 Impact: 0
 
+### TSEM.TA
+- N/A
+Impact: 0
+
 ### BLTE
 - N/A
 Impact: 0
 
 ### MU
-- N/A
-Impact: 0
-
-### SQM
 - N/A
 Impact: 0
 
