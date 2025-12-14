@@ -60,16 +60,14 @@ NO_BUY
 - Else → `N/A`
 
 OUTPUT FORMAT (MANDATORY)
-For downstream parsing, output **exactly 8 lines** per pick in this order:
+For downstream parsing, output **exactly 7 lines** per pick in this order:
 
-
-Daily Stock Pick — "Date"
 
 "TICKER – Full Name"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(BrainScore + News Impact+ verifier adjustment(yours only if applicable)) = FINAL SCORE"
+Score ML+ News Impact + GPT5 Adjustment: (BrainScore + News Impact+ verifier adjustment(yours only if applicable) = FINAL SCORE
 
 ADVICE: "Apply based on Advice Rules above"
 
