@@ -147,10 +147,11 @@ def _append_score_legend(text: str) -> str:
     """
     legend = (
         "\n\n---\n"
-        "**Legend\n"
-        "🟢 **Strong Buy** — pred_cal > 480 → “Very rare, top-of-top signal”\n"
-        "🟡 **Buy** — pred_cal ≈ 460+ → “Often associated with extreme outcomes (900+)”\n"
-        "🔴 **Ignore** — pred_cal < 430 → “Ignore”\n"
+        "**Legend**\n"
+        "🟢🟢🟢 **Strong Buy Ultra** — Score > 550 → “Very rare, top-of-top signal”\n"
+        "🟢 **Strong Buy** — Score > 490 → “Very rare, top-of-top signal”\n"
+        "🟡 **Buy** — Score ≈ 460+ → “Often associated with extreme outcomes (900+)”\n"
+        "🔴 **Ignore** — Score < 430 → “Ignore”\n"
         "\n"
     )
     return (text or "").rstrip() + legend
@@ -203,8 +204,8 @@ def main():
     news_text_path = "data/news_summary_top10.txt"
     news_map = load_news_summary(news_text_path)
 
-    # 4.5) Filter: select only top 1 unless multiple have pred_score >= 720
-    score_threshold = 720.0
+    # 4.5) Filter: select only top 1 unless multiple have pred_score >= 480
+    score_threshold = 480.0
     candidates = [(t, pred_scores.get(t, 0.0)) for t in tickers_top10]
     candidates.sort(key=lambda x: float(x[1]), reverse=True)
 

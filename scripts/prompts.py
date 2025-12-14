@@ -42,17 +42,17 @@ The news block already includes 1–3 lines and a final integer, for example `Im
 You must preserve the news integer exactly: do not change its value, sign, or name.
 
  ADVICE RULES (use these exact code-block formats):
-- If BASE ≥ 480 →
+- If Score ≥ 480 →
 ```diff
 +Strong Buy
 ```
 
-- If BASE ≥ 460→
+- If Score ≥ 460→
 ```ini
 [Buy]
 ```
 
-- If BASE ≤ 460→
+- If Score ≤ 460→
 ```arm
 NO BUY
 ```
@@ -63,23 +63,21 @@ OUTPUT FORMAT (MANDATORY)
 For downstream parsing, output **exactly 8 lines** per pick in this order:
 
 
-Daily Stock Pick — 2025-11-26
+Daily Stock Pick — "Date"
 
-VTYX – Ventyx Biosciences
+"TICKER – Full Name"
 
 News: "N/A | Impact: 0"
 
-Initial base score (BrainScore + News Impact): 563.611877
+Score: "(BrainScore + News Impact+ any adjustment) = FINAL SCORE"
 
-ADVICE DECISION: Apply based on Advice Rules above.
+ADVICE: "Apply based on Advice Rules above"
 
-Certainty: 60%
+Certainty: "percentage (0–100%)"
 
-Forecast image URL: https://stockscan.io/stocks/VTYX/forecast
+Forecast image URL: "https://stockscan.io/stocks/VTYX/forecast"  (replace VTYX with actual ticker)
 
-What reduced the score: RSI near overbought; MACD_hist negative; high ATRpct/volatility; neutral market trend; no news catalyst
-
-Verifier note: Confirmed BrainScore; mixed momentum (EMA50>EMA200, pos_30d>0) but elevated risk and slight overbought readings align with a sub-buy BASE—no adjustment warranted.
+Verifier note: "Your concise rationale here, including any external sources used"
 
 
 Be concise and factual. Keep your language suitable for automated parsing and for human review.
