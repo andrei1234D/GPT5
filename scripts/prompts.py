@@ -54,7 +54,7 @@ You must preserve the news integer exactly: do not change its value, sign, or na
 
 - If Score ≤ 459→
 ```arm
-NO BUY
+NO_BUY
 ```
 
 - Else → `N/A`
