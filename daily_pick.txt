@@ -1,15 +1,9 @@
-Daily Stock Pick — 2025-12-13
-
-CIEN – Ciena
-
-News: "Ciena Corporation has soared to a 24-year high based on strong earnings performance and a positive outlook for 2026. | Impact: +35"
-
-Initial base score (BrainScore + News Impact): 121.039779
-
+Daily Stock Pick — 2025-12-14
+FULC – Fulcrum Therapeutics
+News: "N/A | Impact: 0"
+Initial base score (BrainScore + News Impact): 439.012987
 ADVICE DECISION: N/A
-
-Certainty: 62%
-
-Forecast image URL: https://stockscan.io/stocks/CIEN/forecast
-
-What reduced the score: Extremely overbought RSI_14 (86.3); stretched 52-week position (pos_52w ~0.97); elevated 30D/252D volatility; risk of near-term mean reversion despite positive news
+Certainty: 58%
+Forecast image URL: https://stockscan.io/stocks/FULC/forecast
+What reduced the score: Very high 30D volatility vs 252D; no news catalyst; RSI_14 ~58 (not a strong edge); BASE well below buy thresholds despite positive momentum.
+Verifier note: Confirmed BrainScore; positives (Momentum_63D/126D/252D all strong, pos_30d>0, pos_52w high) are offset by elevated short-term volatility and lack of catalysts—no adjustment warranted.

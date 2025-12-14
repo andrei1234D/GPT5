@@ -1,16 +1,4 @@
-### ABX.TO
-- N/A
-Impact: 0
-
-### ARQT
-- N/A
-Impact: 0
-
-### BLTE
-- Babcock & Wilcox is facing financial challenges but has received a notice to proceed with CO2 capture technology for a U.S. power plant, showcasing a positive initiative.
-Impact: -5
-
-### CDTX
+### FULC
 - N/A
 Impact: 0
 
@@ -18,18 +6,34 @@ Impact: 0
 - N/A
 Impact: 0
 
-### CG.TO
+### KOD
 - N/A
 Impact: 0
 
-### CGEM
+### LITE
 - N/A
 Impact: 0
 
-### CIEN
-- Ciena Corporation has soared to a 24-year high based on strong earnings performance and a positive outlook for 2026.
-Impact: +35
+### OESX
+- N/A
+Impact: 0
 
-### COMM
-- CommScope stock has hit a 52-week high, with substantial investor confidence and strong financial performance, despite experiencing a pullback after a significant rally.
-Impact: +20
+### NRIX
+- N/A
+Impact: 0
+
+### BLTE
+- N/A
+Impact: 0
+
+### SQM
+- N/A
+Impact: 0
+
+### TYRA
+- N/A
+Impact: 0
+
+### MU
+- N/A
+Impact: 0
