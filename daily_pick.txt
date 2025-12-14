@@ -1,17 +1,9 @@
-Daily Stock Pick — 2025-12-13
-
+Daily Stock Pick — 2025-12-14
 FULC – Fulcrum Therapeutics
-
 News: "N/A | Impact: 0"
-
 Initial base score (BrainScore + News Impact): 439.012987
-
 ADVICE DECISION: N/A
-
 Certainty: 58%
-
 Forecast image URL: https://stockscan.io/stocks/FULC/forecast
-
-What reduced the score: Elevated 30D volatility vs 252D; no news catalyst; BASE well below buy threshold despite neutral RSI and positive 30D/52W positioning
-
-Verifier note: Confirmed BrainScore (using pred_score as BrainScore). Metrics show improving momentum (63D/126D), positive pos_30d and pos_52w, and neutral RSI_14 (~57.6), but significantly higher recent volatility raises risk and there’s no news catalyst; no adjustment warranted.
+What reduced the score: Very high 30D volatility vs 252D; no news catalyst; RSI_14 ~58 (not a strong edge); BASE well below buy thresholds despite positive momentum.
+Verifier note: Confirmed BrainScore; positives (Momentum_63D/126D/252D all strong, pos_30d>0, pos_52w high) are offset by elevated short-term volatility and lack of catalysts—no adjustment warranted.
