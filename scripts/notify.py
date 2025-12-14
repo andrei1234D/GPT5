@@ -140,6 +140,22 @@ def _post_discord(webhook_url: str, title: str, description: str) -> None:
     requests.post(webhook_url, json=payload, timeout=60).raise_for_status()
 
 
+def _append_score_legend(text: str) -> str:
+    """
+    Appends an interpretation legend for pred_cal to the Discord message.
+    Uses colored circle emojis for Strong Buy / Buy / Ignore.
+    """
+    legend = (
+        "\n\n---\n"
+        "**Legend\n"
+        "🟢 **Strong Buy** — pred_cal > 480 → “Very rare, top-of-top signal”\n"
+        "🟡 **Buy** — pred_cal ≈ 460+ → “Often associated with extreme outcomes (900+)”\n"
+        "🔴 **Ignore** — pred_cal < 430 → “Ignore”\n"
+        "\n"
+    )
+    return (text or "").rstrip() + legend
+
+
 def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
@@ -182,42 +198,10 @@ def main():
         return fail("Brain returned no top tickers.")
     log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers_top10)}")
 
-    # 4) Load feature records + News
+    # 4) Load feature records + News (news is passed to GPT; no inline 'Impact' adjustment here)
     llm_map = _load_llm_records(llm_today_path)
     news_text_path = "data/news_summary_top10.txt"
     news_map = load_news_summary(news_text_path)
-
-    # 4.1) Parse and integrate News Impact into pred_scores (optional)
-    import re
-
-    impact_pattern = re.compile(r"###\s*([A-Z0-9._-]+).*?Impact:\s*([+-]?\d+)", re.DOTALL)
-    news_impact: dict[str, int] = {}
-
-    if os.path.exists(news_text_path):
-        txt = Path(news_text_path).read_text(encoding="utf-8")
-        for match in impact_pattern.finditer(txt):
-            ticker, impact_str = match.groups()
-            try:
-                news_impact[ticker] = int(impact_str)
-            except Exception:
-                continue
-    else:
-        log(f"[WARN] Missing {news_text_path}, skipping news impact integration")
-
-    if not news_impact:
-        log("[WARN] No Impact lines found in news summary; all news impacts = 0")
-
-    adjusted_scores = {}
-    for t in tickers_top10:
-        brain = float(pred_scores.get(t, 0.0))
-        impact = int(news_impact.get(t, 0))
-        adjusted = brain + impact
-        adjusted_scores[t] = adjusted
-        impact_str = f"+{impact}" if impact > 0 else str(impact) if impact != 0 else "NA"
-        log(f"[ADJUST] {t}: pred_score={brain:.2f}, news impact={impact_str}, adjusted={adjusted:.2f}")
-
-    pred_scores = adjusted_scores
-    log("[INFO] pred_scores updated with news impact adjustments.")
 
     # 4.5) Filter: select only top 1 unless multiple have pred_score >= 720
     score_threshold = 720.0
@@ -308,6 +292,9 @@ def main():
         final_text = call_gpt5(SYSTEM_PROMPT_TOP20_EXT, user_prompt, max_tokens=4500)
     except Exception as e:
         return fail(f"GPT-5 failed: {repr(e)}")
+
+    # Append legend for Discord readability
+    final_text = _append_score_legend(final_text)
 
     # 8) Save output
     Path("daily_pick.txt").write_text(final_text, encoding="utf-8")
