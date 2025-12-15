@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 14, 2025"
+Daily Stock Pick — "Dec 15, 2025"
 
 "FULC – Fulcrum Therapeutics"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(435.16 + 0 + 8.70) = 443.87"
+Score ML+ News Impact + GPT5 Adjustment: "(435.162449 + 0 + 0) = 435.162449"
 
-ADVICE: "NO_BUY"
+ADVICE: NO_BUY
 
-Certainty: "62%"
+Certainty: "63%"
 
 Forecast image URL: "https://stockscan.io/stocks/FULC/forecast"
 
-Verifier note: "BASE = BrainScore + News Impact; modest +2% adjustment for solid momentum (RSI_14 ~57.4, pos_30d ~0.68, strong 63/126/252D momentum) while elevated 30D volatility (1.655) and near 52w highs (pos_52w ~0.80) temper conviction; no news catalyst. Confirming Brain’s cautious stance below Buy."
+Verifier note: "Confirmed BrainScore: strong multi-horizon momentum (63/126/252D), high pos_30d and pos_52w, and neutral-bullish RSI_14=57.4 support upside, but very elevated 30D and 252D volatility (1.66/0.92) increases risk; no new catalysts (Impact: 0). No adjustment applied. No external sources used."
 
 ---
 **Legend**
