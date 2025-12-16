@@ -1,10 +1,10 @@
-TODAY is Dec 15. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
+TODAY is Dec 16. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
 
 Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.
 
 Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
-FULC - Fulcrum Therapeutics,FULC,435.162449,13,1.655177,0.919541,1.838755,1.89781,3.209876,0.156797,1.800004,1.601704,2.315481,0.795903,0.676505,57.441253,12.0,N/A | Impact: 0
+JFU - 9F,JFU,522.70662,6.3,1.437575,1.107925,2.432433,4.329897,4.038462,0.17408,1.297538,1.866886,3.600264,0.624557,0.397727,64.705882,12.0,N/A | Impact: 0
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 
