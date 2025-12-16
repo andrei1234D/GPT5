@@ -1,4 +1,8 @@
-### FULC
+### JFU
+- N/A
+Impact: 0
+
+### NUTX
 - N/A
 Impact: 0
 
@@ -10,15 +14,11 @@ Impact: 0
 - N/A
 Impact: 0
 
+### HUHU
+- N/A
+Impact: 0
+
 ### LITE
-- N/A
-Impact: 0
-
-### OESX
-- N/A
-Impact: 0
-
-### NRIX
 - N/A
 Impact: 0
 
@@ -26,14 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MU
+### TTI
+- N/A
+Impact: 0
+
+### WDC
 - N/A
 Impact: 0
 
 ### SQM
-- N/A
-Impact: 0
-
-### TYRA
 - N/A
 Impact: 0
