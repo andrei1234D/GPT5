@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 16, 2025"
+Daily Stock Pick — "Dec 17, 2025"
 
 "JFU – 9F"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(522.70662 + 0 + 0) = 522.70662"
+Score ML+ News Impact + GPT5 Adjustment: "(583.657849 + 0 + 0) = 583.657849"
 
 ADVICE: +Strong Buy
 
-Certainty: "64%"
+Certainty: 64%
 
 Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
 
-Verifier note: "Confirmed Brain: strong multi-horizon momentum (M63D 2.43, M126D 4.33, M252D 4.04) and RSI_14 64.7 (not overbought); pos_52w 0.625 supports trend. Caution: very high 30D vol (1.44) vs 252D (1.11) and only ~0.40 pos_30d raise risk. No material news; no adjustment. No external sources used."
+Verifier note: Confirming BrainScore (pred_score treated as BrainScore). Bullish momentum across 63D/126D/252D, RSI_14 ~64.9 (strong but not overbought), and positive pos_52w/pos_30d support the high score. Very high 30D and 252D volatility temper durability but don’t negate the setup; News neutral. No external sources used.
 
 ---
 **Legend**
