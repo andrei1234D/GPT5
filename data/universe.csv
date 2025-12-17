@@ -344,7 +344,6 @@ ALDMSP.PA,Diagnostic Medical Systems
 ALDNEP.PA,Dont Nod Entertainment
 ALDP.PA,Ayvens
 ALDX,Aldeyra Therapeutics
-ALE,ALLETE
 ALEC,Alector
 ALENOP.PA,Enogia
 ALERSP.PA,Eurobio Scientific
@@ -2017,6 +2016,9 @@ DIMP.PA,Sartorius Stedim Biotech
 DIN,Dine Brands Global
 DIOD,Diodes
 DIS,Walt Disney
+DISCA,Discovery Com Class A
+DISCB,Discovery
+DISCK,Discovery Com Class C
 DISD,Walt Disney
 DIST,Youlife Group
 DIV.TO,Diversified Royalty
@@ -3814,7 +3816,6 @@ KEFIL.L,Kefi Gold and Copper
 KEI.TO,Kolibri Global Energy
 KEKD.HE,Kesko
 KEL.TO,Kelt Exploration
-KELD,Kellanova
 KELYB,Kelly Services (Class B)
 KEMD.HE,Kemira
 KEN.SI,Kenon
@@ -4084,8 +4085,8 @@ LLOYL.L,Lloyds Banking Group
 LLY,Eli Lilly & Co
 LLYCE.MC,Llorente & Cuenca
 LLYD,Eli Lilly & Co
-LLYVA1,Liberty Media Corporation
-LLYVK,Liberty Media Corporation
+LLYVA1,Liberty Live Holdings
+LLYVK,Liberty Live Holdings
 LMAO,SeaStar Medical
 LMAT,LeMaitre Vascular
 LMB,Limbach
@@ -5495,6 +5496,7 @@ PWFL,Powerfleet
 PWGP.PA,Prodways Group
 PWM,Aurelion
 PWR,Quanta Services
+PWRL.L,Power Probe
 PXED,Phoenix Education
 PXLW,Pixelworks
 PXMD,PaxMedica
@@ -6819,7 +6821,7 @@ TYPD,Tyler Technologies
 TYRA,Tyra Biosciences
 TZAC,Reviva Pharmaceuticals
 TZOO,Travelzoo
-TZUP,Thumzup Media
+TZUP,Datacentrex
 U,Unity Software
 UA,Under Armour (Class A)
 UA1,Under Armour (Class C)
