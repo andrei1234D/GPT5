@@ -2,19 +2,19 @@
 - N/A
 Impact: 0
 
-### NUTX
-- N/A
-Impact: 0
-
-### CELC
-- N/A
-Impact: 0
-
-### KOD
-- N/A
-Impact: 0
-
 ### HUHU
+- N/A
+Impact: 0
+
+### PACS
+- N/A
+Impact: 0
+
+### EBS
+- N/A
+Impact: 0
+
+### KSS
 - N/A
 Impact: 0
 
@@ -22,11 +22,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### BLTE
+### GRGD.TO
 - N/A
 Impact: 0
 
-### TTI
+### ABRA.TO
 - N/A
 Impact: 0
 
@@ -34,6 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SQM
+### EXE.TO
 - N/A
 Impact: 0
