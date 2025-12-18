@@ -1,18 +1,20 @@
-Daily Stock Pick — "Dec 17, 2025"
+Daily Stock Pick — "Dec 18, 2025"
 
-"JFU – 9F"
+"HUHU – Huhutech International Group"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(583.657849 + 0 + 0) = 583.657849"
+Score ML+ News Impact + GPT5 Adjustment: "(444.198056 + 0 + 0) = 444.198056"
 
-ADVICE: +Strong Buy
+ADVICE: ```arm
+NO_BUY
+```
 
-Certainty: 64%
+Certainty: "64%"
 
-Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
+Forecast image URL: "https://stockscan.io/stocks/HUHU/forecast"
 
-Verifier note: Confirming BrainScore (pred_score treated as BrainScore). Bullish momentum across 63D/126D/252D, RSI_14 ~64.9 (strong but not overbought), and positive pos_52w/pos_30d support the high score. Very high 30D and 252D volatility temper durability but don’t negate the setup; News neutral. No external sources used.
+Verifier note: "Confirming BrainScore. Strong multi-horizon momentum (63D/126D/252D > 1), high pos_52w (0.886) and pos_30d (0.782) support upside; RSI_14 ~55 is neutral-bullish. However, elevated 30D/252D volatility suggests risk; no news catalyst (Impact: 0). Net: keep score unchanged and below Buy threshold. No external sources used."
 
 ---
 **Legend**
