@@ -1,20 +1,20 @@
-Daily Stock Pick — "Dec 18, 2025"
+Daily Stock Pick — "Dec 19, 2025"
 
-"HUHU – Huhutech International Group"
+"KOD – Kodiak Sciences"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(444.198056 + 0 + 0) = 444.198056"
+Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
 
 ADVICE: ```arm
 NO_BUY
 ```
 
-Certainty: "64%"
+Certainty: "63%"
 
-Forecast image URL: "https://stockscan.io/stocks/HUHU/forecast"
+Forecast image URL: "https://stockscan.io/stocks/KOD/forecast"
 
-Verifier note: "Confirming BrainScore. Strong multi-horizon momentum (63D/126D/252D > 1), high pos_52w (0.886) and pos_30d (0.782) support upside; RSI_14 ~55 is neutral-bullish. However, elevated 30D/252D volatility suggests risk; no news catalyst (Impact: 0). Net: keep score unchanged and below Buy threshold. No external sources used."
+Verifier note: Confirming BrainScore. RSI_14=62.4 and strong pos_30d=0.814/pos_52w=0.910 with positive multi-horizon momentum (63D/126D/252D) support bullish bias, but elevated 30D/252D volatility and no news catalyst temper conviction; score remains below buy threshold. No external sources used.
 
 ---
 **Legend**
