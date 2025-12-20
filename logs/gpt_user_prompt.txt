@@ -1,10 +1,10 @@
-TODAY is Dec 19. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
+TODAY is Dec 20. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
 
 Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.
 
 Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
-KOD - Kodiak Sciences,KOD,412.902804,26.379999,0.71902,1.258447,2.768101,7.287293,3.248768,0.204912,0.571355,4.1401,4.434721,0.910309,0.814043,62.372637,12.0,N/A
+JFU - 9F,JFU,527.138348,6.45,1.379295,1.108606,2.433962,4.542254,4.243421,0.174052,1.244171,2.093198,3.739879,0.642267,0.426136,63.979287,12.0,N/A | Impact: 0
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 

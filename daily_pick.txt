@@ -1,20 +1,18 @@
-Daily Stock Pick — "Dec 19, 2025"
+Daily Stock Pick — "Dec 20, 2025"
 
-"KOD – Kodiak Sciences"
+"JFU – 9F"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
+Score ML+ News Impact + GPT5 Adjustment: "(527.14 + 0 + 0) = 527.14"
 
-ADVICE: ```arm
-NO_BUY
-```
+ADVICE: +Strong Buy
 
-Certainty: "63%"
+Certainty: "66%"
 
-Forecast image URL: "https://stockscan.io/stocks/KOD/forecast"
+Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
 
-Verifier note: Confirming BrainScore. RSI_14=62.4 and strong pos_30d=0.814/pos_52w=0.910 with positive multi-horizon momentum (63D/126D/252D) support bullish bias, but elevated 30D/252D volatility and no news catalyst temper conviction; score remains below buy threshold. No external sources used.
+Verifier note: Pred_score treated as BrainScore. Metrics broadly supportive: RSI_14 ≈64 (bullish, not overbought), strong multi-horizon momentum (63/126/252D all positive), and solid 52w positioning. Caution: elevated 30D volatility vs 252D and sub-50% pos_30d temper confidence. No news impact. Confirming Brain with no adjustment.
 
 ---
 **Legend**
