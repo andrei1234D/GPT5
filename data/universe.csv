@@ -104,7 +104,6 @@ ACOMOA.AS,Acomo
 ACON,Aclarion
 ACOPY,a2 Milk
 ACOX.TO,Atco (Class I)
-ACOY.TO,Atco (Class II)
 ACP.PA,Accor
 ACQ.TO,AutoCanada
 ACR,ACRES Commercial Realty
@@ -1891,7 +1890,7 @@ CURB,Curbline Properties
 CURLF.TO,Curaleaf
 CURV,Torrid
 CURX,Curanex Pharmaceuticals
-CUSNL.TO,Cornish Metals
+CUSNL.L,Cornish Metals
 CV,CapsoVision
 CVAC.AS,CureVac
 CVBF,CVB Financial
@@ -2053,9 +2052,6 @@ DIMP.PA,Sartorius Stedim Biotech
 DIN,Dine Brands Global
 DIOD,Diodes
 DIS,Walt Disney
-DISCA,Discovery Com Class A
-DISCB,Discovery
-DISCK,Discovery Com Class C
 DISD,Walt Disney
 DISL.L,Distil
 DIST,Youlife Group
@@ -2285,7 +2281,7 @@ EEIQ,EpicQuest Education
 EEMMF.TO,E3 Lithium
 EEPE.MC,EuroEspes
 EFC,Ellington Financial
-EFGDD,Eurobank Ergasias Services and Holdings
+EFGDD,Eurobank
 EFHT,ECD Automotive Design
 EFIC1A.AS,Azerion
 EFLVF.TO,Electrovaya
@@ -2503,7 +2499,6 @@ EVKD.DE,Evonik Industries
 EVLO,Evelo Biosciences
 EVMN,Evommune
 EVN.VI,EVN
-EVOK,Evoke Pharma
 EVOL,Symbolic Logic
 EVR,Evercore
 EVRG,Evergy
@@ -6112,7 +6107,7 @@ SFWL,Shengfeng Development
 SFZNS.SW,Siegfried
 SG1,Sweetgreen
 SGBX,Safe & Green
-SGD,Safe & Green Development
+SGD,RenX Enterprises
 SGEL.L,The Sage Group
 SGH,Penguin Solutions
 SGIOY,Shionogi & Co
@@ -6725,7 +6720,7 @@ TIMD.DE,Zeal Network
 TIMEL.L,Time Finance
 TINV,Grindr
 TIPT,Tiptree
-TIRL.L,Tiger Royalties and Investment
+TIRL.L,Tiger Alpha
 TIRX,Tian Ruixiang
 TISI,Team
 TITN,Titan Machinery
