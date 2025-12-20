@@ -1,4 +1,39 @@
-### WDC
-- Western Digital (WDC) is expected to attract new investment as it joins the Nasdaq-100 on strong AI storage demand.
-- Analysts are optimistic about Western Digital's stock performance, citing long-term purchase orders and market outlooks.
-Impact: +35
+### JFU
+- N/A
+Impact: 0
+
+### CDTX
+- N/A
+Impact: 0
+
+### PACS
+- N/A
+Impact: 0
+
+### APM.TO
+- N/A
+Impact: 0
+
+### MAMO
+- N/A
+Impact: 0
+
+### USA.TO
+- N/A
+Impact: 0
+
+### LITE
+- N/A
+Impact: 0
+
+### CSTL
+- N/A
+Impact: 0
+
+### SQM
+- N/A
+Impact: 0
+
+### MU
+- N/A
+Impact: 0
