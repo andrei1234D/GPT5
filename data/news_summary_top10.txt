@@ -10,7 +10,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### APM.TO
+### KSS
 - N/A
 Impact: 0
 
@@ -18,22 +18,10 @@ Impact: 0
 - N/A
 Impact: 0
 
-### USA.TO
+### GRGD.TO
 - N/A
 Impact: 0
 
 ### LITE
-- N/A
-Impact: 0
-
-### CSTL
-- N/A
-Impact: 0
-
-### SQM
-- N/A
-Impact: 0
-
-### MU
-- N/A
-Impact: 0
+- Lumentum Holdings Inc. (LITE) is experiencing positive momentum driven by increased interest from industry players, strong demand in AI and cloud applications, and elevated price targets from analysts.
+Impact: +35
