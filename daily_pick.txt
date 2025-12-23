@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 22, 2025"
+Daily Stock Pick — "Dec 23, 2025"
 
-"JFU – 9F"
+CDTX – Cidara Therapeutics
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(527.138348 + 0 + 0) = 527.138348"
+Score ML+ News Impact + GPT5 Adjustment: "(396.93 + 0 + 0) = 396.93"
 
-ADVICE: +Strong Buy
+ADVICE: NO_BUY
 
-Certainty: "72%"
+Certainty: 64%
 
-Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
+Forecast image URL: "https://stockscan.io/stocks/CDTX/forecast"
 
-Verifier note: RSI_14 ~64 (bullish, not overbought); strong multi-horizon momentum (63D/126D/252D all positive); pos_30d 0.43 and pos_52w 0.64 support trend continuation; 30D volatility (1.38) > 252D (1.11) implies elevated risk but not thesis-breaking; no news impact provided; confirming BrainScore.
+Verifier note: Strong multi-horizon momentum (63D/126D/252D all positive) and price near 30D/52W highs (pos_30d/pos_52w ≈1) support the BrainScore; RSI14 ~59 is constructive but not overbought. Very elevated 30D volatility (3.05) indicates higher risk and potential for pullback; no news catalyst (Impact: 0). Metrics align with a moderate score; no adjustment. No external sources used.
 
 ---
 **Legend**
