@@ -1,16 +1,12 @@
-### JFU
-- N/A
-Impact: 0
-
 ### CDTX
 - N/A
 Impact: 0
 
-### PACS
+### MBX
 - N/A
 Impact: 0
 
-### KSS
+### DSV.TO
 - N/A
 Impact: 0
 
@@ -18,11 +14,26 @@ Impact: 0
 - N/A
 Impact: 0
 
-### GRGD.TO
+### SVRA
 - N/A
 Impact: 0
 
-### LITE
-- Lumentum Holdings Inc. reports strong earnings, beats expectations, and provides positive guidance.
-- Increased stake by Assenagon Asset Management S.A. and positive market signals indicate a bullish outlook.
-Impact: +35
+### SQM
+- N/A
+Impact: 0
+
+### CIEN
+- N/A
+Impact: 0
+
+### HL
+- N/A
+Impact: 0
+
+### MU
+- N/A
+Impact: 0
+
+### LRCX
+- N/A
+Impact: 0
