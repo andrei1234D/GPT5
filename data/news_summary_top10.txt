@@ -2,27 +2,15 @@
 - N/A
 Impact: 0
 
-### MBX
+### KOD
 - N/A
 Impact: 0
 
-### DSV.TO
+### ARWR
 - N/A
 Impact: 0
 
-### MAMO
-- N/A
-Impact: 0
-
-### SVRA
-- N/A
-Impact: 0
-
-### SQM
-- N/A
-Impact: 0
-
-### CIEN
+### AEO
 - N/A
 Impact: 0
 
@@ -30,10 +18,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MU
+### TTI
 - N/A
 Impact: 0
 
-### LRCX
+### CSTL
 - N/A
 Impact: 0
+
+### MU
+- Positive news sentiment regarding Mastercard, GE Aerospace, and Micron Technology.
+Impact: +30
