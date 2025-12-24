@@ -1,10 +1,10 @@
-TODAY is Dec 23. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
+TODAY is Dec 24. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
 
 Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.
 
 Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
-CDTX - Cidara Therapeutics,CDTX,396.93123,220.850006,3.05492,1.686636,3.005171,4.714987,10.757428,0.170605,1.811251,3.515773,6.159195,0.998301,0.997079,58.955387,12.0,N/A | Impact: 0
+CDTX - Cidara Therapeutics,CDTX,396.93123,220.860001,3.054276,1.684611,2.493339,4.477194,9.811639,0.149124,1.813045,3.207489,5.594058,0.998349,0.997144,48.598167,12.0,N/A | Impact: 0
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 

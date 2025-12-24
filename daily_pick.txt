@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 23, 2025"
+Daily Stock Pick — "Dec 24, 2025"
 
-CDTX – Cidara Therapeutics
+"CDTX – Cidara Therapeutics"
 
 News: "N/A | Impact: 0"
 
 Score ML+ News Impact + GPT5 Adjustment: "(396.93 + 0 + 0) = 396.93"
 
-ADVICE: NO_BUY
+ADVICE: "NO_BUY"
 
-Certainty: 64%
+Certainty: "64%"
 
 Forecast image URL: "https://stockscan.io/stocks/CDTX/forecast"
 
-Verifier note: Strong multi-horizon momentum (63D/126D/252D all positive) and price near 30D/52W highs (pos_30d/pos_52w ≈1) support the BrainScore; RSI14 ~59 is constructive but not overbought. Very elevated 30D volatility (3.05) indicates higher risk and potential for pullback; no news catalyst (Impact: 0). Metrics align with a moderate score; no adjustment. No external sources used.
+Verifier note: "BrainScore aligns with a no-buy: despite strong multi-horizon momentum (63D/126D/252D) and price near 52W and 30D highs (pos_52w≈1.0, pos_30d≈1.0), RSI_14 ~48.6 is neutral and 30D/252D volatilities are very high, elevating risk; no news catalyst (Impact: 0). Confirming BASE with no adjustment; no external sources used."
 
 ---
 **Legend**
