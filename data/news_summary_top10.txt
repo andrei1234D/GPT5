@@ -1,8 +1,8 @@
-### CDTX
+### LITE
 - N/A
 Impact: 0
 
-### KOD
+### HUT
 - N/A
 Impact: 0
 
@@ -14,18 +14,26 @@ Impact: 0
 - N/A
 Impact: 0
 
-### HL
-- N/A
-Impact: 0
-
 ### TTI
 - N/A
 Impact: 0
 
-### CSTL
+### EXAS
 - N/A
 Impact: 0
 
-### MU
-- Positive news sentiment regarding Mastercard, GE Aerospace, and Micron Technology.
-Impact: +30
+### TKO.TO
+- N/A
+Impact: 0
+
+### AAUC.TO
+- N/A
+Impact: 0
+
+### FIGS
+- N/A
+Impact: 0
+
+### ERO.TO
+- N/A
+Impact: 0
