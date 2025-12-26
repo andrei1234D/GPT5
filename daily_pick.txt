@@ -1,4 +1,4 @@
-Daily Stock Pick — "Dec 25, 2025"
+Daily Stock Pick — "Dec 26, 2025"
 
 "LITE – Lumentum"
 
@@ -6,13 +6,13 @@ News: "N/A | Impact: 0"
 
 Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
 
-ADVICE: "NO_BUY"
+ADVICE: NO_BUY
 
-Certainty: "63%"
+Certainty: 63%
 
 Forecast image URL: "https://stockscan.io/stocks/LITE/forecast"
 
-Verifier note: "Confirming BrainScore: strong multi-horizon momentum (63D/126D/252D all positive), RSI_14=66.6 near overbought, pos_52w=0.984 and pos_30d=0.970 show near highs; 30D vol (1.05) > 252D (0.78) indicates elevated short-term risk; no news catalyst. No external sources used."
+Verifier note: Strong trend signals (RSI_14=66.6; Momentum_63D/126D/252D all positive; pos_30d=0.97; pos_52w=0.98) support upside, but very elevated short-term volatility (Volatility_30D=1.05) and lack of news keep risk higher; confirming BrainScore with no adjustment.
 
 ---
 **Legend**
