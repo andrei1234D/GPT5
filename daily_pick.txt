@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 26, 2025"
+Daily Stock Pick — Dec 27, 2025
 
-"LITE – Lumentum"
+DSV.TO – Discovery Silver
 
-News: "N/A | Impact: 0"
+News: N/A | Impact: 0
 
-Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
+Score ML+ News Impact + GPT5 Adjustment: (391.14 + 0 + 11.73) = 402.87
 
-ADVICE: NO_BUY
+ADVICE: ```arm NO_BUY```
 
-Certainty: 63%
+Certainty: 64%
 
-Forecast image URL: "https://stockscan.io/stocks/LITE/forecast"
+Forecast image URL: https://stockscan.io/stocks/DSV.TO/forecast
 
-Verifier note: Strong trend signals (RSI_14=66.6; Momentum_63D/126D/252D all positive; pos_30d=0.97; pos_52w=0.98) support upside, but very elevated short-term volatility (Volatility_30D=1.05) and lack of news keep risk higher; confirming BrainScore with no adjustment.
+Verifier note: Strong momentum (Momentum_63D 1.80, 126D 2.88, 252D 12.54), RSI_14 at 62.42 (bullish but not overbought), and very strong pos_30d (0.813) and pos_52w (0.914) support a modest upward adjustment. However, elevated near-term and long-term volatility (Volatility_30D 0.638, 252D 0.810) and no fresh news keep risk high, so final score remains below buy threshold. No external sources used.
 
 ---
 **Legend**
