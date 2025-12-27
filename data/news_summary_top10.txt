@@ -1,39 +1,24 @@
+### DSV.TO
+- N/A
+Impact: 0
+
+### CDTX
+- N/A
+Impact: 0
+
+### GLUE
+- N/A
+Impact: 0
+
+### KOD
+- N/A
+Impact: 0
+
 ### LITE
 - N/A
 Impact: 0
 
-### HUT
-- N/A
-Impact: 0
-
-### ARWR
-- N/A
-Impact: 0
-
-### AEO
-- N/A
-Impact: 0
-
-### TTI
-- N/A
-Impact: 0
-
-### EXAS
-- N/A
-Impact: 0
-
-### TKO.TO
-- N/A
-Impact: 0
-
-### AAUC.TO
-- N/A
-Impact: 0
-
-### FIGS
-- N/A
-Impact: 0
-
-### ERO.TO
-- N/A
-Impact: 0
+### VSCO
+- The Texas Permanent School Fund Corp reduced its stake in Victoria's Secret & Co. (VSCO) by 64.2%, but the company reported a positive Q3 EPS beat and increased revenue. Institutional ownership remains high at 90.29%.
+- Federal agents tried to contact potential "co-conspirators" in the Epstein case, including individuals like Ghislaine Maxwell and Leslie Wexner. 
+Impact: +10
