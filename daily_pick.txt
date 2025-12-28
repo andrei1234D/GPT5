@@ -1,18 +1,18 @@
-Daily Stock Pick — Dec 27, 2025
+Daily Stock Pick — "Dec 28, 2025"
 
-DSV.TO – Discovery Silver
+"DSV.TO – Discovery Silver"
 
-News: N/A | Impact: 0
+News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: (391.14 + 0 + 11.73) = 402.87
+Score ML+ News Impact + GPT5 Adjustment: "(391.14 + 0 + 0) = 391.14"
 
-ADVICE: ```arm NO_BUY```
+ADVICE: ```arm NO_BUY ```
 
-Certainty: 64%
+Certainty: "60%"
 
-Forecast image URL: https://stockscan.io/stocks/DSV.TO/forecast
+Forecast image URL: "https://stockscan.io/stocks/DSV.TO/forecast"
 
-Verifier note: Strong momentum (Momentum_63D 1.80, 126D 2.88, 252D 12.54), RSI_14 at 62.42 (bullish but not overbought), and very strong pos_30d (0.813) and pos_52w (0.914) support a modest upward adjustment. However, elevated near-term and long-term volatility (Volatility_30D 0.638, 252D 0.810) and no fresh news keep risk high, so final score remains below buy threshold. No external sources used.
+Verifier note: "Confirmed BrainScore: momentum positive (RSI_14 62.4; Momentum_63D/126D/252D > 0; pos_52w 0.91; pos_30d 0.81) but elevated risk (Volatility_30D 0.64; 252D 0.81); News neutral. No adjustment applied; no external sources used."
 
 ---
 **Legend**
