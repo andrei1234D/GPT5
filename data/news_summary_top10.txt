@@ -27,8 +27,8 @@ Impact: 0
 Impact: 0
 
 ### CIEN
-- N/A
-Impact: 0
+- Ciena Corporation received positive analyst upgrades and strong quarterly performance, leading to a bullish market sentiment.
+Impact: +30
 
 ### CSTL
 - N/A
