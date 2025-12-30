@@ -1,18 +1,18 @@
-Daily Stock Pick — "Dec 29, 2025"
+Daily Stock Pick — "Dec 30, 2025"
 
-"DSV.TO – Discovery Silver"
+"GPCR – Structure Therapeutics"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(391.1386 + 0 + +2% = 398.9614) = 398.9614"
+Score ML+ News Impact + GPT5 Adjustment: "(479.732841 + 0 + 0) = 479.732841"
 
-ADVICE: ```arm NO_BUY ```
+ADVICE: "[Buy]"
 
-Certainty: "63%"
+Certainty: "68%"
 
-Forecast image URL: "https://stockscan.io/stocks/DSV.TO/forecast"
+Forecast image URL: "https://stockscan.io/stocks/GPCR/forecast"
 
-Verifier note: "Confirming Brain bias with slight +2% boost: RSI_14 at 62.4 and strong momentum (63D/126D/252D all positive), high pos_30d (0.813) and pos_52w (0.914) support continuation; tempered by elevated 30D/252D volatility implying higher risk; no material news (Impact: 0). No external sources used."
+Verifier note: "Confirmed BrainScore (treated pred_score as BrainScore). Metrics: RSI_14 ~46 (neutral), positive momentum across 63D/126D/252D, pos_52w ~0.66 and pos_30d ~0.57 (mid-high ranges), and 30D vol > 252D (recent volatility uptick). News neutral (Impact: 0). No adjustment warranted. No external sources used."
 
 ---
 **Legend**
