@@ -1,12 +1,8 @@
-### DSV.TO
+### GPCR
 - N/A
 Impact: 0
 
-### CDTX
-- N/A
-Impact: 0
-
-### GLUE
+### KYTX
 - N/A
 Impact: 0
 
@@ -14,26 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
+### NUTX
+- N/A
+Impact: 0
+
 ### LITE
 - N/A
 Impact: 0
 
-### VSCO
+### ARWR
 - N/A
 Impact: 0
 
-### BLTE
+### GRGD.TO
+- N/A
+Impact: 0
+
+### MU
 - N/A
 Impact: 0
 
 ### CIEN
-- Ciena Corporation received positive analyst upgrades and strong quarterly performance, leading to a bullish market sentiment.
-Impact: +30
-
-### CSTL
 - N/A
 Impact: 0
 
-### AAUC.TO
+### WBD
 - N/A
 Impact: 0
