@@ -10,15 +10,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### NUTX
+### DBI
 - N/A
 Impact: 0
 
-### LITE
-- N/A
-Impact: 0
-
-### ARWR
+### VSCO
 - N/A
 Impact: 0
 
@@ -26,11 +22,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MU
+### TTI
 - N/A
 Impact: 0
 
-### CIEN
+### TKO.TO
+- N/A
+Impact: 0
+
+### MU
 - N/A
 Impact: 0
 
