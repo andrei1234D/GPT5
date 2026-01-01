@@ -6,11 +6,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### KOD
+### DBI
 - N/A
 Impact: 0
 
-### DBI
+### VERA
+- N/A
+Impact: 0
+
+### SATS
 - N/A
 Impact: 0
 
@@ -18,22 +22,18 @@ Impact: 0
 - N/A
 Impact: 0
 
-### GRGD.TO
+### SQM
 - N/A
 Impact: 0
 
-### TTI
+### AEO
 - N/A
 Impact: 0
 
-### TKO.TO
+### HL
 - N/A
 Impact: 0
 
 ### MU
-- N/A
-Impact: 0
-
-### WBD
 - N/A
 Impact: 0
