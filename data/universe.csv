@@ -724,7 +724,7 @@ ASYP.PA,Assystem
 ASYS,Amtech Systems
 AT11L.L,Ashtead Technology
 ATAC,Blue Owl Capital
-ATAI.AS,Atai Beckley
+ATAI,AtaiBeckley
 ATAK,DIH Holdings US
 ATAP.PA,Atari
 ATAT,Atour Lifestyle Holdings
@@ -3520,6 +3520,7 @@ IGM.TO,IGM Financial
 IGPL.L,Intercede
 IGT.L,Brightstar Lottery
 IHGL.L,InterContinental Hotels
+IHGL1.L,InterContinental Hotels
 IHPL.L,IntegraFin
 IHRT,iHeartMedia
 IHT,InnSuites Hospitality Trust
@@ -4554,7 +4555,7 @@ MOBQ,Mobiquity Technologies
 MOD,Modine Manufacturing
 MODD,Modular Medical
 MODEL.L,R8 Capital Investments
-MOGO.TO,Mogo
+MOGO.TO,Orion Digital
 MOGPL.L,Hellenic Dynamics
 MOGU,MOGU
 MOH,Molina Healthcare
@@ -5078,7 +5079,7 @@ OMEX,Odyssey Marine Exploration
 OMF,OneMain
 OMGL.L,Oxford Metrics
 OMH,Ohmyhome
-OMI,Owens & Minor
+OMI,Accendra Health
 OMLL.JO,Old Mutual
 OMQS,OMNIQ
 OMRNY,Omron
@@ -5809,6 +5810,7 @@ RMCF,Rocky Mountain Chocolate Factory
 RMD,ResMed
 RMED,ResMed
 RMGB.L,ReNew Energy Global
+RMGL.L,International Distribution Services
 RMNI,Rimini Street
 RMR,RMR Group
 RMRL.L,Rome Resources
@@ -7207,7 +7209,7 @@ VOYG,Voyager Technologies
 VPCC,Dave
 VPG,Vishay Precision
 VPKA.AS,Vopak
-VRAPP.PA,Vranken-Pommery Monopole
+VRAPP.PA,Maison Pommery & Associes
 VRAR,Glimpse
 VRAX,Virax Biolabs
 VRAY,ViewRay
@@ -7231,6 +7233,7 @@ VSAT,Viasat
 VSCO,Victoria's Secret & Co
 VSH,Vishay Intertechnology
 VSME,VS MEDIA
+VSNTV,Versant Media Group
 VSPR,Beauty Health
 VST,Vistra
 VSTA,Vasta Platform
