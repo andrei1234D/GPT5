@@ -1,39 +1,4 @@
-### GPCR
-- N/A
-Impact: 0
-
-### KYTX
-- N/A
-Impact: 0
-
-### DBI
-- N/A
-Impact: 0
-
-### VERA
-- N/A
-Impact: 0
-
-### SATS
-- N/A
-Impact: 0
-
-### VSCO
-- N/A
-Impact: 0
-
-### SQM
-- N/A
-Impact: 0
-
-### AEO
-- N/A
-Impact: 0
-
-### HL
-- N/A
-Impact: 0
-
-### MU
-- N/A
-Impact: 0
+### TEVA
+- New options available for Teva Pharmaceutical Industries with potential investment opportunities.
+- Oak Harvest Investment Services acquires 50,000 shares in Teva Pharmaceutical Industries.
+Impact: +15
