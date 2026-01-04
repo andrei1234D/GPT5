@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 03"
+Daily Stock Pick — "Jan 04, 2026"
 
 "GPCR – Structure Therapeutics"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
+Score ML+ News Impact + GPT5 Adjustment: "(412.902804 + 0 + 0) = 412.902804"
 
-ADVICE: "NO_BUY"
+ADVICE: NO_BUY
 
 Certainty: "60%"
 
 Forecast image URL: "https://stockscan.io/stocks/GPCR/forecast"
 
-Verifier note: "Confirming BrainScore: RSI_14 ~51 (neutral), Volatility_30D > Volatility_252D (elevated near-term risk), strong pos_30d=1.0 and positive multi-horizon momentum supportive but lack of news/catalyst and higher short-term volatility cap conviction; no adjustment. No external sources used."
+Verifier note: "Treating pred_score as BrainScore. Metrics are neutral-to-mixed: RSI_14 ~51 (neutral), positive medium-term momentum (63D/126D > 0), pos_30d positive, 52w position mid-high, and moderate 30D volatility. News impact is neutral. Overall setup does not justify an upward adjustment; confirming BASE. No external sources used."
 
 ---
 **Legend**
