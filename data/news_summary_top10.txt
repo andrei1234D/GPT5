@@ -1,8 +1,12 @@
-### GPCR
+### DBI
 - N/A
 Impact: 0
 
-### DBI
+### FEIM
+- N/A
+Impact: 0
+
+### FTRE
 - N/A
 Impact: 0
 
@@ -10,15 +14,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### COHN
-- N/A
-Impact: 0
-
 ### AEO
-- N/A
-Impact: 0
-
-### CIEN
 - N/A
 Impact: 0
 
@@ -26,14 +22,18 @@ Impact: 0
 - N/A
 Impact: 0
 
+### ARIS.TO
+- N/A
+Impact: 0
+
 ### SQM
 - N/A
 Impact: 0
 
-### PAAS.TO
+### WDC
 - N/A
 Impact: 0
 
-### TEVA
+### HL
 - N/A
 Impact: 0
