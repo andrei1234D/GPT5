@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 05, 2026"
+Daily Stock Pick — "2026-01-06"
 
-"GPCR – Structure Therapeutics"
+"DBI – Designer Brands"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
+Score ML+ News Impact + GPT5 Adjustment: "(406.672778 + 0 + 0) = 406.672778"
 
 ADVICE: NO_BUY
 
-Certainty: 64%
+Certainty: "60%"
 
-Forecast image URL: "https://stockscan.io/stocks/GPCR/forecast"
+Forecast image URL: "https://stockscan.io/stocks/DBI/forecast"
 
-Verifier note: Neutral RSI (~51) and solid short-term momentum (63D=2.56) with positive pos_30d (~0.58) support mild upside, but elevated 30D volatility (~3.05) and no supportive news keep conviction moderate; pred_score treated as BrainScore. Confirming Brain BASE, no adjustment.
+Verifier note: "Confirming BrainScore as BASE. RSI_14 at ~29.93 indicates oversold/weak momentum; Volatility_30D elevated (1.595) vs 252D (0.981) suggests near-term chop; pos_30d=1.0 and multi-window momentum (>1 on 63/126/252D) are supportive but not enough without a catalyst. News Impact: 0. No adjustment warranted."
 
 ---
 **Legend**
