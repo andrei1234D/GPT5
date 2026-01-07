@@ -1,20 +1,24 @@
+### BW
+- N/A
+Impact: 0
+
+### CELC
+- N/A
+Impact: 0
+
 ### DBI
 - N/A
 Impact: 0
 
-### FEIM
+### ABRA.TO
 - N/A
 Impact: 0
 
-### FTRE
+### PLAB
 - N/A
 Impact: 0
 
-### SATS
-- N/A
-Impact: 0
-
-### AEO
+### VNDA
 - N/A
 Impact: 0
 
@@ -22,18 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
+### AEO
+- N/A
+Impact: 0
+
 ### ARIS.TO
 - N/A
 Impact: 0
 
-### SQM
-- N/A
-Impact: 0
-
-### WDC
-- N/A
-Impact: 0
-
-### HL
+### CG.TO
 - N/A
 Impact: 0
