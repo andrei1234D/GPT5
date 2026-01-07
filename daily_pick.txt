@@ -1,18 +1,18 @@
-Daily Stock Pick — "2026-01-06"
+Daily Stock Pick — "Jan 07, 2026"
 
-"DBI – Designer Brands"
+"BW – Babcock & Wilcox Enterprises"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(406.672778 + 0 + 0) = 406.672778"
+Score ML+ News Impact + GPT5 Adjustment: "(479.732841 + 0 + 0) = 479.732841"
 
-ADVICE: NO_BUY
+ADVICE: "[Buy]"
 
-Certainty: "60%"
+Certainty: "68%"
 
-Forecast image URL: "https://stockscan.io/stocks/DBI/forecast"
+Forecast image URL: "https://stockscan.io/stocks/BW/forecast"
 
-Verifier note: "Confirming BrainScore as BASE. RSI_14 at ~29.93 indicates oversold/weak momentum; Volatility_30D elevated (1.595) vs 252D (0.981) suggests near-term chop; pos_30d=1.0 and multi-window momentum (>1 on 63/126/252D) are supportive but not enough without a catalyst. News Impact: 0. No adjustment warranted."
+Verifier note: "Confirming BrainScore; strong multi-horizon momentum (63D/126D/252D all positive), RSI_14=65.1 (not overbought), pos_30d=0.80; tempered by very high 30D/252D volatility (0.93/1.54). News neutral. No external sources used."
 
 ---
 **Legend**
