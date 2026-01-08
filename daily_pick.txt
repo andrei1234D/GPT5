@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 07, 2026"
+Daily Stock Pick — "Jan 08, 2026"
 
-"BW – Babcock & Wilcox Enterprises"
+"JFU – 9F Inc."
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(479.732841 + 0 + 0) = 479.732841"
+Score ML+ News Impact + GPT5 Adjustment: "(541.05 + 0 + 0) = 541.05"
 
-ADVICE: "[Buy]"
+ADVICE: "+Strong Buy"
 
-Certainty: "68%"
+Certainty: "62%"
 
-Forecast image URL: "https://stockscan.io/stocks/BW/forecast"
+Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
 
-Verifier note: "Confirming BrainScore; strong multi-horizon momentum (63D/126D/252D all positive), RSI_14=65.1 (not overbought), pos_30d=0.80; tempered by very high 30D/252D volatility (0.93/1.54). News neutral. No external sources used."
+Verifier note: "Confirmed BrainScore: strong multi-horizon momentum (63D 2.34, 126D 4.02, 252D 4.21), neutral RSI (~50) suggests not overbought, positioning mid-to-upper 52w range (pos_52w 0.63, pos_30d 0.41), and supportive TSS (3.52). Elevated 30D volatility (1.68 vs 252D 1.16) tempers confidence but doesn’t invalidate the setup. No news impact; no adjustment."
 
 ---
 **Legend**
