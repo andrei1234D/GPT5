@@ -1,8 +1,8 @@
-### BW
+### JFU
 - N/A
 Impact: 0
 
-### CELC
+### GPCR
 - N/A
 Impact: 0
 
@@ -10,7 +10,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ABRA.TO
+### SATS
 - N/A
 Impact: 0
 
@@ -18,22 +18,10 @@ Impact: 0
 - N/A
 Impact: 0
 
-### VNDA
+### CSTL
 - N/A
 Impact: 0
 
-### VSCO
-- N/A
-Impact: 0
-
-### AEO
-- N/A
-Impact: 0
-
-### ARIS.TO
-- N/A
-Impact: 0
-
-### CG.TO
-- N/A
-Impact: 0
+### WDC
+- Western Digital stock experiences a drop after CES-fueled rally, impacted by U.S. labor data and upcoming earnings season.
+Impact: -10
