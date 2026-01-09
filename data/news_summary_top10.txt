@@ -10,18 +10,31 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SATS
+### EBS
 - N/A
 Impact: 0
 
-### PLAB
+### FTRE
 - N/A
 Impact: 0
 
-### CSTL
+### TAYD
+- Taylor Devices reports strong Q2 earnings and sales growth driven by aerospace demand and project increase.
+- Analysis suggests neutral sentiment in the near-term with mid and long-term strength.
+Impact: +35
+
+### GCT
 - N/A
 Impact: 0
 
-### WDC
-- Western Digital stock experiences a drop after CES-fueled rally, impacted by U.S. labor data and upcoming earnings season.
-Impact: -10
+### AEO
+- N/A
+Impact: 0
+
+### CG.TO
+- N/A
+Impact: 0
+
+### HL
+- N/A
+Impact: 0
