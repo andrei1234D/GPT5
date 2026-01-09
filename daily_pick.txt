@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 08, 2026"
+Daily Stock Pick — "Jan 09, 2026"
 
-"JFU – 9F Inc."
+"JFU – 9F"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(541.05 + 0 + 0) = 541.05"
+Score ML+ News Impact + GPT5 Adjustment: "(643.065744 + 0 + 0) = 643.065744"
 
-ADVICE: "+Strong Buy"
+ADVICE: ```diff +Strong Buy```
 
-Certainty: "62%"
+Certainty: "68%"
 
 Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
 
-Verifier note: "Confirmed BrainScore: strong multi-horizon momentum (63D 2.34, 126D 4.02, 252D 4.21), neutral RSI (~50) suggests not overbought, positioning mid-to-upper 52w range (pos_52w 0.63, pos_30d 0.41), and supportive TSS (3.52). Elevated 30D volatility (1.68 vs 252D 1.16) tempers confidence but doesn’t invalidate the setup. No news impact; no adjustment."
+Verifier note: "BrainScore confirmed: strong multi-horizon momentum (63D/126D/252D all positive), pos_52w 0.72 and pos_30d 0.55 support trend; RSI_14 ~54 is neutral, and very high 30D volatility (1.67) adds risk but no adverse news. No external sources used."
 
 ---
 **Legend**

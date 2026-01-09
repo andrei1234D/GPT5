@@ -1,10 +1,10 @@
-TODAY is Jan 08. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
+TODAY is Jan 09. You are given up to 10 pre-filtered stock candidates. Each candidate is a CSV row with header: TickerName,Ticker,BrainScore,current_price,RSI14,MACD_hist,Momentum,ATRpct,volatility_30,pos_30d,EMA50,EMA200,MarketTrend,News.
 
 Important: the numerical metrics in the CSV are the authoritative, latest values and must be treated as primary. You may consult at most 2 external reputable sources per pick for additional context or metrics not present in the CSV, but treat such external metrics as lower-confidence and limit adjustments based on them to ±10% of the BASE.
 
 Your job: verify the BrainScore — confirm it or suggest a small adjustment (maximum ±10%). Explain your rationale, provide a Certainty (0–100%)CANDIDATES:
 TickerName,Ticker,pred_score,current_price,Volatility_30D,Volatility_252D,Momentum_63D,Momentum_126D,Momentum_252D,RSE,CBP,SMC,TSS,pos_52w,pos_30d,RSI_14,Month,News
-JFU - 9F,JFU,541.053347,6.35,1.680663,1.160537,2.343173,4.018987,4.205298,0.165351,1.448177,1.676029,3.522486,0.63046,0.407197,50.3888,1.0,N/A | Impact: 0
+JFU - 9F,JFU,643.065744,7.15,1.673994,1.162915,2.59058,4.307229,4.583334,0.178858,1.439481,2.065025,3.827047,0.724912,0.553126,53.879943,1.0,N/A | Impact: 0
 
 REMEMBER: preserve the news Impact integer exactly; do not alter it.
 
