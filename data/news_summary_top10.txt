@@ -6,11 +6,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### DBI
+### ATHA
 - N/A
 Impact: 0
 
-### EBS
+### DBI
 - N/A
 Impact: 0
 
@@ -19,19 +19,18 @@ Impact: 0
 Impact: 0
 
 ### TAYD
-- Taylor Devices reports strong Q2 earnings and sales growth driven by aerospace demand and project increase.
-- Analysis suggests neutral sentiment in the near-term with mid and long-term strength.
-Impact: +35
+- N/A
+Impact: 0
 
 ### GCT
 - N/A
 Impact: 0
 
-### AEO
+### WDC
 - N/A
 Impact: 0
 
-### CG.TO
+### AG.TO
 - N/A
 Impact: 0
 
