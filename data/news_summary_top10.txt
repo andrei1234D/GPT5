@@ -1,39 +1,4 @@
-### JFU
-- N/A
-Impact: 0
-
-### GPCR
-- N/A
-Impact: 0
-
-### ATHA
-- N/A
-Impact: 0
-
-### DBI
-- N/A
-Impact: 0
-
-### FTRE
-- N/A
-Impact: 0
-
-### TAYD
-- N/A
-Impact: 0
-
-### GCT
-- N/A
-Impact: 0
-
 ### WDC
-- N/A
-Impact: 0
-
-### AG.TO
-- N/A
-Impact: 0
-
-### HL
-- N/A
-Impact: 0
+- Western Digital and Seagate both experience positive stock movements and bullish sentiment amid price target hikes and strong growth.
+- Order flow analytics signal bullish intraday movements for Western Digital, while Seagate benefits from raised price targets and an upcoming earnings report.
+Impact: +35
