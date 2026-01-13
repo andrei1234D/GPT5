@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 12, 2026"
+Daily Stock Pick — "Jan 13"
 
-"JFU – 9F"
+"KOD – Kodiak Sciences"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(567.18 + 0 + 0) = 567.18"
+Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 0) = 412.90"
 
-ADVICE: "+Strong Buy"
+ADVICE: "NO_BUY"
 
-Certainty: "72%"
+Certainty: "63%"
 
-Forecast image URL: "https://stockscan.io/stocks/JFU/forecast"
+Forecast image URL: "https://stockscan.io/stocks/KOD/forecast"
 
-Verifier note: "Confirming BrainScore: multi-horizon momentum (63D/126D/252D all strong), RSI_14 ~55 (not overbought), pos_52w ~0.73 and pos_30d ~0.55 support trend; 30D vol > 252D flags risk but aligns with trend acceleration. No news impact. No external sources used."
+Verifier note: "BrainScore confirmed. Momentum strong across 63/126/252D; RSI_14 ~56 neutral-bullish; pos_52w and pos_30d elevated, but very high 30D/252D volatility tempers risk-adjusted appeal; no news catalyst. No adjustment applied; remains below Buy threshold. No external sources used."
 
 ---
 **Legend**
