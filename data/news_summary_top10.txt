@@ -1,12 +1,8 @@
-### JFU
+### KOD
 - N/A
 Impact: 0
 
-### GPCR
-- N/A
-Impact: 0
-
-### ATHA
+### EKSO
 - N/A
 Impact: 0
 
@@ -14,15 +10,23 @@ Impact: 0
 - N/A
 Impact: 0
 
+### RENT
+- N/A
+Impact: 0
+
 ### FTRE
 - N/A
 Impact: 0
 
-### TAYD
+### PLAB
 - N/A
 Impact: 0
 
-### GCT
+### VSCO
+- N/A
+Impact: 0
+
+### TENX
 - N/A
 Impact: 0
 
@@ -30,10 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AG.TO
-- N/A
-Impact: 0
-
-### HL
+### AUGO
 - N/A
 Impact: 0
