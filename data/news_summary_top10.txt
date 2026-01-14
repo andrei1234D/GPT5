@@ -2,27 +2,31 @@
 - N/A
 Impact: 0
 
-### EKSO
-- N/A
-Impact: 0
-
 ### DBI
 - N/A
 Impact: 0
 
-### RENT
+### ASYS
 - N/A
 Impact: 0
 
-### FTRE
-- N/A
-Impact: 0
-
-### PLAB
+### ISSC
 - N/A
 Impact: 0
 
 ### VSCO
+- N/A
+Impact: 0
+
+### TRT
+- N/A
+Impact: 0
+
+### HL
+- N/A
+Impact: 0
+
+### MU
 - N/A
 Impact: 0
 
@@ -31,9 +35,5 @@ Impact: 0
 Impact: 0
 
 ### WDC
-- N/A
-Impact: 0
-
-### AUGO
 - N/A
 Impact: 0
