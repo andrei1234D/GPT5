@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 14, 2026"
+Daily Stock Pick — "Jan 15, 2026"
 
-"KOD – Kodiak Sciences"
+"HYMC – Hycroft Mining"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(435.162449 + 0 + 0) = 435.162449"
+Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 8.26) = 421.16"
 
-ADVICE: "NO_BUY"
+ADVICE: NO_BUY
 
-Certainty: "62%"
+Certainty: 64%
 
-Forecast image URL: "https://stockscan.io/stocks/KOD/forecast"
+Forecast image URL: "https://stockscan.io/stocks/HYMC/forecast"
 
-Verifier note: "Confirming BrainScore: strong multi-horizon momentum (63D/126D/252D all positive at 2.44/5.89/3.40), high pos_52w (0.90) and pos_30d (0.71) support upside, but RSI_14 ~49 is neutral and volatility is elevated (30D 0.85; 252D 1.25), with no news catalyst (Impact: 0). BASE = BrainScore + Impact; no adjustment. No external sources used."
+Verifier note: BrainScore aligns with strong momentum: RSI_14 ~66, positive Momentum across 63/126/252D, and price positioned near highs (pos_52w ~0.95; pos_30d ~0.94). Elevated 30D volatility suggests risk and no news catalyst (Impact: 0). Slight +2% adjustment reflects momentum strength; overall score remains below Buy threshold. No external sources used.
 
 ---
 **Legend**
