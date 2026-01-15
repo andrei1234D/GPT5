@@ -1,16 +1,12 @@
-### KOD
+### HYMC
 - N/A
 Impact: 0
 
-### DBI
+### FEIM
 - N/A
 Impact: 0
 
-### ASYS
-- N/A
-Impact: 0
-
-### ISSC
+### HUT
 - N/A
 Impact: 0
 
@@ -22,18 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
+### WDC
+- N/A
+Impact: 0
+
 ### HL
 - N/A
 Impact: 0
 
-### MU
+### ARIS.TO
 - N/A
 Impact: 0
 
-### TENX
+### AAUC.TO
 - N/A
 Impact: 0
 
-### WDC
+### CG.TO
 - N/A
 Impact: 0
