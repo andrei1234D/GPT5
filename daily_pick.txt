@@ -1,18 +1,18 @@
-Daily Stock Pick — "Jan 15, 2026"
+Daily Stock Pick — "Jan 16, 2026"
 
-"HYMC – Hycroft Mining"
+"MBX – MBX Biosciences"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(412.90 + 0 + 8.26) = 421.16"
+Score ML+ News Impact + GPT5 Adjustment: "(449.393 + 0 + 0) = 449.393"
 
-ADVICE: NO_BUY
+ADVICE: "Apply based on Advice Rules above"
 
-Certainty: 64%
+Certainty: "64%"
 
-Forecast image URL: "https://stockscan.io/stocks/HYMC/forecast"
+Forecast image URL: "https://stockscan.io/stocks/MBX/forecast"
 
-Verifier note: BrainScore aligns with strong momentum: RSI_14 ~66, positive Momentum across 63/126/252D, and price positioned near highs (pos_52w ~0.95; pos_30d ~0.94). Elevated 30D volatility suggests risk and no news catalyst (Impact: 0). Slight +2% adjustment reflects momentum strength; overall score remains below Buy threshold. No external sources used.
+Verifier note: "Confirming BrainScore. RSI_14 at ~67, strong multi-horizon momentum (63D/126D/252D all positive), high pos_30d (~0.78) and pos_52w (~0.90) support momentum; elevated 30D/252D volatility tempers conviction; no news catalyst provided. No adjustment."
 
 ---
 **Legend**
