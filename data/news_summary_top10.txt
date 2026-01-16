@@ -1,39 +1,4 @@
-### HYMC
-- N/A
-Impact: 0
-
-### FEIM
-- N/A
-Impact: 0
-
-### HUT
-- N/A
-Impact: 0
-
 ### VSCO
-- N/A
-Impact: 0
-
-### TRT
-- N/A
-Impact: 0
-
-### WDC
-- N/A
-Impact: 0
-
-### HL
-- N/A
-Impact: 0
-
-### ARIS.TO
-- N/A
-Impact: 0
-
-### AAUC.TO
-- N/A
-Impact: 0
-
-### CG.TO
-- N/A
-Impact: 0
+- Victoria's Secret (VSCO) reported stronger-than-expected earnings and received positive analyst upgrades, leading to a stock price increase.
+- Analysts have diverse opinions on VSCO's fair value and ongoing challenges despite the optimism.
+Impact: +25
