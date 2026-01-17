@@ -1,18 +1,20 @@
-Daily Stock Pick — "Jan 16, 2026"
+Daily Stock Pick — "Jan 17, 2026"
 
-"MBX – MBX Biosciences"
+"FEIM – Frequency Electronics"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(449.393 + 0 + 0) = 449.393"
+Score ML+ News Impact + GPT5 Adjustment: "(406.672778 + 0 + 0) = 406.672778"
 
-ADVICE: "Apply based on Advice Rules above"
+ADVICE: ```arm
+NO_BUY
+```
 
-Certainty: "64%"
+Certainty: "62%"
 
-Forecast image URL: "https://stockscan.io/stocks/MBX/forecast"
+Forecast image URL: "https://stockscan.io/stocks/FEIM/forecast"
 
-Verifier note: "Confirming BrainScore. RSI_14 at ~67, strong multi-horizon momentum (63D/126D/252D all positive), high pos_30d (~0.78) and pos_52w (~0.90) support momentum; elevated 30D/252D volatility tempers conviction; no news catalyst provided. No adjustment."
+Verifier note: Strong multi-horizon momentum (63D/126D/252D all elevated), RSI_14 ~55.8 (neutral-bullish), and near 52W highs (pos_52w ~0.94) support the BrainScore; however, 30D volatility > 252D indicates elevated near-term risk and no fresh news catalyst (Impact: 0). Confirming BrainScore; no adjustment. No external sources used.
 
 ---
 **Legend**
