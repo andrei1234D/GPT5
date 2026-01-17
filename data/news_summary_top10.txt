@@ -1,4 +1,36 @@
-### VSCO
-- Victoria's Secret (VSCO) reported stronger-than-expected earnings and received positive analyst upgrades, leading to a stock price increase.
-- Analysts have diverse opinions on VSCO's fair value and ongoing challenges despite the optimism.
-Impact: +25
+### FEIM
+- N/A
+Impact: 0
+
+### ISSC
+- N/A
+Impact: 0
+
+### USA.TO
+- N/A
+Impact: 0
+
+### TENX
+- N/A
+Impact: 0
+
+### WDC
+- N/A
+Impact: 0
+
+### AMKR
+- N/A
+Impact: 0
+
+### SQM
+- N/A
+Impact: 0
+
+### FOLD
+- N/A
+Impact: 0
+
+### AA
+- China’s Citic Resources sells $247 mln stake in Alcoa, reducing its holding to 1.58%.
+- Alcoa (AA) downgraded by Wells Fargo to "Equal Weight" but with a higher price target. Despite the downgrade, the new target implies upside. 
+Impact: -10
