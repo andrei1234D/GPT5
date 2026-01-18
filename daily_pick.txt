@@ -1,20 +1,18 @@
-Daily Stock Pick — "Jan 17, 2026"
+Daily Stock Pick — "Jan 18"
 
-"FEIM – Frequency Electronics"
+"DBI – Designer Brands"
 
 News: "N/A | Impact: 0"
 
-Score ML+ News Impact + GPT5 Adjustment: "(406.672778 + 0 + 0) = 406.672778"
+Score ML+ News Impact + GPT5 Adjustment: "(435.162449 + 0 + 0) = 435.162449"
 
-ADVICE: ```arm
-NO_BUY
-```
+ADVICE: "NO_BUY"
 
 Certainty: "62%"
 
-Forecast image URL: "https://stockscan.io/stocks/FEIM/forecast"
+Forecast image URL: "https://stockscan.io/stocks/DBI/forecast"
 
-Verifier note: Strong multi-horizon momentum (63D/126D/252D all elevated), RSI_14 ~55.8 (neutral-bullish), and near 52W highs (pos_52w ~0.94) support the BrainScore; however, 30D volatility > 252D indicates elevated near-term risk and no fresh news catalyst (Impact: 0). Confirming BrainScore; no adjustment. No external sources used.
+Verifier note: "Confirming BrainScore: RSI_14 ~49.5 is neutral; Momentum (63D/126D/252D) all positive; pos_30d (0.76) and pos_52w (0.85) support trend; however, 30D volatility (1.61) notably above 252D (0.98) raises risk. No news catalyst. No external sources used."
 
 ---
 **Legend**
