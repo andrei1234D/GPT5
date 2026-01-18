@@ -1,12 +1,12 @@
+### DBI
+- N/A
+Impact: 0
+
 ### FEIM
 - N/A
 Impact: 0
 
 ### ISSC
-- N/A
-Impact: 0
-
-### USA.TO
 - N/A
 Impact: 0
 
@@ -26,11 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
+### AA
+- N/A
+Impact: 0
+
 ### FOLD
 - N/A
 Impact: 0
 
-### AA
-- China’s Citic Resources sells $247 mln stake in Alcoa, reducing its holding to 1.58%.
-- Alcoa (AA) downgraded by Wells Fargo to "Equal Weight" but with a higher price target. Despite the downgrade, the new target implies upside. 
-Impact: -10
+### AUGO
+- N/A
+Impact: 0
