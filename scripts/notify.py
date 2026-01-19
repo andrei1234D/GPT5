@@ -100,6 +100,7 @@ def load_news_summary(path: str = "data/news_summary_top10.txt") -> dict[str, st
             lines_accum = []
         else:
             lines_accum.append(line)
+
     if ticker is not None:
         bullets = [l for l in lines_accum if l.strip() and not l.startswith("###")]
         compact = " | ".join(x.strip("- ").strip() for x in bullets if x.strip())
@@ -141,11 +142,11 @@ def main():
     stage2_path = "data/stage2_merged.csv"
     if not os.path.exists(stage2_path):
         return fail(f"{stage2_path} not found")
+
     df = pd.read_csv(stage2_path)
     if df.empty:
         return fail("stage2_merged.csv is empty")
 
-    # Build ticker -> company name map
     # Build ticker -> company name map
     name_map: dict[str, str] = {}
     if "ticker" in df.columns:
@@ -167,13 +168,12 @@ def main():
     try:
         tickers_top10, pred_scores = rank_with_brain(
             stage2_path=stage2_path,
-        tickers_top10, pred_scores = rank_with_brain(
-            stage2_path=stage2_path,
             llm_data_path=llm_today_path,
             top_k=10,
         )
     except Exception as e:
         return fail(f"Brain ranking failed: {repr(e)}")
+
     if not tickers_top10:
         return fail("Brain returned no top tickers.")
 
