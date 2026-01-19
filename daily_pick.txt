@@ -1,23 +1,16 @@
-Daily Stock Pick — "Jan 19, 2026"
-
-"FEIM – Frequency Electronics"
-
-News: "N/A | Impact: 0"
-
-Score ML+ News Impact + GPT5 Adjustment: "(406.6728 + 0 + 0) = 406.6728"
-
-ADVICE: NO_BUY
-
-Certainty: 64%
-
-Forecast image URL: "https://stockscan.io/stocks/FEIM/forecast"
-
-Verifier note: Confirming BrainScore. Positives: strong multi-horizon momentum (63D/126D/252D all >1), pos_30d = 1.0, pos_52w = 0.94, RSI_14 ~56 (not overbought). Offsets: elevated 30D volatility vs 252D suggests higher risk; no incremental news (Impact 0). Net: keep BASE unchanged and below buy threshold.
+Daily Stock Pick — "January 19, 2026"  
+"WDC – Western Digital Corporation"  
+News: "Strong storage-cycle execution: FY25 revenue +51% YoY and Q1 FY26 FCF $599M; aggressive deleveraging plus $0.10 dividend and $2B buyback authorization." ([westerndigital.com](https://www.westerndigital.com/en-il/company/newsroom/press-releases/2025/2025-07-30-western-digital-reports-fiscal-fourth-quarter-and-fiscal-year-2025-financial-results?utm_source=openai))  
+Score (0–1000): "(360 + 24) = 384"  
+ADVICE: "Ignore"  
+Certainty: "72%"  
+Forecast image URL: "https://stockscan.io/stocks/WDC/forecast"  
+Verifier note: "Best EV/lowest risk in list: recurring demand momentum + large free cash flow, with balance-sheet risk falling (debt cut by $2.6B in Q4 FY25; gross debt cited at ~$4.7B with ~$2.1B cash) and shareholder returns signaling confidence; avoids micro-cap dilution/going-concern risks seen in biotech names. Sources: westerndigital.com, investor.wdc.com, nasdaq.com." ([westerndigital.com](https://www.westerndigital.com/en-il/company/newsroom/press-releases/2025/2025-07-30-western-digital-reports-fiscal-fourth-quarter-and-fiscal-year-2025-financial-results?utm_source=openai))
 
 ---
 **Legend**
-🟢🟢🟢 **Ultra Strong Buy** — Score > 540 → “Guaranteed high return”
-🟢 **Strong Buy** — Score > 485 → “Amazing Chances”
-🟡 **Buy** — Score ≈ 460+ → “Great Chances”
-🔴 **Ignore** — Score < 460 → “Ignore”
+🟢🟢🟢 **Ultra Strong Buy** — Score > 800 → “Guaranteed high return”
+🟢 **Strong Buy** — Score > 700 → “Amazing Chances”
+🟡 **Buy** — Score ≈ 600 → “Great Chances”
+🔴 **Ignore** — Score < 599 → “Ignore”
 
