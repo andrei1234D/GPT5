@@ -1,8 +1,6 @@
 # scripts/gpt_client.py
 import os
-import re
 import time
-import json
 import logging
 from typing import Optional, Dict, Any, List
 
@@ -13,8 +11,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 logger = logging.getLogger("gpt_client")
 if not logger.handlers:
-    logging.basicConfig(level=os.getenv("GPT_CLIENT_LOG_LEVEL", "INFO"),
-                        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    logging.basicConfig(
+        level=os.getenv("GPT_CLIENT_LOG_LEVEL", "INFO"),
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
 
 
 # -------- Robust extractor for the Responses API --------
@@ -28,7 +28,6 @@ def extract_output_text(data: Dict[str, Any]) -> Optional[str]:
     if not isinstance(data, dict):
         return None
 
-    # Easiest path first
     txt = data.get("output_text")
     if isinstance(txt, str) and txt.strip():
         return txt.strip()
@@ -40,7 +39,6 @@ def extract_output_text(data: Dict[str, Any]) -> Optional[str]:
             if not isinstance(item, dict):
                 continue
             if item.get("type") != "message":
-                # Some SDKs return type="output_text" at top-level of 'output'
                 maybe_txt = item.get("text") or item.get("value")
                 if isinstance(maybe_txt, str):
                     chunks.append(maybe_txt)
@@ -55,8 +53,14 @@ def extract_output_text(data: Dict[str, Any]) -> Optional[str]:
         if chunks:
             return "\n".join(chunks).strip()
 
-    # Last resort: stringify
     return None
+
+
+def _bool_env(name: str, default: bool = False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
 # -------- OpenAI call wrapper (Responses API) --------
@@ -67,25 +71,29 @@ def call_gpt5(
     model: str = None,
     max_tokens: int = None,
     timeout: Optional[float] = None,
-    retries: int = 7,  
+    retries: int = 7,
 ) -> str:
     """
     Calls the OpenAI Responses API with retries + robust error handling.
+    Optionally enables web search tool if OPENAI_ENABLE_WEB_SEARCH is true.
     """
 
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not set")
 
-    model = model or os.getenv("OPENAI_MODEL", "gpt-5")
+    # Default to the newest GPT available as of this code revision.
+    model = model or os.getenv("OPENAI_MODEL", "gpt-5.2")
     max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "15000")) if max_tokens is None else int(max_tokens)
     timeout = float(os.getenv("OPENAI_TIMEOUT", "360")) if timeout is None else float(timeout)
+
+    enable_web = _bool_env("OPENAI_ENABLE_WEB_SEARCH", default=True)
 
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json",
     }
 
-    body = {
+    body: Dict[str, Any] = {
         "model": model,
         "input": [
             {"role": "system", "content": system_msg},
@@ -94,8 +102,14 @@ def call_gpt5(
         "max_output_tokens": max_tokens,
     }
 
+    # Enable web browsing (Responses API hosted tool)
+    if enable_web:
+        body["tools"] = [{"type": "web_search"}]
+        # Ask for sources to be included in tool call output for logging/debugging.
+        body["include"] = ["web_search_call.action.sources"]
+
     url = f"{OPENAI_BASE.rstrip('/')}/responses"
-    backoff = 2.0  # ⬆ exponential backoff base
+    backoff = 2.0
 
     last_err: Optional[Exception] = None
     for attempt in range(retries):
@@ -105,11 +119,10 @@ def call_gpt5(
             data = resp.json()
 
             text = extract_output_text(data)
-
             if not text:
                 logger.warning(f"[gpt] Empty response (attempt {attempt+1}/{retries}) — retrying...")
                 time.sleep(backoff ** attempt)
-                continue  # ⬅ retry instead of raising immediately
+                continue
 
             return text
 
@@ -121,94 +134,19 @@ def call_gpt5(
             status = e.response.status_code if e.response is not None else None
             snippet = ""
             try:
-                snippet = e.response.text[:200]
+                snippet = (e.response.text or "")[:200]
             except Exception:
                 pass
             logger.warning(f"[gpt] HTTP {status} (attempt {attempt+1}/{retries}) {snippet}")
             if status not in (429, 500, 502, 503, 504):
-                break  # ⬅ don’t retry permanent errors
+                break
         except Exception as e:
             last_err = e
             logger.warning(f"[gpt] unexpected error (attempt {attempt+1}/{retries}): {e}")
 
-        # sleep before retry
         if attempt < retries - 1:
             time.sleep(backoff ** attempt)
 
-    # Out of retries → fail
     if last_err:
         raise last_err
     raise RuntimeError("Unknown GPT error")
-
-
-
-# ---------- Personal bonus post-processor ----------
-# NOTE: If your prompt no longer outputs a line like "3) Bonuses: ...",
-# this post-processor will be a no-op. Keep or remove as you wish.
-BONUS_POINTS = {
-    "AI_LEADER": 30,
-    "DIP_5_12": 50,
-    "EARNINGS_BEAT": 25,
-    "INSIDER_BUYING_30D": 20,
-    "ANALYST_UPGRADES_7D": 15,
-    "SECTOR_ROTATION_TAILWIND": 10,
-    "BREAKOUT_VOL_CONF": 20,
-    "SHORT_SQUEEZE_SETUP": 15,
-    "INSTITUTIONAL_ACCUMULATION": 15,
-    "POSITIVE_OPTIONS_SKEW": 10,
-    "DIVIDEND_SAFETY_GROWTH": 5,
-    "ESG_MOMENTUM": 5,
-}
-
-# Updated numbering to your latest 11-line format:
-# 5) Final base score, 6) Personal adjusted score
-RE_BASE = re.compile(r"^\s*5\)\s*Final base score:\s*(\d{1,4})\s*$", re.MULTILINE)
-# If you *still* output "3) Bonuses: ..." keep this; otherwise function will do nothing.
-RE_BONUS_LINE = re.compile(r"^\s*3\)\s*Bonuses:\s*(.+)$", re.MULTILINE)
-RE_PERSONAL = re.compile(r"^\s*6\)\s*Personal adjusted score:\s*.*$", re.MULTILINE)
-
-def _parse_bonus_flags(bonus_line: str):
-    raw = bonus_line.strip()
-    if raw.upper() == "NONE":
-        return []
-    flags = [x.strip().upper().replace("-", "_") for x in raw.split(",")]
-    return [f for f in flags if f in BONUS_POINTS]
-
-def apply_personal_bonuses_to_text(gpt_text: str) -> str:
-    """
-    Looks for a "3) Bonuses: ..." line in each block. If absent, leaves the block unchanged.
-    Rewrites line 6) Personal adjusted score accordingly.
-    """
-    blocks = re.split(r"\n\s*\n", gpt_text.strip())
-    new_blocks = []
-    for b in blocks:
-        base_m = RE_BASE.search(b)
-        bonus_m = RE_BONUS_LINE.search(b)
-        if not base_m or not bonus_m:
-            new_blocks.append(b)
-            continue
-        try:
-            base = int(base_m.group(1))
-        except Exception:
-            new_blocks.append(b)
-            continue
-
-        flags = _parse_bonus_flags(bonus_m.group(1))
-        bonus_sum = sum(BONUS_POINTS[f] for f in flags)
-        adjusted = base + bonus_sum
-        breakdown = " + ".join([f"{BONUS_POINTS[f]} {f}" for f in flags]) if flags else "+0"
-        personal_line = f"6) Personal adjusted score: {adjusted} (Base {base}{(' + ' + breakdown) if flags else ''})".rstrip()
-
-        if RE_PERSONAL.search(b):
-            b2 = RE_PERSONAL.sub(personal_line, b, count=1)
-        else:
-            lines = b.splitlines()
-            out_lines, inserted = [], False
-            for line in lines:
-                out_lines.append(line)
-                if RE_BASE.match(line) and not inserted:
-                    out_lines.append(personal_line)
-                    inserted = True
-            b2 = "\n".join(out_lines)
-        new_blocks.append(b2)
-    return "\n\n".join(new_blocks)
