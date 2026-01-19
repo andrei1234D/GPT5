@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-generate_training_data_full_single.py — Full Daily Dataset Builder (Single Parquet)
-----------------------------------------------------------------------------------
-Downloads full daily OHLCV, technical indicators, and fundamentals
-for every ticker between 2007–2025. Combines all tickers into a single
-DataFrame and saves ONE big Parquet file:
-    /LLM_Training_data/full_market_2007_2025.parquet
+generate_training_data_v9_rich_features.py
+------------------------------------------
+✅ Based on v8 fast sequential
+✅ Keeps all original volatility + growth formulas
+✅ Adds richer alpha-style features:
+   - Short-term returns (Ret_1D, Ret_5D, Ret_10D)
+   - Range position (pos_52w, pos_30d)
+   - Volume features (Volume_Z20, Volume_SMA20, Volume_Trend)
+   - RSIs (RSI_14, RSI_2)
+   - Date features (DayOfWeek, Month)
+   - Cross-sectional z-scores & ranks per Date for key factors
 """
 
 import yfinance as yf
@@ -13,262 +18,192 @@ import pandas as pd
 import numpy as np
 import time
 import random
-
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ==========================================================
 # CONFIG
 # ==========================================================
-INPUT_CSV = "../../data/universe_clean.csv"
-OUTPUT_DIR = Path("/LLM_Training_data")
+INPUT_CSV   = "../../data/universe_clean.csv"
+OUTPUT_DIR  = Path("/LLM_Training_data")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_PATH = OUTPUT_DIR / "full_market_2007_2025.parquet"
+TEMP_PATH   = OUTPUT_DIR / "temp_checkpoint.parquet"
 
-MAX_TICKERS = 5311
-BATCH_SIZE = 60
-START_DATE = "2007-01-01"
-END_DATE = "2025-01-01"
-MAX_WORKERS = 10
-
-
-# ==========================================================
-# HELPERS
-# ==========================================================
-
-def _clean_num(v):
-    """
-    Convert yfinance numeric fields to finite floats or None.
-
-    - Handles None
-    - Handles 'Infinity', 'inf', 'NaN' as None
-    - Forces float and drops +/-inf, nan
-    """
-    if v is None:
-        return None
-
-    if isinstance(v, str):
-        v_str = v.strip().lower()
-        if v_str in {"inf", "+inf", "-inf", "infinity", "-infinity", "nan"}:
-            return None
-        try:
-            v = float(v_str)
-        except Exception:
-            return None
-
-    try:
-        v = float(v)
-    except Exception:
-        return None
-
-    if not np.isfinite(v):
-        return None
-    return v
-
-
-def _clean_fundamental(key: str, v):
-    """
-    Wraps _clean_num with basic sanity bounds depending on the field.
-    Turns outliers into None instead of keeping insane values.
-    """
-    v = _clean_num(v)
-    if v is None:
-        return None
-
-    # You can tweak these bounds as desired
-    if key == "PE":
-        if not (0 < v < 2000):
-            return None
-
-    elif key == "PEG":
-        if not (0 < v < 100):
-            return None
-
-    elif key == "PS":
-        if not (0 < v < 1000):
-            return None
-
-    elif key == "PB":
-        if not (-100 < v < 1000):
-            return None
-
-    elif key == "DividendYield":
-        # 0–100% yield range
-        if not (0 <= v < 100):
-            return None
-
-    elif key == "Beta":
-        if not (-10 < v < 10):
-            return None
-
-    elif key == "MarketCap":
-        # allow from ~100k up to ~10 trillion
-        if not (1e5 <= v < 1e13):
-            return None
-
-    elif key == "YoY_Growth":
-        # -500%..+500% growth
-        if not (-5 < v < 5):
-            return None
-
-    return v
+START_DATE  = "2007-01-01"
+END_DATE    = "2025-01-01"
+MAX_TICKERS = 5000
+BATCH_SIZE  = 60      # 60 tickers per batch
+DOWNLOAD_RETRIES = 5  # retries per batch in safe_download
 
 
 # ==========================================================
-# DATA SANITY CHECKS (PRICE-LEVEL)
+# UTILITIES
 # ==========================================================
-
-def is_ticker_sane(df_t: pd.DataFrame, ticker: str,
-                   max_price: float = 10_000.0,
-                   min_price: float = 0.01) -> bool:
-    """
-    Basic sanity checks for a single ticker's OHLCV data.
-    Returns False if data looks obviously corrupted (e.g. ADTX with 1e10 prices).
-
-    - Checks positive, reasonable Open/High/Low/Close
-    - Optionally checks that Volume is not constantly zero
-    """
-    price_cols = [c for c in ["Open", "High", "Low", "Close"] if c in df_t.columns]
-    if not price_cols:
-        print(f"[WARN] {ticker}: missing OHLC columns, skipping.")
-        return False
-
-    tmp = df_t[price_cols].dropna()
-    if tmp.empty:
-        print(f"[WARN] {ticker}: no valid OHLC rows after dropna, skipping.")
-        return False
-
-    # 1) No non-positive prices
-    if (tmp <= 0).any().any():
-        print(f"[WARN] {ticker}: found non-positive prices, skipping.")
-        return False
-
-    # 2) Extremely large prices -> corrupted (like ADTX example)
-    if (tmp > max_price).any().any():
-        max_val = float(tmp.max().max())
-        print(f"[WARN] {ticker}: max price {max_val:.2e} > {max_price}, skipping ticker.")
-        return False
-
-    # 3) Optional: volume check (all-zero volume is suspicious)
-    if "Volume" in df_t.columns:
-        vol = df_t["Volume"].fillna(0)
-        if vol.max() == 0:
-            print(f"[WARN] {ticker}: Volume is 0 for all rows, likely bad data, skipping.")
-            return False
-
-    return True
-
-
-# ==========================================================
-# MARKET TREND CONTEXT
-# ==========================================================
-def get_market_trend():
-    spx = yf.download("^GSPC", start="2020-01-01", end="2025-01-01", progress=False, auto_adjust=True)
-    spx["SMA50"] = spx["Close"].rolling(50).mean()
-    spx["SMA200"] = spx["Close"].rolling(200).mean()
-    if len(spx) < 200:
-        return "Neutral"
-    last_close = float(spx["Close"].iloc[-1])
-    last_sma50 = float(spx["SMA50"].iloc[-1])
-    last_sma200 = float(spx["SMA200"].iloc[-1])
-    if last_close > last_sma200 and last_sma50 > last_sma200:
-        return "Bullish"
-    elif last_close < last_sma200 and last_sma50 < last_sma200:
-        return "Bearish"
-    return "Neutral"
-
-
-MARKET_TREND = get_market_trend()
-print(f"[INFO] Market regime detected: {MARKET_TREND}")
-
-
-# ==========================================================
-# FUNDAMENTALS (ASYNC)
-# ==========================================================
-def fetch_fundamentals_single(ticker):
-    try:
-        tk = yf.Ticker(ticker)
-        info = tk.info
-
-        fundamentals = {
-            "PE": _clean_fundamental("PE", info.get("trailingPE")),
-            "PEG": _clean_fundamental("PEG", info.get("pegRatio")),
-            "PS": _clean_fundamental("PS", info.get("priceToSalesTrailing12Months")),
-            "PB": _clean_fundamental("PB", info.get("priceToBook")),
-            "DividendYield": _clean_fundamental("DividendYield", info.get("dividendYield")),
-            "Beta": _clean_fundamental("Beta", info.get("beta")),
-            "MarketCap": _clean_fundamental("MarketCap", info.get("marketCap")),
-        }
-
-        fin = tk.financials.T
-        if "Total Revenue" in fin.columns and len(fin) >= 2:
-            growth = fin["Total Revenue"].iloc[-1] / fin["Total Revenue"].iloc[-2] - 1
-            fundamentals["YoY_Growth"] = _clean_fundamental("YoY_Growth", growth)
-        else:
-            fundamentals["YoY_Growth"] = None
-
-        return (ticker, fundamentals)
-
-    except Exception:
-        return (ticker, {})
-
-
-def fetch_fundamentals_batch(batch):
-    results = {}
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(fetch_fundamentals_single, t): t for t in batch}
-        for f in as_completed(futures):
-            t, res = f.result()
-            results[t] = res
-    return results
-
-
-# ==========================================================
-# TECHNICALS
-# ==========================================================
-def compute_indicators(df):
-    df = df.copy()
-
-    # Moving averages
-    df["SMA20"] = df["Close"].rolling(20).mean()
-    df["SMA50"] = df["Close"].rolling(50).mean()
-    df["SMA200"] = df["Close"].rolling(200).mean()
-    df["EMA20"] = df["Close"].ewm(span=20).mean()
-    df["EMA50"] = df["Close"].ewm(span=50).mean()
-    df["EMA200"] = df["Close"].ewm(span=200).mean()
-
-    # RSI 14
-    delta = df["Close"].diff()
-    gain = np.where(delta > 0, delta, 0)
-    loss = np.where(delta < 0, -delta, 0)
-    roll_up = pd.Series(gain, index=df.index).rolling(14).mean()
-    roll_down = pd.Series(loss, index=df.index).rolling(14).mean()
-    rs = roll_up / (roll_down + 1e-9)
-    df["RSI14"] = 100 - (100 / (1 + rs))
-
-    # MACD
-    ema12 = df["Close"].ewm(span=12).mean()
-    ema26 = df["Close"].ewm(span=26).mean()
-    df["MACD"] = ema12 - ema26
-    df["MACD_signal"] = df["MACD"].ewm(span=9).mean()
-    df["MACD_hist"] = df["MACD"] - df["MACD_signal"]
-
-    # Volatility/ATR
-    df["ATR"] = (df["High"] - df["Low"]).rolling(14).mean()
-    df["ATR%"] = df["ATR"] / df["Close"] * 100
-    df["Volatility"] = df["Close"].pct_change().rolling(20).std() * np.sqrt(252)
-
-    # Momentum & OBV
-    df["Momentum"] = df["Close"] - df["Close"].shift(10)
-    df["OBV"] = (np.sign(df["Close"].diff()) * df["Volume"]).fillna(0).cumsum()
-
+def collapse(df):
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(-1)
+    df = df.loc[:, ~df.columns.duplicated()]
+    for c in df.columns:
+        if isinstance(df[c], pd.DataFrame):
+            df[c] = df[c].iloc[:, 0]
     return df
 
 
+def s(df, col):
+    if col not in df.columns:
+        raise KeyError(col)
+    val = df[col]
+    if isinstance(val, pd.DataFrame):
+        val = val.iloc[:, 0]
+    return pd.to_numeric(val.squeeze(), errors="coerce")
+
+
+def safe_div(num, denom, eps=1e-6):
+    """
+    Numerically safe division: returns NaN when denom is too small or NaN.
+    Prevents inf and crazy blowups from near-zero denominators.
+    """
+    denom_safe = denom.copy()
+    denom_safe = denom_safe.replace([np.inf, -np.inf], np.nan)
+    return num / (denom_safe.where(denom_safe.abs() > eps, np.nan))
+
+
+def compute_RSI(close: pd.Series, window: int = 14) -> pd.Series:
+    """
+    Classic RSI calculation on close prices.
+    """
+    delta = close.diff()
+    gain = delta.clip(lower=0).rolling(window, min_periods=window).mean()
+    loss = -delta.clip(upper=0).rolling(window, min_periods=window).mean()
+    rs   = safe_div(gain, loss)
+    rsi  = 100 - (100 / (1 + rs))
+    return rsi
+
+
 # ==========================================================
-# MAIN
+# CALCULATIONS (full v8 functionality + extra alpha features)
 # ==========================================================
-def safe_download(batch, start, end, retries=5):
+def compute_volatility_features(df):
+    df = collapse(df)
+    Close, High, Low = s(df, "Close"), s(df, "High"), s(df, "Low")
+
+    # Drop obviously invalid price rows for this ticker
+    valid_mask = (Close > 0) & (High > 0) & (Low > 0)
+    df = df.loc[valid_mask].copy()
+    Close = Close.loc[valid_mask]
+    High  = High.loc[valid_mask]
+    Low   = Low.loc[valid_mask]
+
+    # Daily returns
+    ret = Close.pct_change(fill_method=None)
+
+    df["Volatility_30D"]  = ret.rolling(30,  min_periods=10).std()
+    df["Volatility_252D"] = ret.rolling(252, min_periods=60).std()
+    df["High_52W"]        = High.rolling(252, min_periods=60).max()
+    df["Low_52W"]         = Low.rolling(252, min_periods=60).min()
+    df["High_30D"]        = High.rolling(30,  min_periods=10).max()
+    df["Low_30D"]         = Low.rolling(30,  min_periods=10).min()
+    df["SMA20"]           = Close.rolling(20, min_periods=10).mean()
+
+    # We keep Volume as-is (may be used later)
+    return df
+
+
+def compute_growth_formulas(df):
+    df = compute_volatility_features(df)
+
+    Close, High52, Low52, High30, Low30, Vol30, Vol252, SMA20 = [
+        s(df, c) for c in [
+            "Close","High_52W","Low_52W","High_30D","Low_30D",
+            "Volatility_30D","Volatility_252D","SMA20"
+        ]
+    ]
+    Volume = s(df, "Volume") if "Volume" in df.columns else pd.Series(index=df.index, dtype=float)
+
+    # --- Momentum measures ---
+    m63_den  = Close.shift(63)
+    m126_den = Close.shift(126)
+    m252_den = Close.shift(252)
+
+    df["Momentum_63D"]  = safe_div(Close, m63_den)
+    df["Momentum_126D"] = safe_div(Close, m126_den)
+    df["Momentum_252D"] = safe_div(Close, m252_den)
+    df["Momentum_1Y"]   = df["Momentum_252D"]
+
+    # --- Adaptive Momentum Trigger (AMT) ---
+    df["AMT"] = np.where(df["Momentum_126D"] > 1.1, df["Momentum_252D"], 0.0)
+
+    # --- Smart Momentum Composite (SMC) ---
+    smc_part1 = safe_div(df["Momentum_252D"], Vol30)
+    smc_part2 = safe_div(Close, High52)
+    df["SMC"] = smc_part1 * smc_part2
+
+    # --- Trend Strength Score (TSS) ---
+    df["TSS"] = (df["Momentum_63D"] + df["Momentum_126D"] + df["Momentum_252D"]) / 3.0
+
+    # --- Recovery Momentum Index (RMI) ---
+    num   = safe_div(Close, Low30)
+    denom = safe_div(High30, Low30)
+    df["RMI"] = safe_div(num, denom + 1e-6)
+
+    # --- ATR Breakout Signal (ABS) ---
+    range_52 = High52 - Low52
+    abs_ratio = safe_div(Close - Low52, range_52)
+    df["ABS"] = abs_ratio * Vol30
+
+    # --- Volatility-Adjusted Momentum (VAM) ---
+    df["VAM"] = safe_div(df["Momentum_63D"], 1.0 + Vol30)
+
+    # --- Rolling Sharpe-like Efficiency (RSE) ---
+    ret = Close.pct_change(fill_method=None)
+    roll_mean = ret.rolling(63, min_periods=20).mean()
+    roll_std  = ret.rolling(63, min_periods=20).std()
+    df["RSE"] = safe_div(roll_mean, roll_std)
+
+    # --- Compression Break Potential (CBP) ---
+    df["CBP"] = safe_div(Vol30, Vol252)
+
+    # --- SMA Slope 3M ---
+    sma_past = SMA20.shift(63)
+    df["SMA_Slope_3M"] = safe_div(SMA20 - sma_past, sma_past)
+
+    # ======================================================
+    # EXTRA FEATURES (short-term, volume, range, RSI, etc.)
+    # ======================================================
+
+    # Short-term returns
+    df["Ret_1D"]  = ret
+    df["Ret_5D"]  = Close.pct_change(5)
+    df["Ret_10D"] = Close.pct_change(10)
+
+    # Range position features
+    range_30 = High30 - Low30
+    df["pos_52w"] = safe_div(Close - Low52, range_52)
+    df["pos_30d"] = safe_div(Close - Low30, range_30)
+
+    # Volume-based features
+    vol_roll_mean_20 = Volume.rolling(20, min_periods=5).mean()
+    vol_roll_std_20  = Volume.rolling(20, min_periods=5).std()
+    df["Volume_SMA20"]  = vol_roll_mean_20
+    df["Volume_Z20"]    = safe_div(Volume - vol_roll_mean_20, vol_roll_std_20 + 1e-6)
+    df["Volume_Trend"]  = safe_div(Volume, vol_roll_mean_20)
+
+    # RSI signals
+    df["RSI_14"] = compute_RSI(Close, window=14)
+    df["RSI_2"]  = compute_RSI(Close, window=2)
+
+    return collapse(df)
+
+
+# ==========================================================
+# DOWNLOADER
+# ==========================================================
+def safe_download(batch, start, end, retries=DOWNLOAD_RETRIES):
+    """
+    Robust batch downloader using yfinance with:
+    - group_by="ticker" → columns (ticker, field)
+    - multiple retries with cooldown
+    """
     for attempt in range(retries):
         try:
             return yf.download(
@@ -277,7 +212,7 @@ def safe_download(batch, start, end, retries=5):
                 end=end,
                 group_by="ticker",
                 progress=False,
-                auto_adjust=True,  # ✅ use split/dividend-adjusted prices
+                auto_adjust=True,   # adjusted prices
             )
         except Exception as e:
             print(f"[WARN] Download failed (attempt {attempt+1}/{retries}): {e}")
@@ -288,26 +223,74 @@ def safe_download(batch, start, end, retries=5):
     return pd.DataFrame()
 
 
+# ==========================================================
+# CROSS-SECTIONAL FEATURES
+# ==========================================================
+def add_cross_sectional_features(full_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add cross-sectional z-scores and percentile ranks per Date
+    for key factor columns.
+    """
+    full_df = full_df.copy()
+    if "Date" not in full_df.columns:
+        return full_df
+
+    # Ensure Date is datetime
+    full_df["Date"] = pd.to_datetime(full_df["Date"])
+
+    cs_cols = [
+        "Momentum_63D", "Momentum_126D", "Momentum_252D", "Momentum_1Y",
+        "Volatility_30D", "Volatility_252D",
+        "RSE", "CBP", "SMC", "TSS", "VAM", "ABS", "AMT",
+        "pos_52w", "pos_30d",
+        "Ret_1D", "Ret_5D", "Ret_10D",
+        "Volume_Z20"
+    ]
+
+    grp = full_df.groupby("Date")
+
+    for col in cs_cols:
+        if col not in full_df.columns:
+            continue
+        col_series = full_df[col]
+        mean = grp[col].transform("mean")
+        std  = grp[col].transform("std")
+
+        full_df[col + "_cs_z"] = (col_series - mean) / (std + 1e-6)
+        full_df[col + "_cs_rank"] = grp[col].transform(lambda x: x.rank(pct=True))
+
+    return full_df
+
+
+# ==========================================================
+# MAIN EXECUTION (sequential, 60 per batch, full v9 features)
+# ==========================================================
 def main():
-    df_universe = pd.read_csv(INPUT_CSV)
-    tickers = df_universe["ticker"].dropna().unique().tolist()[:MAX_TICKERS]
-    print(f"[INFO] Building full dataset for {len(tickers)} tickers (batch={BATCH_SIZE})")
+    dfu = pd.read_csv(INPUT_CSV)
+    tickers = dfu["ticker"].dropna().unique().tolist()[:MAX_TICKERS]
+    print(f"[INFO] Starting data generation for {len(tickers)} tickers (batch={BATCH_SIZE})")
+    print(f"[INFO] Interval: {START_DATE} → {END_DATE}\n")
 
     combined_records = []
+    batch_index = 0
 
     for i in range(0, len(tickers), BATCH_SIZE):
-        batch = tickers[i: i + BATCH_SIZE]
-        print(f"[INFO] Batch {i // BATCH_SIZE + 1}: downloading {len(batch)} tickers...")
-
-        fundamentals = fetch_fundamentals_batch(batch)
+        batch_index += 1
+        batch = tickers[i : i + BATCH_SIZE]
+        print(f"[BATCH {batch_index}] downloading {len(batch)} tickers: {batch[0]} .. {batch[-1]}")
 
         try:
             data = safe_download(batch, start=START_DATE, end=END_DATE)
         except Exception as e:
-            print(f"[ERROR] Batch download failed: {e}")
+            print(f"[ERROR] Batch download failed unexpectedly: {e}")
             continue
 
-        # MultiIndex case: columns like (ticker, 'Close')
+        if data.empty:
+            print(f"[WARN] Batch {batch[0]}..{batch[-1]} returned empty data.")
+            time.sleep(1)
+            continue
+
+        # Multi-ticker: expect MultiIndex (ticker, field)
         if isinstance(data.columns, pd.MultiIndex):
             for t in batch:
                 try:
@@ -316,24 +299,25 @@ def main():
 
                     df_t = data[t].dropna().copy()
                     if df_t.empty:
-                        print(f"[INFO] {t}: empty after dropna, skipping.")
                         continue
 
-                    # 🔍 Sanity check raw OHLC before computing indicators
-                    if not is_ticker_sane(df_t, t, max_price=10_000.0, min_price=0.01):
-                        # e.g. ADTX-style garbage gets filtered out here
-                        continue
-
-                    df_t = compute_indicators(df_t)
-
-                    # Attach fundamentals
-                    for k, v in fundamentals.get(t, {}).items():
-                        df_t[k] = v
-
-                    # Meta
-                    df_t["MarketTrend"] = MARKET_TREND
+                    df_t = compute_growth_formulas(df_t)
                     df_t["Ticker"] = t
+                    df_t["Date"] = df_t.index
 
+                    keep = [
+                        "Date","Ticker","Close",
+                        "Volatility_30D","Volatility_252D",
+                        "High_52W","Low_52W","High_30D","Low_30D",
+                        "Momentum_63D","Momentum_126D","Momentum_252D","Momentum_1Y",
+                        "AMT","SMC","TSS","RMI",
+                        "ABS","VAM","RSE","CBP","SMA_Slope_3M",
+                        "Ret_1D","Ret_5D","Ret_10D",
+                        "pos_52w","pos_30d",
+                        "Volume","Volume_SMA20","Volume_Z20","Volume_Trend",
+                        "RSI_14","RSI_2",
+                    ]
+                    df_t = df_t[[c for c in keep if c in df_t.columns]]
                     combined_records.append(df_t)
                     print(f"[OK] Processed {t} ({len(df_t)} rows kept).")
 
@@ -341,41 +325,75 @@ def main():
                     print(f"[ERROR] {t}: {e}")
                     continue
 
-        time.sleep(1)  # be nice to Yahoo
+        else:
+            # Single-ticker edge case (batch size 1)
+            t = batch[0]
+            try:
+                if "Close" not in data.columns:
+                    print(f"[WARN] No Close column for {t}")
+                else:
+                    df_t = data.dropna().copy()
+                    if not df_t.empty:
+                        df_t = compute_growth_formulas(df_t)
+                        df_t["Ticker"] = t
+                        df_t["Date"] = df_t.index
+
+                        keep = [
+                            "Date","Ticker","Close",
+                            "Volatility_30D","Volatility_252D",
+                            "High_52W","Low_52W","High_30D","Low_30D",
+                            "Momentum_63D","Momentum_126D","Momentum_252D","Momentum_1Y",
+                            "AMT","SMC","TSS","RMI",
+                            "ABS","VAM","RSE","CBP","SMA_Slope_3M",
+                            "Ret_1D","Ret_5D","Ret_10D",
+                            "pos_52w","pos_30d",
+                            "Volume","Volume_SMA20","Volume_Z20","Volume_Trend",
+                            "RSI_14","RSI_2",
+                        ]
+                        df_t = df_t[[c for c in keep if c in df_t.columns]]
+                        combined_records.append(df_t)
+                        print(f"[OK] Processed {t}")
+            except Exception as e:
+                print(f"[ERROR] {t}: {e}")
+
+        # Checkpoint every 5 batches
+        if batch_index % 5 == 0 and combined_records:
+            temp_df = pd.concat(combined_records, axis=0, ignore_index=True)
+            temp_df.to_parquet(TEMP_PATH, index=False)
+            print(f"[CHECKPOINT] Saved {len(temp_df):,} rows to {TEMP_PATH}")
+
+        # Be nice to Yahoo
+        time.sleep(1)
 
     if not combined_records:
         print("[ERROR] No data collected. Exiting.")
         return
 
     print(f"[INFO] Concatenating {len(combined_records)} per-ticker DataFrames...")
-    full_df = pd.concat(combined_records, axis=0)
-    full_df.index = pd.to_datetime(full_df.index)
-    full_df.sort_index(inplace=True)
+    full_df = pd.concat(combined_records, axis=0, ignore_index=True)
 
-    # Add Year column for convenience
-    full_df["Year"] = full_df.index.year
+    # ------------------------------------------------------
+    # Add date-based features
+    # ------------------------------------------------------
+    full_df["Date"] = pd.to_datetime(full_df["Date"])
+    full_df["DayOfWeek"] = full_df["Date"].dt.weekday
+    full_df["Month"]     = full_df["Date"].dt.month
 
-    # Ensure numeric columns are truly numeric and free of inf/NaN issues
-    num_cols = [
-        "PE", "PEG", "PS", "PB",
-        "DividendYield", "Beta", "MarketCap", "YoY_Growth",
-        "SMA20", "SMA50", "SMA200",
-        "EMA20", "EMA50", "EMA200",
-        "RSI14", "MACD", "MACD_signal", "MACD_hist",
-        "ATR", "ATR%", "Volatility",
-        "Momentum", "OBV",
-    ]
+    # ------------------------------------------------------
+    # Add cross-sectional features (per Date)
+    # ------------------------------------------------------
+    print("[INFO] Adding cross-sectional z-scores and ranks...")
+    full_df = add_cross_sectional_features(full_df)
 
-    for col in num_cols:
-        if col in full_df.columns:
-            full_df[col] = pd.to_numeric(full_df[col], errors="coerce")
-            full_df[col] = full_df[col].replace([np.inf, -np.inf], np.nan)
+    print(f"[INFO] Saving full parquet to {OUTPUT_PATH} ...")
+    full_df.to_parquet(OUTPUT_PATH, index=False)
+    print(f"[SUCCESS] Saved {len(full_df):,} rows → {OUTPUT_PATH}")
 
-    print(f"[INFO] Saving single full parquet to {OUTPUT_PATH} ...")
-    full_df.to_parquet(OUTPUT_PATH, index=True)
-    print(f"[SAVED] {len(full_df)} rows → {OUTPUT_PATH}")
-    print("[DONE] Full single-file dataset generated.")
+    if TEMP_PATH.exists():
+        TEMP_PATH.unlink()
+        print("[INFO] Temporary checkpoint removed.")
 
 
+# ==========================================================
 if __name__ == "__main__":
     main()

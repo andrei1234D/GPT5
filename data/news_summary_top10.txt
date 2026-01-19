@@ -1,39 +1,39 @@
-### FULC
+### FEIM
 - N/A
 Impact: 0
 
-### BW
+### ISSC
 - N/A
 Impact: 0
 
-### RIGL
+### USA.TO
 - N/A
 Impact: 0
 
-### HUT
+### TENX
 - N/A
 Impact: 0
 
-### EBS
+### WDC
 - N/A
 Impact: 0
 
-### NUTX
+### AMKR
 - N/A
 Impact: 0
 
-### SKYT
+### SQM
 - N/A
 Impact: 0
 
-### GNFT
+### FOLD
 - N/A
 Impact: 0
 
-### TTI
+### AA
 - N/A
 Impact: 0
 
-### CELC
+### AUGO
 - N/A
 Impact: 0

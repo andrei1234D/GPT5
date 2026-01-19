@@ -1,0 +1,5 @@
+pred_cal < 460 → Ignore
+
+pred_cal ≈ 460-480 → Buy 30% of the time
+
+pred_cal > 480-550 → Strong buy 45% of the time

@@ -146,6 +146,7 @@ def main():
         return fail("stage2_merged.csv is empty")
 
     # Build ticker -> company name map
+    # Build ticker -> company name map
     name_map: dict[str, str] = {}
     if "ticker" in df.columns:
         for _, row in df.iterrows():
@@ -164,6 +165,8 @@ def main():
 
     # Brain rank — Top 10 + pred_scores (ScoreBotSlim)
     try:
+        tickers_top10, pred_scores = rank_with_brain(
+            stage2_path=stage2_path,
         tickers_top10, pred_scores = rank_with_brain(
             stage2_path=stage2_path,
             llm_data_path=llm_today_path,

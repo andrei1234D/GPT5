@@ -1,188 +1,131 @@
 # scripts/brain_ranker.py
+from __future__ import annotations
+
 import json
-import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+import joblib
 import numpy as np
-import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import pandas as pd
+
+from scorebot_runtime import ScoreBotSlim, CalibratedScoreBot
+from llm_data_builder import build_llm_today_data
 
 
-# --- Model directory detection ---
-MODEL_DIR = Path(
-    os.getenv("BRAIN_MODEL_DIR", Path(__file__).parent / "train_model" / "LLM_bot" / "Brain" / "llm_signal_regression_model")
+SCRIPTS_DIR = Path(__file__).resolve().parent
+SCOREBOT_PATH = (
+    SCRIPTS_DIR
+    / "train_model"
+    / "LLM_bot"
+    / "Brain"
+    / "pseudo_score_mapping"
+    / "scorebot_multiclass_top1_CALIBRATED_SLIM.pkl"
 )
-MODEL_PATH = MODEL_DIR / "model.safetensors"
+
+OUT_JSONL = Path("data/LLM_today_scores.jsonl")
+OUT_CSV = Path("data/brain_ranked_scores.csv")
 
 
-def _load_model():
-    if not MODEL_DIR.exists():
-        raise FileNotFoundError(f"Brain model directory not found: {MODEL_DIR}")
-
-    # Detect missing or LFS placeholder
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Model weights not found at {MODEL_PATH}")
-    if MODEL_PATH.stat().st_size < 1024 * 1024:  # too small => likely LFS pointer
-        head = MODEL_PATH.read_bytes()[:200].decode("utf-8", "ignore")
-        if "git-lfs" in head.lower():
-            raise RuntimeError(
-                f"{MODEL_PATH} looks like a Git LFS pointer (size={MODEL_PATH.stat().st_size}).\n"
-                f"Make sure to enable LFS in checkout: with: lfs: true"
-            )
-
-    print(f"[BRAIN] Loading model from {MODEL_DIR} ...")
-    tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
-    model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR))
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    model.eval()
-    print(f"[BRAIN] Model ready on {device}")
-    return tokenizer, model, device
-
-
-def _safe_float(v):
-    if v is None:
-        return np.nan
-    try:
-        return float(v)
-    except Exception:
-        return np.nan
-
-
-def build_prompt_from_record(rec: dict) -> str:
-    """Rebuilds the same style of prompt used during training."""
-    ticker = rec.get("Ticker", "UNKNOWN")
-    date = rec.get("Date", "N/A")
-
-    current_price = _safe_float(rec.get("current_price"))
-    avg_open_3 = _safe_float(rec.get("avg_open_past_3_days"))
-    avg_close_3 = _safe_float(rec.get("avg_close_past_3_days"))
-    avg_low_30 = _safe_float(rec.get("avg_low_30"))
-    avg_high_30 = _safe_float(rec.get("avg_high_30"))
-    vol_30 = _safe_float(rec.get("volatility_30"))
-    rsi14 = _safe_float(rec.get("RSI14"))
-    macd = _safe_float(rec.get("MACD"))
-    momentum = _safe_float(rec.get("Momentum"))
-    mkt_trend = rec.get("MarketTrend", "Unknown")
-
-    return (
-        f"TICKER: {ticker}\n"
-        f"DATE: {date}\n"
-        f"CURRENT PRICE: {current_price:.2f}\n"
-        f"AVG OPEN (3D): {avg_open_3:.2f}\n"
-        f"AVG CLOSE (3D): {avg_close_3:.2f}\n"
-        f"AVG LOW (30D): {avg_low_30:.2f}\n"
-        f"AVG HIGH (30D): {avg_high_30:.2f}\n"
-        f"VOLATILITY (30D): {vol_30:.4f}\n"
-        f"RSI14: {rsi14:.2f}\n"
-        f"MACD: {macd:.3f}\n"
-        f"Momentum: {momentum:.2f}\n"
-        f"Market Trend: {mkt_trend}"
-    )
-
-
-def _load_llm_today_records(llm_data_path: str) -> List[dict]:
-    path = Path(llm_data_path)
+def _load_scorebot(path: Path):
     if not path.exists():
-        raise FileNotFoundError(f"{llm_data_path} not found")
+        raise FileNotFoundError(f"ScoreBot pickle not found: {path}")
 
-    records = []
+    main_mod = sys.modules.get("__main__")
+    setattr(main_mod, "ScoreBotSlim", ScoreBotSlim)
+    setattr(main_mod, "CalibratedScoreBot", CalibratedScoreBot)
+    setattr(main_mod, "CalibratedScoreBotSlim", CalibratedScoreBot)
+
+    payload = joblib.load(str(path))
+    bot = payload["bot"]
+
+    feature_cols = payload.get("feature_cols")
+    if not feature_cols:
+        raise RuntimeError("Missing feature_cols")
+
+    base = bot.base_bot
+
+    # inject critical training metadata
+    base.feature_cols = feature_cols
+    base.weights = payload["weights"]
+    base.reps_by_model = payload.get("reps_by_model", {})
+    base.thr_by_model = payload.get("thr_by_model", {})
+
+    return bot, list(feature_cols)
+
+
+def _read_jsonl(path: Path) -> List[dict]:
+    out: List[dict] = []
     with path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
-            if not line:
-                continue
-            records.append(json.loads(line))
-    return records
+            if line:
+                out.append(json.loads(line))
+    return out
 
 
 def rank_with_brain(
+    stage2_path: str = "data/stage2_merged.csv",
     llm_data_path: str = "data/LLM_today_data.jsonl",
     top_k: int = 10,
-    batch_size: int = 8,
 ) -> Tuple[List[str], Dict[str, float]]:
-    """Run the Brain model on LLM_today_data and return top tickers."""
+    llm_path = Path(llm_data_path)
+    if not llm_path.exists():
+        build_llm_today_data(stage2_path=stage2_path, out_path=str(llm_path), top_n=max(10, top_k * 5))
 
-    records = _load_llm_today_records(llm_data_path)
+    bot, feature_cols = _load_scorebot(SCOREBOT_PATH)
+
+    records = _read_jsonl(llm_path)
     if not records:
-        raise RuntimeError("No records in LLM_today_data.jsonl")
+        raise RuntimeError(f"No records in {llm_path}")
 
-    tokenizer, model, device = _load_model()
+    df = pd.DataFrame(records)
 
-    prompts: List[str] = []
-    tickers: List[str] = []
-    for rec in records:
-        prompts.append(build_prompt_from_record(rec))
-        tickers.append(rec.get("Ticker", "UNKNOWN"))
+    missing = [c for c in feature_cols if c not in df.columns]
+    if missing:
+        raise RuntimeError(f"LLM_today_data missing required features: {missing}")
 
-    scores: List[float] = []
-    for i in range(0, len(prompts), batch_size):
-        batch_prompts = prompts[i:i + batch_size]
-        enc = tokenizer(
-            batch_prompts,
-            padding=True,
-            truncation=True,
-            max_length=256,
-            return_tensors="pt",
-        )
-        enc = {k: v.to(device) for k, v in enc.items()}
-        with torch.no_grad():
-            out = model(**enc)
-            logits = out.logits  # [B, 1] for regression
-            batch_scores = logits.squeeze(-1).detach().cpu().numpy().tolist()
-            if isinstance(batch_scores, float):
-                batch_scores = [batch_scores]
-            scores.extend(batch_scores)
+    preds = bot.predict_df(df).to_numpy()
+    df["pred_score"] = np.clip(preds.astype(float), 0.0, 1000.0)
 
-    if len(scores) != len(tickers):
-        raise RuntimeError("Mismatch between scores and tickers length")
+    df["Ticker"] = df["Ticker"].astype(str)
+    ranked = (
+        df.groupby("Ticker", as_index=False)["pred_score"]
+        .max()
+        .sort_values("pred_score", ascending=False)
+    )
 
-    ticker_score: Dict[str, float] = {}
-    for t, s in zip(tickers, scores):
-        s_float = float(s)
-        if t not in ticker_score or s_float > ticker_score[t]:
-            ticker_score[t] = s_float
+    top_k = min(int(top_k), len(ranked))
+    top_df = ranked.head(top_k)
 
-    ordered = sorted(ticker_score.items(), key=lambda kv: kv[1], reverse=True)
-    top_k = min(top_k, len(ordered))
-    top_tickers = [t for (t, _) in ordered[:top_k]]
-    top_scores = {t: ticker_score[t] for t in top_tickers}
+    top_tickers = top_df["Ticker"].tolist()
+    top_scores = {row["Ticker"]: float(row["pred_score"]) for _, row in top_df.iterrows()}
 
-    print("[BRAIN] Top tickers by Brain score:")
-    for rank, t in enumerate(top_tickers, start=1):
-        print(f"  #{rank}: {t} → {top_scores[t]:.2f}")
+    print(f"[BRAIN] Top {top_k} tickers by pred_score:")
+    for i, t in enumerate(top_tickers, start=1):
+        print(f"  #{i}: {t} → {top_scores[t]:.2f}")
 
-    # -------------------------------------------------------
-    # NEW FEATURE: Write ranked results to JSONL + CSV
-    # -------------------------------------------------------
+    OUT_JSONL.parent.mkdir(parents=True, exist_ok=True)
+    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
 
-    out_jsonl = Path("data/LLM_today_scores.jsonl")
-    out_csv = Path("data/brain_ranked_scores.csv")
+    with OUT_JSONL.open("w", encoding="utf-8") as f:
+        for _, r in ranked.iterrows():
+            f.write(json.dumps({"Ticker": r["Ticker"], "pred_score": float(r["pred_score"])}, separators=(",", ":")) + "\n")
 
-    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
-
-    rows = [{"Ticker": t, "BrainScore": s} for t, s in ordered]
-
-    # Write JSONL
-    with out_jsonl.open("w", encoding="utf-8") as f:
-        for r in rows:
-            f.write(json.dumps(r) + "\n")
-
-    # Write CSV
     import csv
-    with out_csv.open("w", encoding="utf-8", newline="") as f:
+    with OUT_CSV.open("w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["Ticker", "BrainScore"])
-        for r in rows:
-            w.writerow([r["Ticker"], r["BrainScore"]])
+        w.writerow(["Ticker", "pred_score"])
+        for _, r in ranked.iterrows():
+            w.writerow([r["Ticker"], f"{r['pred_score']:.6f}"])
 
-    print(f"[BRAIN] Wrote brain-ranked scores to:")
-    print(f"         - {out_jsonl}")
-    print(f"         - {out_csv}")
+    print("[BRAIN] Outputs written:")
+    print(f"  - {OUT_JSONL}")
+    print(f"  - {OUT_CSV}")
 
     return top_tickers, top_scores
 
 
 if __name__ == "__main__":
-    rank_with_brain()
+    rank_with_brain(top_k=10)
