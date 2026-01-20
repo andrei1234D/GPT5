@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,BrainScore,PipelineNews
-1,TENX - Tenax Therapeutics,TENX,400,N/A | Impact: 0
-2,FEIM - Frequency Electronics,FEIM,400,N/A | Impact: 0
-3,ISSC - Innovative Solutions and Support,ISSC,391,N/A | Impact: 0
-4,AMKR - Amkor Technology,AMKR,377,N/A | Impact: 0
-5,WDC - Western Digital,WDC,360,N/A | Impact: 0
-6,FOLD - Amicus Therapeutics,FOLD,234,N/A | Impact: 0
-7,AA - Alcoa,AA,230,Alcoa's stock shows volatility with mixed analyst ratings and recent stake sale by China's Citic Resources. | Impact: -10
-8,SQM - Sociedad Quimica y Minera de Chile,SQM,223,N/A
-9,PAAS.TO - Pan American Silver,PAAS.TO,215,N/A
-10,NEM - Newmont,NEM,203,N/A
+1,DBI - Designer Brands,DBI,435,N/A | Impact: 0
+2,FEIM - Frequency Electronics,FEIM,397,N/A | Impact: 0
+3,ISSC - Innovative Solutions and Support,ISSC,397,N/A | Impact: 0
+4,TENX - Tenax Therapeutics,TENX,378,N/A | Impact: 0
+5,WDC - Western Digital,WDC,288,N/A | Impact: 0
+6,AMKR - Amkor Technology,AMKR,281,N/A | Impact: 0
+7,SQM - Sociedad Quimica y Minera de Chile,SQM,226,N/A | Impact: 0
+8,AA - Alcoa,AA,223,N/A | Impact: 0
+9,FOLD - Amicus Therapeutics,FOLD,221,N/A | Impact: 0
+10,AUGO - Aura Minerals,AUGO,215,N/A | Impact: 0

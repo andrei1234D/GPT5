@@ -1,11 +1,11 @@
-Daily Stock Pick — "January 19, 2026"  
-"WDC – Western Digital Corporation"  
-News: "Strong storage-cycle execution: FY25 revenue +51% YoY and Q1 FY26 FCF $599M; aggressive deleveraging plus $0.10 dividend and $2B buyback authorization." ([westerndigital.com](https://www.westerndigital.com/en-il/company/newsroom/press-releases/2025/2025-07-30-western-digital-reports-fiscal-fourth-quarter-and-fiscal-year-2025-financial-results?utm_source=openai))  
-Score (0–1000): "(360 + 24) = 384"  
+Daily Stock Pick — "January 20, 2026"  
+"AMKR – Amkor Technology, Inc."  
+News: "Solid liquidity + active de-leveraging (redeemed remaining $400M 2027 notes in Oct 2025); business levered to smartphone/AI packaging cycle." ([businesswire.com](https://www.businesswire.com/news/home/20251027632560/en/Amkor-Technology-Reports-Financial-Results-for-the-Third-Quarter-2025-and-Announces-CEO-Succession-Plan?utm_source=openai))  
+Score (0–1000): "(281 + 17) = 298"  
 ADVICE: "Ignore"  
-Certainty: "72%"  
-Forecast image URL: "https://stockscan.io/stocks/WDC/forecast"  
-Verifier note: "Best EV/lowest risk in list: recurring demand momentum + large free cash flow, with balance-sheet risk falling (debt cut by $2.6B in Q4 FY25; gross debt cited at ~$4.7B with ~$2.1B cash) and shareholder returns signaling confidence; avoids micro-cap dilution/going-concern risks seen in biotech names. Sources: westerndigital.com, investor.wdc.com, nasdaq.com." ([westerndigital.com](https://www.westerndigital.com/en-il/company/newsroom/press-releases/2025/2025-07-30-western-digital-reports-fiscal-fourth-quarter-and-fiscal-year-2025-financial-results?utm_source=openai))
+Certainty: "62%"  
+Forecast image URL: "https://stockscan.io/stocks/AMKR/forecast"  
+Verifier note: "Best EV/lowest-risk among Top-10: sizable cash/short-term investments (~$2.1B) vs debt (~$1.8B) and documented revolver availability; recent debt redemption reduces refinancing risk; earnings quality mostly recurring ops (watch cyclicality). Sources: sec.gov (10-Q), ir.amkor.com, businesswire.com, barrons.com." ([sec.gov](https://www.sec.gov/Archives/edgar/data/0001047127/000104712725000087/amkr-20250331.htm?utm_source=openai))
 
 ---
 **Legend**
