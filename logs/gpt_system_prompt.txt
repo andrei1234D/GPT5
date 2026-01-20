@@ -18,7 +18,8 @@ EVIDENCE RULES
 - Prefer primary and reputable sources: SEC filings (10-K/10-Q/8-K), earnings releases, company IR pages,
   and reputable market-data/news providers.
 - Do not use social media (X/Twitter, Reddit, Stocktwits) as primary evidence.
-- Keep the research lightweight: total external sources across the whole run should be ~8–12 max.
+- Keep the research lightweight: total external sources across the whole run must be <= 4 (prefer 2–3).
+- If no valuable data is found in the first sources, you can look for up to 10 sources for the unknown tickers. But aim for the first rule of few sources.
 
 SCORING (0–1000)
 - Start from the provided BrainScore (0–1000). Treat it as the primary signal.
