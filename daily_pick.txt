@@ -1,18 +1,18 @@
-Daily Stock Pick — Date
+Daily Stock Pick — Jan 20, 2026
 
 WDC – Western Digital Corporation
 
-News: "Q1 FY26 showed strong profitability and free cash flow, with guidance for continued Y/Y growth; next earnings is Jan 29, 2026 (AMC)."
+News: "Strong FY25/Q1FY26 execution with rising margins and large free cash flow; initiated/increased dividend and authorized $2B buyback while paying down debt."
 
-Score (0–1000): "(288 + 14%) = 328"
+Score (0–1000): "(288 + 17) = 305"
 
 ADVICE: "Ignore"
 
-Certainty: "72%"
+Certainty: "66%"
 
 Forecast image URL: "https://stockscan.io/stocks/WDC/forecast"
 
-Verifier note: "Best EV/lowest risk in this Top-10: strong recurring FCF (CFO $672M; FCF $599M in Q1 FY26) and improved balance sheet (total debt ~$4.7B; mgmt previously highlighted large debt reduction), plus adequate liquidity per 10-Q; key risk is cyclical demand + upcoming earnings catalyst on Jan 29, 2026. Sources: sec.gov (WDC 10-Q), westerndigital.com (earnings releases), stockanalysis.com (earnings date/valuation)."
+Verifier note: "Best EV/lowest risk in list: strong recurring cash generation + balance-sheet improvement (debt reduced $2.6B in Q4FY25; FCF $675M Q4FY25 and $599M Q1FY26) and shareholder returns (dividend + $2B repurchase) reduce dilution/solvency risk; sources: westerndigital.com press releases (Jul 30 2025; Oct 30 2025; May 13 2025)."
 
 ---
 **Legend**
