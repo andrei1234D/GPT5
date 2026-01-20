@@ -1,4 +1,4 @@
-### TENX
+### DBI
 - N/A
 Impact: 0
 
@@ -10,7 +10,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AMKR
+### TENX
 - N/A
 Impact: 0
 
@@ -18,10 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
-### FOLD
+### AMKR
+- N/A
+Impact: 0
+
+### SQM
 - N/A
 Impact: 0
 
 ### AA
-- Alcoa's stock shows volatility with mixed analyst ratings and recent stake sale by China's Citic Resources.
-Impact: -10
+- N/A
+Impact: 0
+
+### FOLD
+- N/A
+Impact: 0
+
+### AUGO
+- N/A
+Impact: 0
