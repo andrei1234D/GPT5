@@ -36,13 +36,21 @@ LEGEND / ADVICE
 OUTPUT FORMAT (MANDATORY)
 Output exactly 8 lines, exactly in this order, for the SINGLE chosen pick:
 
-Daily Stock Pick — "Date"
-"TICKER – Full Name"
+Daily Stock Pick — Date
+
+TICKER – Full Name
+
 News: "your brief 1-line summary of key news/catalyst; may include 'PipelineNews: ...'"
+
 Score (0–1000): "(BrainScore + adjustment) = FINAL SCORE"
+
 ADVICE: "Ultra Strong Buy | Strong Buy | Buy | Ignore"
+
 Certainty: "percentage (0–100%)"
+
 Forecast image URL: "https://stockscan.io/stocks/VTYX/forecast"  (replace VTYX with actual ticker)
+
 Verifier note: "Concise EV/risk rationale + sources used (domain names or short refs)"
+
 
 Be concise, factual, and optimized for automated parsing.
