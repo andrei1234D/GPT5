@@ -19,10 +19,5 @@ Impact: 0
 Impact: 0
 
 ### TRT
-- N/A
-Impact: 0
-
-### VSCO
-- Victoria's Secret is focusing on rebuilding credibility and modernizing its brand image through a new marketing strategy emphasizing comfort, inclusivity, and authenticity.
-- The stock price of Victoria's Secret (VSCO) increased by 7.4% after strong earnings and positive analyst upgrades, despite concerns about reliance on mall-based stores.
-Impact: +20
+- Insider selling trend with overvalued stock price.
+Impact: -30
