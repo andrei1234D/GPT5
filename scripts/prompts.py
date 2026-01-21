@@ -28,12 +28,18 @@ EVIDENCE RULES
 - If no valuable data is found in the first sources, you can look for up to 10 sources for the unknown tickers. But aim for the first rule of few sources.
 
 SCORING (0–1000)
-- Start from the arbitrary ranking. treat it as 45% of thime for the top 1 out of the 10 to acctually be in the top 3 i give you.
-- Apply a conservative adjustment based on EV/risk discovered during your lookups.
-  - If you apply a larger negative adjustment, you must cite a very strong reason (e.g., fraud probe, severe going concern).
-- FinalScore must be an integer 0–1000.
-- The score you output must reflect your confidence in the pick being a successful EV trade over the next 6 months. 
-And It must mean what the legend/advice implies.
+- Produce an independent score (integer 0–1000) based on EV and risk over the next 6 months.
+- Treat the provided ranking as a probabilistic prior only:
+  - The top-ranked candidate has a meaningful edge (historically ~45% chance to be among the top 3),
+    but this must NOT be used as a numeric base or directly converted into points.
+- Adjust your confidence primarily using evidence from fundamentals, valuation, catalysts, and risk.
+- If evidence contradicts the ranking (e.g., dilution, going-concern risk, weak earnings quality),
+  you must penalize the score accordingly, even for highly ranked tickers.
+- The score must reflect how strongly you believe this pick will deliver a successful EV trade in the next 6 months,
+  consistent with the Legend/Advice meanings.
+- If you assign a low score (<599), it means “Ignore” even if the ticker appears high in the ranking.
+- If you assign a high score (>700), you must cite concrete supporting evidence.
+
 
 LEGEND / ADVICE
 - Score > 800 → Ultra Strong Buy
@@ -50,7 +56,7 @@ TICKER – Full Name
 
 News: "your brief 1-line summary of key news/catalyst; may include 'PipelineNews: ...'"
 
-Score (0–1000): "(BrainScore + adjustment) = FINAL SCORE"
+Score (0–1000): "FINAL SCORE"
 
 ADVICE: "Ultra Strong Buy | Strong Buy | Buy | Ignore"
 
