@@ -2,11 +2,11 @@
 - N/A
 Impact: 0
 
-### SATS
+### TENX
 - N/A
 Impact: 0
 
-### TENX
+### SATS
 - N/A
 Impact: 0
 
@@ -18,11 +18,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TRT
+### VSCO
 - N/A
 Impact: 0
 
-### VSCO
+### EDV.L
 - N/A
 Impact: 0
 
