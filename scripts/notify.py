@@ -164,7 +164,7 @@ def main():
         return fail(f"{llm_today_path} not found. It should be built in the prepare-data job.")
     log(f"[INFO] Found {llm_today_path}")
 
-    # Brain rank — Top 10 + pred_scores (ScoreBotSlim)
+    # Brain rank — Top 10 (ignore scores for GPT payload)
     try:
         tickers_top10, pred_scores = rank_with_brain(
             stage2_path=stage2_path,
@@ -177,7 +177,7 @@ def main():
     if not tickers_top10:
         return fail("Brain returned no top tickers.")
 
-    # Order strictly by ML score desc (authoritative ordering)
+    # Keep ordering by ML score internally, but do not send scores to GPT
     candidates = [(t, float(pred_scores.get(t, 0.0))) for t in tickers_top10]
     candidates.sort(key=lambda x: x[1], reverse=True)
     tickers_to_gpt = [t for t, _ in candidates]
@@ -188,7 +188,7 @@ def main():
     news_map = load_news_summary("data/news_summary_top10.txt")
 
     # Build MINIMAL CSV for GPT (ranked top10)
-    header = ["Rank", "TickerName", "Ticker", "BrainScore", "PipelineNews"]
+    header = ["Rank", "TickerName", "Ticker", "PipelineNews"]
 
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -204,7 +204,6 @@ def main():
                 idx,
                 ticker_name,
                 t,
-                int(round(float(pred_scores.get(t, 0.0)))),
                 news_map.get(t, "N/A"),
             ]
             writer.writerow(row)
