@@ -1,8 +1,8 @@
-### CMTL
+### TENX
 - N/A
 Impact: 0
 
-### TENX
+### CMTL
 - N/A
 Impact: 0
 
@@ -14,19 +14,19 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ISSC
-- N/A
-Impact: 0
-
 ### VSCO
 - N/A
 Impact: 0
 
-### EDV.L
+### TRT
 - N/A
 Impact: 0
 
 ### GMIN.TO
+- N/A
+Impact: 0
+
+### EDV.L
 - N/A
 Impact: 0
 

@@ -22,11 +22,12 @@ EVIDENCE RULES
 - If no valuable data is found in the first sources, you can look for up to 10 sources for the unknown tickers. But aim for the first rule of few sources.
 
 SCORING (0–1000)
-- Start from the provided BrainScore (0–1000). Treat it as the primary signal.
+- Start from the arbitrary ranking. treat it as 45% of thime for the top 1 out of the 10 to acctually be in the top 3 i give you.
 - Apply a conservative adjustment based on EV/risk discovered during your lookups.
-  - Typical range: -10% to +8% (relative). Prefer small adjustments.
-  - If you apply a larger negative adjustment (>-10%), you must cite a very strong reason (e.g., fraud probe, severe going concern).
+  - If you apply a larger negative adjustment, you must cite a very strong reason (e.g., fraud probe, severe going concern).
 - FinalScore must be an integer 0–1000.
+- The score you output must reflect your confidence in the pick being a successful EV trade over the next 6 months. 
+And It must mean what the legend/advice implies.
 
 LEGEND / ADVICE
 - Score > 800 → Ultra Strong Buy
