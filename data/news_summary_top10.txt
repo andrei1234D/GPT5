@@ -19,5 +19,21 @@ Impact: 0
 Impact: 0
 
 ### TRT
-- Insider selling trend with overvalued stock price.
-Impact: -30
+- N/A
+Impact: 0
+
+### VSCO
+- N/A
+Impact: 0
+
+### GMIN.TO
+- N/A
+Impact: 0
+
+### FOLD
+- N/A
+Impact: 0
+
+### AA
+- N/A
+Impact: 0
