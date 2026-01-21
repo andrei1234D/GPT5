@@ -100,8 +100,10 @@ def call_gpt5(
             {"role": "user", "content": user_msg},
         ],
         "max_output_tokens": max_tokens,
-        "text": {"format": "text"},
-    }
+        "text": {
+            "format": {"type": "text"}
+            }
+                }
 
     # Enable web browsing (Responses API hosted tool)
     if enable_web:
