@@ -82,7 +82,7 @@ def call_gpt5(
         raise RuntimeError("OPENAI_API_KEY is not set")
 
     # Default to the newest GPT available as of this code revision.
-    model = model or os.getenv("OPENAI_MODEL", "gpt-5")
+    model = model or os.getenv("OPENAI_MODEL", "GPT-5.2")
     max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "10000")) if max_tokens is None else int(max_tokens)
     timeout = float(os.getenv("OPENAI_TIMEOUT", "360")) if timeout is None else float(timeout)
 
