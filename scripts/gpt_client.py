@@ -101,7 +101,6 @@ def call_gpt5(
         ],
         "max_output_tokens": max_tokens,
         "text": {"format": "text"},
-        "response_format": {"type": "text"}, 
     }
 
     # Enable web browsing (Responses API hosted tool)
