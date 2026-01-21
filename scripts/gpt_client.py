@@ -71,7 +71,7 @@ def call_gpt5(
     model: str = None,
     max_tokens: int = None,
     timeout: Optional[float] = None,
-    retries: int = 7,
+    retries: int = 2,
 ) -> str:
     """
     Calls the OpenAI Responses API with retries + robust error handling.
@@ -100,9 +100,8 @@ def call_gpt5(
             {"role": "user", "content": user_msg},
         ],
         "max_output_tokens": max_tokens,
-        "text": {
-            "format": {"type": "text"}
-            }
+        "reasoning": {"effort": "low"},
+         "max_tool_calls": 2,
                 }
 
     # Enable web browsing (Responses API hosted tool)
