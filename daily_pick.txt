@@ -1,18 +1,18 @@
-Daily Stock Pick — Jan 20, 2026
+Daily Stock Pick — January 21, 2026
 
-WDC – Western Digital Corporation
+FOLD – Amicus Therapeutics
 
-News: "Strong FY25/Q1FY26 execution with rising margins and large free cash flow; initiated/increased dividend and authorized $2B buyback while paying down debt."
+News: Agreed to be acquired by BioMarin for $14.50/share cash; closing targeted for Q2 2026; strong 2024 growth and 2025 profitability trajectory reduce downside. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
 
-Score (0–1000): "(288 + 17) = 305"
+Score (0–1000): "(BrainScore 520 + EV/risk adjustment +100) = 620"
 
-ADVICE: "Ignore"
+ADVICE: "Buy"
 
-Certainty: "66%"
+Certainty: "72%"
 
-Forecast image URL: "https://stockscan.io/stocks/WDC/forecast"
+Forecast image URL: "https://stockscan.io/stocks/FOLD/forecast"
 
-Verifier note: "Best EV/lowest risk in list: strong recurring cash generation + balance-sheet improvement (debt reduced $2.6B in Q4FY25; FCF $675M Q4FY25 and $599M Q1FY26) and shareholder returns (dividend + $2B repurchase) reduce dilution/solvency risk; sources: westerndigital.com press releases (Jul 30 2025; Oct 30 2025; May 13 2025)."
+Verifier note: "Merger-arb setup with defined cash takeout, minimal antitrust risk; fundamentals solid (2024 rev +33% to ~$528M; path to GAAP profitability; resolved Galafold patent risk), and adequate liquidity—supporting limited downside over 6 months. Sources: investors.biomarin.com (deal terms/closing window), ir.amicusrx.com (FY2024 results/guidance)." ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
 
 ---
 **Legend**

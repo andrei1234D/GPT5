@@ -1,11 +1,11 @@
-Rank,TickerName,Ticker,BrainScore,PipelineNews
-1,DBI - Designer Brands,DBI,435,N/A | Impact: 0
-2,FEIM - Frequency Electronics,FEIM,397,N/A | Impact: 0
-3,ISSC - Innovative Solutions and Support,ISSC,397,N/A | Impact: 0
-4,TENX - Tenax Therapeutics,TENX,378,N/A | Impact: 0
-5,WDC - Western Digital,WDC,288,N/A | Impact: 0
-6,AMKR - Amkor Technology,AMKR,281,N/A | Impact: 0
-7,SQM - Sociedad Quimica y Minera de Chile,SQM,226,N/A | Impact: 0
-8,AA - Alcoa,AA,223,N/A | Impact: 0
-9,FOLD - Amicus Therapeutics,FOLD,221,N/A | Impact: 0
-10,AUGO - Aura Minerals,AUGO,215,N/A | Impact: 0
+Rank,TickerName,Ticker,PipelineNews
+1,TENX - Tenax Therapeutics,TENX,N/A | Impact: 0
+2,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
+3,SATS - EchoStar,SATS,N/A | Impact: 0
+4,HUT - Hut 8 Mining,HUT,N/A | Impact: 0
+5,VSCO - Victoria's Secret & Co,VSCO,N/A | Impact: 0
+6,TRT - Trio-Tech International,TRT,N/A | Impact: 0
+7,GMIN.TO - G Mining Ventures,GMIN.TO,N/A | Impact: 0
+8,EDV.L - Endeavour Mining,EDV.L,N/A | Impact: 0
+9,FOLD - Amicus Therapeutics,FOLD,N/A | Impact: 0
+10,AA - Alcoa,AA,N/A | Impact: 0
