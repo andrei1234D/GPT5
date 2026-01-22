@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,TENX - Tenax Therapeutics,TENX,N/A | Impact: 0
-2,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
-3,SATS - EchoStar,SATS,N/A | Impact: 0
-4,HUT - Hut 8 Mining,HUT,N/A | Impact: 0
-5,VSCO - Victoria's Secret & Co,VSCO,N/A | Impact: 0
-6,TRT - Trio-Tech International,TRT,N/A | Impact: 0
-7,GMIN.TO - G Mining Ventures,GMIN.TO,N/A | Impact: 0
-8,EDV.L - Endeavour Mining,EDV.L,N/A | Impact: 0
-9,FOLD - Amicus Therapeutics,FOLD,N/A | Impact: 0
-10,AA - Alcoa,AA,N/A | Impact: 0
+1,CTMX - CytomX Therapeutics,CTMX,N/A | Impact: 0
+2,DBI - Designer Brands,DBI,N/A | Impact: 0
+3,BIOA - BioAge Labs,BIOA,N/A | Impact: 0
+4,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
+5,TENX - Tenax Therapeutics,TENX,N/A | Impact: 0
+6,ISSC - Innovative Solutions and Support,ISSC,N/A | Impact: 0
+7,EDV.L - Endeavour Mining,EDV.L,N/A | Impact: 0
+8,TAYD - Taylor Devices,TAYD,N/A | Impact: 0
+9,AA - Alcoa,AA,N/A | Impact: 0
+10,FOLD - Amicus Therapeutics,FOLD,N/A | Impact: 0

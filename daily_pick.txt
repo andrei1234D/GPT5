@@ -1,18 +1,18 @@
-Daily Stock Pick — January 21, 2026
+Daily Stock Pick — January 22, 2026
 
 FOLD – Amicus Therapeutics
 
-News: Agreed to be acquired by BioMarin for $14.50/share cash; closing targeted for Q2 2026; strong 2024 growth and 2025 profitability trajectory reduce downside. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
+News: BioMarin signed a definitive all‑cash deal to acquire Amicus for $14.50/share; closing targeted for Q2 2026 (regulatory and shareholder approvals pending).
 
-Score (0–1000): "(BrainScore 520 + EV/risk adjustment +100) = 620"
+Score (0–1000): 650
 
-ADVICE: "Buy"
+ADVICE: Buy
 
-Certainty: "72%"
+Certainty: 74%
 
-Forecast image URL: "https://stockscan.io/stocks/FOLD/forecast"
+Forecast image URL: https://stockscan.io/stocks/FOLD/forecast
 
-Verifier note: "Merger-arb setup with defined cash takeout, minimal antitrust risk; fundamentals solid (2024 rev +33% to ~$528M; path to GAAP profitability; resolved Galafold patent risk), and adequate liquidity—supporting limited downside over 6 months. Sources: investors.biomarin.com (deal terms/closing window), ir.amicusrx.com (FY2024 results/guidance)." ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
+Verifier note: Low‑risk merger‑arb spread with downside cushioned by profitable, growing rare‑disease franchise; 2025 guidance targets positive GAAP in H2 and mid‑80% gross margins. Sources: investors.biomarin.com (deal terms/close timing), ir.amicusrx.com (revenue growth, profitability guidance). ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
 
 ---
 **Legend**
