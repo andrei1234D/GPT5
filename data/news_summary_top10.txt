@@ -1,4 +1,12 @@
-### TENX
+### CTMX
+- N/A
+Impact: 0
+
+### DBI
+- N/A
+Impact: 0
+
+### BIOA
 - N/A
 Impact: 0
 
@@ -6,23 +14,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### SATS
+### TENX
 - N/A
 Impact: 0
 
-### HUT
-- N/A
-Impact: 0
-
-### VSCO
-- N/A
-Impact: 0
-
-### TRT
-- N/A
-Impact: 0
-
-### GMIN.TO
+### ISSC
 - N/A
 Impact: 0
 
@@ -30,10 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### FOLD
+### TAYD
 - N/A
 Impact: 0
 
 ### AA
+- N/A
+Impact: 0
+
+### FOLD
 - N/A
 Impact: 0
