@@ -826,7 +826,6 @@ AVXL,Anavex Life Sciences
 AVY,Avery Dennison
 AW.TO,A&W Food Services of Canada
 AWCD,American Water Works
-AWEL.L,Alphawave IP
 AWK,American Water Works
 AWMD,Skyworks Solutions
 AWR,American States Water
@@ -1164,7 +1163,6 @@ BPCRL.L,BioPharma Credit
 BPL.L,BP
 BPML1.L,BP Marsh & Partners
 BPOST.BR,bpost
-BPT,BP Prudhoe Bay Royalty Trust
 BPTH,Bio-Path
 BQ,Boqii
 BR,Broadridge Financial Solutions
@@ -1227,6 +1225,7 @@ BTE.TO,Baytex Energy
 BTEGF.TO,Baytex Energy
 BTEML.L,Avi Global Trust
 BTG.TO,B2Gold
+BTGO,BitGo
 BTI,British American Tobacco
 BTL.L,BT Group
 BTM,Bitcoin Depot
@@ -2840,7 +2839,6 @@ FWRG,First Watch Restaurant
 FXLV,F45 Training
 FXPOL.L,Ferrexpo
 FYBD.DE,Formycon
-FYBR,Frontier Communications Parent
 FZMD.SS,ZTE
 FZT,Falcon's Beyond Global
 G,Genpact
@@ -3867,7 +3865,7 @@ KCAC2.AS,Wallbox
 KCHD,Kinsale Capital
 KCOD.DE,Kloeckner & Co
 KD,Kyndryl
-KDLY,Kindly MD
+KDLY,Nakamoto
 KDNCL.L,Cadence Minerals
 KEED.T,Keyence
 KEFIL.L,Kefi Gold and Copper
@@ -4430,6 +4428,7 @@ MFG,Mizuho Financial Group
 MFH,Chaince Digital Holdings
 MFI,mF International
 MFI.TO,Maple Leaf Foods
+MFIN,Medallion Financial
 MFP.PA,Wendel
 MFXL,Manx Financial
 MG.TO,Magna International
@@ -6020,6 +6019,7 @@ SCU,Sculptor Capital Management
 SCVL,Shoe Carnival
 SCYRE.MC,Sacyr
 SCYX,SCYNEXIS
+SCZM.TO,Santacruz Silver Mining
 SD,SandRidge Energy
 SDC,SmileDirectClub
 SDE.TO,Spartan Delta
@@ -6098,7 +6098,7 @@ SFTW,BlackSky Technology
 SFWL,Shengfeng Development
 SFZNS.SW,Siegfried
 SG1,Sweetgreen
-SGBX,Safe & Green
+SGBX,Olenox Industries
 SGD,RenX Enterprises
 SGEL.L,The Sage Group
 SGH,Penguin Solutions
