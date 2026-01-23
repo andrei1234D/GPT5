@@ -1,18 +1,18 @@
-Daily Stock Pick — January 22, 2026
+Daily Stock Pick — January 23, 2026
 
 FOLD – Amicus Therapeutics
 
-News: BioMarin signed a definitive all‑cash deal to acquire Amicus for $14.50/share; closing targeted for Q2 2026 (regulatory and shareholder approvals pending).
+News: BioMarin agreed to acquire Amicus for $14.50/share with expected Q2 2026 close; Amicus also posted GAAP-profitable Q3’25 with double‑digit revenue growth. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
 
-Score (0–1000): 650
+Score (0–1000): 735
 
-ADVICE: Buy
+ADVICE: Strong Buy
 
 Certainty: 74%
 
 Forecast image URL: https://stockscan.io/stocks/FOLD/forecast
 
-Verifier note: Low‑risk merger‑arb spread with downside cushioned by profitable, growing rare‑disease franchise; 2025 guidance targets positive GAAP in H2 and mid‑80% gross margins. Sources: investors.biomarin.com (deal terms/close timing), ir.amicusrx.com (revenue growth, profitability guidance). ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
+Verifier note: Low-risk merger-arb upside into expected close + improving fundamentals (2024 revenue +33% YoY; positive GAAP in H2’25; ~$264M cash) and no recent dilution flagged; capped downside given cash-flowing assets. Sources: investors.biomarin.com; ir.amicusrx.com; gurufocus.com. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
 
 ---
 **Legend**

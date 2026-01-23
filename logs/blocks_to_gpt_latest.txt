@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,CTMX - CytomX Therapeutics,CTMX,N/A | Impact: 0
-2,DBI - Designer Brands,DBI,N/A | Impact: 0
-3,BIOA - BioAge Labs,BIOA,N/A | Impact: 0
-4,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
-5,TENX - Tenax Therapeutics,TENX,N/A | Impact: 0
-6,ISSC - Innovative Solutions and Support,ISSC,N/A | Impact: 0
-7,EDV.L - Endeavour Mining,EDV.L,N/A | Impact: 0
-8,TAYD - Taylor Devices,TAYD,N/A | Impact: 0
+1,FBRX - Forte Biosciences,FBRX,N/A | Impact: 0
+2,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
+3,LPCN - Lipocine,LPCN,N/A | Impact: 0
+4,ARWR - Arrowhead Pharmaceuticals,ARWR,N/A | Impact: 0
+5,ISSC - Innovative Solutions and Support,ISSC,N/A | Impact: 0
+6,ARRY - Array Technologies,ARRY,N/A | Impact: 0
+7,ERO.TO - ERO Copper,ERO.TO,N/A | Impact: 0
+8,FOLD - Amicus Therapeutics,FOLD,N/A | Impact: 0
 9,AA - Alcoa,AA,N/A | Impact: 0
-10,FOLD - Amicus Therapeutics,FOLD,N/A | Impact: 0
+10,IVZ - Invesco,IVZ,N/A | Impact: 0
