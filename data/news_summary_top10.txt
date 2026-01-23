@@ -1,12 +1,4 @@
-### CTMX
-- N/A
-Impact: 0
-
-### DBI
-- N/A
-Impact: 0
-
-### BIOA
+### FBRX
 - N/A
 Impact: 0
 
@@ -14,7 +6,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TENX
+### LPCN
+- N/A
+Impact: 0
+
+### ARWR
 - N/A
 Impact: 0
 
@@ -22,11 +18,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### EDV.L
+### ARRY
 - N/A
 Impact: 0
 
-### TAYD
+### ERO.TO
+- N/A
+Impact: 0
+
+### FOLD
 - N/A
 Impact: 0
 
@@ -34,6 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### FOLD
+### IVZ
 - N/A
 Impact: 0
