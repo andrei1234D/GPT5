@@ -474,6 +474,7 @@ ALVMGP.PA,Klea Holding,2025-09-15 17:42:57
 ALVR,Kalaris Therapeutics,2025-09-15 17:42:57
 ALWFP.PA,Winfarm,2025-09-15 17:42:57
 ALWTRP.PA,Osmosun,2025-09-15 17:42:57
+AMBC,Octave Specialty Group,2026-01-23 04:42:37
 AMBQ,Ambiq Micro,2025-09-15 17:43:07
 AMCD,Albemarle,2025-09-15 17:43:07
 AMCI,Advent Technologies,2025-09-15 17:43:07
@@ -530,6 +531,7 @@ APAXL,Apax Global Alpha,2025-09-15 17:43:35
 APCD,Apple,2025-09-15 17:43:35
 APDN,BNB Plus,2025-12-10 04:28:09
 APFL.L,Ecora Royalties,2025-09-15 17:43:35
+APM.TO,Andean Precious Metals,2026-01-23 04:42:43
 APNL.L,Applied Nutrition,2025-09-15 17:43:35
 APOP,Quoin Pharmaceuticals,2025-09-15 17:43:35
 APPSE.MC,Applus Services,2025-09-15 17:43:35
@@ -598,6 +600,7 @@ ATSIE.MC,Aplicaciones y Tratamientos de Sistemas,2025-09-15 17:44:11
 ATSTL.L,Alliance Witan,2025-09-15 17:44:11
 ATTL.L,Allianz Technology Trust,name-filter
 ATU,Enerpac Tool,2025-09-15 17:44:11
+ATUS,Optimum Communications,2026-01-23 04:42:48
 ATUSF.TO,Altius Minerals,2025-09-15 17:44:11
 ATVC,Liminatus Pharma,2025-09-15 17:44:26
 AU.L,AngloGold Ashanti,2025-09-15 17:44:26
@@ -833,6 +836,7 @@ BSXD,Boston Scientific,2025-09-15 17:46:09
 BTEGF.TO,Baytex Energy,2025-09-15 17:46:09
 BTEML.L,Avi Global Trust,name-filter
 BTG.TO,B2Gold,2025-09-15 17:46:09
+BTGO,BitGo,2026-01-23 04:43:01
 BTQQF.TO,BTQ Technologies,2025-09-15 17:46:09
 BTWD,Brown & Brown,2025-09-15 17:46:09
 BTWN,MoneyHero,2025-09-15 17:46:09
@@ -1552,6 +1556,7 @@ FDJP.PA,FDJ United,2025-09-15 17:52:15
 FDOD,Macy's,2025-09-15 17:52:15
 FDRL.L,First Development Resources,2025-12-19 04:29:19
 FDXD,FedEx,2025-09-15 17:52:15
+FDY.TO,Faraday Copper,2026-01-23 04:43:37
 FENC.TO,Fennec Pharmaceuticals,2025-09-15 17:52:15
 FENL.L,Frenkel Topping,2025-12-19 04:29:19
 FERE.AS,Ferrovial,2025-09-15 17:52:15
@@ -1782,6 +1787,7 @@ GMSL.L,Gulf Marine Services,2025-09-15 17:54:14
 GMVD,G Medical Innovations,2025-09-15 17:54:14
 GNCA,Genocea Biosciences,2025-09-15 17:54:34
 GNCL.IR,Greencore,2025-09-15 17:54:34
+GNFT,Genfit,2026-01-23 04:43:48
 GNFTP.PA,Genfit,2025-09-15 17:54:34
 GNIPL.L,GENIP,2025-12-19 04:29:34
 GNPK,Redwire,2025-09-15 17:54:34
@@ -3313,6 +3319,7 @@ SCTC,Odysight.ai,2025-09-15 18:07:08
 SCTL.L,Softcat,2025-09-15 18:07:08
 SCU,Sculptor Capital Management,2025-09-15 18:07:08
 SCYRE.MC,Sacyr,2025-09-15 18:07:08
+SCZM.TO,Santacruz Silver Mining,2026-01-23 04:45:03
 SDC,SmileDirectClub,2025-09-15 18:07:08
 SDFD.DE,K+S,2025-09-15 18:07:08
 SDGP.PA,Synergie,2025-09-15 18:07:08
@@ -3755,6 +3762,7 @@ TSE.IR,Trinseo,2025-09-15 18:10:30
 TSFAD,Taiwan Semiconductor Manufacturing,2025-09-15 18:10:39
 TSIA,Latch,2025-09-15 18:10:39
 TSID.SS,Tsingtao Brewery,2025-09-15 18:10:39
+TSK.TO,Talisker Resources,2026-01-23 04:45:24
 TSP,CreateAI Holdings,2025-09-15 18:10:39
 TT.IR,Trane Technologies,2025-09-15 18:10:39
 TT8D,,persisted
@@ -4100,11 +4108,5 @@ ZSAN,Zosano Pharma,2025-09-15 18:13:42
 ZUBNS.SW,Zueblin Immobilien,2025-09-15 18:13:42
 ZURNS.SW,Zurich Insurance,2025-09-15 18:13:42
 ZVO,Zovio,2025-09-15 18:13:42
-AMBC,404/empty-or-short,2026-01-23 04:42:37
-APM.TO,404/empty-or-short,2026-01-23 04:42:43
-ATUS,404/empty-or-short,2026-01-23 04:42:48
-BTGO,404/empty-or-short,2026-01-23 04:43:01
-FDY.TO,404/empty-or-short,2026-01-23 04:43:37
-GNFT,404/empty-or-short,2026-01-23 04:43:48
-SCZM.TO,404/empty-or-short,2026-01-23 04:45:03
-TSK.TO,404/empty-or-short,2026-01-23 04:45:24
+CSGA.AS,404/empty-or-short,2026-01-26 04:57:29
+EQPT,404/empty-or-short,2026-01-26 04:58:02

@@ -174,7 +174,6 @@ ALZN,Alzamend Neuro
 AM,Antero Midstream
 AMAT,Applied Materials
 AMBA,Ambarella
-AMBC,Octave Specialty Group
 AMBO,Ambow Education
 AMC,AMC Entertainment
 AMC.TO,Arizona Metals
@@ -248,7 +247,6 @@ APLE,Apple Hospitality REIT
 APLS,Apellis Pharmaceuticals
 APLT,Applied Therapeutics
 APM,Aptorum
-APM.TO,Andean Precious Metals
 APO,Apollo Global Management
 APOG,Apogee Enterprises
 APP,AppLovin
@@ -360,7 +358,6 @@ ATRL.TO,AtkinsRealis Group
 ATRO,Astronics
 ATS.TO,ATS
 ATS.VI,AT&S Austria Technologie & Systemtechnik
-ATUS,Optimum Communications
 ATXG,Addentax
 ATXI,Avenue Therapeutics
 ATZ.TO,Aritzia
@@ -600,7 +597,6 @@ BTBT,Bit Digital
 BTCL,London BTC Company
 BTCS,BTCS
 BTE.TO,Baytex Energy
-BTGO,BitGo
 BTI,British American Tobacco
 BTL.L,BT Group
 BTM,Bitcoin Depot
@@ -922,6 +918,7 @@ CS.TO,Capstone Copper
 CSAI,Cloudastructure
 CSBR,Champions Oncology
 CSCO,Cisco Systems
+CSGA.AS,CSG
 CSGP,CoStar
 CSL,Carlisle Companies
 CSR,Centerspace
@@ -1250,6 +1247,7 @@ EQB.TO,EQB
 EQH,Equitable
 EQIX,Equinix
 EQNR,Equinor
+EQPT,EquipmentShare.com
 EQR,Equity Residential
 EQT,EQT
 EQX.TO,Equinox Gold
@@ -1345,7 +1343,6 @@ FDS,FactSet Research Systems
 FDSB,Fifth District Bancorp
 FDUS,Fidus Investment
 FDX,FedEx
-FDY.TO,Faraday Copper
 FE,FirstEnergy
 FEAC,Skillz
 FEAM,5E Advanced Materials
@@ -1564,7 +1561,6 @@ GMM,Global Mofy AI
 GMRE,Global Medical REIT
 GMVHY,Entain
 GMX.TO,Globex Mining Enterprises
-GNFT,Genfit
 GNK,Genco Shipping & Trading
 GNL,Global Net Lease
 GNLN,Greenlane
@@ -1853,7 +1849,7 @@ INGM,Ingram Micro
 INGN,Inogen
 INGR,Ingredion
 INHD,Inno Holdings
-INIS,International Isotopes
+INIS,Radnostix
 INKT,MiNK Therapeutics
 INLF,Inlif
 INMB,Inmune Bio
@@ -3155,7 +3151,6 @@ SCR.TO,Strathcona Resources
 SCSC,ScanSource
 SCVL,Shoe Carnival
 SCYX,SCYNEXIS
-SCZM.TO,Santacruz Silver Mining
 SD,SandRidge Energy
 SDE.TO,Spartan Delta
 SDGR,Schrodinger
@@ -3590,7 +3585,6 @@ TSAT.TO,Telesat
 TSCO,Tractor Supply
 TSEM.TA,Tower Semiconductor
 TSHA,Taysha Gene Therapies
-TSK.TO,Talisker Resources
 TSL.TO,Tree Island Steel
 TSLA,Tesla
 TSLX,Sixth Street Specialty Lending
