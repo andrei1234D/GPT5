@@ -1,18 +1,18 @@
-Daily Stock Pick — January 23, 2026
+Daily Stock Pick — January 26, 2026
 
-FOLD – Amicus Therapeutics
+PLAB – Photronics, Inc.
 
-News: BioMarin agreed to acquire Amicus for $14.50/share with expected Q2 2026 close; Amicus also posted GAAP-profitable Q3’25 with double‑digit revenue growth. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
+News: Q4 FY2025 beat with $0.60 non-GAAP EPS; FY25 cash/short-term investments ~$588M and upbeat AI/advanced-node mask demand outlook. ([barrons.com](https://www.barrons.com/articles/photronics-earnings-stock-price-67f82a0f?utm_source=openai))
 
 Score (0–1000): 735
 
 ADVICE: Strong Buy
 
-Certainty: 74%
+Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/FOLD/forecast
+Forecast image URL: https://stockscan.io/stocks/PLAB/forecast
 
-Verifier note: Low-risk merger-arb upside into expected close + improving fundamentals (2024 revenue +33% YoY; positive GAAP in H2’25; ~$264M cash) and no recent dilution flagged; capped downside given cash-flowing assets. Sources: investors.biomarin.com; ir.amicusrx.com; gurufocus.com. ([investors.biomarin.com](https://investors.biomarin.com/news/news-details/2025/BioMarin-to-Acquire-Amicus-Therapeutics-for-4-8-Billion-Expanding-Position-as-a-Leader-in-Rare-Diseases-Accelerating-Revenue-Growth-and-Strengthening-Financial-Outlook/default.aspx?utm_source=openai))
+Verifier note: Favorable EV/risk over 6 months: recurring photomask demand (AI, memory node migration), solid margins, strong cash and no evident dilution; lower leverage risk vs peers. Sources: photronicsinc.gcs-web.com, globenewswire.com, barrons.com. ([photronicsinc.gcs-web.com](https://photronicsinc.gcs-web.com/news-releases/news-release-details/photronics-reports-first-quarter-fiscal-2025-results?utm_source=openai))
 
 ---
 **Legend**
