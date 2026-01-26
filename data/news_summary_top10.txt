@@ -1,4 +1,8 @@
-### FBRX
+### EKSO
+- N/A
+Impact: 0
+
+### BIOA
 - N/A
 Impact: 0
 
@@ -6,11 +10,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### LPCN
-- N/A
-Impact: 0
-
-### ARWR
+### SATS
 - N/A
 Impact: 0
 
@@ -18,22 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ARRY
+### PLAB
 - N/A
 Impact: 0
 
-### ERO.TO
+### EDV.L
 - N/A
 Impact: 0
 
-### FOLD
+### TAYD
 - N/A
 Impact: 0
 
-### AA
+### TTI
 - N/A
 Impact: 0
 
-### IVZ
+### WDC
 - N/A
 Impact: 0
