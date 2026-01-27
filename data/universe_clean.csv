@@ -918,7 +918,6 @@ CS.TO,Capstone Copper
 CSAI,Cloudastructure
 CSBR,Champions Oncology
 CSCO,Cisco Systems
-CSGA.AS,CSG
 CSGP,CoStar
 CSL,Carlisle Companies
 CSR,Centerspace
@@ -1247,7 +1246,6 @@ EQB.TO,EQB
 EQH,Equitable
 EQIX,Equinix
 EQNR,Equinor
-EQPT,EquipmentShare.com
 EQR,Equity Residential
 EQT,EQT
 EQX.TO,Equinox Gold
@@ -1841,6 +1839,7 @@ INAB,IN8bio
 INCY,Incyte
 INDB,Independent Bank
 INDO,Indonesia Energy
+INDV,Indivior Pharmaceuticals
 INFL.L,Informa
 INFU,InfuSystem
 INFY,Infosys
@@ -3571,7 +3570,6 @@ TRP.TO,TC Energy
 TRSG,Tungray Technologies
 TRT,Trio-Tech International
 TRU,TransUnion
-TRUE,TrueCar
 TRUMY,Terumo
 TRUP,Trupanion
 TRV,Travelers Companies
