@@ -1,17 +1,17 @@
-TODAY is Jan 26. You are given the Top-10 ML-ranked candidates (already the best of the day), ordered.
+TODAY is Jan 27. You are given the Top-10 ML-ranked candidates (already the best of the day), ordered.
 You must pick exactly ONE winner with the best EV and lowest risk, using up-to-date web data for the future 6months time-frame.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,PipelineNews
-1,EKSO - Ekso Bionics,EKSO,N/A | Impact: 0
-2,BIOA - BioAge Labs,BIOA,N/A | Impact: 0
-3,CMTL - Comtech Telecommunications,CMTL,N/A | Impact: 0
-4,SATS - EchoStar,SATS,N/A | Impact: 0
-5,ISSC - Innovative Solutions and Support,ISSC,N/A | Impact: 0
+1,CTMX - CytomX Therapeutics,CTMX,N/A | Impact: 0
+2,OSS - One Stop Systems,OSS,N/A | Impact: 0
+3,ISSC - Innovative Solutions and Support,ISSC,N/A | Impact: 0
+4,VICR - Vicor,VICR,N/A | Impact: 0
+5,WDC - Western Digital,WDC,N/A | Impact: 0
 6,PLAB - Photronics,PLAB,N/A | Impact: 0
-7,EDV.L - Endeavour Mining,EDV.L,N/A | Impact: 0
-8,TAYD - Taylor Devices,TAYD,N/A | Impact: 0
-9,TTI - TETRA Technologies,TTI,N/A | Impact: 0
-10,WDC - Western Digital,WDC,N/A | Impact: 0
+7,TAYD - Taylor Devices,TAYD,N/A | Impact: 0
+8,TTI - TETRA Technologies,TTI,N/A | Impact: 0
+9,FOLD - Amicus Therapeutics,FOLD,Amicus Therapeutics reports negative net margin and PE ratio despite beating Q3 estimates. | Halper Sadeh LLC investigating fairness of Amicus Therapeutics sale to BioMarin Pharmaceutical. | Impact: -15
+10,ERO.TO - ERO Copper,ERO.TO,N/A
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
