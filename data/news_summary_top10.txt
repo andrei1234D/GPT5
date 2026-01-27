@@ -1,16 +1,8 @@
-### EKSO
+### CTMX
 - N/A
 Impact: 0
 
-### BIOA
-- N/A
-Impact: 0
-
-### CMTL
-- N/A
-Impact: 0
-
-### SATS
+### OSS
 - N/A
 Impact: 0
 
@@ -18,11 +10,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### PLAB
+### VICR
 - N/A
 Impact: 0
 
-### EDV.L
+### WDC
+- N/A
+Impact: 0
+
+### PLAB
 - N/A
 Impact: 0
 
@@ -34,6 +30,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### WDC
-- N/A
-Impact: 0
+### FOLD
+- Amicus Therapeutics reports negative net margin and PE ratio despite beating Q3 estimates.
+- Halper Sadeh LLC investigating fairness of Amicus Therapeutics sale to BioMarin Pharmaceutical.
+Impact: -15
