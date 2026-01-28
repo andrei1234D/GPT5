@@ -1,18 +1,18 @@
-Daily Stock Pick — January 27, 2026
+Daily Stock Pick — January 28, 2026
 
-PLAB – Photronics, Inc.
+AMAT – Applied Materials, Inc.
 
-News: Q4 FY2025 beat with $0.60 non-GAAP EPS, strong cash ($588M) and minimal debt, plus Q1 FY2026 revenue guide above last year; AI/regionalization tailwinds. ([globenewswire.com](https://www.globenewswire.com/news-release/2025/12/10/3203040/0/en/photronics-reports-full-year-and-fourth-quarter-fiscal-2025-results.html?utm_source=openai))
+News: Upcoming Q1 FY26 earnings on Feb 12; FY25 delivered record revenue with ~7–8% YoY growth and strong margins; restructuring to streamline amid China headwinds.
 
-Score (0–1000): 745
+Score (0–1000): 740
 
 ADVICE: Strong Buy
 
-Certainty: 74%
+Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/PLAB/forecast
+Forecast image URL: https://stockscan.io/stocks/AMAT/forecast
 
-Verifier note: Net-cash balance sheet (cash ~$588M vs. low debt), solid profitability and cash flow, no dilution risk noted and prior repurchase authorization; secular AI/edge and regionalization support demand; near-term catalyst is next quarter guide/print. Sources: photronicsinc.gcs-web.com, globenewswire.com (Dec 10, 2025), barrons.com. ([photronicsinc.gcs-web.com](https://photronicsinc.gcs-web.com/financial-information/quarterly-results?utm_source=openai))
+Verifier note: Best EV/low risk among peers: recurring earnings with ~49% gross and ~30% op margins, robust cash returns (buybacks/dividends), AI-driven WFE demand; near-term catalyst Feb 12 earnings; risks manageable (export controls, 4% workforce reduction). Sources: AMAT IR Q2’25 and Q3’25 results; earnings-call date notices; Barron’s on layoffs/export risk. ([investors.appliedmaterials.com](https://investors.appliedmaterials.com/news-releases/news-release-details/applied-materials-announces-second-quarter-2025-results?utm_source=openai))
 
 ---
 **Legend**
