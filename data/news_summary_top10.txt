@@ -1,8 +1,4 @@
-### CTMX
-- N/A
-Impact: 0
-
-### OSS
+### SKYT
 - N/A
 Impact: 0
 
@@ -10,7 +6,19 @@ Impact: 0
 - N/A
 Impact: 0
 
-### VICR
+### HUT
+- N/A
+Impact: 0
+
+### MRAM
+- N/A
+Impact: 0
+
+### MRNA
+- N/A
+Impact: 0
+
+### ARRY
 - N/A
 Impact: 0
 
@@ -18,19 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### PLAB
+### EDV.L
 - N/A
 Impact: 0
 
-### TAYD
+### SQM
 - N/A
 Impact: 0
 
-### TTI
+### AMAT
 - N/A
 Impact: 0
-
-### FOLD
-- Amicus Therapeutics reports negative net margin and PE ratio despite beating Q3 estimates.
-- Halper Sadeh LLC investigating fairness of Amicus Therapeutics sale to BioMarin Pharmaceutical.
-Impact: -15
