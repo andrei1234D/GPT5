@@ -2,7 +2,11 @@
 - N/A
 Impact: 0
 
-### ISSC
+### OSS
+- N/A
+Impact: 0
+
+### CVV
 - N/A
 Impact: 0
 
@@ -10,7 +14,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### MRAM
+### LMND
 - N/A
 Impact: 0
 
@@ -18,15 +22,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ARRY
-- N/A
-Impact: 0
-
-### WDC
-- N/A
-Impact: 0
-
 ### EDV.L
+- N/A
+Impact: 0
+
+### HL
 - N/A
 Impact: 0
 
@@ -34,6 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AMAT
+### ALB
 - N/A
 Impact: 0
