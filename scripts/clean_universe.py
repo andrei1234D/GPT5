@@ -5,59 +5,47 @@ import os, sys, csv, json, re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
-from universe_from_trading_212 import map_to_yahoo, simplify_symbol
+# Reuse mapping helpers from the builder
+from universe_from_trading_212 import map_to_yahoo, parse_t212_ticker, sanitize_symbol
 
 IN_PATH   = Path(os.getenv("CLEAN_INPUT", "data/universe.csv"))
 OUT_PATH  = Path(os.getenv("CLEAN_OUT", "data/universe_clean.csv"))
+
+# This is the "run output" rejects file (used by aliases_autobuild).
 REJ_PATH  = Path(os.getenv("CLEAN_REJECTS", "data/universe_rejects.csv"))
+
+# Persistent rejects should NOT share a filename with any yfinance/feature rejection logs.
+PERSIST_PATH = Path(os.getenv("CLEAN_PERSIST_REJECTS", "data/universe_rejects_persisted.csv"))
+
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
-
-# If 1, rewrite rejects to only the current run (plus any manual/persisted blocklist rows).
-RESET_REJECTS = os.getenv("CLEAN_RESET_REJECTS", "0").lower() in {"1","true","yes"}
-
-DT_REASON = re.compile(r"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$")
-
-# Only these reasons are "blocking" across runs.
-# Anything else in rejects.csv is informational only.
-BLOCK_REASONS = {"manual", "persisted"}  # keep this tiny on purpose
 
 def log(msg: str) -> None:
     print(msg, flush=True)
 
 # -------------------- Helpers -------------------- #
-def atomic_write_dicts(path: Path, rows: List[Dict[str, str]], fieldnames: Tuple[str, ...]) -> None:
+def atomic_write(path: Path, rows: List[Tuple], header: Tuple[str, ...]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
-        w.writeheader()
+        w = csv.writer(f)
+        w.writerow(header)
         w.writerows(rows)
     os.replace(tmp, path)
 
-def load_in(path: Path) -> List[Dict[str, str]]:
+def load_universe_csv(path: Path) -> List[Dict[str, str]]:
     if not path.exists():
         sys.exit(f"[ERROR] Missing {path}")
-    out: List[Dict[str, str]] = []
+    out: List[Dict[str,str]] = []
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         rdr = csv.DictReader(f)
         for row in rdr:
             t = (row.get("ticker") or "").strip().upper()
             n = (row.get("company") or "").strip()
-            if not (t and n):
-                continue
-            out.append({
-                "ticker": t,
-                "company": n,
-                "t212_ticker": (row.get("t212_ticker") or "").strip(),
-                "shortName": (row.get("shortName") or "").strip(),
-                "isin": (row.get("isin") or "").strip(),
-                "exchange": (row.get("exchange") or "").strip(),
-                "mic": (row.get("mic") or "").strip(),
-                "currency": (row.get("currency") or "").strip(),
-            })
+            if t and n:
+                out.append({"ticker": t, "company": n})
     return out
 
-def load_instruments() -> Optional[List[Dict[str,Any]]]:
+def load_instruments() -> Optional[List[Dict[str, Any]]]:
     if META_PATH.exists():
         try:
             with META_PATH.open("r", encoding="utf-8") as f:
@@ -66,177 +54,158 @@ def load_instruments() -> Optional[List[Dict[str,Any]]]:
             log(f"[WARN] Failed to read {META_PATH}: {e}")
     return None
 
-def load_blocklist() -> Tuple[Dict[str, Tuple[str, str]], int, int]:
+_ALLOWED_PERSIST_REASONS = {
+    "persisted",
+    "name-filter",
+    "symbol-hygiene",
+    "not-in-whitelist",
+}
+_TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$")
+
+def load_persistent_rejects() -> Dict[str, Tuple[str, str]]:
     """
-    Returns:
-      - block_map: {ticker: (company, reason)} for blocking reasons only
-      - ignored_dt: count of timestamp-reason rows
-      - ignored_other: count of non-blocking reason rows
+    Load persistent rejects as {ticker: (company, reason)}.
+    IMPORTANT: we ignore timestamp-like reasons, because those often come from other scripts
+    (e.g., yfinance failures) and would poison the universe.
     """
-    block_map: Dict[str, Tuple[str, str]] = {}
-    ignored_dt = 0
-    ignored_other = 0
-    if REJ_PATH.exists():
-        try:
-            with REJ_PATH.open("r", encoding="utf-8-sig", newline="") as f:
-                rdr = csv.DictReader(f)
-                for row in rdr:
-                    t = (row.get("ticker") or "").strip().upper()
-                    n = (row.get("company") or "").strip()
-                    reason_raw = (row.get("reason") or "").strip() or "persisted"
-                    if not t or not n:
-                        continue
-                    if DT_REASON.match(reason_raw):
-                        ignored_dt += 1
-                        continue
-                    reason = reason_raw.lower()
-                    if reason in BLOCK_REASONS:
-                        block_map[t] = (n, reason_raw)
-                    else:
-                        ignored_other += 1
-        except Exception as e:
-            log(f"[WARN] Failed to read rejects {REJ_PATH}: {e}")
-    return block_map, ignored_dt, ignored_other
+    rejects: Dict[str, Tuple[str,str]] = {}
+    if not PERSIST_PATH.exists():
+        return rejects
+
+    try:
+        with PERSIST_PATH.open("r", encoding="utf-8-sig", newline="") as f:
+            rdr = csv.DictReader(f)
+            for row in rdr:
+                t = (row.get("ticker") or "").strip().upper()
+                n = (row.get("company") or "").strip()
+                r = (row.get("reason") or "").strip() or "persisted"
+                if not t:
+                    continue
+                if _TS_RE.match(r):
+                    # likely polluted rejects; skip
+                    continue
+                # keep unknown reasons, but normalize empty
+                rejects[t] = (n, r)
+    except Exception as e:
+        log(f"[WARN] Failed to read persistent rejects {PERSIST_PATH}: {e}")
+    return rejects
 
 def is_junk_symbol(sym: str) -> bool:
-    # extremely conservative at this stage
     if not sym:
         return True
-    return len(sym) > 60
+    return len(sym) > 20
 
 def name_reject(nm: str) -> bool:
-    # Keep conservative; you can loosen further if you want ETFs too.
-    bad = ["DELISTED", "ETF", "ETN", "FUND", "CERTIFICATE", "WARRANT"]
     u = (nm or "").upper()
-    return any(x in u for x in bad)
+    return any(x in u for x in ["DELISTED","ETF","ETN","FUND","TRUST","CERTIFICATE","WARRANT"])
 
-def choose_preferred(rows: List[Dict[str, str]]) -> Dict[str, str]:
+def build_whitelist_from_meta(instruments: List[Dict[str,Any]]) -> set[str]:
     """
-    If multiple Trading212 instruments map to the same Yahoo ticker, pick one deterministically.
-    Preference:
-      1) currency == USD
-      2) t212_ticker endswith '_US_EQ'
-      3) otherwise shortest t212_ticker (stable)
+    Build whitelist of Yahoo-mapped tickers from T212 meta using the SAME logic as universe builder:
+    - prefer shortName
+    - use market hint from t212 ticker (e.g., *_US_EQ)
     """
-    def score(r: Dict[str, str]) -> Tuple[int, int, int]:
-        cur = (r.get("currency") or "").upper()
-        t212 = r.get("t212_ticker") or ""
-        s1 = 1 if cur == "USD" else 0
-        s2 = 1 if t212.endswith("_US_EQ") else 0
-        s3 = -len(t212)  # shorter is better
-        return (s1, s2, s3)
+    wl: set[str] = set()
+    for it in instruments:
+        if (it.get("type") or it.get("instrumentType") or "").upper() not in {"EQUITY","STOCK"}:
+            continue
+        t212_tick = (it.get("ticker") or it.get("symbol") or "").strip()
+        short = (it.get("shortName") or "").strip()
+        if not t212_tick:
+            continue
 
-    best = max(rows, key=score)
-    return best
+        base_from_t212, market_hint, _asset = parse_t212_ticker(t212_tick)
+        base = sanitize_symbol(short or base_from_t212)
+        yh = map_to_yahoo(base, it.get("exchange"), it.get("mic"), it.get("isin"), market_hint)
+        wl.add(yh.upper())
+    return wl
 
 # -------------------- Main -------------------- #
 def main() -> None:
-    block_map, ignored_dt, ignored_other = load_blocklist()
-    log(f"[INFO] Blocklist loaded: {len(block_map)} (ignored timestamp rows: {ignored_dt}, ignored non-blocking rows: {ignored_other})")
+    persist_map = load_persistent_rejects()
+    log(f"[INFO] Persistent rejects loaded: {len(persist_map)} ({PERSIST_PATH})")
 
     if not IN_PATH.exists():
         if OUT_PATH.exists():
             log(f"[INFO] {IN_PATH} missing. Using stale {OUT_PATH}")
             sys.exit(0)
-        else:
-            sys.exit(f"[FATAL] Missing {IN_PATH} and no fallback {OUT_PATH}")
+        sys.exit(f"[FATAL] Missing {IN_PATH} and no fallback {OUT_PATH}")
 
     instruments = load_instruments()
     whitelist: set[str] = set()
     if instruments:
-        for it in instruments:
-            if (it.get("type") or it.get("instrumentType") or "").upper() not in {"EQUITY","STOCK"}:
-                continue
-            tick = (it.get("ticker") or it.get("symbol") or "").strip()
-            mic  = it.get("mic"); exch = it.get("exchange"); isin = it.get("isin")
-            if tick:
-                simple = simplify_symbol(tick)
-                yh = map_to_yahoo(simple, exch, mic, isin)
-                whitelist.add(yh.upper())
-        log(f"[INFO] Whitelist size (normalized to Yahoo): {len(whitelist)}")
+        whitelist = build_whitelist_from_meta(instruments)
+        log(f"[INFO] Whitelist size (Yahoo-normalized): {len(whitelist)}")
     else:
         log("[WARN] No instrument metadata found, skipping whitelist")
 
-    rows = load_in(IN_PATH)
+    rows = load_universe_csv(IN_PATH)
+    kept: List[Tuple[str,str]] = []
+    rejects_this_run: List[Tuple[str,str,str]] = []
+    seen: set[str] = set()
 
-    # Group by yahoo ticker to resolve mapping collisions deterministically
-    by_ticker: Dict[str, List[Dict[str, str]]] = {}
     for row in rows:
-        by_ticker.setdefault(row["ticker"], []).append(row)
+        t = row["ticker"]
+        nm = row["company"]
 
-    kept: List[Dict[str, str]] = []
-    run_rejects: List[Dict[str, str]] = []  # for universe_rejects.csv output
-    reason_counts: Dict[str, int] = {}
+        if t in seen:
+            continue
+        seen.add(t)
 
-    for ticker, group in by_ticker.items():
-        chosen = choose_preferred(group)
-        nm = chosen["company"]
-
-        reason: Optional[str] = None
-        if ticker in block_map:
-            reason = block_map[ticker][1] or "persisted"
-        elif whitelist and ticker not in whitelist:
-            reason = "not-in-whitelist"
-        elif name_reject(nm):
-            reason = "name-filter"
-        elif is_junk_symbol(ticker):
-            reason = "symbol-hygiene"
-
-        if reason:
-            # record for this run (informational)
-            run_rejects.append({"ticker": ticker, "company": nm, "reason": reason})
-            reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        # persistent rejects
+        if t in persist_map:
+            reason = (persist_map[t][1] or "persisted")
+            rejects_this_run.append((t, nm, reason))
             continue
 
-        kept.append(chosen)
+        # whitelist guard (only if meta exists)
+        if whitelist and t not in whitelist:
+            rejects_this_run.append((t, nm, "not-in-whitelist"))
+            continue
 
-    kept.sort(key=lambda r: (r["ticker"], r.get("t212_ticker","")))
-    atomic_write_dicts(
-        OUT_PATH,
-        kept,
-        ("ticker", "company", "t212_ticker", "shortName", "isin", "exchange", "mic", "currency"),
-    )
+        # name-based filters
+        if name_reject(nm):
+            rejects_this_run.append((t, nm, "name-filter"))
+            continue
 
-    # Write universe_rejects.csv as a *report*, not a denylist.
-    # Keep manual/persisted rows unless RESET_REJECTS=1.
-    preserved: Dict[str, Tuple[str, str]] = {}
-    if not RESET_REJECTS and REJ_PATH.exists():
-        try:
-            with REJ_PATH.open("r", encoding="utf-8-sig", newline="") as f:
-                rdr = csv.DictReader(f)
-                for row in rdr:
-                    t = (row.get("ticker") or "").strip().upper()
-                    n = (row.get("company") or "").strip()
-                    r = (row.get("reason") or "").strip() or "persisted"
-                    if not t or not n:
-                        continue
-                    if DT_REASON.match(r):
-                        continue  # drop junk timestamps
-                    if r.lower() in BLOCK_REASONS:
-                        preserved[t] = (n, r)
-        except Exception as e:
-            log(f"[WARN] Failed to preserve blocklist rows: {e}")
+        if is_junk_symbol(t):
+            rejects_this_run.append((t, nm, "symbol-hygiene"))
+            continue
 
-    merged: Dict[str, Tuple[str, str]] = dict(preserved)
-    for row in run_rejects:
-        merged[row["ticker"]] = (row["company"], row["reason"])
+        kept.append((t, nm))
 
-    rej_rows = [{"ticker": t, "company": nm, "reason": reason} for t, (nm, reason) in merged.items()]
-    rej_rows.sort(key=lambda r: r["ticker"])
-    atomic_write_dicts(REJ_PATH, rej_rows, ("ticker","company","reason"))
+    kept.sort(key=lambda x: x[0])
+    atomic_write(OUT_PATH, kept, ("ticker","company"))
 
-    log(f"[INFO] Input rows (raw)       : {len(rows)}")
-    log(f"[INFO] Unique tickers (raw)   : {len(by_ticker)}")
-    log(f"[INFO] Kept (clean)           : {len(kept)}")
-    log(f"[INFO] Rejected (this run)    : {len(run_rejects)}")
-    log(f"[INFO] Rejects written (final): {len(rej_rows)}  (reset={RESET_REJECTS})")
+    # Merge for "run rejects" output (used by aliases builder)
+    merged = dict(persist_map)
+    for t, nm, reason in rejects_this_run:
+        merged[t] = (nm, reason)
 
-    if reason_counts:
-        top = sorted(reason_counts.items(), key=lambda kv: (-kv[1], kv[0]))
-        log("[INFO] Reject breakdown (this run): " + ", ".join([f"{k}={v}" for k, v in top[:10]]))
+    rej_rows = [(t, nm, reason) for t, (nm, reason) in merged.items()]
+    rej_rows.sort(key=lambda x: x[0])
+    atomic_write(REJ_PATH, rej_rows, ("ticker","company","reason"))
 
-    log(f"[DEBUG] Sample kept    : {[(r['ticker'], r['company']) for r in kept[:10]]}")
-    log(f"[DEBUG] Sample rejects : {[(r['ticker'], r['company'], r['reason']) for r in rej_rows[:10]]}")
+    # Update persistent rejects (sanitized): we keep ALL reasons except timestamp-like ones.
+    # This avoids poisoning from other scripts if they accidentally touch REJ_PATH.
+    persist_rows = [(t, nm, reason) for (t, (nm, reason)) in merged.items() if not _TS_RE.match(str(reason or ""))]
+    persist_rows.sort(key=lambda x: x[0])
+    atomic_write(PERSIST_PATH, persist_rows, ("ticker","company","reason"))
+
+    # stats
+    breakdown: Dict[str,int] = {}
+    for (_t, _nm, r) in rejects_this_run:
+        breakdown[r] = breakdown.get(r, 0) + 1
+
+    log(f"[INFO] Input rows   : {len(rows)}")
+    log(f"[INFO] Kept (clean) : {len(kept)} -> {OUT_PATH}")
+    log(f"[INFO] Rejected this run: {len(rejects_this_run)}")
+    log(f"[INFO] Rejects total (merged): {len(rej_rows)} -> {REJ_PATH}")
+    if breakdown:
+        top = ", ".join([f"{k}={v}" for k,v in sorted(breakdown.items(), key=lambda kv: kv[1], reverse=True)[:10]])
+        log(f"[INFO] Reject breakdown (this run): {top}")
+    log(f"[DEBUG] Sample kept    : {kept[:10]}")
+    log(f"[DEBUG] Sample rejects : {rej_rows[:10]}")
 
 if __name__ == "__main__":
     main()
