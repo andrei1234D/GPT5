@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os, sys, csv, re, json, time, random
 from pathlib import Path
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Tuple
 import requests
 
 # -------------------- Config --------------------
@@ -11,17 +11,21 @@ API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip
 API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
 
 # Prefer the "new" var if present, otherwise fall back to the old one.
-API_KEY =os.getenv("T212_API_KEY")
+API_KEY = os.getenv("T212_NEW_API_KEY") or os.getenv("T212_API_KEY")
 
 OUT_PATH = Path(os.getenv("UNIVERSE_OUT", "data/universe.csv"))
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
+# Optional: emit what got skipped by hygiene for debugging
+SKIPPED_PATH = Path(os.getenv("UNIVERSE_SKIPPED", "data/universe_skipped.csv"))
+WRITE_SKIPPED = os.getenv("UNIVERSE_WRITE_SKIPPED", "0").lower() in {"1", "true", "yes"}
+
 ALLOW_STALE = os.getenv("ALLOW_STALE", "0").lower() in {"1", "true", "yes"}
 
 MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "7"))
 BACKOFF_BASE = float(os.getenv("T212_BACKOFF_BASE", "1.5"))
 BACKOFF_CAP  = float(os.getenv("T212_BACKOFF_CAP", "60"))
 TIMEOUT      = float(os.getenv("T212_TIMEOUT", "30"))
-USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.3 (+github actions)")
+USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.4 (+github actions)")
 
 SESSION = requests.Session()
 RETRY_STATUS = {429, 500, 502, 503, 504}
@@ -68,34 +72,32 @@ def request_with_retry(method: str, url: str, *, headers=None, timeout=TIMEOUT) 
 # -------------------- Symbol normalization & hygiene --------------------
 def simplify_symbol(t212_ticker: str) -> str:
     """
-    Trading212 tickers often look like 'UUUU_US_EQ' or 'ZGYd_EQ'.
-    For Yahoo mapping we want the base symbol (left of first underscore).
+    Trading212 tickers often look like 'UUUU_US_EQ'. For Yahoo mapping we want the base symbol.
     """
     return (t212_ticker or "").split("_", 1)[0].strip().replace(" ", "-")
 
-def is_junk_symbol(sym: str) -> bool:
+def hygiene_reason(sym: str) -> Optional[str]:
     """
-    IMPORTANT: Trading212 uses suffix letters (e.g. ZGYd, TLSd, XNASl) for some EU-listed
-    wrappers/lines. Those are *not* junk and must be kept.
-
-    We only filter truly synthetic IDs like '013CD', '2QKD', etc.
-    Heuristic: endswith 'D' AND contains any digit AND short length.
+    Return a string reason if symbol is considered junk, else None.
+    Designed to keep legitimate T212 base symbols like 'ZGYd', while filtering synthetic IDs like '013CD'.
     """
     s = (sym or "").upper().strip()
     if not s:
-        return True
+        return "empty"
     if not re.search(r"[A-Z]", s):
-        return True
-    if len(s) > 25:
-        return True
+        return "no-letters"
+    if len(s) > 40:
+        return "too-long"
     if not ALLOWED.match(s):
-        return True
+        return "bad-chars"
+    # Synthetic IDs typically: short, ends with D, includes digits, no dot.
+    # Example: 013CD, 2QKD, 1SXP1D.
+    if "." not in s and s.endswith("D") and any(ch.isdigit() for ch in s) and len(s) <= 10:
+        return "synthetic-D"
+    return None
 
-    # Synthetic "D" ids: short, end with D, contain digits, no dot.
-    if "." not in s and s.endswith("D") and any(ch.isdigit() for ch in s) and len(s) <= 8:
-        return True
-
-    return False
+def is_junk_symbol(sym: str) -> bool:
+    return hygiene_reason(sym) is not None
 
 # -------------------- Yahoo mapping --------------------
 SUFFIX_BY_MIC = {
@@ -189,8 +191,7 @@ def fetch_instruments() -> List[Dict[str, Any]]:
 def main() -> None:
     try:
         data = fetch_instruments()
-        total = len(data)
-        log(f"[INFO] Received {total} instruments (all types)")
+        log(f"[INFO] Received {len(data)} instruments (all types)")
     except Exception as e:
         if ALLOW_STALE and OUT_PATH.exists():
             log(f"[WARN] {e} — using stale universe")
@@ -199,6 +200,7 @@ def main() -> None:
         sys.exit(1)
 
     rows: List[Dict[str, str]] = []
+    skipped_rows: List[Dict[str, str]] = []
     seen_t212: set[str] = set()
     skipped = 0
 
@@ -217,8 +219,16 @@ def main() -> None:
         seen_t212.add(t212_ticker)
 
         simple = simplify_symbol(t212_ticker)
-        if is_junk_symbol(simple):
+        reason = hygiene_reason(simple)
+        if reason:
             skipped += 1
+            if WRITE_SKIPPED:
+                skipped_rows.append({
+                    "t212_ticker": t212_ticker,
+                    "base_symbol": simple,
+                    "company": company,
+                    "reason": reason,
+                })
             continue
 
         exchange = (it.get("exchange") or "").strip()
@@ -253,6 +263,14 @@ def main() -> None:
 
     with META_PATH.open("w", encoding="utf-8") as f:
         json.dump(data, f)
+
+    if WRITE_SKIPPED:
+        SKIPPED_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with SKIPPED_PATH.open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=("t212_ticker", "base_symbol", "company", "reason"))
+            w.writeheader()
+            w.writerows(skipped_rows)
+        log(f"[INFO] Saved skipped symbols to {SKIPPED_PATH}")
 
     log(f"[INFO] Wrote {len(rows)} rows to {OUT_PATH} (unique Trading212 tickers)")
     if skipped:
