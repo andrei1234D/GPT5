@@ -1,18 +1,18 @@
 Daily Stock Pick — January 30, 2026
 
-ALB – Albemarle Corporation
+SKYT – SkyWater Technology
 
-News: Lithium price rebound + Feb 11 Q4’25 earnings; 2025 FCF positive, capex cut, ample liquidity supports upside. ([investors.albemarle.com](https://investors.albemarle.com/news-and-events/news/news-details/2026/Albemarle-Corporation-to-Release-Fourth-Quarter-2025-Earnings-Results-on-Wednesday-February-11-2026/default.aspx?utm_source=openai))
+News: IonQ to acquire SkyWater for $35/share ($15 cash + $20 in IONQ stock with collar), expected close Q2–Q3 2026 pending approvals.
 
-Score (0–1000): 740
+Score (0–1000): 745
 
 ADVICE: Strong Buy
 
-Certainty: 68%
+Certainty: 67%
 
-Forecast image URL: https://stockscan.io/stocks/ALB/forecast
+Forecast image URL: https://stockscan.io/stocks/SKYT/forecast
 
-Verifier note: Best EV/risk among list: improving ops and cost cuts with ~$3.5B liquidity, net debt/EBITDA ~2.1x, no recent dilution; near-term catalyst (Feb 11 earnings) + lithium price recovery; risks: commodity volatility. Sources: investors.albemarle.com (Q3’25 results, earnings date), Nasdaq PR, Barron’s/IBD on price upgrades. ([investors.albemarle.com](https://investors.albemarle.com/news-and-events/news/news-details/2025/Albemarle-Reports-Third-Quarter-2025-Results/default.aspx?utm_source=openai))
+Verifier note: Low-risk deal-arb upside with defined catalyst window; limited dilution/balance-sheet risk as target; spread exists pending shareholder/regulatory approvals. Sources: wsj.com; barrons.com.
 
 ---
 **Legend**
