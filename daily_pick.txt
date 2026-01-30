@@ -1,18 +1,18 @@
-Daily Stock Pick — January 29, 2026
+Daily Stock Pick — January 30, 2026
 
-ALB – Albemarle Corporation
+SKYT – SkyWater Technology
 
-News: Earnings set for Feb 11, 2026; Q3’25 showed ~$3.5B liquidity, net debt ~2.1x, and positive 2025 FCF guide; lithium price momentum and recent upgrades improve setup. ([nasdaq.com](https://www.nasdaq.com/press-release/albemarle-corporation-release-fourth-quarter-2025-earnings-results-wednesday-february?utm_source=openai))
+News: IonQ to acquire SkyWater for $35/share ($15 cash + $20 in IONQ stock with collar); expected close Q2–Q3 2026.
 
-Score (0–1000): 735
+Score (0–1000): 745
 
 ADVICE: Strong Buy
 
-Certainty: 67%
+Certainty: 72%
 
-Forecast image URL: https://stockscan.io/stocks/ALB/forecast
+Forecast image URL: https://stockscan.io/stocks/SKYT/forecast
 
-Verifier note: Favorable EV/risk via strong liquidity, capex cuts, improving adj. EBITDA/FCF trajectory; near-term catalyst is Q4’25 results; no recent dilution and manageable debt (planned 2025 notes repayment). Sources: investors.albemarle.com, albemarle.com (news releases), Nasdaq press release on earnings date, investors.com on lithium/upgrades. ([investors.albemarle.com](https://investors.albemarle.com/news-and-events/news/news-details/2025/Albemarle-Reports-Third-Quarter-2025-Results/default.aspx?utm_source=openai))
+Verifier note: Defined takeout with cash component and stock-collar lowers downside vs peers; continued foundry ops and prior CHIPS support aid fundamentals; 6‑month horizon aligns with expected close; key risks are regulatory/holder approvals and IONQ volatility (mitigated by collar). Sources: wsj.com, investors.ionq.com (press release 1/26/26), nasdaq.com (deal terms), semiconductors.org (CHIPS support background).
 
 ---
 **Legend**
