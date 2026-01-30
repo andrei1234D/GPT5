@@ -97,6 +97,14 @@ jobs:
           YF_TEST_INTERVAL: '1d'
         run: python scripts/aliases_autobuild.py || true
 
+      - name: Upload universe metadata for debugging
+        uses: actions/upload-artifact@v4
+        with:
+          name: universe-meta
+          path: data/universe_meta.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Run Quick Scorer
         env:
           STAGE1_MODE: 'loose'
