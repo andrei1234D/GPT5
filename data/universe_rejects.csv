@@ -1,0 +1,152 @@
+ticker,company,reason
+AAIF.L,Aberdeen Asian Income Fund,name-filter
+AAT,American Assets Trust,name-filter
+ABR,Arbor Realty Trust,name-filter
+ADAM,Adamas Trust,name-filter
+AERI.L,Aquila European Renewables Income Fund,name-filter
+AERS.L,Aquila European Renewables Income Fund,name-filter
+AGT.L,Avi Global Trust,name-filter
+AGVI.L,Aberforth Geared Value & Income Trust,name-filter
+AHT,Ashford Hospitality Trust,name-filter
+AKR,Acadia Realty Trust,name-filter
+ALLFG.L,Allfunds,name-filter
+ANII.L,Aberdeen New India Investment Trust,name-filter
+ASL.L,Aberforth Smaller Companies Trust,name-filter
+ATT.L,Allianz Technology Trust,name-filter
+AUSC.L,Aberdeen UK Smaller Companies Growth Trust,name-filter
+BBH.L,Bellevue Healthcare Trust,name-filter
+BCAT,BlackRock Capital Allocation Term Trust,name-filter
+BDN,Brandywine Realty Trust,name-filter
+BERI.L,BlackRock Energy and Resources Income Trust,name-filter
+BGCG.L,Baillie Gifford China Growth Trust,name-filter
+BGEU.L,Baillie Gifford European Growth Trust,name-filter
+BGFD.L,Baillie Gifford Japan Trust,name-filter
+BGUK.L,Baillie Gifford UK Growth Trust,name-filter
+BHM,Bluerock Homes Trust,name-filter
+BIOG.L,Biotech Growth Trust,name-filter
+BNKR.L,Bankers Investment Trust,name-filter
+BRAI.L,Blackrock American Income Trust,name-filter
+BRGE.L,BlackRock Greater Europe Investment Trust,name-filter
+BRIG.L,Blackrock Income & Growth Investment Trust,name-filter
+BRSC.L,BlackRock Smaller Cos Trust,name-filter
+BRWM.L,BlackRock World Mining Trust,name-filter
+BSIF,Bluefield Solar Income Fund,name-filter
+BXMT,Blackstone Mortgage Trust,name-filter
+BXSL,Blackstone Secured Lending Fund,name-filter
+CGT.L,Capital Gearing Trust,name-filter
+CHCT,Community Healthcare Trust,name-filter
+CLDT,Chatham Lodging Trust,name-filter
+CMCT,Creative Media & Community Trust,name-filter
+CMPG.L,CT Managed Portfolio Trust,name-filter
+CMPI.L,CT Managed Portfolio Trust,name-filter
+CMTG,Claros Mortgage Trust,name-filter
+CNTTQ,CannTrust,name-filter
+COLD,Americold Realty Trust,name-filter
+CPT,Camden Property Trust,name-filter
+CRT,Cross Timbers Royalty Trust,name-filter
+CTRE,CareTrust REIT,name-filter
+CTY.L,City of London Investment Trust,name-filter
+DLR,Digital Realty Trust,name-filter
+EPRT,Essential Properties Realty Trust,name-filter
+ESRT,Empire State Realty Trust,name-filter
+ESS,Essex Property Trust,name-filter
+EWI.L,Edinburgh Worldwide Investment Trust,name-filter
+FBRT,Franklin BSP Realty Trust,name-filter
+FCIT.L,F&C Investment Trust,name-filter
+FCPT,Four Corners Property Trust,name-filter
+FEV.L,Fidelity European Trust,name-filter
+FGT.L,Finsbury Growth & Income Trust,name-filter
+FR,First Industrial Realty Trust,name-filter
+FRT,Federal Realty Investment Trust,name-filter
+FSFL,Foresight Solar Fund,name-filter
+GRID.L,Gresham House Energy Storage Fund,name-filter
+GSF.L,Gore Street Energy Storage Fund,name-filter
+GTCO,Guaranty Trust Holding,name-filter
+HGT.L,HgCapital Trust,name-filter
+HR,Healthcare Realty Trust,name-filter
+HRI.L,Herald Investment Trust,name-filter
+ICGT.L,ICG Enterprise Trust,name-filter
+IGC.L,India Capital Growth Fund,name-filter
+IGET.L,Invesco Global Equity Income Trust,name-filter
+IHT,InnSuites Hospitality Trust,name-filter
+IRT,Independence Realty Trust,name-filter
+IVT,InvenTrust Properties,name-filter
+JAM.L,JPMorgan American Investment Trust,name-filter
+JPC,Nuveen Preferred & Income Securities Fund,name-filter
+JUP.L,Jupiter Fund Management,name-filter
+KREF,KKR Real Estate Finance Trust,name-filter
+KRG,Kite Realty Group Trust,name-filter
+LFT,Lument Finance Trust,name-filter
+LIO.L,Liontrust Asset Management,name-filter
+LMFA,LM Funding America,name-filter
+LTI.L,Lindsell Train Investment Trust,name-filter
+MITT,TPG Mortgage Investment Trust,name-filter
+MMIT.L,Mobius Investment Trust,name-filter
+MNKS.L,Monks Investment Trust,name-filter
+MNTN,Schiehallion Fund,name-filter
+MPW,Medical Properties Trust,name-filter
+MRC.L,Mercantile Investment Trust,name-filter
+MRCH.L,Merchants Trust,name-filter
+MRTI,Maxus Realty Trust,name-filter
+MSB,Mesabi Trust,name-filter
+MSDL,Morgan Stanley Direct Lending Fund,name-filter
+MSIF,MSC Income Fund,name-filter
+MUT.L,Murray Income Trust,name-filter
+MWY.L,Mid Wynd International Investment Trust,name-filter
+MYI.L,Murray International Trust,name-filter
+NAVF.L,Nippon Active Value Fund,name-filter
+NESF,NextEnergy Solar Fund,name-filter
+NF4.DE,Netfonds,name-filter
+NFC,Netflix,name-filter
+NFLX,Netflix,name-filter
+NRT,North European Oil Royalty Trust,name-filter
+NSA,National Storage Affiliates Trust,name-filter
+NTRS,Northern Trust,name-filter
+NXDT,NexPoint Diversified Real Estate Trust,name-filter
+NXRT,NexPoint Residential Trust,name-filter
+ORIT.L,Octopus Renewables Infrastructure Trust,name-filter
+PBT,Permian Basin Royalty Trust,name-filter
+PCT.L,Polar Capital Technology Trust,name-filter
+PDM,Piedmont Realty Trust,name-filter
+PEB,Pebblebrook Hotel Trust,name-filter
+PHI.L,Pacific Horizon Investment Trust,name-filter
+PINE,Alpine Income Property Trust,name-filter
+PKST,Peakstone Realty Trust,name-filter
+PMT,PennyMac Mortgage Investment Trust,name-filter
+PNL.L,Personal Assets Trust,name-filter
+PPET.L,Patria Private Equity Trust,name-filter
+PSTL,Postal Realty Trust,name-filter
+RPT,Rithm Property Trust,name-filter
+RWT,Redwood Trust,name-filter
+SBR,Sabine Royalty Trust,name-filter
+SEQI,Sequoia Economic Infrastructure Income Fund,name-filter
+SEVN,Seven Hills Realty Trust,name-filter
+SILA,Sila Realty Trust,name-filter
+SLFR,SLF Realisation Fund,name-filter
+SMIF,TwentyFour Select Monthly Income Fund,name-filter
+SMT.L,Scottish Mortgage Investment Trust,name-filter
+SQFT,Presidio Property Trust,name-filter
+SRUUF,Sprott Physical Uranium Trust,name-filter
+SSIT.L,Seraphim Space Investment Trust,name-filter
+SSON.L,Smithson Investment Trust,name-filter
+STB.L,Secure Trust Bank,name-filter
+STWD,Starwood Property Trust,name-filter
+SUNS,Sunrise Realty Trust,name-filter
+SVC,Service Properties Trust,name-filter
+TEM.L,Templeton Emerging Markets Investment Trust,name-filter
+TFIF,TwentyFour Income Fund,name-filter
+THRG.L,Blackrock Throgmorton Trust,name-filter
+TORG,Chenavari Toro Income Fund,name-filter
+TRST.L,Trustpilot,name-filter
+TRTX,TPG RE Finance Trust,name-filter
+TRY.L,TR Property Investment Trust,name-filter
+UEM.L,Utilico Emerging Markets Trust,name-filter
+UHT,Universal Health Realty Income Trust,name-filter
+USA.L,Baillie Gifford US Growth Trust,name-filter
+VEIL,Vietnam Enterprise Investments,name-filter
+VNO,Vornado Realty Trust,name-filter
+VOC,Voc Energy Trust,name-filter
+VOF,VinaCapital Vietnam Opportunity Fund,name-filter
+WASH,Washington Trust Bancorp,name-filter
+WRNT,Warrantee,name-filter
+WWH.L,Worldwide Healthcare Trust,name-filter
