@@ -10,7 +10,8 @@ import requests
 API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip("/")
 API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
 
-API_KEY = os.getenv("T212_API_KEY")
+# Prefer the "new" var if present, otherwise fall back to the old one.
+API_KEY =os.getenv("T212_API_KEY")
 
 OUT_PATH = Path(os.getenv("UNIVERSE_OUT", "data/universe.csv"))
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
@@ -20,15 +21,13 @@ MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "7"))
 BACKOFF_BASE = float(os.getenv("T212_BACKOFF_BASE", "1.5"))
 BACKOFF_CAP  = float(os.getenv("T212_BACKOFF_CAP", "60"))
 TIMEOUT      = float(os.getenv("T212_TIMEOUT", "30"))
-USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.2 (+github actions)")
+USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.3 (+github actions)")
 
 SESSION = requests.Session()
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
 # Allow Yahoo-ish symbols after normalization (A-Z, digits, dot, dash).
 ALLOWED = re.compile(r"^[A-Z0-9.\-]+$")
-# Pattern for the synthetic "junk" IDs you had in rejects (e.g., 013CD, 2QKD, etc.)
-SYNTHETIC_D = re.compile(r"^[0-9A-Z]{1,6}D$")  # conservative on purpose
 
 def log(msg: str) -> None:
     print(msg, flush=True)
@@ -69,29 +68,33 @@ def request_with_retry(method: str, url: str, *, headers=None, timeout=TIMEOUT) 
 # -------------------- Symbol normalization & hygiene --------------------
 def simplify_symbol(t212_ticker: str) -> str:
     """
-    Trading212 tickers often look like 'UUUU_US_EQ'. For Yahoo mapping we want the base symbol.
+    Trading212 tickers often look like 'UUUU_US_EQ' or 'ZGYd_EQ'.
+    For Yahoo mapping we want the base symbol (left of first underscore).
     """
     return (t212_ticker or "").split("_", 1)[0].strip().replace(" ", "-")
 
 def is_junk_symbol(sym: str) -> bool:
     """
-    Conservative junk filter:
-      - must contain at least one letter
-      - only allow A-Z 0-9 . -
-      - reject known synthetic IDs like '013CD', '2QKD', etc. (short and ending in D)
-      - length cap
+    IMPORTANT: Trading212 uses suffix letters (e.g. ZGYd, TLSd, XNASl) for some EU-listed
+    wrappers/lines. Those are *not* junk and must be kept.
+
+    We only filter truly synthetic IDs like '013CD', '2QKD', etc.
+    Heuristic: endswith 'D' AND contains any digit AND short length.
     """
     s = (sym or "").upper().strip()
     if not s:
         return True
     if not re.search(r"[A-Z]", s):
         return True
-    if len(s) > 20:  # relaxed a bit; some non-US tickers can be longer
+    if len(s) > 25:
         return True
     if not ALLOWED.match(s):
         return True
-    if SYNTHETIC_D.match(s):
+
+    # Synthetic "D" ids: short, end with D, contain digits, no dot.
+    if "." not in s and s.endswith("D") and any(ch.isdigit() for ch in s) and len(s) <= 8:
         return True
+
     return False
 
 # -------------------- Yahoo mapping --------------------
@@ -170,7 +173,6 @@ def _do_get(base: str, path: str) -> requests.Response:
         log("[ERROR] Missing T212_API_KEY/T212_NEW_API_KEY environment variable")
         sys.exit(1)
     url = f"{base}{path}"
-    # Trading212 expects the raw token in Authorization header.
     headers = {"Authorization": API_KEY}
     return request_with_retry("GET", url, headers=headers)
 
@@ -196,7 +198,6 @@ def main() -> None:
         log(f"[FATAL] {e}")
         sys.exit(1)
 
-    # One row per Trading212 instrument (t212_ticker unique).
     rows: List[Dict[str, str]] = []
     seen_t212: set[str] = set()
     skipped = 0
@@ -228,9 +229,9 @@ def main() -> None:
         yahoo = map_to_yahoo(simple, exchange, mic, isin).upper()
 
         rows.append({
-            "ticker": yahoo,               # downstream compatibility (yfinance expects this)
+            "ticker": yahoo,               # Yahoo ticker (yfinance-compatible)
             "company": company,
-            "t212_ticker": t212_ticker,    # raw Trading212 identifier (e.g. UUUU_US_EQ)
+            "t212_ticker": t212_ticker,    # Raw Trading212 identifier
             "shortName": (it.get("shortName") or "").strip(),
             "isin": isin,
             "exchange": exchange,
@@ -250,7 +251,6 @@ def main() -> None:
         w.writeheader()
         w.writerows(rows)
 
-    # Save raw metadata for whitelist/debugging
     with META_PATH.open("w", encoding="utf-8") as f:
         json.dump(data, f)
 

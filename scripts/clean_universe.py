@@ -12,8 +12,17 @@ OUT_PATH  = Path(os.getenv("CLEAN_OUT", "data/universe_clean.csv"))
 REJ_PATH  = Path(os.getenv("CLEAN_REJECTS", "data/universe_rejects.csv"))
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
 
-# reject-list hygiene (matches junk you showed: 013CD, 2QKD, etc.)
-SYNTHETIC_D = re.compile(r"^[0-9A-Z]{1,6}D$")
+DT_REASON = re.compile(r"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$")
+
+# Only these reasons are treated as "blocking" persistent rejects.
+# Anything else (like timestamps) is treated as non-blocking notes.
+BLOCK_REASONS = {
+    "persisted",
+    "manual",
+    "name-filter",
+    "symbol-hygiene",
+    "not-in-whitelist",
+}
 
 def log(msg: str) -> None:
     print(msg, flush=True)
@@ -29,9 +38,6 @@ def atomic_write_dicts(path: Path, rows: List[Dict[str, str]], fieldnames: Tuple
     os.replace(tmp, path)
 
 def load_in(path: Path) -> List[Dict[str, str]]:
-    """
-    Load universe rows. Supports old format (ticker, company) and new extended format.
-    """
     if not path.exists():
         sys.exit(f"[ERROR] Missing {path}")
     out: List[Dict[str, str]] = []
@@ -63,15 +69,14 @@ def load_instruments() -> Optional[List[Dict[str,Any]]]:
             log(f"[WARN] Failed to read {META_PATH}: {e}")
     return None
 
-def load_rejects() -> Dict[str, Tuple[str, str]]:
+def load_persistent_rejects() -> Tuple[Dict[str, Tuple[str, str]], int]:
     """
-    Load persistent rejects as {ticker: (company, reason)}.
-
-    Hygiene:
-      - ignore rows with empty company (your file contains many)
-      - ignore obvious synthetic IDs like 013CD/2QKD/etc.
+    Returns:
+      - reject_map: {ticker: (company, reason)} for BLOCKING reasons only
+      - ignored: count of non-blocking rows ignored (e.g. timestamp reasons)
     """
-    rejects: Dict[str, Tuple[str, str]] = {}
+    reject_map: Dict[str, Tuple[str, str]] = {}
+    ignored = 0
     if REJ_PATH.exists():
         try:
             with REJ_PATH.open("r", encoding="utf-8-sig", newline="") as f:
@@ -79,34 +84,42 @@ def load_rejects() -> Dict[str, Tuple[str, str]]:
                 for row in rdr:
                     t = (row.get("ticker") or "").strip().upper()
                     n = (row.get("company") or "").strip()
-                    r = (row.get("reason") or "").strip() or "persisted"
-                    if not t:
+                    reason_raw = (row.get("reason") or "").strip() or "persisted"
+
+                    if not t or not n:
                         continue
-                    if not n:
-                        # drop blank-company garbage
+
+                    reason = reason_raw.lower()
+
+                    # Treat timestamp-like "reasons" as non-blocking notes (ignore for filtering).
+                    if DT_REASON.match(reason_raw):
+                        ignored += 1
                         continue
-                    if SYNTHETIC_D.match(t) and "." not in t:
+
+                    if reason not in BLOCK_REASONS:
+                        ignored += 1
                         continue
-                    rejects[t] = (n, r)
+
+                    reject_map[t] = (n, reason_raw)
         except Exception as e:
             log(f"[WARN] Failed to read rejects {REJ_PATH}: {e}")
-    return rejects
+    return reject_map, ignored
 
 def is_junk_symbol(sym: str) -> bool:
     if not sym:
         return True
-    return len(sym) > 25
+    return len(sym) > 40
 
 def name_reject(nm: str) -> bool:
-    # NOTE: removed "TRUST" because it rejects legitimate REITs and operating companies.
+    # NOTE: keep this conservative; your pipeline can decide later what to do with ETFs etc.
     bad = ["DELISTED", "ETF", "ETN", "FUND", "CERTIFICATE", "WARRANT"]
     u = (nm or "").upper()
     return any(x in u for x in bad)
 
 # -------------------- Main -------------------- #
 def main() -> None:
-    reject_map = load_rejects()
-    log(f"[INFO] Persistent rejects loaded (sanitized): {len(reject_map)}")
+    reject_map, ignored = load_persistent_rejects()
+    log(f"[INFO] Persistent rejects loaded (blocking only): {len(reject_map)} (ignored non-blocking rows: {ignored})")
 
     if not IN_PATH.exists():
         if OUT_PATH.exists():
@@ -136,12 +149,12 @@ def main() -> None:
     new_rejects: List[Tuple[str, str, str]] = []  # ticker, company, reason
     seen: set[str] = set()
 
-    # reason breakdown for this run only
     reason_counts: Dict[str, int] = {}
 
     for row in rows:
         t = row["ticker"]
         nm = row["company"]
+
         if t in seen:
             continue
         seen.add(t)
@@ -165,19 +178,34 @@ def main() -> None:
 
     kept.sort(key=lambda r: (r["ticker"], r.get("t212_ticker", "")))
 
-    # Write cleaned universe (preserve extra columns)
     atomic_write_dicts(
         OUT_PATH,
         kept,
         ("ticker", "company", "t212_ticker", "shortName", "isin", "exchange", "mic", "currency"),
     )
 
-    # Merge rejects: old + any new from *this run* (new overwrites old reason)
-    merged_rejects = dict(reject_map)
-    for t, nm, reason in new_rejects:
-        merged_rejects[t] = (nm, reason)
+    # Merge rejects file: keep existing + add any new rejects from this run
+    # (but preserve non-blocking timestamp rows already present)
+    merged_rows: Dict[str, Tuple[str, str]] = {}
 
-    rej_rows = [{"ticker": t, "company": nm, "reason": reason} for t, (nm, reason) in merged_rejects.items()]
+    # Load everything (blocking + non-blocking) to keep file stable
+    if REJ_PATH.exists():
+        try:
+            with REJ_PATH.open("r", encoding="utf-8-sig", newline="") as f:
+                rdr = csv.DictReader(f)
+                for row in rdr:
+                    t = (row.get("ticker") or "").strip().upper()
+                    n = (row.get("company") or "").strip()
+                    r = (row.get("reason") or "").strip() or "persisted"
+                    if t and n:
+                        merged_rows[t] = (n, r)
+        except Exception as e:
+            log(f"[WARN] Failed to reload rejects for merge: {e}")
+
+    for t, nm, reason in new_rejects:
+        merged_rows[t] = (nm, reason)
+
+    rej_rows = [{"ticker": t, "company": nm, "reason": reason} for t, (nm, reason) in merged_rows.items()]
     rej_rows.sort(key=lambda r: r["ticker"])
     atomic_write_dicts(REJ_PATH, rej_rows, ("ticker", "company", "reason"))
 
