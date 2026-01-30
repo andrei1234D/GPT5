@@ -8,7 +8,7 @@ import requests
 # -------------------- Config --------------------
 API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip("/")
 API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
-API_KEY = os.getenv("T212_NEW_API_KEY")
+API_KEY = os.getenv("T212_API_KEY")
 
 OUT_PATH = Path(os.getenv("UNIVERSE_OUT", "data/universe.csv"))
 REJECTS_PATH = Path(os.getenv("UNIVERSE_REJECTS", "data/universe_rejects.csv"))

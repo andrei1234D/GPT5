@@ -76,7 +76,6 @@ jobs:
       - name: Build universe from Trading 212
         env:
           T212_API_KEY: ${{ secrets.T212_API_KEY }}
-          T212_NEW_API_KEY: ${{ secrets.T212_NEW_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ALLOW_STALE: '1'
         run: python scripts/universe_from_trading_212.py
