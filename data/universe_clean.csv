@@ -57,7 +57,6 @@ ACTU,Actuate Therapeutics
 ACU,Acme United Corp
 ACXP,Acurx Pharmaceuticals
 ADAG,Adagene
-ADAP,Adaptimmune Therapeutics
 ADBE,Adobe
 ADC,Agree Realty
 ADDYY,Adidas
@@ -175,7 +174,6 @@ ALZN,Alzamend Neuro
 AM,Antero Midstream
 AMAT,Applied Materials
 AMBA,Ambarella
-AMBC,Octave Specialty Group
 AMBO,Ambow Education
 AMC,AMC Entertainment
 AMC.TO,Arizona Metals
@@ -249,7 +247,6 @@ APLE,Apple Hospitality REIT
 APLS,Apellis Pharmaceuticals
 APLT,Applied Therapeutics
 APM,Aptorum
-APM.TO,Andean Precious Metals
 APO,Apollo Global Management
 APOG,Apogee Enterprises
 APP,AppLovin
@@ -332,13 +329,14 @@ ASTI,Ascent Solar Technologies
 ASTL.TO,Algoma Steel
 ASX,ASE Technology
 ASYS,Amtech Systems
+ATAI,AtaiBeckley
 ATAT,Atour Lifestyle Holdings
 ATD.TO,Alimentation Couche-Tard
 ATEN,A10 Networks
 ATGE,Adtalem Global Education
 ATGL,Alpha Technology Group
 ATH.TO,Athabasca Oil
-ATHA,Athira Pharma
+ATHA,LeonaBio
 ATHE,Alterity Therapeutics
 ATHM,Autohome
 ATHR,Aether Holdings
@@ -360,7 +358,6 @@ ATRL.TO,AtkinsRealis Group
 ATRO,Astronics
 ATS.TO,ATS
 ATS.VI,AT&S Austria Technologie & Systemtechnik
-ATUS,Optimum Communications
 ATXG,Addentax
 ATXI,Avenue Therapeutics
 ATZ.TO,Aritzia
@@ -563,6 +560,7 @@ BORR,Borr Drilling
 BOS.TO,AirBoss of America
 BOTJ,Bank of the James
 BOW,Bowhead Specialty Holdings
+BOWL.L,Bow Street
 BOWN,Bowen Acquisition
 BOX,Box
 BOXL,Boxlight
@@ -586,7 +584,6 @@ BRSP,BrightSpire Capital
 BRT,BRT Apartments
 BRTX,Biorestorative Therapies
 BRX,Brixmor Property
-BRY,Berry
 BRZE,Braze
 BSBR,Banco Santander Brasil
 BSET,Bassett Furniture Industries
@@ -702,7 +699,6 @@ CDNS,Cadence Design Systems
 CDR.TO,Condor Energies
 CDT,CDT Equity
 CDTG,CDT Environmental Technology Investment
-CDTX,Cidara Therapeutics
 CDW,CDW Corp
 CDXS,Codexis
 CDZI,Cadiz
@@ -773,7 +769,6 @@ CIIT,Tianci International
 CIM,Chimera Investment
 CINF,Cincinnati Financial
 CING,Cingulate
-CIO,City Office REIT
 CION,CION Investment
 CISO,CISO Global
 CISS,C3is
@@ -782,7 +777,6 @@ CJMB,Callan Jmb
 CKHUY,CK Hutchison
 CL,Colgate-Palmolive
 CLAR,Clarus
-CLCO,Cool Co
 CLF,Cleveland-Cliffs
 CLFD,Clearfield
 CLH,Clean Harbors
@@ -823,7 +817,6 @@ CNAL.L,Centrica
 CNBX,CNBX Pharmaceuticals
 CNC,Centene
 CNDT,Conduent
-CNE.TO,Canacol Energy
 CNET,ZW Data Action Technologies
 CNEY,CN Energy
 CNGL,Canna-Global Acquisition Corp
@@ -832,8 +825,10 @@ CNL.TO,Collective Mining
 CNM,Core & Main
 CNP,CenterPoint Energy
 CNQ.TO,Canadian Natural Resources
+CNR,Cornerstone Building Brands
 CNR.TO,Canadian National Railway
 CNS,Cohen & Steers
+CNSL.L,Corero Network Security
 CNSP,CNS Pharmaceuticals
 CNTB,Connect Biopharma
 CNTM,ConnectM Technology Solutions
@@ -855,7 +850,7 @@ COKE,Coca-Cola Consolidated
 COLA,Columbus Acquisition Corp
 COLB,Columbia Banking System
 COMB.BR,Cie du Bois Sauvage
-COMM,CommScope
+COMM,Vistance Networks
 COMP,Compass
 COMS,ComSovereign
 CON,Concentra
@@ -912,7 +907,7 @@ CROX,Crocs
 CRRX.TO,CareRx
 CRS,Carpenter Technology
 CRSR,Corsair Gaming
-CRTD,Creatd
+CRTD,Vocal
 CRTO,Criteo
 CRUS,Cirrus Logic
 CRVL,CorVel
@@ -1039,7 +1034,7 @@ DFPH,Oncology Institute
 DFY.TO,Definity Financial
 DG,Dollar General
 DGII,Digi International
-DGLY,Digital Ally
+DGLY,Kustom Entertainment
 DGNX,Diginex
 DGX,Quest Diagnostics
 DHER.DE,Delivery Hero
@@ -1069,7 +1064,6 @@ DNLI,Denali Therapeutics
 DNNGY,Orsted
 DNOPY,Dino Polska
 DNOW,DNOW
-DNTL.TO,dentalcorp
 DNUT,Krispy Kreme
 DOC.VI,DO & CO
 DOCN,DigitalOcean
@@ -1099,7 +1093,6 @@ DRS,Leonardo DRS
 DRT.TO,DIRTT Environmental Solutions
 DRVN,Driven Brands
 DRX.TO,ADF Group
-DSBX,Dogwood State Bank
 DSCSY,Disco
 DSG.TO,Descartes Systems Group
 DSGT,DSG Global
@@ -1149,7 +1142,6 @@ EBAY,eBay
 EBC,Eastern Bankshares
 EBET,EBET
 EBON,Ebang International
-EBR,Axia Energia
 EBS,Emergent BioSolutions
 EBS.VI,Erste Group Bank
 EC,Ecopetrol
@@ -1215,7 +1207,7 @@ ELS,Equity LifeStyle Properties
 ELSE,Electro-Sensors
 ELTP,Elite Pharmaceuticals
 ELVA.TO,Electrovaya
-ELWS,Earlyworks
+ELWS,Perpetuals.com
 EM,Smart Share Global
 EMA.TO,Emera
 EMBC,Embecta
@@ -1256,14 +1248,12 @@ EQIX,Equinix
 EQNR,Equinor
 EQR,Equity Residential
 EQT,EQT
-EQV,EQV Ventures Acquisition Corp
 EQX.TO,Equinox Gold
 ERAS,Erasca
 ERD.TO,Erdene Resource Development
 ERIC,Ericsson
 ERIE,Erie Indemnity
 ERII,Energy Recovery
-ERJ,Embraer
 ERO.TO,ERO Copper
 ES,Eversource Energy
 ESAB,Esab
@@ -1286,7 +1276,6 @@ ETS.VI,Eurotelesites
 ETSY,Etsy
 EURK,Eureka Acquisition Corp
 EURN.BR,CMB Tech
-EUSP,EuroSite Power
 EVAX,Evaxion
 EVC,Entravision Communications
 EVCM,EverCommerce
@@ -1297,7 +1286,6 @@ EVH,Evolent Health
 EVI,EVI Industries
 EVLO,Evelo Biosciences
 EVN.VI,EVN
-EVOK,Evoke Pharma
 EVOL,Symbolic Logic
 EVR,Evercore
 EVRG,Evergy
@@ -1353,7 +1341,6 @@ FDS,FactSet Research Systems
 FDSB,Fifth District Bancorp
 FDUS,Fidus Investment
 FDX,FedEx
-FDY.TO,Faraday Copper
 FE,FirstEnergy
 FEAC,Skillz
 FEAM,5E Advanced Materials
@@ -1370,11 +1357,10 @@ FFH.TO,Fairfax Financial
 FFIV,F5
 FFM.AX,FireFly Metals
 FG,F&G Annuities & Life
-FGEN,FibroGen
+FGEN,Kyntra Bio
 FGI,FGI Industries
 FGL,Founder Group
 FGMC,FG Merger II
-FHLD,Federal Home Loan Mortgage
 FHN,First Horizon
 FHTX,Foghorn Therapeutics
 FIBK,First Interstate BancSystem
@@ -1412,7 +1398,6 @@ FMCC,Federal Home Loan Mortgage
 FMFC,Kandal M Venture
 FMX,Fomento Economico Mexicano
 FN,Fabrinet
-FN.TO,First National Financial
 FNB,FNB Corp
 FND,Floor & Decor
 FNF,Fidelity National Financial
@@ -1425,7 +1410,6 @@ FOLD,Amicus Therapeutics
 FOM.TO,Foran Mining
 FOOD.TO,Goodfood Market
 FORA.TO,VerticalScope
-FORD,Forward Industries
 FORL,Four Leaf Acquisition
 FORM,FormFactor
 FOSL,Fossil Group
@@ -1483,7 +1467,6 @@ FWONA,Liberty Media (Series A)
 FWONK,Liberty Media (Series C)
 FWRG,First Watch Restaurant
 FXLV,F45 Training
-FYBR,Frontier Communications Parent
 G,Genpact
 GAIN,Gladstone Investment
 GALP.LS,Galp Energia
@@ -1501,7 +1484,6 @@ GBR,New Concept Energy
 GBT.TO,BMTC Group
 GBUX,GIVBUX
 GBX,Greenbrier Companies
-GCI,USA TODAY Co
 GCL,GCL Global Holdings
 GCL.TO,Colabor Group
 GCO,Genesco
@@ -1525,7 +1507,6 @@ GENK,GEN Restaurant Group
 GENM.TO,Generation Mining
 GEO,GEO Group
 GERN,Geron
-GES,Guess?
 GEV,GE Vernova
 GEVO,Gevo
 GFAI,Guardforce AI
@@ -1577,7 +1558,6 @@ GMM,Global Mofy AI
 GMRE,Global Medical REIT
 GMVHY,Entain
 GMX.TO,Globex Mining Enterprises
-GNFT,Genfit
 GNK,Genco Shipping & Trading
 GNL,Global Net Lease
 GNLN,Greenlane
@@ -1720,17 +1700,16 @@ HMR,Heidmar Maritime Holdings
 HMY,Harmony Gold Mining
 HNGE,Hinge Health
 HNGKY,Hongkong Land Holdings
+HNI,HNI
 HNNMY,H&M Hennes & Mauritz
 HNRG,Hallador Energy
 HNST,Honest Co
 HNVR,Hanover Bancorp
 HOCPY,Hoya
 HOFT,Hooker Furnishings
-HOFV,Hall of Fame Resort & Entertainment
 HOG,Harley-Davidson
 HOLX,Hologic
 HON,Honeywell International
-HOND,Terrestrial Energy
 HOOD,Robinhood Markets
 HOOK,Hookipa Pharma
 HOPE,Hope Bancorp
@@ -1795,7 +1774,6 @@ HYSR,SunHydrogen
 HZO,MarineMax
 IAC,IAC
 IAG.TO,iA Financial Corp
-IAS,Integral Ad Science
 IAU.TO,i-80 Gold
 IBAC,IB Acquisition Corp
 IBIO,iBio
@@ -1860,6 +1838,7 @@ INAB,IN8bio
 INCY,Incyte
 INDB,Independent Bank
 INDO,Indonesia Energy
+INDV,Indivior Pharmaceuticals
 INFL.L,Informa
 INFU,InfuSystem
 INFY,Infosys
@@ -1868,7 +1847,7 @@ INGM,Ingram Micro
 INGN,Inogen
 INGR,Ingredion
 INHD,Inno Holdings
-INIS,International Isotopes
+INIS,Radnostix
 INKT,MiNK Therapeutics
 INLF,Inlif
 INMB,Inmune Bio
@@ -1924,7 +1903,7 @@ IRDM,Iridium Communications
 IRIX,IRIDEX
 IRM,Iron Mountain
 IRS,IRSA Inversiones y Representaciones
-IRTC,iRhythm Technologies
+IRTC,iRhythm Holdings
 IS.TO,Infrastructure Dividend Split Corp
 ISO.TO,IsoEnergy
 ISPC,iSpecimen
@@ -2011,7 +1990,6 @@ KBNT,Kubient
 KBR,KBR
 KC,Kingsoft Cloud
 KD,Kyndryl
-KEC.TO,Kiwetinohk Energy
 KEI.TO,Kolibri Global Energy
 KEL.TO,Kelt Exploration
 KELYB,Kelly Services (Class B)
@@ -2077,7 +2055,6 @@ KSPI,Kaspi.KZ
 KSS,Kohl's
 KTOS,Kratos Defense & Security Solutions
 KTTA,Pasithea Therapeutics
-KUKE,Kuke Music
 KULR,KULR Technology
 KURA,Kura Oncology
 KVAC,Keen Vision Acquisition Corp
@@ -2148,6 +2125,7 @@ LI,Li Auto
 LICN,Lichen International
 LIF,Life360
 LIF.TO,Labrador Iron Ore Royalty
+LIFE1,Ethos Technologies
 LII,Lennox International
 LILAK,Liberty Latin America (Class C)
 LINE,Lineage
@@ -2160,7 +2138,7 @@ LIXT,Lixte Biotechnology
 LKQ,LKQ
 LLESY,Lendlease
 LLY,Eli Lilly & Co
-LLYVK,Liberty Media Corporation
+LLYVK,Liberty Live Holdings
 LMAT,LeMaitre Vascular
 LMB,Limbach
 LMND,Lemonade
@@ -2194,8 +2172,6 @@ LPL,LG Display
 LPLA,LPL Financial
 LPSN,LivePerson
 LPTH,LightPath Technologies
-LPTV,Loop Media
-LPTX,Cypherpunk Technologies
 LPX,Louisiana-Pacific
 LQDA,Liquidia
 LQDT,Liquidity Services
@@ -2271,7 +2247,6 @@ MASS,908 Devices
 MAT,Mattel
 MATR.TO,Mattr
 MATX,Matson
-MAYA,Inflection Point Acquisition
 MAZE,Maze Therapeutics
 MBAV,M3-Brigade Acquisition V Corp
 MBBC,Marathon Bancorp
@@ -2291,7 +2266,7 @@ MCHP,Microchip Technology
 MCK,McKesson
 MCO,Moody's
 MCRB,Seres Therapeutics
-MCRP,Micropolis Holding
+MCRP,Micropolis AI Robotics
 MCY,Mercury General
 MDA.TO,MDA Space
 MDB,MongoDB
@@ -2315,7 +2290,6 @@ MELI,MercadoLibre
 MENS,Jyong Biotech
 MEQ.TO,Mainstreet Equity
 MERC,Mercer International
-MESA,Republic Airways Holdings
 MESO,Mesoblast
 MET,MetLife
 METC,Ramaco Resources
@@ -2323,9 +2297,9 @@ METCB,Ramaco Resources
 MFA,MFA Financial
 MFC.TO,Manulife Financial Corp
 MFG,Mizuho Financial Group
-MFH,Chaince Digital Holdings
 MFI,mF International
 MFI.TO,Maple Leaf Foods
+MFIN,Medallion Financial
 MG.TO,Magna International
 MGA.TO,Magna International
 MGAM,Mobile Global Esports
@@ -2339,7 +2313,7 @@ MGRT,Mega Fortune
 MGRX,Mangoceuticals
 MGTI,MGT Capital Investments
 MGTX,MeiraGTx
-MGX,Metagenomi
+MGX,Metagenomi Therapeutics
 MGY,Magnolia Oil & Gas
 MHK,Mohawk Industries
 MHO,M/I Homes
@@ -2382,7 +2356,7 @@ MO,Altria
 MOBQ,Mobiquity Technologies
 MOD,Modine Manufacturing
 MODD,Modular Medical
-MOGO.TO,Mogo
+MOGO.TO,Orion Digital
 MOGU,MOGU
 MOH,Molina Healthcare
 MOMO,Hello Group
@@ -2412,7 +2386,6 @@ MRM,MEDIROM Healthcare Technologies
 MRMD,MariMed
 MRNA,Moderna
 MRP,Millrose Properties
-MRSN,Mersana Therapeutics
 MRTN,Marten Transport
 MRU.TO,Metro
 MRVI,Maravai LifeSciences
@@ -2581,6 +2554,7 @@ NRIX,Nurix Therapeutics
 NRXS,Neuraxis
 NSANY,Nissan Motor
 NSC,Norfolk Southern
+NSIT,Insight Enterprises
 NSP,Insperity
 NSPR,InspireMD
 NSSC,Napco Security Technologies
@@ -2618,7 +2592,6 @@ NVCT,Nuvectis Pharma
 NVDA,Nvidia
 NVDD,Nvidia
 NVEC,NVE
-NVFY,XMAX
 NVG.LS,Navigator
 NVO,Novo Nordisk
 NVO.TO,Novo Resources
@@ -2646,7 +2619,6 @@ OAKU,Oak Woods Acquisition
 OBE.TO,Obsidian Energy
 OBLG,TaoWeave
 OC,Owens Corning
-OCFT,OneConnect Financial Technology
 OCG,Oriental Culture
 OCGN,Ocugen
 OCSL,Oaktree Specialty Lending
@@ -2681,7 +2653,7 @@ OMER,Omeros
 OMEX,Odyssey Marine Exploration
 OMF,OneMain
 OMH,Ohmyhome
-OMI,Owens & Minor
+OMI,Accendra Health
 OMQS,OMNIQ
 OMRNY,Omron
 OMV.VI,OMV
@@ -2694,7 +2666,6 @@ ONFO,Onfolio Holdings
 ONL,Orion Properties
 ONTF,ON24
 ONTO,Onto Innovation
-OP,OceanPal
 OPCH,Option Care Health
 OPGN,OpGen
 OPHC,OptimumBank
@@ -2821,7 +2792,6 @@ PH,Parker-Hannifin
 PHAT,Phathom Pharmaceuticals
 PHCG,Pure Harvest Corp
 PHGE,BiomX
-PHH,Park Ha Biological Technology
 PHIN,Phinia
 PHIO,Phio Pharmaceuticals
 PHM,PulteGroup
@@ -2830,6 +2800,7 @@ PHR.LS,Pharol
 PHUN,Phunware
 PHX.TO,PHX Energy Services
 PI,Impinj
+PICS.AS,Picpay
 PIF.TO,Polaris Renewable Energy
 PII,Polaris
 PINS,Pinterest
@@ -2854,7 +2825,6 @@ PLUG,Plug Power
 PLUT,Plutus Financial Group
 PLX,Protalix BioTherapeutics
 PLXS,Plexus
-PLYM,Plymouth Industrial REIT
 PM,Philip Morris International
 PMAX,Powell Max
 PMCB,PharmaCyte Biotech
@@ -2897,7 +2867,6 @@ PPSI,Pioneer Power Solutions
 PPTA.TO,Perpetua Resources
 PRAA,PRA Group
 PRAX,Praxis Precision Medicines
-PRB.TO,Probe Gold
 PRCT,PROCEPT BioRobotics
 PRDL,Predator Oil & Gas
 PRE,Prenetics Global
@@ -2934,12 +2903,12 @@ PSO,Pearson
 PSTG,Pure Storage
 PSTV,Plus Therapeutics
 PSX,Phillips 66
-PT,Pintec Technology
+PT,J and Friends Holdings
 PTC,PTC
 PTCT,PTC Therapeutics
 PTEN,Patterson-UTI Energy
 PTGX,Protagonist Therapeutics
-PTHL,Pheton
+PTHL,iTonic Holdings
 PTIX,Protagenic Therapeutics
 PTLE,PTL
 PTLO,Portillo's
@@ -2954,7 +2923,6 @@ PUMSY,Puma
 PURE,PURE Bioscience
 PVH,PVH
 PW,Power REIT
-PWM,Aurelion
 PWR,Quanta Services
 PXLW,Pixelworks
 PXMD,PaxMedica
@@ -2967,7 +2935,7 @@ PZA.TO,Pizza Pizza Royalty
 PZG,Paramount Gold Nevada
 PZZA,Papa John's International
 QCOM,Qualcomm
-QD,Qudian
+QD,High Templar Tech
 QDEL,QuidelOrtho
 QETA,Quetta Acquisition
 QFIN,Qfin Holdings
@@ -2978,7 +2946,6 @@ QMCI,QuoteMedia
 QMCO,Quantum
 QMMM,QMMM Holdings
 QRVO,Qorvo
-QSG,Here Group
 QSR.TO,Restaurant Brands International
 QTRH.TO,Quarterhill
 QTRX,Quanterix
@@ -3055,6 +3022,7 @@ RGLD,Royal Gold
 RGNX,Regenxbio
 RGR,Sturm Ruger & Co
 RGS,Regis
+RGSI.TO,Rockpoint Gas Storage
 RH,RH
 RHEP,Regional Health Properties
 RHHBY,Roche
@@ -3063,7 +3031,7 @@ RHLD,Resolute Holdings Management
 RIBT,RiceBran Technologies
 RICK,RCI Hospitality
 RIGL,Rigel Pharmaceuticals
-RILY,B Riley Financial
+RILY,BRC Group Holdings
 RIO,Rio Tinto
 RIO.TO,Rio2
 RIOL.L,Rio Tinto
@@ -3176,7 +3144,6 @@ SCLX,Scilex
 SCM,Stellus Capital Investment
 SCPS,Scopus Biopharma
 SCR.TO,Strathcona Resources
-SCS,Steelcase
 SCSC,ScanSource
 SCVL,Shoe Carnival
 SCYX,SCYNEXIS
@@ -3214,8 +3181,8 @@ SFL,SFL
 SFM,Sprouts Farmers Market
 SFTBY,SoftBank
 SFWL,Shengfeng Development
-SGBX,Safe & Green
-SGD,Safe & Green Development
+SGBX,Olenox Industries
+SGD,RenX Enterprises
 SGIOY,Shionogi & Co
 SGMO,Sangamo Therapeutics
 SGMT,Sagimet Biosciences
@@ -3277,7 +3244,7 @@ SLNO,Soleno Therapeutics
 SLP,Simulations Plus
 SLQT,Selectquote
 SLRC,SLR Investment
-SLRX,Salarius Pharmaceuticals
+SLRX,Decoy Therapeutics
 SLS,SELLAS Life Sciences
 SLS.TO,Solaris Resources
 SLVM,Sylvamo
@@ -3286,7 +3253,6 @@ SMA,Smartstop Self Storage
 SMCI,Super Micro Computer
 SMFG,Sumitomo Mitsui Financial Group
 SMG,Scotts Miracle-Gro
-SMLR,Semler Scientific
 SMMNY,Siemens Healthineers
 SMMT,Summit Therapeutics
 SMNNY,Shimano
@@ -3321,7 +3287,6 @@ SOF.BR,Sofina
 SOHO,Sotherly Hotels
 SOHU,Sohu.com
 SOIL.TO,Saturn Oil & Gas
-SOL,Emeren Group
 SOLB.BR,Solvay
 SOLV,Solventum
 SON,Sonoco Products
@@ -3335,6 +3300,7 @@ SOTK,Sono-Tek
 SOUN,SoundHound AI
 SOY.TO,SunOpta
 SPAI,Safe Pro Group
+SPAL.L,1Spatial
 SPAQ,Fisker
 SPB.TO,Superior Plus
 SPCE,Virgin Galactic
@@ -3377,7 +3343,6 @@ SSDOY,Shiseido
 SSEL.L,SSE
 SSII,SS Innovations International
 SSL,Sasol
-SSL.TO,Sandstorm Gold
 SSMXY,Sysmex
 SSNC,SS&C Technologies
 SSRM.TO,SSR Mining
@@ -3389,7 +3354,6 @@ STAG,STAG Industrial
 STAK,Stak
 STC.TO,Sangoma Technologies
 STCK.TO,Stack Capital Group
-STEP.TO,STEP Energy Services
 STG,Sunlands Technology
 STGO.TO,Steppe Gold
 STIM,Neuronetics
@@ -3422,7 +3386,6 @@ SVBL,Silver Bull Resources
 SVCC,Stellar V Capital
 SVCO,Silvaco Group
 SVI.TO,StorageVault Canada
-SVII,Spring Valley Acquisition Corp II
 SVM.TO,Silvercorp Metals
 SVNDY,Seven & i
 SVRA,Savara
@@ -3431,7 +3394,6 @@ SVV,Savers Value Village
 SWAG,Nogin
 SWBI,Smith & Wesson Brands
 SWIM,Latham
-SWIN,Solowin Holdings
 SWK,Stanley Black & Decker
 SWKS,Skyworks Solutions
 SWP.PA,Sodexo
@@ -3530,6 +3492,7 @@ TIC,TIC Solutions
 TIGR,Up Fintech
 TIH.TO,Toromont Industries
 TIL,Instil Bio
+TINY.TO,Tiny
 TIPT,Tiptree
 TIRX,Tian Ruixiang
 TISI,Team
@@ -3542,7 +3505,6 @@ TKLF,Tokyo Lifestyle Co
 TKO.TO,Taseko Mines
 TLG.TO,Troilus Mining
 TLIH,Ten-League International Holdings
-TLIS,Talis Biomedical
 TLK,Telkom Indonesia
 TLNE,Talen Energy
 TLRY,Tilray Brands
@@ -3575,6 +3537,7 @@ TORO,Toro Corp
 TOST,Toast
 TOT.TO,Total Energy Services
 TOU.TO,Tourmaline Oil
+TOWN,Towne Bank
 TOY.TO,Spin Master
 TPB,Turning Point Brands
 TPCS,TechPrecision
@@ -3601,7 +3564,6 @@ TRP.TO,TC Energy
 TRSG,Tungray Technologies
 TRT,Trio-Tech International
 TRU,TransUnion
-TRUE,TrueCar
 TRUMY,Terumo
 TRUP,Trupanion
 TRV,Travelers Companies
@@ -3615,7 +3577,6 @@ TSAT.TO,Telesat
 TSCO,Tractor Supply
 TSEM.TA,Tower Semiconductor
 TSHA,Taysha Gene Therapies
-TSK.TO,Talisker Resources
 TSL.TO,Tree Island Steel
 TSLA,Tesla
 TSLX,Sixth Street Specialty Lending
@@ -3660,7 +3621,7 @@ TYIDY,Toyota Industries
 TYL,Tyler Technologies
 TYRA,Tyra Biosciences
 TZOO,Travelzoo
-TZUP,Thumzup Media
+TZUP,Datacentrex
 U,Unity Software
 UA,Under Armour (Class A)
 UAL,United Airlines
@@ -3809,7 +3770,6 @@ VRAR,Glimpse
 VRAX,Virax Biolabs
 VRCA,Verrica Pharmaceuticals
 VRME,VerifyMe
-VRNOF,Verano
 VRNS,Varonis Systems
 VRPX,Virpax Pharmaceuticals
 VRSK,Verisk Analytics
@@ -3933,6 +3893,7 @@ WSP.TO,WSP Global
 WSR,Whitestone REIT
 WST,West Pharmaceutical Services
 WTE.TO,Westshore Terminals Investment
+WTEL.L,Westmount Energy
 WTER,Alkaline Water
 WTF,Waton Financial
 WTI,W&T Offshore
@@ -3941,6 +3902,7 @@ WTS,Watts Water Technologies
 WU,Western Union
 WVVI,Willamette Valley Vineyards
 WW,WW International
+WWD,Woodward
 WWR,Westwater Resources
 WWW,Wolverine World Wide
 WXM,WF International
@@ -4007,6 +3969,7 @@ YPF,YPF
 YQ,17 Education & Technology
 YRD,Yiren Digital
 YSG,Yatsen Holding
+YSS,York Space Systems
 YSXT,YSX Tech Co
 YUM,Yum! Brands
 YUMC,Yum China

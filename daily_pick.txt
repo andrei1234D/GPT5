@@ -1,23 +1,23 @@
-Daily Stock Pick — "Dec 14, 2025"
+Daily Stock Pick — January 30, 2026
 
-"FULC – Fulcrum Therapeutics"
+SKYT – SkyWater Technology
 
-News: "N/A | Impact: 0"
+News: IonQ to acquire SkyWater for $35/share ($15 cash + $20 in IONQ stock with collar); expected close Q2–Q3 2026.
 
-Score ML+ News Impact + GPT5 Adjustment: "(435.16 + 0 + 8.70) = 443.87"
+Score (0–1000): 745
 
-ADVICE: "NO_BUY"
+ADVICE: Strong Buy
 
-Certainty: "62%"
+Certainty: 72%
 
-Forecast image URL: "https://stockscan.io/stocks/FULC/forecast"
+Forecast image URL: https://stockscan.io/stocks/SKYT/forecast
 
-Verifier note: "BASE = BrainScore + News Impact; modest +2% adjustment for solid momentum (RSI_14 ~57.4, pos_30d ~0.68, strong 63/126/252D momentum) while elevated 30D volatility (1.655) and near 52w highs (pos_52w ~0.80) temper conviction; no news catalyst. Confirming Brain’s cautious stance below Buy."
+Verifier note: Defined takeout with cash component and stock-collar lowers downside vs peers; continued foundry ops and prior CHIPS support aid fundamentals; 6‑month horizon aligns with expected close; key risks are regulatory/holder approvals and IONQ volatility (mitigated by collar). Sources: wsj.com, investors.ionq.com (press release 1/26/26), nasdaq.com (deal terms), semiconductors.org (CHIPS support background).
 
 ---
 **Legend**
-🟢🟢🟢 **Ultra Strong Buy** — Score > 540 → “Guaranteed high return”
-🟢 **Strong Buy** — Score > 485 → “Amazing Chances”
-🟡 **Buy** — Score ≈ 460+ → “Great Chances”
-🔴 **Ignore** — Score < 460 → “Ignore”
+🟢🟢🟢 **Ultra Strong Buy** — Score > 800 → “Guaranteed high return”
+🟢 **Strong Buy** — Score > 700 → “Amazing Chances”
+🟡 **Buy** — Score ≈ 600 → “Great Chances”
+🔴 **Ignore** — Score < 599 → “Ignore”
 
