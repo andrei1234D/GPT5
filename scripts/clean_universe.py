@@ -1,6 +1,7 @@
 # scripts/clean_universe.py
 from __future__ import annotations
-import os, sys, csv, json
+
+import os, sys, csv, json, re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
@@ -11,26 +12,46 @@ OUT_PATH  = Path(os.getenv("CLEAN_OUT", "data/universe_clean.csv"))
 REJ_PATH  = Path(os.getenv("CLEAN_REJECTS", "data/universe_rejects.csv"))
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
 
-def log(msg: str):
+# reject-list hygiene (matches junk you showed: 013CD, 2QKD, etc.)
+SYNTHETIC_D = re.compile(r"^[0-9A-Z]{1,6}D$")
+
+def log(msg: str) -> None:
     print(msg, flush=True)
 
 # -------------------- Helpers -------------------- #
-def atomic_write(path: Path, rows: List[Tuple], header: Tuple[str, ...]) -> None:
+def atomic_write_dicts(path: Path, rows: List[Dict[str, str]], fieldnames: Tuple[str, ...]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f); w.writerow(header); w.writerows(rows)
+        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
     os.replace(tmp, path)
 
-def load_in(path: Path) -> List[Tuple[str,str]]:
-    if not path.exists(): sys.exit(f"[ERROR] Missing {path}")
-    out = []
+def load_in(path: Path) -> List[Dict[str, str]]:
+    """
+    Load universe rows. Supports old format (ticker, company) and new extended format.
+    """
+    if not path.exists():
+        sys.exit(f"[ERROR] Missing {path}")
+    out: List[Dict[str, str]] = []
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         rdr = csv.DictReader(f)
         for row in rdr:
             t = (row.get("ticker") or "").strip().upper()
             n = (row.get("company") or "").strip()
-            if t and n: out.append((t,n))
+            if not (t and n):
+                continue
+            out.append({
+                "ticker": t,
+                "company": n,
+                "t212_ticker": (row.get("t212_ticker") or "").strip(),
+                "shortName": (row.get("shortName") or "").strip(),
+                "isin": (row.get("isin") or "").strip(),
+                "exchange": (row.get("exchange") or "").strip(),
+                "mic": (row.get("mic") or "").strip(),
+                "currency": (row.get("currency") or "").strip(),
+            })
     return out
 
 def load_instruments() -> Optional[List[Dict[str,Any]]]:
@@ -42,9 +63,15 @@ def load_instruments() -> Optional[List[Dict[str,Any]]]:
             log(f"[WARN] Failed to read {META_PATH}: {e}")
     return None
 
-def load_rejects() -> Dict[str, Tuple[str,str]]:
-    """Load persistent rejects as {ticker: (company, reason)}"""
-    rejects = {}
+def load_rejects() -> Dict[str, Tuple[str, str]]:
+    """
+    Load persistent rejects as {ticker: (company, reason)}.
+
+    Hygiene:
+      - ignore rows with empty company (your file contains many)
+      - ignore obvious synthetic IDs like 013CD/2QKD/etc.
+    """
+    rejects: Dict[str, Tuple[str, str]] = {}
     if REJ_PATH.exists():
         try:
             with REJ_PATH.open("r", encoding="utf-8-sig", newline="") as f:
@@ -52,26 +79,34 @@ def load_rejects() -> Dict[str, Tuple[str,str]]:
                 for row in rdr:
                     t = (row.get("ticker") or "").strip().upper()
                     n = (row.get("company") or "").strip()
-                    r = (row.get("reason") or "").strip()
-                    if t:
-                        rejects[t] = (n, r if r else "persisted")
+                    r = (row.get("reason") or "").strip() or "persisted"
+                    if not t:
+                        continue
+                    if not n:
+                        # drop blank-company garbage
+                        continue
+                    if SYNTHETIC_D.match(t) and "." not in t:
+                        continue
+                    rejects[t] = (n, r)
         except Exception as e:
             log(f"[WARN] Failed to read rejects {REJ_PATH}: {e}")
     return rejects
 
 def is_junk_symbol(sym: str) -> bool:
-    if not sym: return True
-    return len(sym) > 15
+    if not sym:
+        return True
+    return len(sym) > 25
 
 def name_reject(nm: str) -> bool:
-    return any(x in nm.upper() for x in ["DELISTED","ETF","ETN","FUND","TRUST","CERTIFICATE","WARRANT"])
+    # NOTE: removed "TRUST" because it rejects legitimate REITs and operating companies.
+    bad = ["DELISTED", "ETF", "ETN", "FUND", "CERTIFICATE", "WARRANT"]
+    u = (nm or "").upper()
+    return any(x in u for x in bad)
 
 # -------------------- Main -------------------- #
-def main():
-    # Load persistent rejects (full info)
+def main() -> None:
     reject_map = load_rejects()
-    if reject_map:
-        log(f"[INFO] Persistent rejects loaded: {len(reject_map)}")
+    log(f"[INFO] Persistent rejects loaded (sanitized): {len(reject_map)}")
 
     if not IN_PATH.exists():
         if OUT_PATH.exists():
@@ -97,41 +132,66 @@ def main():
         log("[WARN] No instrument metadata found, skipping whitelist")
 
     rows = load_in(IN_PATH)
-    kept, new_rejects, seen = [], [], set()
+    kept: List[Dict[str, str]] = []
+    new_rejects: List[Tuple[str, str, str]] = []  # ticker, company, reason
+    seen: set[str] = set()
 
-    for t, nm in rows:
-        if t in seen: continue
+    # reason breakdown for this run only
+    reason_counts: Dict[str, int] = {}
+
+    for row in rows:
+        t = row["ticker"]
+        nm = row["company"]
+        if t in seen:
+            continue
         seen.add(t)
 
+        reason: Optional[str] = None
         if t in reject_map:
-            new_rejects.append((t, nm, reject_map[t][1] or "persisted"))
+            reason = reject_map[t][1] or "persisted"
+        elif whitelist and t not in whitelist:
+            reason = "not-in-whitelist"
+        elif name_reject(nm):
+            reason = "name-filter"
+        elif is_junk_symbol(t):
+            reason = "symbol-hygiene"
+
+        if reason:
+            new_rejects.append((t, nm, reason))
+            reason_counts[reason] = reason_counts.get(reason, 0) + 1
             continue
-        if whitelist and t not in whitelist:
-            new_rejects.append((t, nm, "not-in-whitelist")); continue
-        if name_reject(nm):
-            new_rejects.append((t, nm, "name-filter")); continue
-        if is_junk_symbol(t):
-            new_rejects.append((t, nm, "symbol-hygiene")); continue
 
-        kept.append((t, nm))
+        kept.append(row)
 
-    kept.sort(key=lambda x: x[0])
-    atomic_write(OUT_PATH, kept, ("ticker","company"))
+    kept.sort(key=lambda r: (r["ticker"], r.get("t212_ticker", "")))
 
-    # Merge all rejects: old + new
-    merged_rejects = dict(reject_map)  # start with old
+    # Write cleaned universe (preserve extra columns)
+    atomic_write_dicts(
+        OUT_PATH,
+        kept,
+        ("ticker", "company", "t212_ticker", "shortName", "isin", "exchange", "mic", "currency"),
+    )
+
+    # Merge rejects: old + any new from *this run* (new overwrites old reason)
+    merged_rejects = dict(reject_map)
     for t, nm, reason in new_rejects:
-        merged_rejects[t] = (nm, reason)  # new overwrite old reason if exists
+        merged_rejects[t] = (nm, reason)
 
-    rej_rows = [(t, nm, reason) for t,(nm,reason) in merged_rejects.items()]
-    rej_rows.sort(key=lambda x: x[0])
-    atomic_write(REJ_PATH, rej_rows, ("ticker","company","reason"))
+    rej_rows = [{"ticker": t, "company": nm, "reason": reason} for t, (nm, reason) in merged_rejects.items()]
+    rej_rows.sort(key=lambda r: r["ticker"])
+    atomic_write_dicts(REJ_PATH, rej_rows, ("ticker", "company", "reason"))
 
-    log(f"[INFO] Input rows   : {len(rows)}")
-    log(f"[INFO] Kept (clean) : {len(kept)}")
-    log(f"[INFO] Rejected     : {len(rej_rows)} (persisted+new)")
-    log(f"[DEBUG] Sample kept: {kept[:10]}")
-    log(f"[DEBUG] Sample rejects: {rej_rows[:10]}")
+    log(f"[INFO] Input rows            : {len(rows)}")
+    log(f"[INFO] Kept (clean)          : {len(kept)}")
+    log(f"[INFO] Rejected (this run)   : {len(new_rejects)}")
+    log(f"[INFO] Rejects total (merged): {len(rej_rows)}")
+
+    if reason_counts:
+        top = sorted(reason_counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        log("[INFO] Reject breakdown (this run): " + ", ".join([f"{k}={v}" for k, v in top[:10]]))
+
+    log(f"[DEBUG] Sample kept    : {[(r['ticker'], r['company']) for r in kept[:10]]}")
+    log(f"[DEBUG] Sample rejects : {[(r['ticker'], r['company'], r['reason']) for r in rej_rows[:10]]}")
 
 if __name__ == "__main__":
     main()

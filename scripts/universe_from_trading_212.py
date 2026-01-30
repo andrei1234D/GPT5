@@ -1,17 +1,18 @@
 # scripts/universe_from_trading_212.py
 from __future__ import annotations
-import os, sys, csv, re, json, time, random, datetime as dt
+
+import os, sys, csv, re, json, time, random
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, List
 import requests
 
 # -------------------- Config --------------------
 API_BASE_LIVE = os.getenv("T212_API_BASE", "https://live.trading212.com").rstrip("/")
 API_BASE_DEMO = os.getenv("T212_API_BASE_DEMO", "https://demo.trading212.com").rstrip("/")
+
 API_KEY = os.getenv("T212_API_KEY")
 
 OUT_PATH = Path(os.getenv("UNIVERSE_OUT", "data/universe.csv"))
-REJECTS_PATH = Path(os.getenv("UNIVERSE_REJECTS", "data/universe_rejects.csv"))
 META_PATH = Path(os.getenv("UNIVERSE_META", "data/universe_meta.json"))
 ALLOW_STALE = os.getenv("ALLOW_STALE", "0").lower() in {"1", "true", "yes"}
 
@@ -19,48 +20,78 @@ MAX_RETRIES  = int(os.getenv("T212_MAX_RETRIES", "7"))
 BACKOFF_BASE = float(os.getenv("T212_BACKOFF_BASE", "1.5"))
 BACKOFF_CAP  = float(os.getenv("T212_BACKOFF_CAP", "60"))
 TIMEOUT      = float(os.getenv("T212_TIMEOUT", "30"))
-USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.0 (+github actions)")
+USER_AGENT   = os.getenv("HTTP_USER_AGENT", "universe-builder/1.2 (+github actions)")
 
 SESSION = requests.Session()
 RETRY_STATUS = {429, 500, 502, 503, 504}
-ALLOWED = re.compile(r"^[A-Z0-9.\-]+$")
 
-def log(msg: str): print(msg, flush=True)
+# Allow Yahoo-ish symbols after normalization (A-Z, digits, dot, dash).
+ALLOWED = re.compile(r"^[A-Z0-9.\-]+$")
+# Pattern for the synthetic "junk" IDs you had in rejects (e.g., 013CD, 2QKD, etc.)
+SYNTHETIC_D = re.compile(r"^[0-9A-Z]{1,6}D$")  # conservative on purpose
+
+def log(msg: str) -> None:
+    print(msg, flush=True)
 
 # -------------------- Retry helpers --------------------
-def _sleep_for_retry(resp: Optional[requests.Response], attempt: int):
+def _sleep_for_retry(attempt: int) -> None:
     base = min(BACKOFF_CAP, BACKOFF_BASE ** attempt)
     sleep_s = random.uniform(0.6 * base, 1.4 * base)
     time.sleep(max(0.5, sleep_s))
 
 def request_with_retry(method: str, url: str, *, headers=None, timeout=TIMEOUT) -> requests.Response:
     hdrs = {"User-Agent": USER_AGENT, "Accept": "application/json"}
-    if headers: hdrs.update(headers)
+    if headers:
+        hdrs.update(headers)
+
     last_exc = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             resp = SESSION.request(method, url, headers=hdrs, timeout=timeout)
             if resp.status_code in RETRY_STATUS and attempt < MAX_RETRIES:
                 log(f"[WARN] HTTP {resp.status_code} from {url} — retry {attempt+1}/{MAX_RETRIES}")
-                _sleep_for_retry(resp, attempt + 1); continue
+                _sleep_for_retry(attempt + 1)
+                continue
             resp.raise_for_status()
             return resp
         except Exception as e:
             last_exc = e
             if attempt < MAX_RETRIES:
                 log(f"[WARN] {type(e).__name__} — retry {attempt+1}/{MAX_RETRIES}")
-                _sleep_for_retry(getattr(e, "response", None), attempt + 1); continue
+                _sleep_for_retry(attempt + 1)
+                continue
             break
-    if last_exc: raise last_exc
+
+    if last_exc:
+        raise last_exc
     raise RuntimeError("request failed after retries")
 
-# -------------------- Junk filter --------------------
+# -------------------- Symbol normalization & hygiene --------------------
+def simplify_symbol(t212_ticker: str) -> str:
+    """
+    Trading212 tickers often look like 'UUUU_US_EQ'. For Yahoo mapping we want the base symbol.
+    """
+    return (t212_ticker or "").split("_", 1)[0].strip().replace(" ", "-")
+
 def is_junk_symbol(sym: str) -> bool:
-    s = (sym or "").upper()
-    if not re.search(r"[A-Z]", s): return True
-    if not ALLOWED.match(s): return True
-    if s.endswith("D") and re.search(r"\d", s): return True
-    if len(s) > 15: return True
+    """
+    Conservative junk filter:
+      - must contain at least one letter
+      - only allow A-Z 0-9 . -
+      - reject known synthetic IDs like '013CD', '2QKD', etc. (short and ending in D)
+      - length cap
+    """
+    s = (sym or "").upper().strip()
+    if not s:
+        return True
+    if not re.search(r"[A-Z]", s):
+        return True
+    if len(s) > 20:  # relaxed a bit; some non-US tickers can be longer
+        return True
+    if not ALLOWED.match(s):
+        return True
+    if SYNTHETIC_D.match(s):
+        return True
     return False
 
 # -------------------- Yahoo mapping --------------------
@@ -102,11 +133,9 @@ SUFFIX_BY_ISIN_COUNTRY = {
 }
 KNOWN_YH_SUFFIXES = set(SUFFIX_BY_MIC.values()) | {"HK","TWO","IR","TW"}
 
-def simplify_symbol(t212_ticker: str) -> str:
-    return (t212_ticker or "").split("_", 1)[0].strip().replace(" ", "-")
-
 def _isin_cc(isin: str) -> Optional[str]:
-    if not isin or len(isin) < 2: return None
+    if not isin or len(isin) < 2:
+        return None
     return isin[:2].upper()
 
 def _yahoo_base_with_padding(base: str, suffix: str) -> str:
@@ -119,24 +148,29 @@ def map_to_yahoo(symbol: str, exchange: Optional[str], mic: Optional[str], isin:
     ex = (exchange or "").upper().strip()
     mc = (mic or "").upper().strip()
 
+    # If it already looks like a Yahoo symbol with a known suffix, respect it.
     if "." in base:
         head, tail = base.rsplit(".", 1)
         if tail in KNOWN_YH_SUFFIXES:
             return f"{_yahoo_base_with_padding(head, tail)}.{tail}"
 
     suf = SUFFIX_BY_MIC.get(mc) or SUFFIX_BY_EXCHANGE.get(ex)
-    if not suf and isin: suf = SUFFIX_BY_ISIN_COUNTRY.get(_isin_cc(isin), "")
+    if not suf and isin:
+        suf = SUFFIX_BY_ISIN_COUNTRY.get(_isin_cc(isin), "")
     suf = "" if suf is None else suf
 
     base = _yahoo_base_with_padding(base, suf)
-    if suf == "" and "." in base: base = base.replace(".", "-")
+    if suf == "" and "." in base:
+        base = base.replace(".", "-")
     return f"{base}.{suf}" if suf else base
 
 # -------------------- Fetch instruments --------------------
 def _do_get(base: str, path: str) -> requests.Response:
     if not API_KEY:
-        log("[ERROR] Missing T212_API_KEY environment variable"); sys.exit(1)
+        log("[ERROR] Missing T212_API_KEY/T212_NEW_API_KEY environment variable")
+        sys.exit(1)
     url = f"{base}{path}"
+    # Trading212 expects the raw token in Authorization header.
     headers = {"Authorization": API_KEY}
     return request_with_retry("GET", url, headers=headers)
 
@@ -150,7 +184,7 @@ def fetch_instruments() -> List[Dict[str, Any]]:
         return r2.json()
 
 # -------------------- Main --------------------
-def main():
+def main() -> None:
     try:
         data = fetch_instruments()
         total = len(data)
@@ -162,44 +196,67 @@ def main():
         log(f"[FATAL] {e}")
         sys.exit(1)
 
-    rows_raw = []
+    # One row per Trading212 instrument (t212_ticker unique).
+    rows: List[Dict[str, str]] = []
+    seen_t212: set[str] = set()
+    skipped = 0
+
     for it in data:
         ttype = (it.get("type") or it.get("instrumentType") or "").upper()
         if ttype not in {"EQUITY", "STOCK"}:
             continue
 
-        tick = (it.get("ticker") or it.get("symbol") or "").strip()
-        name = (it.get("name") or it.get("shortName") or "").strip()
-        if not tick or not name:
+        t212_ticker = (it.get("ticker") or it.get("symbol") or "").strip()
+        company = (it.get("name") or it.get("shortName") or "").strip()
+        if not t212_ticker or not company:
             continue
 
-        simple = simplify_symbol(tick)
+        if t212_ticker in seen_t212:
+            continue
+        seen_t212.add(t212_ticker)
+
+        simple = simplify_symbol(t212_ticker)
         if is_junk_symbol(simple):
-            # Instead of writing rejects here, just skip
+            skipped += 1
             continue
 
-        yh = map_to_yahoo(simple, it.get("exchange"), it.get("mic"), it.get("isin"))
-        rows_raw.append((yh.upper(), name))
+        exchange = (it.get("exchange") or "").strip()
+        mic = (it.get("mic") or "").strip()
+        isin = (it.get("isin") or "").strip()
+        currency = (it.get("currencyCode") or it.get("currency") or "").strip()
 
-    seen, rows = set(), []
-    for sym, name in rows_raw:
-        if sym in seen:
-            continue
-        seen.add(sym)
-        rows.append((sym, name))
-    rows.sort(key=lambda x: x[0])
+        yahoo = map_to_yahoo(simple, exchange, mic, isin).upper()
 
-    # --- Write outputs ---
+        rows.append({
+            "ticker": yahoo,               # downstream compatibility (yfinance expects this)
+            "company": company,
+            "t212_ticker": t212_ticker,    # raw Trading212 identifier (e.g. UUUU_US_EQ)
+            "shortName": (it.get("shortName") or "").strip(),
+            "isin": isin,
+            "exchange": exchange,
+            "mic": mic,
+            "currency": currency,
+        })
+
+    rows.sort(key=lambda r: (r["ticker"], r["t212_ticker"]))
+
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(("ticker", "company"))
+        w = csv.DictWriter(
+            f,
+            fieldnames=("ticker", "company", "t212_ticker", "shortName", "isin", "exchange", "mic", "currency"),
+            extrasaction="ignore",
+        )
+        w.writeheader()
         w.writerows(rows)
 
+    # Save raw metadata for whitelist/debugging
     with META_PATH.open("w", encoding="utf-8") as f:
         json.dump(data, f)
 
-    log(f"[INFO] Wrote {len(rows)} rows to {OUT_PATH}")
+    log(f"[INFO] Wrote {len(rows)} rows to {OUT_PATH} (unique Trading212 tickers)")
+    if skipped:
+        log(f"[INFO] Skipped {skipped} rows due to symbol hygiene")
     log(f"[INFO] Saved raw metadata to {META_PATH}")
 
 if __name__ == "__main__":
