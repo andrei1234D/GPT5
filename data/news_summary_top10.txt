@@ -1,8 +1,39 @@
-### TYRA
-- Barclays raises target price for Tyra Biosciences to $59 with a "Buy" rating.
-- Tyra Biosciences stock hits an all-time high, showing strong growth potential.
-Impact: +40
+### TE
+- N/A
+Impact: 0
 
-### SQM
-- SQM completes lithium merger with Codelco after Chile Supreme Court resolution.
-Impact: +25
+### SHMD
+- N/A
+Impact: 0
+
+### SKYT
+- N/A
+Impact: 0
+
+### VICR
+- N/A
+Impact: 0
+
+### HOC.L
+- N/A
+Impact: 0
+
+### III.TO
+- N/A
+Impact: 0
+
+### NEXA
+- N/A
+Impact: 0
+
+### ARG.TO
+- N/A
+Impact: 0
+
+### ERO
+- N/A
+Impact: 0
+
+### PAF.L
+- N/A
+Impact: 0
