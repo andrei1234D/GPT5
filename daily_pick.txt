@@ -1,18 +1,18 @@
-Daily Stock Pick — January 30, 2026
+Daily Stock Pick — February 2, 2026
 
-SKYT – SkyWater Technology
+ARG.TO – Amerigo Resources Ltd.
 
-News: IonQ to acquire SkyWater for $35/share ($15 cash + $20 in IONQ stock with collar), expected close Q2–Q3 2026 pending approvals.
+News: Full debt repaid in Q4’25; quarterly dividend raised and an extra C$0.05 performance dividend declared for payment on Jan 15, 2026; Q3’25 cash flow solid despite temporary El Teniente outage. ([globenewswire.com](https://www.globenewswire.com/news-release/2025/10/29/3176314/0/en/Amerigo-Announces-Q3-2025-Results-Full-Debt-Repayment-and-Quarterly-Dividend-Increase.html?utm_source=openai))
 
-Score (0–1000): 745
+Score (0–1000): 740
 
 ADVICE: Strong Buy
 
-Certainty: 67%
+Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/SKYT/forecast
+Forecast image URL: https://stockscan.io/stocks/ARG.TO/forecast
 
-Verifier note: Low-risk deal-arb upside with defined catalyst window; limited dilution/balance-sheet risk as target; spread exists pending shareholder/regulatory approvals. Sources: wsj.com; barrons.com.
+Verifier note: Low balance-sheet risk (no debt), ongoing shareholder returns (dividend + buybacks), and steady tolling model tied to Codelco support favorable 6‑month EV; key risks are copper price and Chile operational interruptions. Sources: globenewswire.com (Amerigo Q3’25 results, ops update, performance dividend). ([globenewswire.com](https://www.globenewswire.com/news-release/2025/10/29/3176314/0/en/Amerigo-Announces-Q3-2025-Results-Full-Debt-Repayment-and-Quarterly-Dividend-Increase.html?utm_source=openai))
 
 ---
 **Legend**

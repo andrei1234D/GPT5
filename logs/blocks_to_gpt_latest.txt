@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,SHMD - SCHMID Group,SHMD,N/A
-2,VTYX - Ventyx Biosciences,VTYX,N/A
-3,RILY - BRC Group Holdings,RILY,N/A
-4,OSS - One Stop Systems,OSS,N/A
-5,SKYT - SkyWater Technology,SKYT,N/A
-6,TYRA - Tyra Biosciences,TYRA,"Barclays raises target price for Tyra Biosciences to $59 with a ""Buy"" rating. | Tyra Biosciences stock hits an all-time high, showing strong growth potential. | Impact: +40"
-7,HOC.L - Hochschild Mining,HOC.L,N/A
-8,IMG.TO - IAMGOLD,IMG.TO,N/A
-9,ALB - Albemarle,ALB,N/A
-10,SQM - Sociedad Quimica y Minera de Chile,SQM,SQM completes lithium merger with Codelco after Chile Supreme Court resolution. | Impact: +25
+1,TE - T1 Energy,TE,N/A | Impact: 0
+2,SHMD - SCHMID Group,SHMD,N/A | Impact: 0
+3,SKYT - SkyWater Technology,SKYT,N/A | Impact: 0
+4,VICR - Vicor,VICR,N/A | Impact: 0
+5,HOC.L - Hochschild Mining,HOC.L,N/A | Impact: 0
+6,III.TO - Imperial Metals,III.TO,N/A | Impact: 0
+7,NEXA - Nexa Resources,NEXA,N/A | Impact: 0
+8,ARG.TO - Amerigo Resources,ARG.TO,N/A | Impact: 0
+9,ERO - ERO Copper,ERO,N/A | Impact: 0
+10,PAF.L - Pan African Resources,PAF.L,N/A | Impact: 0
