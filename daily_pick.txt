@@ -1,18 +1,18 @@
-Daily Stock Pick — February 2, 2026
+Daily Stock Pick — February 3, 2026
 
-ARG.TO – Amerigo Resources Ltd.
+VICR – Vicor
 
-News: Full debt repaid in Q4’25; quarterly dividend raised and an extra C$0.05 performance dividend declared for payment on Jan 15, 2026; Q3’25 cash flow solid despite temporary El Teniente outage. ([globenewswire.com](https://www.globenewswire.com/news-release/2025/10/29/3176314/0/en/Amerigo-Announces-Q3-2025-Results-Full-Debt-Repayment-and-Quarterly-Dividend-Increase.html?utm_source=openai))
+News: AI datacenter power demand lifting sales and IP royalties; next‑gen power architecture targeted for 2026; analysts upgraded after strong Q3 results.
 
-Score (0–1000): 740
+Score (0–1000): 735
 
 ADVICE: Strong Buy
 
-Certainty: 70%
+Certainty: 64%
 
-Forecast image URL: https://stockscan.io/stocks/ARG.TO/forecast
+Forecast image URL: "https://stockscan.io/stocks/VICR/forecast"
 
-Verifier note: Low balance-sheet risk (no debt), ongoing shareholder returns (dividend + buybacks), and steady tolling model tied to Codelco support favorable 6‑month EV; key risks are copper price and Chile operational interruptions. Sources: globenewswire.com (Amerigo Q3’25 results, ops update, performance dividend). ([globenewswire.com](https://www.globenewswire.com/news-release/2025/10/29/3176314/0/en/Amerigo-Announces-Q3-2025-Results-Full-Debt-Repayment-and-Quarterly-Dividend-Increase.html?utm_source=openai))
+Verifier note: Benefiting from secular AI datacenter buildout; Q3 2025 revenue ~$110M and net profit ~$28M with growing high‑margin royalty stream (management targets ~$200M over next two years), limited balance‑sheet risk and no evident dilution overhang; near‑term catalysts include hyperscaler wins and 2026 architecture launch. Sources: barrons.com (Vicor AI/power/royalties, analyst upgrades).
 
 ---
 **Legend**
