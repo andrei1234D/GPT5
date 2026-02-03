@@ -1,8 +1,8 @@
-### TE
+### AXTI
 - N/A
 Impact: 0
 
-### SHMD
+### TE
 - N/A
 Impact: 0
 
@@ -14,11 +14,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### HOC.L
+### III.TO
 - N/A
 Impact: 0
 
-### III.TO
+### HOC.L
 - N/A
 Impact: 0
 
@@ -26,14 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ARG.TO
+### ARWR
 - N/A
 Impact: 0
 
-### ERO
+### ACMR
 - N/A
 Impact: 0
 
-### PAF.L
+### TKO.TO
 - N/A
 Impact: 0
