@@ -1,18 +1,18 @@
-Daily Stock Pick — February 3, 2026
+Daily Stock Pick — February 4, 2026
 
-VICR – Vicor
+UCTT – Ultra Clean Holdings, Inc.
 
-News: AI datacenter power demand lifting sales and IP royalties; next‑gen power architecture targeted for 2026; analysts upgraded after strong Q3 results.
+News: Q3’25 results exceeded mid-point with $510M revenue and best gross margin of the year; management cites AI-HPC as a key demand driver. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1275014/000162828025046810/q32025pressrelease.htm?utm_source=openai))
 
 Score (0–1000): 735
 
 ADVICE: Strong Buy
 
-Certainty: 64%
+Certainty: 68%
 
-Forecast image URL: "https://stockscan.io/stocks/VICR/forecast"
+Forecast image URL: https://stockscan.io/stocks/UCTT/forecast
 
-Verifier note: Benefiting from secular AI datacenter buildout; Q3 2025 revenue ~$110M and net profit ~$28M with growing high‑margin royalty stream (management targets ~$200M over next two years), limited balance‑sheet risk and no evident dilution overhang; near‑term catalysts include hyperscaler wins and 2026 architecture launch. Sources: barrons.com (Vicor AI/power/royalties, analyst upgrades).
+Verifier note: Semicap cycle upturn + improving margins and profitability (Q1’25 non-GAAP EPS $0.28; Q3’25 margin highs), established customer base, and no recent dilution vs. higher-risk miners/biotech; catalysts include upcoming earnings and AI-driven WFE spend. Sources: prnewswire.com (Q1’25), sec.gov EX-99.1 (Q3’25). ([prnewswire.com](https://www.prnewswire.com/news-releases/ultra-clean-reports-first-quarter-2025-financial-results-302440082.html?utm_source=openai))
 
 ---
 **Legend**
