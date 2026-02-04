@@ -1,4 +1,12 @@
-### AXTI
+### BMTO.L
+- N/A
+Impact: 0
+
+### VTYX
+- N/A
+Impact: 0
+
+### SHMD
 - N/A
 Impact: 0
 
@@ -10,15 +18,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### VICR
-- N/A
-Impact: 0
-
-### III.TO
-- N/A
-Impact: 0
-
-### HOC.L
+### UCTT
 - N/A
 Impact: 0
 
@@ -26,14 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ARWR
+### ARMN
 - N/A
 Impact: 0
 
-### ACMR
+### ERO.TO
 - N/A
 Impact: 0
 
-### TKO.TO
+### BVN
 - N/A
 Impact: 0
