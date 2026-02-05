@@ -359,7 +359,6 @@ AFIB,Acutus Medical
 AFJKU,Aimei Health Technology
 AFL,Aflac
 AFMDQ,Affimed
-AFME.PA,Affluent Medical
 AFN.TO,Ag Growth International
 AFRI,Forafric Global
 AFRM,Affirm
@@ -2070,6 +2069,7 @@ CVSG.L,CVS Group
 CVV,CVD Equipment
 CVVY.TO,Cavvy Energy
 CVX,Chevron
+CVX.PA,Carvolix
 CW,Curtiss-Wright
 CWAN,Clearwater Analytics
 CWBHF,Charlottes Web
@@ -2753,7 +2753,7 @@ FAR.TO,Foraco International
 FAS,Fastenal
 FAST,Fastenal
 FAST.AS,Fastned
-FAT,FAT Brands
+FATAQ,FAT Brands
 FATE,Fate Therapeutics
 FATN,Fatpipe
 FB2A,Meta Platforms
@@ -4473,6 +4473,7 @@ MAL.TO,Magellan Aerospace
 MAMA,Mama's Creations
 MAMO,Massimo Group
 MAN,ManpowerGroup
+MANE,VeraDermics
 MANH,Manhattan Associates
 MANU,Manchester United
 MAP.MC,Mapfre
@@ -5435,7 +5436,6 @@ PCAP,ProCap Acquisition
 PCAR,PACCAR
 PCE1,Booking Holdings
 PCG,PG&E
-PCH,PotlatchDeltic
 PCIP.L,PCI-PAL
 PCOR,Procore Technologies
 PCRHY,Panasonic
@@ -6166,7 +6166,7 @@ SB1.DE,Smartbroker Holding
 SBAC,SBA Communications
 SBC,SBC Medical Group
 SBDS,Solo Brands
-SBET,SharpLink Gaming
+SBET,SharpLink
 SBEV,Splash Beverage
 SBFM,Sunshine Biopharma
 SBI.TO,Serabi Gold
@@ -7125,7 +7125,7 @@ TWG,Top Wealth Group Holding
 TWH,Twilio
 TWLO,Twilio
 TWM.TO,Tidewater Midstream and Infrastructure
-TWNP,Twin Hospitality Group
+TWNPQ,Twin Hospitality Group
 TWO,Two Harbors Investment
 TWST,Twist Bioscience
 TX,Ternium
