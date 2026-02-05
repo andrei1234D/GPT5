@@ -95,9 +95,14 @@ def is_junk_symbol(sym: str) -> bool:
         return True
     return len(sym) > 20
 
+_NAME_REJECT_RE = re.compile(
+    r"\b(DELISTED|ETF|ETN|FUND|TRUST|CERTIFICATE|WARRANT)\b",
+    re.IGNORECASE,
+)
+
 def name_reject(nm: str) -> bool:
-    u = (nm or "").upper()
-    return any(x in u for x in ["DELISTED","ETF","ETN","FUND","TRUST","CERTIFICATE","WARRANT"])
+    u = (nm or "").strip()
+    return bool(_NAME_REJECT_RE.search(u))
 
 def build_whitelist_from_meta(instruments: List[Dict[str,Any]]) -> set[str]:
     """
