@@ -1,8 +1,4 @@
-### BMTO.L
-- N/A
-Impact: 0
-
-### VTYX
+### BW
 - N/A
 Impact: 0
 
@@ -10,15 +6,19 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TE
+### WDC
 - N/A
 Impact: 0
 
-### SKYT
+### TGB
 - N/A
 Impact: 0
 
-### UCTT
+### TKO.TO
+- N/A
+Impact: 0
+
+### III.TO
 - N/A
 Impact: 0
 
@@ -30,10 +30,10 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ERO.TO
+### BVN
 - N/A
 Impact: 0
 
-### BVN
+### ARIS.TO
 - N/A
 Impact: 0
