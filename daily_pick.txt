@@ -1,18 +1,18 @@
-Daily Stock Pick — February 4, 2026
+Daily Stock Pick — February 5, 2026
 
-UCTT – Ultra Clean Holdings, Inc.
+WDC – Western Digital Corporation
 
-News: Q3’25 results exceeded mid-point with $510M revenue and best gross margin of the year; management cites AI-HPC as a key demand driver. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1275014/000162828025046810/q32025pressrelease.htm?utm_source=openai))
+News: Q2 FY26 beat with 25% YoY revenue growth and strong FCF; Q3 guided ~40% YoY; HDD-only focus post-2025 flash spin-off; 40TB+ roadmap unveiled at Innovation Day 2026.
 
-Score (0–1000): 735
+Score (0–1000): 742
 
 ADVICE: Strong Buy
 
-Certainty: 68%
+Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/UCTT/forecast
+Forecast image URL: https://stockscan.io/stocks/WDC/forecast
 
-Verifier note: Semicap cycle upturn + improving margins and profitability (Q1’25 non-GAAP EPS $0.28; Q3’25 margin highs), established customer base, and no recent dilution vs. higher-risk miners/biotech; catalysts include upcoming earnings and AI-driven WFE spend. Sources: prnewswire.com (Q1’25), sec.gov EX-99.1 (Q3’25). ([prnewswire.com](https://www.prnewswire.com/news-releases/ultra-clean-reports-first-quarter-2025-financial-results-302440082.html?utm_source=openai))
+Verifier note: Positive cycle tailwinds (AI/cloud HDD demand), cleaner structure post spin-off, strong margins/FCF and shareholder returns; near-term product roadmap supports growth; risks: macro/AI capex swings; sources: westerndigital.com (Q2 FY26 release, separation, Investor Day), investors.com (earnings recap), tomshardware.com (Innovation Day HDD roadmap). ([westerndigital.com](https://www.westerndigital.com/in-id/company/newsroom/press-releases/2026/2026-01-29-western-digital-reports-fiscal-second-quarter-2026-financial-results?utm_source=openai))
 
 ---
 **Legend**

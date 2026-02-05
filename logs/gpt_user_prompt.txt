@@ -1,17 +1,17 @@
-TODAY is Feb 04. You are given the Top-10 ML-ranked candidates (already the best of the day), ordered.
+TODAY is Feb 05. You are given the Top-10 ML-ranked candidates (already the best of the day), ordered.
 You must pick exactly ONE winner with the best EV and lowest risk, using up-to-date web data for the future 6months time-frame.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,PipelineNews
-1,BMTO.L - Braime,BMTO.L,N/A | Impact: 0
-2,VTYX - Ventyx Biosciences,VTYX,N/A | Impact: 0
-3,SHMD - SCHMID Group,SHMD,N/A | Impact: 0
-4,TE - T1 Energy,TE,N/A | Impact: 0
-5,SKYT - SkyWater Technology,SKYT,N/A | Impact: 0
-6,UCTT - Ultra Clean,UCTT,N/A | Impact: 0
+1,BW - Babcock & Wilcox Enterprises,BW,N/A | Impact: 0
+2,SHMD - SCHMID Group,SHMD,N/A | Impact: 0
+3,WDC - Western Digital,WDC,N/A | Impact: 0
+4,TGB - Taseko Mines,TGB,N/A | Impact: 0
+5,TKO.TO - Taseko Mines,TKO.TO,N/A | Impact: 0
+6,III.TO - Imperial Metals,III.TO,N/A | Impact: 0
 7,NEXA - Nexa Resources,NEXA,N/A | Impact: 0
 8,ARMN - Aris Mining,ARMN,N/A | Impact: 0
-9,ERO.TO - ERO Copper,ERO.TO,N/A | Impact: 0
-10,BVN - Cia de Minas Buenaventura,BVN,N/A | Impact: 0
+9,BVN - Cia de Minas Buenaventura,BVN,N/A | Impact: 0
+10,ARIS.TO - Aris Mining,ARIS.TO,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
