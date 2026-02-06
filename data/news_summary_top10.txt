@@ -1,12 +1,12 @@
-### BW
+### BMTO.L
 - N/A
 Impact: 0
 
-### SHMD
+### SNDK
 - N/A
 Impact: 0
 
-### WDC
+### CTMX
 - N/A
 Impact: 0
 
@@ -14,26 +14,26 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TKO.TO
+### WDC
 - N/A
 Impact: 0
 
-### III.TO
+### MU
 - N/A
 Impact: 0
 
-### NEXA
+### UCTT
 - N/A
 Impact: 0
 
-### ARMN
+### ARRY
 - N/A
 Impact: 0
 
-### BVN
+### TNZ.TO
 - N/A
 Impact: 0
 
-### ARIS.TO
+### GILT
 - N/A
 Impact: 0
