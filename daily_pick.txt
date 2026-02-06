@@ -1,18 +1,18 @@
-Daily Stock Pick — February 5, 2026
+Daily Stock Pick — February 6, 2026
 
-WDC – Western Digital Corporation
+MU – Micron Technology, Inc.
 
-News: Q2 FY26 beat with 25% YoY revenue growth and strong FCF; Q3 guided ~40% YoY; HDD-only focus post-2025 flash spin-off; 40TB+ roadmap unveiled at Innovation Day 2026.
+News: Record FQ1’26; guides FQ2’26 revenue ~$18.7B and GM ~68%; 2026 HBM supply largely contracted/sold out. ([investors.micron.com](https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-first-quarter-fiscal-2026?utm_source=openai))
 
-Score (0–1000): 742
+Score (0–1000): 785
 
 ADVICE: Strong Buy
 
-Certainty: 70%
+Certainty: 72%
 
-Forecast image URL: https://stockscan.io/stocks/WDC/forecast
+Forecast image URL: https://stockscan.io/stocks/MU/forecast
 
-Verifier note: Positive cycle tailwinds (AI/cloud HDD demand), cleaner structure post spin-off, strong margins/FCF and shareholder returns; near-term product roadmap supports growth; risks: macro/AI capex swings; sources: westerndigital.com (Q2 FY26 release, separation, Investor Day), investors.com (earnings recap), tomshardware.com (Innovation Day HDD roadmap). ([westerndigital.com](https://www.westerndigital.com/in-id/company/newsroom/press-releases/2026/2026-01-29-western-digital-reports-fiscal-second-quarter-2026-financial-results?utm_source=openai))
+Verifier note: EV supported by accelerating AI/HBM cycle, record guidance, and solid liquidity; key risks are memory cyclicality and policy/export shifts; sources: investors.micron.com (Q1’26 release/guidance), Investing.com/Reuters (HBM 2026 sold-out commentary), BlocksandFiles (context on guidance/HBM). ([investors.micron.com](https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-first-quarter-fiscal-2026?utm_source=openai))
 
 ---
 **Legend**
