@@ -2,11 +2,27 @@
 - N/A
 Impact: 0
 
+### JFB
+- N/A
+Impact: 0
+
+### AXTI
+- N/A
+Impact: 0
+
 ### SNDK
 - N/A
 Impact: 0
 
-### CTMX
+### SHMD
+- N/A
+Impact: 0
+
+### ASM.TO
+- N/A
+Impact: 0
+
+### ACMR
 - N/A
 Impact: 0
 
@@ -14,26 +30,10 @@ Impact: 0
 - N/A
 Impact: 0
 
-### WDC
-- N/A
-Impact: 0
-
-### MU
-- N/A
-Impact: 0
-
 ### UCTT
 - N/A
 Impact: 0
 
-### ARRY
-- N/A
-Impact: 0
-
-### TNZ.TO
-- N/A
-Impact: 0
-
-### GILT
+### WDC
 - N/A
 Impact: 0
