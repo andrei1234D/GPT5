@@ -1,18 +1,18 @@
-Daily Stock Pick — February 6, 2026
+Daily Stock Pick — February 09, 2026
 
-MU – Micron Technology, Inc.
+WDC – Western Digital
 
-News: Record FQ1’26; guides FQ2’26 revenue ~$18.7B and GM ~68%; 2026 HBM supply largely contracted/sold out. ([investors.micron.com](https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-first-quarter-fiscal-2026?utm_source=openai))
+News: Q2 FY26 beat (revenue $3.02B; non-GAAP EPS $2.13) with Q3 midpoint implying ~40% y/y growth; $4B buyback unveiled at Innovation Day. ([westerndigital.com](https://www.westerndigital.com/es-la/company/newsroom/press-releases/2026/2026-01-29-western-digital-reports-fiscal-second-quarter-2026-financial-results?utm_source=openai))
 
-Score (0–1000): 785
+Score (0–1000): 740
 
 ADVICE: Strong Buy
 
-Certainty: 72%
+Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/MU/forecast
+Forecast image URL: https://stockscan.io/stocks/WDC/forecast
 
-Verifier note: EV supported by accelerating AI/HBM cycle, record guidance, and solid liquidity; key risks are memory cyclicality and policy/export shifts; sources: investors.micron.com (Q1’26 release/guidance), Investing.com/Reuters (HBM 2026 sold-out commentary), BlocksandFiles (context on guidance/HBM). ([investors.micron.com](https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-first-quarter-fiscal-2026?utm_source=openai))
+Verifier note: Post-flash separation (Feb 24, 2025) WD is a pure-play HDD leader benefiting from AI-driven nearline demand; Q2 FY26 showed 46% gross margin, $653M FCF, and raised outlook, while capital returns (buyback + dividend) reduce dilution risk; secular growth + improving margins vs. manageable balance sheet = favorable 6‑month EV. Sources: westerndigital.com IR/press releases; investors.com (IBD). ([investor.wdc.com](https://investor.wdc.com/news-releases/news-release-details/western-digital-completes-planned-company-separation?utm_source=openai))
 
 ---
 **Legend**
