@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,BMTO.L - Braime,BMTO.L,N/A | Impact: 0
-2,JFB - JFB Construction Holdings,JFB,N/A | Impact: 0
-3,AXTI - AXT,AXTI,N/A | Impact: 0
-4,SNDK - Sandisk,SNDK,N/A | Impact: 0
-5,SHMD - SCHMID Group,SHMD,N/A | Impact: 0
-6,ASM.TO - Avino Silver & Gold Mines,ASM.TO,N/A | Impact: 0
-7,ACMR - ACM Research,ACMR,N/A | Impact: 0
-8,TGB - Taseko Mines,TGB,N/A | Impact: 0
-9,UCTT - Ultra Clean,UCTT,N/A | Impact: 0
-10,WDC - Western Digital,WDC,N/A | Impact: 0
+1,ACMR - ACM Research,ACMR,N/A | Impact: 0
+2,ICHR - Ichor,ICHR,N/A | Impact: 0
+3,TGB - Taseko Mines,TGB,N/A | Impact: 0
+4,MU - Micron Technology,MU,N/A | Impact: 0
+5,UCTT - Ultra Clean,UCTT,N/A | Impact: 0
+6,CENX - Century Aluminum,CENX,N/A | Impact: 0
+7,HOC.L - Hochschild Mining,HOC.L,N/A | Impact: 0
+8,CGAU - Centerra Gold,CGAU,N/A | Impact: 0
+9,BELFB - Bel Fuse,BELFB,N/A | Impact: 0
+10,SHA0.DE - Schaeffler,SHA0.DE,N/A | Impact: 0

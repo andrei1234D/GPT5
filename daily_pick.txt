@@ -1,18 +1,18 @@
-Daily Stock Pick — February 09, 2026
+Daily Stock Pick — February 10, 2026
 
-WDC – Western Digital
+MU – Micron Technology, Inc.
 
-News: Q2 FY26 beat (revenue $3.02B; non-GAAP EPS $2.13) with Q3 midpoint implying ~40% y/y growth; $4B buyback unveiled at Innovation Day. ([westerndigital.com](https://www.westerndigital.com/es-la/company/newsroom/press-releases/2026/2026-01-29-western-digital-reports-fiscal-second-quarter-2026-financial-results?utm_source=openai))
+News: Record FQ1’26 results and robust FQ2’26 guidance on AI/HBM demand; near‑term overhang from reports of Samsung/SK Hynix HBM4 competition.
 
-Score (0–1000): 740
+Score (0–1000): 735
 
 ADVICE: Strong Buy
 
 Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/WDC/forecast
+Forecast image URL: https://stockscan.io/stocks/MU/forecast
 
-Verifier note: Post-flash separation (Feb 24, 2025) WD is a pure-play HDD leader benefiting from AI-driven nearline demand; Q2 FY26 showed 46% gross margin, $653M FCF, and raised outlook, while capital returns (buyback + dividend) reduce dilution risk; secular growth + improving margins vs. manageable balance sheet = favorable 6‑month EV. Sources: westerndigital.com IR/press releases; investors.com (IBD). ([investor.wdc.com](https://investor.wdc.com/news-releases/news-release-details/western-digital-completes-planned-company-separation?utm_source=openai))
+Verifier note: EV skewed positive by Micron’s Dec 17, 2025 FQ1’26 print (revenue $13.64B; record FCF) and FQ2’26 guide ($18.7B rev, ~68% non‑GAAP GM), plus NVIDIA‑aligned HBM3E/SOCAMM shipments; main risk is share in next‑gen HBM4 amid today’s Samsung headlines. Sources: investors.micron.com (Q1’26 release/guidance), globenewswire.com/nasdaq.com (NVIDIA HBM3E/SOCAMM shipments), barrons.com and marketwatch.com (HBM4 competitive updates), blocksandfiles.com (context on margins/cash). ([investors.micron.com](https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-first-quarter-fiscal-2026?utm_source=openai))
 
 ---
 **Legend**
