@@ -1,28 +1,8 @@
-### BMTO.L
-- N/A
-Impact: 0
-
-### JFB
-- N/A
-Impact: 0
-
-### AXTI
-- N/A
-Impact: 0
-
-### SNDK
-- N/A
-Impact: 0
-
-### SHMD
-- N/A
-Impact: 0
-
-### ASM.TO
-- N/A
-Impact: 0
-
 ### ACMR
+- N/A
+Impact: 0
+
+### ICHR
 - N/A
 Impact: 0
 
@@ -30,10 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
+### MU
+- N/A
+Impact: 0
+
 ### UCTT
 - N/A
 Impact: 0
 
-### WDC
+### CENX
+- N/A
+Impact: 0
+
+### HOC.L
+- N/A
+Impact: 0
+
+### CGAU
+- N/A
+Impact: 0
+
+### BELFB
+- N/A
+Impact: 0
+
+### SHA0.DE
 - N/A
 Impact: 0
