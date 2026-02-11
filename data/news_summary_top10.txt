@@ -1,16 +1,20 @@
-### ACMR
+### SHMD
 - N/A
 Impact: 0
 
-### ICHR
+### JFB
 - N/A
 Impact: 0
 
-### TGB
+### AXTI
 - N/A
 Impact: 0
 
-### MU
+### SNDK
+- N/A
+Impact: 0
+
+### ASM.TO
 - N/A
 Impact: 0
 
@@ -18,22 +22,18 @@ Impact: 0
 - N/A
 Impact: 0
 
-### CENX
+### FORM
 - N/A
 Impact: 0
 
-### HOC.L
+### AAUC.TO
 - N/A
 Impact: 0
 
-### CGAU
+### TGB
 - N/A
 Impact: 0
 
-### BELFB
-- N/A
-Impact: 0
-
-### SHA0.DE
+### MKSI
 - N/A
 Impact: 0
