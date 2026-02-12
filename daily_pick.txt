@@ -1,18 +1,18 @@
-Daily Stock Pick — February 11, 2026
+Daily Stock Pick — February 12, 2026
 
 FORM – FormFactor, Inc.
 
-News: Q4’25 beat (non-GAAP EPS $0.46; rev $215M) and Q1’26 guide above Street on strong HBM/advanced packaging demand. ([globenewswire.com](https://www.globenewswire.com/news-release/2026/02/04/3232457/0/en/FormFactor-Inc-Reports-2025-Fourth-Quarter-Results.html?utm_source=openai))
+News: "FY24 revenue +15% y/y with HBM-driven momentum; Q1’25 guide to ~$170M rev, 38% non-GAAP GM, and new $75M buyback."
 
-Score (0–1000): 735
+Score (0–1000): 720
 
 ADVICE: Strong Buy
 
-Certainty: 68%
+Certainty: 63%
 
 Forecast image URL: "https://stockscan.io/stocks/FORM/forecast"
 
-Verifier note: Solid earnings momentum, margin expansion, positive FCF and Q1’26 outlook tied to AI/HBM test demand; lower balance-sheet risk vs peers like MKSI and fewer near-term commodity/permit risks than miners/AXTI; awaiting continued semi upcycle. Sources: globenewswire.com (FORM Q4’25), nasdaq.com/Zacks (summary, segment mix). ([globenewswire.com](https://www.globenewswire.com/news-release/2026/02/04/3232457/0/en/FormFactor-Inc-Reports-2025-Fourth-Quarter-Results.html?utm_source=openai))
+Verifier note: "Mid-cap semicap supplier with rising AI/HBM exposure, improving margins, shareholder-friendly buyback, and no evident dilution; lower cyclicality risk vs. miners. Sources: investors.formfactor.com (Q4’24 and Q1’25 releases, buyback), investors.com (industry context/RS strength)."
 
 ---
 **Legend**
