@@ -1,12 +1,4 @@
-### SHMD
-- N/A
-Impact: 0
-
 ### JFB
-- N/A
-Impact: 0
-
-### AXTI
 - N/A
 Impact: 0
 
@@ -14,11 +6,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ASM.TO
+### AAOI
 - N/A
 Impact: 0
 
-### UCTT
+### ABRA.TO
 - N/A
 Impact: 0
 
@@ -26,14 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AAUC.TO
-- N/A
-Impact: 0
-
 ### TGB
 - N/A
 Impact: 0
 
-### MKSI
+### AAUC.TO
+- N/A
+Impact: 0
+
+### ARMN
+- N/A
+Impact: 0
+
+### CGAU
+- N/A
+Impact: 0
+
+### HBM.TO
 - N/A
 Impact: 0
