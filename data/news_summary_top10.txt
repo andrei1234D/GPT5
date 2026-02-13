@@ -1,4 +1,8 @@
-### JFB
+### AXTI
+- N/A
+Impact: 0
+
+### ICHR
 - N/A
 Impact: 0
 
@@ -6,34 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AAOI
+### ACMR
 - N/A
 Impact: 0
 
-### ABRA.TO
+### UCTT
 - N/A
 Impact: 0
 
-### FORM
+### WDC
 - N/A
 Impact: 0
 
 ### TGB
+- The articles provide a bullish sentiment with a buy rating and increased target price for Taseko Mines.
+Impact: +35
+
+### TNZ.TO
+- N/A
+Impact: 0
+
+### MKSI
 - N/A
 Impact: 0
 
 ### AAUC.TO
-- N/A
-Impact: 0
-
-### ARMN
-- N/A
-Impact: 0
-
-### CGAU
-- N/A
-Impact: 0
-
-### HBM.TO
 - N/A
 Impact: 0
