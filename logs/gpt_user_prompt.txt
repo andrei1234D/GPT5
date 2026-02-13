@@ -1,18 +1,18 @@
-TODAY is Feb 12. You are given the 10 ML-ranked candidates, ordered.
+TODAY is Feb 13. You are given the 10 ML-ranked candidates, ordered.
 Pick exactly ONE option with the best EV and lowest risk using up-to-date web data for the next 6 months.
 Do not assume any candidate is good; score strictly by evidence.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,PipelineNews
-1,JFB - JFB Construction Holdings,JFB,N/A | Impact: 0
-2,SNDK - Sandisk,SNDK,N/A | Impact: 0
-3,AAOI - Applied Optoelectronics,AAOI,N/A | Impact: 0
-4,ABRA.TO - AbraSilver Resource,ABRA.TO,N/A | Impact: 0
-5,FORM - FormFactor,FORM,N/A | Impact: 0
-6,TGB - Taseko Mines,TGB,N/A | Impact: 0
-7,AAUC.TO - Allied Gold,AAUC.TO,N/A | Impact: 0
-8,ARMN - Aris Mining,ARMN,N/A | Impact: 0
-9,CGAU - Centerra Gold,CGAU,N/A | Impact: 0
-10,HBM.TO - Hudbay Minerals,HBM.TO,N/A | Impact: 0
+1,AXTI - AXT,AXTI,N/A | Impact: 0
+2,ICHR - Ichor,ICHR,N/A | Impact: 0
+3,SNDK - Sandisk,SNDK,N/A | Impact: 0
+4,ACMR - ACM Research,ACMR,N/A | Impact: 0
+5,UCTT - Ultra Clean,UCTT,N/A | Impact: 0
+6,WDC - Western Digital,WDC,N/A | Impact: 0
+7,TGB - Taseko Mines,TGB,The articles provide a bullish sentiment with a buy rating and increased target price for Taseko Mines. | Impact: +35
+8,TNZ.TO - Tenaz Energy,TNZ.TO,N/A | Impact: 0
+9,MKSI - MKS,MKSI,N/A | Impact: 0
+10,AAUC.TO - Allied Gold,AAUC.TO,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
