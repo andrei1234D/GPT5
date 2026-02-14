@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-BIAF – bioAffinity Technologies, Inc.
+PGTK – Pacific Green Technologies Inc.
 
-News: Record 2024 revenue and Medicare reimbursement support CyPath Lung ramp; raised capital in 2025 to extend runway.
+News: Sold Limestone Coast North 250MW/500MWh BESS project to Intera for ~A$33M cash; expanding BESS pipeline incl. Poland; note recent restatements/material weaknesses. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1553404/000121390025056287/ea0243690-10k_pacific.htm))
 
-Score (0–1000): 640
+Score (0–1000): 635
 
 ADVICE: Buy
 
-Certainty: 58%
+Certainty: 56%
 
-Forecast image URL: https://stockscan.io/stocks/BIAF/forecast
+Forecast image URL: https://stockscan.io/stocks/PGTK/forecast
 
-Verifier note: Choosing BIAF as least-risk among microcaps: real 2024 revenue growth with Medicare reimbursement tailwind, albeit with dilution/low-cash risks; preferable to ACXP (going-concern/dilution) and DSY (Nasdaq deficiency). Sources: bioaffinitytech.com (2024 results, reimbursement), ir.bioaffinitytech.com (Q2’25 cash and May’25 raise), acurxpharma.com (financing/Phase 3 planning), ir.bigtreeclouds.com & stocktitan.net (Nasdaq deficiency). ([bioaffinitytech.com](https://bioaffinitytech.com/bioaffinity-technologies-reports-record-9-4-million-revenue-for-2024/?utm_source=openai))
+Verifier note: Positive near-term EV from realized cash inflow and de-risked asset-sale model vs. peers’ binary biotech risks; balance with OTC/liquidity and ICFR weaknesses flagged in FY2024 10-K. Sources: sec.gov (PGTK 10-K incl. Intera sale, restatement details).
 
 ---
 **Legend**

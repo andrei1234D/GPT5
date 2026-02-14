@@ -4,8 +4,8 @@ Rank,TickerName,Ticker,PipelineNews
 3,DSY - Big Tree Cloud Holdings,DSY,N/A | Impact: 0
 4,ZYBT - Zhengye Biotechnology,ZYBT,N/A | Impact: 0
 5,CANF - Can-Fite BioPharma,CANF,N/A | Impact: 0
-6,SRNE - Sorrento Therapeutics,SRNE,N/A | Impact: 0
-7,BIAF - bioAffinity Technologies,BIAF,N/A | Impact: 0
-8,MBRX - Moleculin Biotech,MBRX,N/A | Impact: 0
-9,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
-10,CYRNQ - CYREN,CYRNQ,N/A | Impact: 0
+6,BIAF - bioAffinity Technologies,BIAF,N/A | Impact: 0
+7,SRNE - Sorrento Therapeutics,SRNE,N/A | Impact: 0
+8,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
+9,PGTK - Pacific Green Technologies,PGTK,N/A | Impact: 0
+10,TTOO - T2 Biosystems,TTOO,N/A | Impact: 0
