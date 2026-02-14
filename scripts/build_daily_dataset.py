@@ -30,6 +30,31 @@ SECTOR_TO_ETF = {
     "Utilities": "XLU",
 }
 
+# Features required downstream by deterministic + ML ranking
+REQUIRED_FEATURES = [
+    "QMI",
+    "RLI",
+    "STSI",
+    "BRI",
+    "TailwindScore",
+    "TotalScore",
+    "z_mom_6m",
+    "z_mom_3m",
+    "z_ema_stack",
+    "z_ema50_slope",
+    "z_vol_60",
+    "z_mdd_3m",
+    "z_sustain",
+    "z_log_adv",
+    "z_prox_high",
+    "z_RS_spy_slope",
+    "z_RS_sector_slope",
+    "ema_stack",
+    "ema50_slope",
+    "RS_spy_slope90",
+    "RS_sector_slope90",
+]
+
 
 def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty:
@@ -58,6 +83,8 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
         out = out.rename(columns=ren)
     keep = [c for c in ["open", "high", "low", "close", "adj_close", "volume"] if c in out.columns]
     out = out[keep].copy()
+    for c in keep:
+        out[c] = pd.to_numeric(out[c], errors="coerce")
     out.index = pd.to_datetime(out.index)
     out = out.reset_index()
     if "date" not in out.columns:
@@ -82,15 +109,19 @@ def slope_log(s: pd.Series, window: int) -> pd.Series:
     return (np.log(s) - np.log(s.shift(window))) / window
 
 
-def trailing_mdd(s: pd.Series, window: int) -> pd.Series:
+def trailing_mdd(s: pd.Series, window: int, min_periods: int | None = None) -> pd.Series:
     def mdd(x: np.ndarray) -> float:
+        if len(x) == 0:
+            return np.nan
+        x = x[np.isfinite(x)]
         if len(x) == 0:
             return np.nan
         running_max = np.maximum.accumulate(x)
         drawdown = x / running_max - 1.0
         return np.nanmin(drawdown)
 
-    return s.rolling(window=window, min_periods=window).apply(mdd, raw=True)
+    mp = window if min_periods is None else min_periods
+    return s.rolling(window=window, min_periods=mp).apply(mdd, raw=True)
 
 
 def load_sector_map(tickers: List[str], path: str, mode: str, sleep_s: float) -> dict[str, str]:
@@ -267,6 +298,15 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
     if spx.empty:
         return pd.DataFrame(columns=["date", "MRI", "VCI", "RORO", "YCSI", "STI_SPY"])
 
+    def _warn_empty(name: str, s: pd.Series) -> None:
+        if s is None or s.empty or s.dropna().empty:
+            print(f"[build_daily_dataset][WARN] index series empty: {name}")
+
+    _warn_empty("^VIX", vix)
+    _warn_empty("^TNX", tnx)
+    _warn_empty("^IRX", irx)
+    _warn_empty("^RUT", rut)
+
     spx_trend = slope_log(spx, 90)
     vix_risk = (vix - vix.rolling(60).mean()) / vix.rolling(60).mean()
     rate_shock = tnx - tnx.shift(20)
@@ -331,11 +371,14 @@ def add_stock_features(
 
     g = df.groupby("ticker", group_keys=False)
 
+    df["close"] = g["close"].apply(lambda s: s.ffill().bfill())
+    df["volume"] = g["volume"].apply(lambda s: s.fillna(0))
     df["logret"] = g["close"].apply(lambda s: np.log(s / s.shift(1)))
+    df["logret"] = df["logret"].replace([np.inf, -np.inf], np.nan)
     df["mom_6m"] = g["close"].apply(lambda s: s / s.shift(126) - 1.0)
     df["mom_3m"] = g["close"].apply(lambda s: s / s.shift(63) - 1.0)
-    df["vol_60"] = g["logret"].apply(lambda s: s.rolling(60).std())
-    df["mdd_3m"] = g["close"].apply(lambda s: trailing_mdd(s, 63))
+    df["vol_60"] = g["logret"].apply(lambda s: s.rolling(60, min_periods=20).std())
+    df["mdd_3m"] = g["close"].apply(lambda s: trailing_mdd(s, 63, min_periods=20))
 
     df["ema20"] = g["close"].apply(lambda s: s.ewm(span=20, adjust=False).mean())
     df["ema50"] = g["close"].apply(lambda s: s.ewm(span=50, adjust=False).mean())
@@ -357,16 +400,18 @@ def add_stock_features(
     ).apply(lambda s: s.rolling(20).mean())
     df["sustain_all"] = df[["sustain_20_50", "sustain_50_200", "sustain_price_200"]].min(axis=1)
 
-    df["adv_20"] = g["close"].apply(lambda s: s.rolling(20).mean()) * g["volume"].apply(
-        lambda s: s.rolling(20).mean()
+    df["adv_20"] = g["close"].apply(lambda s: s.rolling(20, min_periods=10).mean()) * g["volume"].apply(
+        lambda s: s.rolling(20, min_periods=10).mean()
     )
-    df["adv_60"] = g["close"].apply(lambda s: s.rolling(60).mean()) * g["volume"].apply(
-        lambda s: s.rolling(60).mean()
+    df["adv_60"] = g["close"].apply(lambda s: s.rolling(60, min_periods=20).mean()) * g["volume"].apply(
+        lambda s: s.rolling(60, min_periods=20).mean()
     )
     df["log_adv_20"] = np.log1p(df["adv_20"])
     df["log_adv_60"] = np.log1p(df["adv_60"])
 
-    df["proximity_high_126"] = df["close"] / g["close"].apply(lambda s: s.rolling(126).max()) - 1.0
+    df["proximity_high_126"] = (
+        df["close"] / g["close"].apply(lambda s: s.rolling(126, min_periods=30).max()) - 1.0
+    )
 
     index_features = index_features.copy()
     index_features["date"] = pd.to_datetime(index_features["date"])
@@ -613,6 +658,14 @@ def main() -> None:
         df = df[pd.to_datetime(df["date"]) == asof_date].copy()
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
+    # Drop rows missing required downstream features
+    req = [c for c in REQUIRED_FEATURES if c in df.columns]
+    if req:
+        before = len(df)
+        df = df.dropna(subset=req).copy()
+        dropped = before - len(df)
+        if dropped:
+            print(f"[build_daily_dataset] Dropped {dropped} rows missing required features")
     df = df.sort_values("ticker").reset_index(drop=True)
     if df.empty:
         raise RuntimeError("No usable rows after feature computation.")
