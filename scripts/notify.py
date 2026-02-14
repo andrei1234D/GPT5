@@ -14,7 +14,6 @@ import requests
 from gpt_client import call_gpt5
 from prompts import SYSTEM_PROMPT_TOP20, USER_PROMPT_TOP20_TEMPLATE
 from time_utils import seconds_until_target_hour
-from brain_ranker import rank_with_brain
 
 TZ = pytz.timezone("Europe/Bucharest")
 
@@ -139,50 +138,33 @@ def main():
     now = datetime.now(TZ)
     log(f"[INFO] Start {now.isoformat()} Europe/Bucharest. FORCE_RUN={force}")
 
-    stage2_path = "data/stage2_merged.csv"
-    if not os.path.exists(stage2_path):
-        return fail(f"{stage2_path} not found")
+    top_path = "data/top10_ml.csv"
+    if not os.path.exists(top_path):
+        return fail(f"{top_path} not found")
 
-    df = pd.read_csv(stage2_path)
-    if df.empty:
-        return fail("stage2_merged.csv is empty")
+    top_df = pd.read_csv(top_path)
+    if top_df.empty or "ticker" not in top_df.columns:
+        return fail("top10_ml.csv is empty or missing 'ticker'")
 
-    # Build ticker -> company name map
+    # Build ticker -> company name map if present
     name_map: dict[str, str] = {}
-    if "ticker" in df.columns:
-        for _, row in df.iterrows():
+    if "company" in top_df.columns:
+        for _, row in top_df.iterrows():
             t = str(row.get("ticker") or "")
             if not t:
                 continue
-            n = row.get("name")
+            n = row.get("company")
             if isinstance(n, str):
                 name_map[t] = n
 
-    # Ensure feature JSONL exists (built in prepare-data job)
-    llm_today_path = "data/LLM_today_data.jsonl"
-    if not os.path.exists(llm_today_path):
-        return fail(f"{llm_today_path} not found. It should be built in the prepare-data job.")
-    log(f"[INFO] Found {llm_today_path}")
+    # Preserve rank order from file if available
+    if "rank" in top_df.columns:
+        top_df = top_df.sort_values("rank")
+    tickers_to_gpt = top_df["ticker"].astype(str).str.strip().tolist()
+    if not tickers_to_gpt:
+        return fail("top10_ml.csv contains no tickers.")
 
-    # Brain rank — Top 10 (ignore scores for GPT payload)
-    try:
-        tickers_top10, pred_scores = rank_with_brain(
-            stage2_path=stage2_path,
-            llm_data_path=llm_today_path,
-            top_k=10,
-        )
-    except Exception as e:
-        return fail(f"Brain ranking failed: {repr(e)}")
-
-    if not tickers_top10:
-        return fail("Brain returned no top tickers.")
-
-    # Keep ordering by ML score internally, but do not send scores to GPT
-    candidates = [(t, float(pred_scores.get(t, 0.0))) for t in tickers_top10]
-    candidates.sort(key=lambda x: x[1], reverse=True)
-    tickers_to_gpt = [t for t, _ in candidates]
-
-    log(f"[INFO] Brain Top-10 tickers (ordered): {', '.join(tickers_to_gpt)}")
+    log(f"[INFO] ML Top-10 tickers (ordered): {', '.join(tickers_to_gpt)}")
 
     # Load pipeline news summary (optional hint; GPT will still browse for up-to-date data)
     news_map = load_news_summary("data/news_summary_top10.txt")

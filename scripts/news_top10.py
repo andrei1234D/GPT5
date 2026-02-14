@@ -5,7 +5,8 @@ import openai
 from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
-from brain_ranker import rank_with_brain
+import pandas as pd
+
 from alphavantage_jit import get_news_sentiment_bulk
 
 
@@ -74,23 +75,20 @@ def format_news_prompt(tickers, news_map):
 
 
 def main():
-    # 1) Get Brain-ranked top 10 from LLM data (same as notify.py will use)
-    llm_today_path = "data/LLM_today_data.jsonl"
-    if not os.path.exists(llm_today_path):
-        raise FileNotFoundError(f"{llm_today_path} not found. It should be built by llm_data_builder.py")
-    
-    try:
-        tickers, brain_scores = rank_with_brain(
-            llm_data_path=llm_today_path,
-            top_k=10,
-        )
-    except Exception as e:
-        raise RuntimeError(f"Brain ranking failed: {repr(e)}")
-    
+    # 1) Load ML-ranked top 10 (same as notify.py will use)
+    top_path = Path("data/top10_ml.csv")
+    if not top_path.exists():
+        raise FileNotFoundError(f"{top_path} not found. It should be built by ml_rank_daily.py")
+
+    top_df = pd.read_csv(top_path)
+    if top_df.empty or "ticker" not in top_df.columns:
+        raise RuntimeError("top10_ml.csv is empty or missing 'ticker'")
+
+    tickers = top_df["ticker"].astype(str).str.strip().tolist()
     if not tickers:
-        raise RuntimeError("Brain returned no top tickers.")
-    
-    log(f"[INFO] Brain Top-10 tickers: {', '.join(tickers)}")
+        raise RuntimeError("No tickers found in top10_ml.csv")
+
+    log(f"[INFO] ML Top-10 tickers: {', '.join(tickers)}")
 
     # 2) Fetch news for exactly these tickers
     days = int(os.getenv("NEWS_DAYS", "7"))

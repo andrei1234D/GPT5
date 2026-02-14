@@ -1,5 +1,4 @@
 name: Daily GPT-5 Stock Alert to Discord
-#"safe"
 on:
   schedule:
     - cron: '0 4 * * 1-5' # 04:00 UTC daily
@@ -50,11 +49,8 @@ jobs:
           requests
           pytz
           openai
-          joblib==1.5.2
           scikit-learn==1.6.1
           xgboost==3.1.2
-          lightgbm==4.6.0
-          catboost==1.2.8
           REQ
           cat requirements.txt
 
@@ -104,78 +100,24 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Run Quick Scorer
+      - name: Build daily scored dataset (single source of truth)
         env:
-          STAGE1_MODE: 'loose'
-          STAGE1_KEEP: '200'
-          STAGE1_WRITE_TOPN_CSV: '1'
-          STAGE1_TOPN_PATH: 'logs/top2000_quick_full.csv'
           YF_CHUNK_SIZE: '60'
           YF_MAX_RETRIES: '5'
           YF_RETRY_SLEEP: '2.5'
-          YF_SLEEP_BETWEEN_CHUNKS: '2'
-          YF_SLEEP_PER_REQUEST: '0.5'
-          YF_SLEEP_FALLBACK: '0.3'
-          YF_MIN_ROWS: '40'
-          QS_ET_BONUS_TREND: '6'
-          QS_ET_BONUS_MOMO: '8'
-          QS_ET_BONUS_STRUCT: '5'
-          QS_USE_FVA: '1'
-          QS_VAL_OVERLAY: '1'
-          QS_PE_WEIGHT: '0.015'
-          QS_PE_WEIGHT_LARGE: '0.02'
-          QS_PE_WEIGHT_SMALL: '0.005'
-        run: python scripts/quick_scorer.py --input data/universe_clean.csv --output data/stage1_kept.csv
+          YF_MIN_ROWS: '200'
+        run: python scripts/build_daily_dataset.py --universe data/universe_clean.csv --out data/daily_scored.parquet --history-days 420 --include-sectors --sector-mode yfinance --sector-map data/sector_map.json
 
-      - name: Run Trash Ranker
-        env:
-          RANKER_PROFILE: 'C'
-          HARD_DROP_MODE: 'normal'
-          EARLY_TURN_MIN_E50_SLOPE: '2.0'
-          ALLOW_BLOWOFF_PROBE: '1'
-          ATH_GUARD: '1'
-        run: python scripts/trash_ranker.py --input data/stage1_kept.csv --output data/stage2_merged.csv
+      - name: Deterministic keep (7%)
+        run: python scripts/deterministic_keep.py --input data/daily_scored.parquet --out data/daily_keep_7/keep.parquet --keep-pct 0.07 --direction asc
+
+      - name: ML rank top 10
+        run: python scripts/ml_rank_daily.py --data data/daily_scored.parquet --keep data/daily_keep_7/keep.parquet --out data/top10_ml.csv --topk 10
 
       # -----------------------------
-      # Commit Stage Outputs
+      # Commit top10 output for downstream job
       # -----------------------------
-      - name: Commit stage outputs
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Sync FIRST (clean tree)
-          git fetch origin main
-          git rebase --autostash origin/main
-
-          git add -f data/*.csv logs/*.csv || true
-          if git diff --cached --quiet; then
-            echo "No changes"
-            exit 0
-          fi
-
-          git commit -m "Update universe + stage outputs (run #${{ github.run_number }})"
-
-          # Push with retries in case remote moved again
-          for i in 1 2 3; do
-            git fetch origin main
-            git rebase --autostash -X ours origin/main || { git rebase --abort; }
-            if git push origin HEAD:main; then
-              echo "Push succeeded"
-              break
-            fi
-            echo "Push failed, retrying ($i/3)..."
-            sleep 2
-          done
-
-      # -----------------------------
-      # LLM Data Builder (FEATURE-CORRECT)
-      # -----------------------------
-      - name: Build LLM_today_data.jsonl
-        run: python scripts/llm_data_builder.py
-
-      - name: Commit LLM_today_data.jsonl
+      - name: Commit daily dataset + keep + top10 output
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -184,47 +126,13 @@ jobs:
           git fetch origin main
           git rebase --autostash origin/main
 
-          git add -f data/LLM_today_data.jsonl || true
+          git add -f data/sector_map.json data/daily_scored.parquet data/daily_keep_7/keep.parquet data/top10_ml.csv || true
           if git diff --cached --quiet; then
-            echo "No new LLM data"
+            echo "No new ML output"
             exit 0
           fi
 
-          git commit -m "Add LLM_today_data.jsonl (run #${{ github.run_number }})"
-
-          for i in 1 2 3; do
-            git fetch origin main
-            git rebase --autostash -X ours origin/main || { git rebase --abort; }
-            if git push origin HEAD:main; then
-              echo "Push succeeded"
-              break
-            fi
-            echo "Push failed, retrying ($i/3)..."
-            sleep 2
-          done
-
-      # -----------------------------
-      # Brain Ranker (ScoreBot ONLY)
-      # -----------------------------
-      - name: Run Brain Ranker (ScoreBot)
-        run: python scripts/brain_ranker.py
-
-      - name: Commit Brain Ranked Outputs
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin main
-          git rebase --autostash origin/main
-
-          git add -f data/LLM_today_scores.jsonl data/brain_ranked_scores.csv || true
-          if git diff --cached --quiet; then
-            echo "No new brain outputs"
-            exit 0
-          fi
-
-          git commit -m "Add brain-ranked outputs (run #${{ github.run_number }})"
+          git commit -m "Update ML top10 output (run #${{ github.run_number }})"
 
           for i in 1 2 3; do
             git fetch origin main
@@ -305,11 +213,8 @@ jobs:
           requests
           pytz
           openai
-          joblib==1.5.2
           scikit-learn==1.6.1
           xgboost==3.1.2
-          lightgbm==4.6.0
-          catboost==1.2.8
           REQ
           cat requirements.txt
 
