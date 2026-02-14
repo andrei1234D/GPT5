@@ -35,6 +35,9 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty:
         return pd.DataFrame()
     out = df.copy()
+    # yfinance single-ticker downloads may still return MultiIndex columns
+    if isinstance(out.columns, pd.MultiIndex):
+        out.columns = [c[0] if isinstance(c, tuple) else c for c in out.columns]
     # normalize columns
     ren = {}
     for c in out.columns:
@@ -226,6 +229,20 @@ def _ensure_required_history(
         if df is not None and not df.empty:
             out[t] = df
     return out
+
+
+def _select_spy_history(
+    hist: Dict[str, pd.DataFrame], period: str, history_days: int
+) -> Tuple[str | None, pd.DataFrame]:
+    candidates = ["SPY", "^GSPC", "^SPX"]
+    for sym in candidates:
+        df = hist.get(sym)
+        if df is None or df.empty:
+            df = _force_fetch_one(sym, period, history_days)
+        ohlcv = _to_ohlcv(df)
+        if not ohlcv.empty and ohlcv["close"].notna().any():
+            return sym, df
+    return None, pd.DataFrame()
 
 def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[str]) -> pd.DataFrame:
     def get_series(t: str) -> pd.Series:
@@ -510,15 +527,17 @@ def main() -> None:
     hist_map.update(req_hist)
     hist_map.update(uni_hist)
 
-    # Fail fast if SPY is still missing (all SPY-based features will be NaN)
-    spy_raw = hist_map.get("SPY", pd.DataFrame())
-    spy_check = _to_ohlcv(spy_raw)
-    if spy_check.empty or spy_check["close"].dropna().empty:
+    # Ensure SPY history (fallback to ^GSPC/^SPX if needed)
+    spy_sym, spy_raw = _select_spy_history(hist_map, period, args.history_days)
+    if spy_sym is None or spy_raw is None or spy_raw.empty:
         cols = list(spy_raw.columns) if isinstance(spy_raw, pd.DataFrame) else []
         shape = getattr(spy_raw, "shape", None)
         raise RuntimeError(
             f"SPY history missing after retry; cannot compute SPY-based features. cols={cols} shape={shape}"
         )
+    if spy_sym != "SPY":
+        print(f"[build_daily_dataset] Using SPY proxy: {spy_sym}")
+    hist_map["SPY"] = spy_raw
 
     rows = []
     missing_universe = []
