@@ -549,13 +549,30 @@ def download_history_cached_dict(
             print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
             data = None
 
+        def _download_single(sym: str) -> pd.DataFrame:
+            try:
+                return yf.download(
+                    tickers=sym,
+                    period=period,
+                    start=start,
+                    end=end,
+                    interval=interval,
+                    auto_adjust=auto_adjust,
+                    progress=progress,
+                    group_by=group_by,
+                    threads=False,
+                )
+            except Exception as e:
+                print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
+                return pd.DataFrame()
+
         # Extract per-ticker frames from the batch result
         for orig in to_download:
             ysym = norm_map.get(orig)
             df_raw = None
             try:
                 if data is None:
-                    df_raw = pd.DataFrame()
+                    df_raw = _download_single(ysym)
                 elif isinstance(data.columns, pd.MultiIndex):
                     # try (ticker, field) orientation
                     try:
@@ -570,6 +587,10 @@ def download_history_cached_dict(
                     df_raw = data.copy()
             except Exception:
                 df_raw = pd.DataFrame()
+
+            # If batch result missing this symbol, retry single
+            if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                df_raw = _download_single(ysym)
 
             # write to cache if we have something
             try:
