@@ -1,11 +1,11 @@
 date,ticker,company,pred_score,rank
 2026-02-13,AIAD,AiAdvertising,0.09583335,1
-2026-02-13,ALUR,Allurion Technologies,-0.007473641,2
-2026-02-13,AIIO,Robo.ai,-0.09490878,3
-2026-02-13,AIHS,Senmiao Technology,-0.2614443,4
-2026-02-13,ACXP,Acurx Pharmaceuticals,-0.33245876,5
-2026-02-13,ALHAF.PA,Haffner Energy,-0.34685102,6
-2026-02-13,ARBK,Argo Blockchain,-0.48881295,7
-2026-02-13,ARBB,ARB IOT Group,-1.0087228,8
-2026-02-13,AGLXY,AGL Energy,-1.0136079,9
-2026-02-13,AAP,Advance Auto Parts,-1.0831833,10
+2026-02-13,ALUR,Allurion Technologies,0.039974585,2
+2026-02-13,AIHS,Senmiao Technology,-0.22418192,3
+2026-02-13,ACXP,Acurx Pharmaceuticals,-0.67674947,4
+2026-02-13,AIIO,Robo.ai,-0.81470704,5
+2026-02-13,ALHAF.PA,Haffner Energy,-0.90654474,6
+2026-02-13,AGLXY,AGL Energy,-1.009986,7
+2026-02-13,AAP,Advance Auto Parts,-1.0795617,8
+2026-02-13,AMGO.L,Amigo,-1.1251546,9
+2026-02-13,AFJKU,Aimei Health Technology,-1.1293955,10
