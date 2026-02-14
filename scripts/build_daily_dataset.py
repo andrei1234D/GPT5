@@ -123,6 +123,34 @@ def load_sector_map(tickers: List[str], path: str, mode: str, sleep_s: float) ->
 
     return updated
 
+
+def _load_bad_tickers(path: str) -> set[str]:
+    p = Path(path)
+    if not p.exists():
+        return set()
+    try:
+        df = pd.read_csv(p)
+        if "ticker" in df.columns:
+            return set(df["ticker"].astype(str).str.strip().str.upper().tolist())
+    except Exception:
+        pass
+    try:
+        txt = p.read_text(encoding="utf-8")
+        return set([t.strip().upper() for t in txt.splitlines() if t.strip()])
+    except Exception:
+        return set()
+
+
+def _append_bad_tickers(path: str, tickers: List[str]) -> None:
+    if not tickers:
+        return
+    p = Path(path)
+    existing = _load_bad_tickers(path)
+    new = set([t.strip().upper() for t in tickers if t and t.strip()])
+    merged = sorted(existing | new)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"ticker": merged}).to_csv(p, index=False)
+
 def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[str]) -> pd.DataFrame:
     def get_series(t: str) -> pd.Series:
         df = hist_map.get(t)
@@ -361,6 +389,7 @@ def main() -> None:
     parser.add_argument("--sector-mode", choices=["yfinance", "none"], default="yfinance")
     parser.add_argument("--sector-map", default="data/sector_map.json")
     parser.add_argument("--sector-sleep", type=float, default=0.05)
+    parser.add_argument("--bad-tickers", default="data/bad_tickers.csv")
     args = parser.parse_args()
 
     uni = pd.read_csv(args.universe)
@@ -368,6 +397,9 @@ def main() -> None:
         raise ValueError("universe file must contain 'ticker'")
     uni["ticker"] = uni["ticker"].astype(str).str.strip()
     tickers = [t for t in uni["ticker"].tolist() if t]
+    bad = _load_bad_tickers(args.bad_tickers)
+    if bad:
+        tickers = [t for t in tickers if t.upper() not in bad]
     if not tickers:
         raise ValueError("No tickers found in universe")
 
@@ -386,12 +418,16 @@ def main() -> None:
     )
 
     rows = []
+    missing_universe = []
+    minrows_bad = []
     for t in tickers:
         df = hist_map.get(t)
         if df is None or df.empty:
+            missing_universe.append(t)
             continue
         ohlcv = _to_ohlcv(df)
         if ohlcv.empty or ohlcv.shape[0] < args.min_rows:
+            minrows_bad.append(t)
             continue
         ohlcv["ticker"] = t
         rows.append(ohlcv)
@@ -436,6 +472,9 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out_path, index=False)
     print(f"Wrote {out_path} rows={len(df)} date={last_date.date()}")
+
+    # Persist bad tickers so we skip them next run
+    _append_bad_tickers(args.bad_tickers, missing_universe + minrows_bad)
 
 
 if __name__ == "__main__":
