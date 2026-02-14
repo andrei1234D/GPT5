@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-AEM – Agnico Eagle Mines
+AAP – Advance Auto Parts
 
-News: Record FY25 free cash flow; dividend hiked 12.5%; net cash ~$2.7B; 2026–2028 production outlook 3.3–3.5Moz.
+News: Q4/FY25 results and 2026 guidance signal continued turnaround; company declared a $0.25 dividend and posted >200 bps FY25 margin expansion. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
 
-Score (0–1000): 740
+Score (0–1000): "690"
 
-ADVICE: Strong Buy
+ADVICE: "Buy"
 
-Certainty: 74%
+Certainty: "64%"
 
-Forecast image URL: https://stockscan.io/stocks/AEM/forecast
+Forecast image URL: "https://stockscan.io/stocks/AAP/forecast"
 
-Verifier note: Large-cap, low-risk gold producer with net cash and liquidity, stable multi‑year guidance, and active buybacks/dividend support; near-term catalyst: potential Hope Bay construction decision in Q2’26; sources: agnicoeagle.com (Feb 12, 2026 FY25 results; Q2’25 net cash/liquidity updates).
+Verifier note: Best EV/lowest risk among list due to defensible aftermarket demand, improving comps and margins, restored profitability, dividend and 2026 guide (EPS $2.40–$3.10); risks: guidance below Street, cash outflow in 2025. Sources: ir.advanceautoparts.com (Feb 13, 2026), wsj.com, barrons.com. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
 
 ---
 **Legend**
