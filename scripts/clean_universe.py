@@ -201,7 +201,7 @@ def main() -> None:
     breakdown: Dict[str,int] = {}
     for (_t, _nm, r) in rejects_this_run:
         breakdown[r] = breakdown.get(r, 0) + 1
-
+    
     log(f"[INFO] Input rows   : {len(rows)}")
     log(f"[INFO] Kept (clean) : {len(kept)} -> {OUT_PATH}")
     log(f"[INFO] Rejected this run: {len(rejects_this_run)}")
