@@ -2,17 +2,17 @@ Daily Stock Pick — February 14, 2026
 
 AAP – Advance Auto Parts
 
-News: Q4/FY25 results and 2026 guidance signal continued turnaround; company declared a $0.25 dividend and posted >200 bps FY25 margin expansion. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
+News: 02/13 Q4/FY25 beat; 2026 guide EPS $2.40–$3.10 with 1–2% comps; dividend $0.25 declared 02/10. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
 
-Score (0–1000): "690"
+Score (0–1000): 735
 
-ADVICE: "Buy"
+ADVICE: Strong Buy
 
-Certainty: "64%"
+Certainty: 72%
 
-Forecast image URL: "https://stockscan.io/stocks/AAP/forecast"
+Forecast image URL: https://stockscan.io/stocks/AAP/forecast
 
-Verifier note: Best EV/lowest risk among list due to defensible aftermarket demand, improving comps and margins, restored profitability, dividend and 2026 guide (EPS $2.40–$3.10); risks: guidance below Street, cash outflow in 2025. Sources: ir.advanceautoparts.com (Feb 13, 2026), wsj.com, barrons.com. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
+Verifier note: Turnaround with FY25 +200bps adj. op margin, positive comps, healthy liquidity (>$3B cash in Q3’25); maintained dividend; reasonable 6‑mo EV vs microcap risks; watch execution vs below-Street 2026 guide. Sources: ir.advanceautoparts.com (Q4/FY25 release; dividend), ir.advanceautoparts.com (Q3’25 liquidity), WSJ/Barron’s (EPS beat/context). ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
 
 ---
 **Legend**

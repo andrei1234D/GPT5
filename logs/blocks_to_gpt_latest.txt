@@ -3,9 +3,9 @@ Rank,TickerName,Ticker,PipelineNews
 2,ALUR - Allurion Technologies,ALUR,N/A | Impact: 0
 3,AIIO - Robo.ai,AIIO,N/A | Impact: 0
 4,AIHS - Senmiao Technology,AIHS,N/A | Impact: 0
-5,ALHAF.PA - Haffner Energy,ALHAF.PA,N/A | Impact: 0
-6,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
-7,APLT - Applied Therapeutics,APLT,N/A | Impact: 0
-8,AGLXY - AGL Energy,AGLXY,N/A | Impact: 0
-9,ARBB - ARB IOT Group,ARBB,N/A | Impact: 0
+5,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
+6,ALHAF.PA - Haffner Energy,ALHAF.PA,N/A | Impact: 0
+7,ARBK - Argo Blockchain,ARBK,N/A | Impact: 0
+8,ARBB - ARB IOT Group,ARBB,N/A | Impact: 0
+9,AGLXY - AGL Energy,AGLXY,N/A | Impact: 0
 10,AAP - Advance Auto Parts,AAP,N/A | Impact: 0
