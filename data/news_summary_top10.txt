@@ -2,7 +2,7 @@
 - N/A
 Impact: 0
 
-### ACXP
+### ALUR
 - N/A
 Impact: 0
 
@@ -18,22 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AFJKU
+### ACXP
 - N/A
 Impact: 0
 
-### AIXA.DE
+### APLT
 - N/A
 Impact: 0
 
-### AEM
+### AGLXY
 - N/A
 Impact: 0
 
-### ADZ.MC
+### ARBB
 - N/A
 Impact: 0
 
-### AIP
+### AAP
 - N/A
 Impact: 0
