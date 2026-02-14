@@ -62,7 +62,17 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     # yfinance single-ticker downloads may still return MultiIndex columns
     if isinstance(out.columns, pd.MultiIndex):
-        out.columns = [c[0] if isinstance(c, tuple) else c for c in out.columns]
+        # handle both (field, ticker) and (ticker, field) layouts
+        levels = out.columns.nlevels
+        lvl0 = [str(c).strip().lower() for c in out.columns.get_level_values(0)]
+        lvl1 = [str(c).strip().lower() for c in out.columns.get_level_values(1)] if levels > 1 else []
+        field_names = {"open", "high", "low", "close", "adj close", "adj_close", "volume"}
+        if any(x in field_names for x in lvl0):
+            out.columns = [c[0] if isinstance(c, tuple) else c for c in out.columns]
+        elif any(x in field_names for x in lvl1):
+            out.columns = [c[1] if isinstance(c, tuple) and len(c) > 1 else c for c in out.columns]
+        else:
+            out.columns = [c[0] if isinstance(c, tuple) else c for c in out.columns]
     # normalize columns
     ren = {}
     for c in out.columns:
@@ -308,18 +318,35 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
     _warn_empty("^RUT", rut)
 
     spx_trend = slope_log(spx, 90)
-    vix_risk = (vix - vix.rolling(60).mean()) / vix.rolling(60).mean()
-    rate_shock = tnx - tnx.shift(20)
-
     spx_trend_z = rolling_z(spx_trend)
-    vix_risk_z = rolling_z(vix_risk)
-    rate_shock_z = rolling_z(rate_shock)
 
-    mri = spx_trend_z - 0.8 * vix_risk_z - 0.3 * rate_shock_z
+    idx = spx.index
+    zero = pd.Series(0.0, index=idx)
+
+    if vix is None or vix.empty or vix.dropna().empty:
+        vix_risk_z = zero
+    else:
+        vix_risk = (vix - vix.rolling(60).mean()) / vix.rolling(60).mean()
+        vix_risk_z = rolling_z(vix_risk).reindex(idx).fillna(0.0)
+
+    if tnx is None or tnx.empty or tnx.dropna().empty:
+        rate_shock_z = zero
+    else:
+        rate_shock = tnx - tnx.shift(20)
+        rate_shock_z = rolling_z(rate_shock).reindex(idx).fillna(0.0)
+
+    mri = spx_trend_z.reindex(idx).fillna(0.0) - 0.8 * vix_risk_z - 0.3 * rate_shock_z
     vci = -vix_risk_z
 
-    roro = rolling_z(slope_log(spx / rut.replace(0, np.nan), 60))
-    ycsi = rolling_z(tnx - irx)
+    if rut is None or rut.empty or rut.dropna().empty:
+        roro = zero
+    else:
+        roro = rolling_z(slope_log(spx / rut.replace(0, np.nan), 60)).reindex(idx).fillna(0.0)
+
+    if tnx is None or tnx.empty or tnx.dropna().empty or irx is None or irx.empty or irx.dropna().empty:
+        ycsi = zero
+    else:
+        ycsi = rolling_z(tnx - irx).reindex(idx).fillna(0.0)
 
     def _sti(series: pd.Series) -> pd.Series:
         if series is None or series.empty:
@@ -329,14 +356,7 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
         vol_60 = np.log(series / series.shift(1)).rolling(60).std()
         return rolling_z(mom_63) + 0.5 * rolling_z(slope_90) - 0.5 * rolling_z(vol_60)
 
-    sti_spy = _sti(spx)
-
-    idx = spx.index
-    mri = mri.reindex(idx)
-    vci = vci.reindex(idx)
-    roro = roro.reindex(idx)
-    ycsi = ycsi.reindex(idx)
-    sti_spy = sti_spy.reindex(idx)
+    sti_spy = _sti(spx).reindex(idx).fillna(0.0)
 
     features = pd.DataFrame(
         {
@@ -354,7 +374,7 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
         s = get_series(etf)
         if s.empty:
             continue
-        features[f"STI_{etf}"] = _sti(s).reindex(idx).values
+        features[f"STI_{etf}"] = _sti(s).reindex(idx).fillna(0.0).values
     return features
 
 
@@ -438,6 +458,7 @@ def add_stock_features(
         sti_long["sector_etf"] = sti_long["sti_col"].str.replace("STI_", "", regex=False)
         sti_long = sti_long.drop(columns=["sti_col"])
         df = df.merge(sti_long, on=["date", "sector_etf"], how="left", sort=False, copy=False, validate="m:1")
+        df["SectorTailwind"] = df["SectorTailwind"].fillna(df.get("STI_SPY"))
     else:
         df["SectorTailwind"] = df.get("STI_SPY")
 
