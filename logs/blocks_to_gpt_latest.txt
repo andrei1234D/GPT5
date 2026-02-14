@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,AXTI - AXT,AXTI,N/A | Impact: 0
-2,ICHR - Ichor,ICHR,N/A | Impact: 0
-3,SNDK - Sandisk,SNDK,N/A | Impact: 0
-4,ACMR - ACM Research,ACMR,N/A | Impact: 0
-5,UCTT - Ultra Clean,UCTT,N/A | Impact: 0
-6,WDC - Western Digital,WDC,N/A | Impact: 0
-7,TGB - Taseko Mines,TGB,The articles provide a bullish sentiment with a buy rating and increased target price for Taseko Mines. | Impact: +35
-8,TNZ.TO - Tenaz Energy,TNZ.TO,N/A | Impact: 0
-9,MKSI - MKS,MKSI,N/A | Impact: 0
-10,AAUC.TO - Allied Gold,AAUC.TO,N/A | Impact: 0
+1,AIAD - AiAdvertising,AIAD,N/A | Impact: 0
+2,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
+3,AIIO - Robo.ai,AIIO,N/A | Impact: 0
+4,AIHS - Senmiao Technology,AIHS,N/A | Impact: 0
+5,ALHAF.PA - Haffner Energy,ALHAF.PA,N/A | Impact: 0
+6,AFJKU - Aimei Health Technology,AFJKU,N/A | Impact: 0
+7,AIXA.DE - AIXTRON,AIXA.DE,N/A | Impact: 0
+8,AEM - Agnico Eagle Mines,AEM,N/A | Impact: 0
+9,ADZ.MC - Adolfo Dominguez,ADZ.MC,N/A | Impact: 0
+10,AIP - Arteris,AIP,N/A | Impact: 0

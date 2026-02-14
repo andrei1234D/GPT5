@@ -1,18 +1,18 @@
-Daily Stock Pick — Feb 13, 2026
+Daily Stock Pick — February 14, 2026
 
-WDC – Western Digital
+AEM – Agnico Eagle Mines
 
-News: Q2 FY26 beat with 25% Y/Y revenue growth, 46% non‑GAAP GM; Q3 guide up ~40% Y/Y as AI HDD demand surges; flash spin-off completed in 2025.
+News: Record FY25 free cash flow; dividend hiked 12.5%; net cash ~$2.7B; 2026–2028 production outlook 3.3–3.5Moz.
 
 Score (0–1000): 740
 
 ADVICE: Strong Buy
 
-Certainty: 68%
+Certainty: 74%
 
-Forecast image URL: https://stockscan.io/stocks/WDC/forecast
+Forecast image URL: https://stockscan.io/stocks/AEM/forecast
 
-Verifier note: Strong EV on AI-driven nearline HDD upcycle, robust Q2 FY26 cash flow ($653M FCF), and raised outlook; lower risk post spin-off with cash returns (buybacks/dividend). Sources: westerndigital.com (Q2 FY26 PR, Jan 29, 2026), investor.wdc.com (flash separation Feb 24, 2025), investors.com (earnings recap/analyst targets). ([westerndigital.com](https://www.westerndigital.com/en-ae/company/newsroom/press-releases/2026/2026-01-29-western-digital-reports-fiscal-second-quarter-2026-financial-results?utm_source=openai))
+Verifier note: Large-cap, low-risk gold producer with net cash and liquidity, stable multi‑year guidance, and active buybacks/dividend support; near-term catalyst: potential Hope Bay construction decision in Q2’26; sources: agnicoeagle.com (Feb 12, 2026 FY25 results; Q2’25 net cash/liquidity updates).
 
 ---
 **Legend**
