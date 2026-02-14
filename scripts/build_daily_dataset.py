@@ -159,6 +159,32 @@ def _write_short_history(path: str, tickers: List[str]) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame({"ticker": sorted(set(tickers))}).to_csv(p, index=False)
 
+
+def _force_fetch_one(ticker: str, period: str) -> pd.DataFrame:
+    try:
+        df = yf.download(
+            ticker,
+            period=period,
+            interval="1d",
+            auto_adjust=False,
+            progress=False,
+        )
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+def _ensure_required_history(hist: Dict[str, pd.DataFrame], required: List[str], period: str) -> Dict[str, pd.DataFrame]:
+    out = dict(hist)
+    for t in required:
+        df = out.get(t)
+        if df is not None and not df.empty:
+            continue
+        df = _force_fetch_one(t, period)
+        if df is not None and not df.empty:
+            out[t] = df
+    return out
+
 def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[str]) -> pd.DataFrame:
     def get_series(t: str) -> pd.Series:
         df = hist_map.get(t)
@@ -425,6 +451,7 @@ def main() -> None:
         group_by="ticker",
         threads=True,
     )
+    req_hist = _ensure_required_history(req_hist, required, period)
 
     # Fetch universe tickers separately to avoid large-batch poisoning
     uni_hist = download_history_cached_dict(
@@ -440,6 +467,11 @@ def main() -> None:
     hist_map = {}
     hist_map.update(req_hist)
     hist_map.update(uni_hist)
+
+    # Fail fast if SPY is still missing (all SPY-based features will be NaN)
+    spy_check = _to_ohlcv(hist_map.get("SPY", pd.DataFrame()))
+    if spy_check.empty or spy_check["close"].dropna().empty:
+        raise RuntimeError("SPY history missing after retry; cannot compute SPY-based features.")
 
     rows = []
     missing_universe = []
