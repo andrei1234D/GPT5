@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-AAP – Advance Auto Parts, Inc.
+PGTK – Pacific Green Technologies Inc.
 
-News: Q4’25 beat (adj. EPS $0.86) and 2026 guidance (adj. EPS $2.40–$3.10; comps +1–2%; margin 3.8–4.5%) signal ongoing turnaround with healthier liquidity.
+News: Sold Limestone Coast North 250MW/500MWh BESS project to Intera for ~A$33M cash; expanding BESS pipeline incl. Poland; note recent restatements/material weaknesses. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1553404/000121390025056287/ea0243690-10k_pacific.htm))
 
-Score (0–1000): 720
+Score (0–1000): 635
 
-ADVICE: Strong Buy
+ADVICE: Buy
 
-Certainty: 64%
+Certainty: 56%
 
-Forecast image URL: https://stockscan.io/stocks/AAP/forecast
+Forecast image URL: https://stockscan.io/stocks/PGTK/forecast
 
-Verifier note: Positive EV from margin expansion, comps turning positive, and disciplined restructuring; large-cap, low dilution risk vs microcap peers; watch FCF recovery. Sources: ir.advanceautoparts.com (02/13/2026 Q4/FY25 release), wsj.com (02/13/2026 recap), barrons.com (02/14/2026 coverage).
+Verifier note: Positive near-term EV from realized cash inflow and de-risked asset-sale model vs. peers’ binary biotech risks; balance with OTC/liquidity and ICFR weaknesses flagged in FY2024 10-K. Sources: sec.gov (PGTK 10-K incl. Intera sale, restatement details).
 
 ---
 **Legend**

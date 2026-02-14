@@ -1,11 +1,11 @@
 date,ticker,company,pred_score,rank
 2026-02-13,TMPOQ,Tempo Automation,2.037577,1
-2026-02-13,GFASY,Gafisa,0.99883604,2
-2026-02-13,DSY,Big Tree Cloud Holdings,0.7837306,3
-2026-02-13,ZYBT,Zhengye Biotechnology,0.7305131,4
-2026-02-13,CANF,Can-Fite BioPharma,0.6096784,5
-2026-02-13,SRNE,Sorrento Therapeutics,0.5834599,6
-2026-02-13,BIAF,bioAffinity Technologies,0.58307207,7
-2026-02-13,MBRX,Moleculin Biotech,0.533306,8
-2026-02-13,ACXP,Acurx Pharmaceuticals,0.5173946,9
-2026-02-13,CYRNQ,CYREN,0.51415414,10
+2026-02-13,GFASY,Gafisa,1.0042496,2
+2026-02-13,DSY,Big Tree Cloud Holdings,0.825168,3
+2026-02-13,ZYBT,Zhengye Biotechnology,0.7077192,4
+2026-02-13,CANF,Can-Fite BioPharma,0.6361058,5
+2026-02-13,BIAF,bioAffinity Technologies,0.5896193,6
+2026-02-13,SRNE,Sorrento Therapeutics,0.5529586,7
+2026-02-13,ACXP,Acurx Pharmaceuticals,0.5173946,8
+2026-02-13,PGTK,Pacific Green Technologies,0.48591384,9
+2026-02-13,TTOO,T2 Biosystems,0.4822574,10
