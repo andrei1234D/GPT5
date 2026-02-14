@@ -412,12 +412,12 @@ def main() -> None:
     if not tickers:
         raise ValueError("No tickers found in universe")
 
-    extra = INDEX_TICKERS + (SECTOR_ETFS if args.include_sectors else [])
-    all_tickers = sorted(set(tickers) | set(extra))
-
+    required = INDEX_TICKERS + (SECTOR_ETFS if args.include_sectors else [])
     period = f"{int(args.history_days)}d"
-    hist_map = download_history_cached_dict(
-        all_tickers,
+
+    # Fetch required tickers (SPY + indices + sector ETFs) in a small batch first
+    req_hist = download_history_cached_dict(
+        sorted(set(required)),
         period=period,
         interval="1d",
         auto_adjust=False,
@@ -425,6 +425,21 @@ def main() -> None:
         group_by="ticker",
         threads=True,
     )
+
+    # Fetch universe tickers separately to avoid large-batch poisoning
+    uni_hist = download_history_cached_dict(
+        tickers,
+        period=period,
+        interval="1d",
+        auto_adjust=False,
+        progress=False,
+        group_by="ticker",
+        threads=True,
+    )
+
+    hist_map = {}
+    hist_map.update(req_hist)
+    hist_map.update(uni_hist)
 
     rows = []
     missing_universe = []
