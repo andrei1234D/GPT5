@@ -1,0 +1,11 @@
+date,ticker,company,pred_score,rank
+2026-02-13,AIAD,AiAdvertising,-0.013188401,1
+2026-02-13,ACXP,Acurx Pharmaceuticals,-0.16110596,2
+2026-02-13,AIIO,Robo.ai,-0.22915217,3
+2026-02-13,AIHS,Senmiao Technology,-0.4114457,4
+2026-02-13,ALHAF.PA,Haffner Energy,-0.42101085,5
+2026-02-13,AFJKU,Aimei Health Technology,-1.1347204,6
+2026-02-13,AIXA.DE,AIXTRON,-1.2563812,7
+2026-02-13,AEM,Agnico Eagle Mines,-1.2873675,8
+2026-02-13,ADZ.MC,Adolfo Dominguez,-1.3128638,9
+2026-02-13,AIP,Arteris,-1.3267672,10
