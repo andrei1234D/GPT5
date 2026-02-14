@@ -14,23 +14,23 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ALHAF.PA
-- N/A
-Impact: 0
-
 ### ACXP
 - N/A
 Impact: 0
 
-### APLT
+### ALHAF.PA
 - N/A
 Impact: 0
 
-### AGLXY
+### ARBK
 - N/A
 Impact: 0
 
 ### ARBB
+- N/A
+Impact: 0
+
+### AGLXY
 - N/A
 Impact: 0
 
