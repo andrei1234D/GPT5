@@ -390,6 +390,7 @@ def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
     except Exception:
         extra_aliases = {}
     alias_updates: Dict[str, str] = {}
+    alias_updates: Dict[str, str] = {}
 
     cache = _load_cache(_PE_CACHE_PATH)
     logger.debug("[pe] cache_path=%s", os.path.abspath(_PE_CACHE_PATH))
