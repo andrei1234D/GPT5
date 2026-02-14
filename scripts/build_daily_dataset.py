@@ -168,6 +168,18 @@ def _force_fetch_one(ticker: str, period: str) -> pd.DataFrame:
             interval="1d",
             auto_adjust=False,
             progress=False,
+            group_by="column",
+            threads=False,
+        )
+        if df is not None and not df.empty:
+            return df
+    except Exception:
+        pass
+    try:
+        df = yf.Ticker(ticker).history(
+            period=period,
+            interval="1d",
+            auto_adjust=False,
         )
         return df
     except Exception:
@@ -471,7 +483,11 @@ def main() -> None:
     # Fail fast if SPY is still missing (all SPY-based features will be NaN)
     spy_check = _to_ohlcv(hist_map.get("SPY", pd.DataFrame()))
     if spy_check.empty or spy_check["close"].dropna().empty:
-        raise RuntimeError("SPY history missing after retry; cannot compute SPY-based features.")
+        df_raw = hist_map.get("SPY")
+        cols = list(df_raw.columns) if isinstance(df_raw, pd.DataFrame) else []
+        raise RuntimeError(
+            f"SPY history missing after retry; cannot compute SPY-based features. cols={cols}"
+        )
 
     rows = []
     missing_universe = []
