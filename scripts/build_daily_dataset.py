@@ -475,6 +475,9 @@ def main() -> None:
         df = df[df["close"].notna()].copy()
     df = df.sort_values(["ticker", "date"]).groupby("ticker", as_index=False).tail(1)
     df = df.sort_values("ticker").reset_index(drop=True)
+    if df.empty:
+        raise RuntimeError("No usable rows after feature computation.")
+    last_date = pd.to_datetime(df["date"]).max()
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
