@@ -142,6 +142,13 @@ def download_history_cached_dict(
             if not base:
                 return pd.DataFrame()
             cur_suf = sym.split(".", 1)[1] if "." in sym else None
+            if cur_suf:
+                df_try = _download_single(base)
+                df_try = _drop_all_nan_rows(df_try)
+                if df_try is not None and not df_try.empty:
+                    print(f"[data_fetcher] resolved {sym} -> {base}")
+                    alias_updates[orig_sym] = base
+                    return df_try
             for suf in sorted(_YH_SUFFIXES):
                 if cur_suf and suf == cur_suf:
                     continue

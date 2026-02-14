@@ -322,7 +322,13 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
             s = norm.set_index("date")["adj_close"]
         else:
             s = norm.set_index("date")["close"]
-        return pd.to_numeric(s, errors="coerce")
+        s = pd.to_numeric(s, errors="coerce")
+        try:
+            if hasattr(s.index, "tz") and s.index.tz is not None:
+                s.index = s.index.tz_localize(None)
+        except Exception:
+            pass
+        return s
 
     spx = get_series("SPY")
     vix = get_series("^VIX")
