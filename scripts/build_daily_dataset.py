@@ -476,6 +476,15 @@ def main() -> None:
     # Persist bad tickers so we skip them next run
     _append_bad_tickers(args.bad_tickers, missing_universe + minrows_bad)
 
+    # Debug: per-feature missingness snapshot
+    try:
+        miss = df.isna().mean().sort_values(ascending=False)
+        miss_path = out_path.with_suffix(".missing.csv")
+        miss.to_csv(miss_path, header=["nan_frac"])
+        print(f"Wrote {miss_path}")
+    except Exception as e:
+        print(f"[WARN] Failed to write missingness report: {e}")
+
 
 if __name__ == "__main__":
     main()

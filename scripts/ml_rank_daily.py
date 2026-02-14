@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.impute import SimpleImputer
 
 
 FEATURES = [
@@ -81,13 +80,25 @@ def main() -> None:
         raise SystemExit("No rows after keep filter.")
 
     X = df.copy()
-    for c in FEATURES:
-        if c not in X.columns:
+    missing_cols = [c for c in FEATURES if c not in X.columns]
+    if missing_cols:
+        for c in missing_cols:
             X[c] = 0.0
-    X = X[FEATURES]
+        print(f"[ml_rank_daily] Missing feature columns filled with 0: {missing_cols}")
 
-    imputer = SimpleImputer(strategy="median")
-    X_imp = imputer.fit_transform(X)
+    X = X[FEATURES].copy()
+
+    all_nan = [c for c in FEATURES if X[c].isna().all()]
+    if all_nan:
+        for c in all_nan:
+            X[c] = 0.0
+        print(f"[ml_rank_daily] All-NaN feature columns filled with 0: {all_nan}")
+
+    # Fill remaining NaNs with per-column median (robust, no feature drop)
+    medians = X.median(numeric_only=True)
+    X = X.fillna(medians)
+    X = X.fillna(0.0)
+    X_imp = X.to_numpy()
 
     model_pair = load_xgb_model(Path(args.model))
     pred = predict_xgb(model_pair, X_imp)

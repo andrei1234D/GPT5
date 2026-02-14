@@ -127,7 +127,7 @@ jobs:
           git fetch origin main
           git rebase --autostash origin/main
 
-          git add -f data/sector_map.json data/bad_tickers.csv data/daily_scored.parquet data/daily_keep_7/keep.parquet data/top10_ml.csv || true
+          git add -f data/sector_map.json data/bad_tickers.csv data/daily_scored.parquet data/daily_scored.missing.csv data/daily_keep_7/keep.parquet data/top10_ml.csv || true
           if git diff --cached --quiet; then
             echo "No new ML output"
             exit 0
