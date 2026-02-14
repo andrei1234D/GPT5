@@ -1,12 +1,32 @@
-### AIAD
+### TMPOQ
 - N/A
 Impact: 0
 
-### ALUR
+### GFASY
 - N/A
 Impact: 0
 
-### AIHS
+### DSY
+- N/A
+Impact: 0
+
+### ZYBT
+- N/A
+Impact: 0
+
+### CANF
+- N/A
+Impact: 0
+
+### SRNE
+- N/A
+Impact: 0
+
+### BIAF
+- N/A
+Impact: 0
+
+### MBRX
 - N/A
 Impact: 0
 
@@ -14,26 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AIIO
-- N/A
-Impact: 0
-
-### ALHAF.PA
-- N/A
-Impact: 0
-
-### AGLXY
-- N/A
-Impact: 0
-
-### AAP
-- N/A
-Impact: 0
-
-### AMGO.L
-- N/A
-Impact: 0
-
-### AFJKU
+### CYRNQ
 - N/A
 Impact: 0
