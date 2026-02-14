@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,AIAD - AiAdvertising,AIAD,N/A | Impact: 0
-2,ALUR - Allurion Technologies,ALUR,N/A | Impact: 0
-3,AIIO - Robo.ai,AIIO,N/A | Impact: 0
-4,AIHS - Senmiao Technology,AIHS,N/A | Impact: 0
-5,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
-6,ALHAF.PA - Haffner Energy,ALHAF.PA,N/A | Impact: 0
-7,ARBK - Argo Blockchain,ARBK,N/A | Impact: 0
-8,ARBB - ARB IOT Group,ARBB,N/A | Impact: 0
-9,AGLXY - AGL Energy,AGLXY,N/A | Impact: 0
-10,AAP - Advance Auto Parts,AAP,N/A | Impact: 0
+1,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
+2,GFASY - Gafisa,GFASY,N/A | Impact: 0
+3,DSY - Big Tree Cloud Holdings,DSY,N/A | Impact: 0
+4,ZYBT - Zhengye Biotechnology,ZYBT,N/A | Impact: 0
+5,CANF - Can-Fite BioPharma,CANF,N/A | Impact: 0
+6,SRNE - Sorrento Therapeutics,SRNE,N/A | Impact: 0
+7,BIAF - bioAffinity Technologies,BIAF,N/A | Impact: 0
+8,MBRX - Moleculin Biotech,MBRX,N/A | Impact: 0
+9,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
+10,CYRNQ - CYREN,CYRNQ,N/A | Impact: 0

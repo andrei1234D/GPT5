@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-AAP – Advance Auto Parts, Inc.
+BIAF – bioAffinity Technologies, Inc.
 
-News: Q4’25 beat (adj. EPS $0.86) and 2026 guidance (adj. EPS $2.40–$3.10; comps +1–2%; margin 3.8–4.5%) signal ongoing turnaround with healthier liquidity.
+News: Record 2024 revenue and Medicare reimbursement support CyPath Lung ramp; raised capital in 2025 to extend runway.
 
-Score (0–1000): 720
+Score (0–1000): 640
 
-ADVICE: Strong Buy
+ADVICE: Buy
 
-Certainty: 64%
+Certainty: 58%
 
-Forecast image URL: https://stockscan.io/stocks/AAP/forecast
+Forecast image URL: https://stockscan.io/stocks/BIAF/forecast
 
-Verifier note: Positive EV from margin expansion, comps turning positive, and disciplined restructuring; large-cap, low dilution risk vs microcap peers; watch FCF recovery. Sources: ir.advanceautoparts.com (02/13/2026 Q4/FY25 release), wsj.com (02/13/2026 recap), barrons.com (02/14/2026 coverage).
+Verifier note: Choosing BIAF as least-risk among microcaps: real 2024 revenue growth with Medicare reimbursement tailwind, albeit with dilution/low-cash risks; preferable to ACXP (going-concern/dilution) and DSY (Nasdaq deficiency). Sources: bioaffinitytech.com (2024 results, reimbursement), ir.bioaffinitytech.com (Q2’25 cash and May’25 raise), acurxpharma.com (financing/Phase 3 planning), ir.bigtreeclouds.com & stocktitan.net (Nasdaq deficiency). ([bioaffinitytech.com](https://bioaffinitytech.com/bioaffinity-technologies-reports-record-9-4-million-revenue-for-2024/?utm_source=openai))
 
 ---
 **Legend**
