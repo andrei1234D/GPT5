@@ -11,10 +11,11 @@ import pandas as pd
 
 # Optional alias helpers. If you don't have these files, we no-op.
 try:
-    from aliases import apply_alias, load_aliases_csv
+    from aliases import apply_alias, load_aliases_csv, save_aliases_csv
 except Exception:
     def apply_alias(t: str, extra: Dict[str,str]|None=None) -> str: return t
     def load_aliases_csv(path: str) -> Dict[str,str]: return {}
+    def save_aliases_csv(path: str, mapping: Dict[str,str]) -> None: return None
 
 # ---------- logging ----------
 def _maybe_configure_logging():
@@ -388,6 +389,7 @@ def fetch_pe_for_top(tickers: List[str]) -> Dict[str, Optional[float]]:
         extra_aliases = load_aliases_csv("data/aliases.csv")
     except Exception:
         extra_aliases = {}
+    alias_updates: Dict[str, str] = {}
 
     cache = _load_cache(_PE_CACHE_PATH)
     logger.debug("[pe] cache_path=%s", os.path.abspath(_PE_CACHE_PATH))
@@ -562,6 +564,24 @@ def download_history_cached_dict(
                 print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
                 return pd.DataFrame()
 
+        def _try_suffixes(orig_sym: str, sym: str) -> pd.DataFrame:
+            # Try common Yahoo suffixes. If sym already has a suffix, strip it first.
+            base = sym.split(".", 1)[0] if "." in sym else sym
+            if not base:
+                return pd.DataFrame()
+            cur_suf = sym.split(".", 1)[1] if "." in sym else None
+            for suf in sorted(_YH_SUFFIXES):
+                if cur_suf and suf == cur_suf:
+                    continue
+                trial = f"{base}.{suf}"
+                df_try = _download_single(trial)
+                df_try = _drop_all_nan_rows(df_try)
+                if df_try is not None and not df_try.empty:
+                    print(f"[data_fetcher] resolved {sym} -> {trial}")
+                    alias_updates[orig_sym] = trial
+                    return df_try
+            return pd.DataFrame()
+
         def _chunks(lst: List[str], n: int) -> List[List[str]]:
             if n <= 0:
                 return [lst]
@@ -628,6 +648,9 @@ def download_history_cached_dict(
                 df_raw = _drop_all_nan_rows(df_raw)
                 if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
                     df_raw = _download_single(ysym)
+                # If still empty, try common suffixes
+                if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                    df_raw = _try_suffixes(orig, ysym)
                     df_raw = _drop_all_nan_rows(df_raw)
 
             # write to cache if we have something
@@ -638,6 +661,12 @@ def download_history_cached_dict(
                 pass
             out[orig] = df_raw
 
+    if alias_updates:
+        try:
+            save_aliases_csv("data/aliases.csv", alias_updates)
+            logger.info("[data_fetcher] saved %d alias updates to data/aliases.csv", len(alias_updates))
+        except Exception:
+            pass
     return out
 
 # simple CLIs

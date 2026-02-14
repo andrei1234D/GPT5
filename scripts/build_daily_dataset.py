@@ -272,6 +272,31 @@ def _ensure_required_history(
     return out
 
 
+def _fetch_index_direct(ticker: str, period: str, history_days: int) -> pd.DataFrame:
+    end = pd.Timestamp.today().normalize()
+    start = end - pd.Timedelta(days=int(history_days))
+    try:
+        df = yf.Ticker(ticker).history(
+            period=period,
+            interval="1d",
+            auto_adjust=False,
+        )
+        if df is not None and not df.empty:
+            return df
+    except Exception:
+        pass
+    try:
+        df = yf.Ticker(ticker).history(
+            start=start.strftime("%Y-%m-%d"),
+            end=end.strftime("%Y-%m-%d"),
+            interval="1d",
+            auto_adjust=False,
+        )
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
 def _select_spy_history(
     hist: Dict[str, pd.DataFrame], period: str, history_days: int
 ) -> Tuple[str | None, pd.DataFrame]:
@@ -599,6 +624,13 @@ def main() -> None:
     hist_map = {}
     hist_map.update(req_hist)
     hist_map.update(uni_hist)
+
+    # Direct fetch for macro indices (avoid batch/cached failures on GH)
+    for idx_sym in ["^VIX", "^TNX", "^IRX", "^RUT"]:
+        df_idx = _fetch_index_direct(idx_sym, period, args.history_days)
+        if df_idx is not None and not df_idx.empty:
+            hist_map[idx_sym] = df_idx
+            print(f"[build_daily_dataset] direct index fetch ok: {idx_sym} rows={len(df_idx)}")
 
     # Ensure SPY history (fallback to ^GSPC/^SPX if needed)
     spy_sym, spy_raw = _select_spy_history(hist_map, period, args.history_days)
