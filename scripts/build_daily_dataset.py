@@ -151,6 +151,14 @@ def _append_bad_tickers(path: str, tickers: List[str]) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame({"ticker": merged}).to_csv(p, index=False)
 
+
+def _write_short_history(path: str, tickers: List[str]) -> None:
+    if not tickers:
+        return
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"ticker": sorted(set(tickers))}).to_csv(p, index=False)
+
 def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[str]) -> pd.DataFrame:
     def get_series(t: str) -> pd.Series:
         df = hist_map.get(t)
@@ -390,6 +398,7 @@ def main() -> None:
     parser.add_argument("--sector-map", default="data/sector_map.json")
     parser.add_argument("--sector-sleep", type=float, default=0.05)
     parser.add_argument("--bad-tickers", default="data/bad_tickers.csv")
+    parser.add_argument("--short-history-out", default="data/short_history.csv")
     args = parser.parse_args()
 
     uni = pd.read_csv(args.universe)
@@ -470,10 +479,20 @@ def main() -> None:
     name_map = dict(zip(uni["ticker"], uni.get("company", "")))
     df["company"] = df["ticker"].map(name_map)
 
-    # Keep latest valid row per ticker (avoid union-calendar NaNs)
+    # Align to a single as-of date (cross-sectional features need same date)
+    asof_date = None
+    try:
+        if "date" in spy_df.columns:
+            asof_date = pd.to_datetime(spy_df["date"]).max()
+    except Exception:
+        asof_date = None
+    if asof_date is None and "date" in df.columns:
+        asof_date = pd.to_datetime(df["date"]).max()
+
+    if asof_date is not None:
+        df = df[pd.to_datetime(df["date"]) == asof_date].copy()
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
-    df = df.sort_values(["ticker", "date"]).groupby("ticker", as_index=False).tail(1)
     df = df.sort_values("ticker").reset_index(drop=True)
     if df.empty:
         raise RuntimeError("No usable rows after feature computation.")
@@ -485,7 +504,9 @@ def main() -> None:
     print(f"Wrote {out_path} rows={len(df)} date={last_date.date()}")
 
     # Persist bad tickers so we skip them next run
-    _append_bad_tickers(args.bad_tickers, missing_universe + minrows_bad)
+    # Only hard failures go to bad_tickers; short history is tracked separately
+    _append_bad_tickers(args.bad_tickers, missing_universe)
+    _write_short_history(args.short_history_out, minrows_bad)
 
     # Debug: per-feature missingness snapshot
     try:
