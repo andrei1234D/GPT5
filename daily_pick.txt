@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-AAP – Advance Auto Parts
+AAP – Advance Auto Parts, Inc.
 
-News: 02/13 Q4/FY25 beat; 2026 guide EPS $2.40–$3.10 with 1–2% comps; dividend $0.25 declared 02/10. ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
+News: Q4’25 beat (adj. EPS $0.86) and 2026 guidance (adj. EPS $2.40–$3.10; comps +1–2%; margin 3.8–4.5%) signal ongoing turnaround with healthier liquidity.
 
-Score (0–1000): 735
+Score (0–1000): 720
 
 ADVICE: Strong Buy
 
-Certainty: 72%
+Certainty: 64%
 
 Forecast image URL: https://stockscan.io/stocks/AAP/forecast
 
-Verifier note: Turnaround with FY25 +200bps adj. op margin, positive comps, healthy liquidity (>$3B cash in Q3’25); maintained dividend; reasonable 6‑mo EV vs microcap risks; watch execution vs below-Street 2026 guide. Sources: ir.advanceautoparts.com (Q4/FY25 release; dividend), ir.advanceautoparts.com (Q3’25 liquidity), WSJ/Barron’s (EPS beat/context). ([ir.advanceautoparts.com](https://ir.advanceautoparts.com/investors/news-and-events/press-releases/press-release-details/2026/Advance-Auto-Parts-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Releases-Full-Year-2026-Guidance-Highlighting-Continued-Progress-on-Strategic-Plan/default.aspx?utm_source=openai))
+Verifier note: Positive EV from margin expansion, comps turning positive, and disciplined restructuring; large-cap, low dilution risk vs microcap peers; watch FCF recovery. Sources: ir.advanceautoparts.com (02/13/2026 Q4/FY25 release), wsj.com (02/13/2026 recap), barrons.com (02/14/2026 coverage).
 
 ---
 **Legend**
