@@ -291,9 +291,16 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
 
     sti_spy = _sti(spx)
 
+    idx = spx.index
+    mri = mri.reindex(idx)
+    vci = vci.reindex(idx)
+    roro = roro.reindex(idx)
+    ycsi = ycsi.reindex(idx)
+    sti_spy = sti_spy.reindex(idx)
+
     features = pd.DataFrame(
         {
-            "date": spx.index,
+            "date": idx,
             "MRI": mri,
             "VCI": vci,
             "RORO": roro,
@@ -307,7 +314,7 @@ def build_index_features(hist_map: Dict[str, pd.DataFrame], sector_etfs: List[st
         s = get_series(etf)
         if s.empty:
             continue
-        features[f"STI_{etf}"] = _sti(s).values
+        features[f"STI_{etf}"] = _sti(s).reindex(idx).values
     return features
 
 
