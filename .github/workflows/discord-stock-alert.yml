@@ -1,5 +1,5 @@
 name: Daily GPT-5 Stock Alert to Discord
-
+#"safe"
 on:
   schedule:
     - cron: '0 4 * * 1-5' # 04:00 UTC daily
