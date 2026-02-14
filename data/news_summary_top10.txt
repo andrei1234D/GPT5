@@ -18,11 +18,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### BIAF
+### SRNE
 - N/A
 Impact: 0
 
-### SRNE
+### BIAF
 - N/A
 Impact: 0
 
@@ -34,6 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TTOO
+### HVTA.L
 - N/A
 Impact: 0
