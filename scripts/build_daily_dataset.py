@@ -426,9 +426,16 @@ def main() -> None:
             missing_universe.append(t)
             continue
         ohlcv = _to_ohlcv(df)
+        if not ohlcv.empty:
+            ohlcv = ohlcv.dropna(how="all")
         if ohlcv.empty or ohlcv.shape[0] < args.min_rows:
             minrows_bad.append(t)
             continue
+        if "close" in ohlcv.columns:
+            valid_close = ohlcv["close"].notna().sum()
+            if valid_close < args.min_rows:
+                minrows_bad.append(t)
+                continue
         ohlcv["ticker"] = t
         rows.append(ohlcv)
 
@@ -463,9 +470,10 @@ def main() -> None:
     name_map = dict(zip(uni["ticker"], uni.get("company", "")))
     df["company"] = df["ticker"].map(name_map)
 
-    # Keep only latest date across tickers
-    last_date = df["date"].max()
-    df = df[df["date"] == last_date].copy()
+    # Keep latest valid row per ticker (avoid union-calendar NaNs)
+    if "close" in df.columns:
+        df = df[df["close"].notna()].copy()
+    df = df.sort_values(["ticker", "date"]).groupby("ticker", as_index=False).tail(1)
     df = df.sort_values("ticker").reset_index(drop=True)
 
     out_path = Path(args.out)

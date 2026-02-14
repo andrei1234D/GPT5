@@ -479,6 +479,9 @@ def fetch_valuations_for_top(tickers: List[str]) -> Dict[str, Dict[str, Optional
 # ---------- Cached history downloader (batch-aware) ----------
 YF_HISTORY_CACHE_DIR = os.getenv("YF_HISTORY_CACHE_DIR", "data/yf_history_cache")
 YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
+# Large Yahoo batch requests are unreliable; chunk or disable batching.
+YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", "200"))
+YF_DISABLE_BATCH = os.getenv("YF_DISABLE_BATCH", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
 
 
 def _cache_path_for(ticker: str, period: Optional[str], start: Optional[str], end: Optional[str], interval: str) -> Path:
@@ -529,26 +532,17 @@ def download_history_cached_dict(
                 pass
         to_download.append(t)
 
-    if to_download:
-        # Build list of normalized symbols to request in one batch
-        syms = [norm_map[t] for t in to_download]
+    def _drop_all_nan_rows(df: pd.DataFrame | None) -> pd.DataFrame | None:
+        if df is None:
+            return df
         try:
-            print(f"[data_fetcher] yf.download batch for {len(syms)} symbols")
-            data = yf.download(
-                tickers=" ".join(syms),
-                period=period,
-                start=start,
-                end=end,
-                interval=interval,
-                auto_adjust=auto_adjust,
-                progress=progress,
-                group_by=group_by,
-                threads=threads,
-            )
-        except Exception as e:
-            print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
-            data = None
+            if df.empty:
+                return df
+            return df.dropna(how="all")
+        except Exception:
+            return df
 
+    if to_download:
         def _download_single(sym: str) -> pd.DataFrame:
             try:
                 return yf.download(
@@ -566,38 +560,80 @@ def download_history_cached_dict(
                 print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
                 return pd.DataFrame()
 
-        # Extract per-ticker frames from the batch result
-        for orig in to_download:
-            ysym = norm_map.get(orig)
-            df_raw = None
-            try:
-                if data is None:
-                    df_raw = _download_single(ysym)
-                elif isinstance(data.columns, pd.MultiIndex):
-                    # try (ticker, field) orientation
-                    try:
-                        df_raw = data.xs(ysym, axis=1, level=0, drop_level=True)
-                    except Exception:
-                        try:
-                            df_raw = data[ysym]
-                        except Exception:
-                            df_raw = pd.DataFrame()
-                else:
-                    # single-ticker or single-frame
-                    df_raw = data.copy()
-            except Exception:
-                df_raw = pd.DataFrame()
+        def _chunks(lst: List[str], n: int) -> List[List[str]]:
+            if n <= 0:
+                return [lst]
+            return [lst[i : i + n] for i in range(0, len(lst), n)]
 
-            # If batch result missing this symbol, retry single
-            if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+        if YF_DISABLE_BATCH or YF_BATCH_SIZE <= 1:
+            for orig in to_download:
+                ysym = norm_map.get(orig)
                 df_raw = _download_single(ysym)
+                df_raw = _drop_all_nan_rows(df_raw)
+                try:
+                    pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+                except Exception:
+                    pass
+                out[orig] = df_raw
+            return out
 
-            # write to cache if we have something
+        # Chunked batch downloads to avoid Yahoo batch instability
+        for chunk in _chunks(to_download, YF_BATCH_SIZE):
+            syms = [norm_map[t] for t in chunk]
             try:
-                pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
-            except Exception:
-                pass
-            out[orig] = df_raw
+                print(f"[data_fetcher] yf.download batch for {len(syms)} symbols")
+                data = yf.download(
+                    tickers=" ".join(syms),
+                    period=period,
+                    start=start,
+                    end=end,
+                    interval=interval,
+                    auto_adjust=auto_adjust,
+                    progress=progress,
+                    group_by=group_by,
+                    threads=threads,
+                )
+            except Exception as e:
+                print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
+                data = None
+
+            # Extract per-ticker frames from the batch result
+            for orig in chunk:
+                ysym = norm_map.get(orig)
+                df_raw = None
+                try:
+                    if data is None:
+                        df_raw = _download_single(ysym)
+                    elif isinstance(data.columns, pd.MultiIndex):
+                        # try (ticker, field) orientation
+                        try:
+                            df_raw = data.xs(ysym, axis=1, level=0, drop_level=True)
+                        except Exception:
+                            try:
+                                df_raw = data[ysym]
+                            except Exception:
+                                df_raw = pd.DataFrame()
+                    else:
+                        # single-ticker or single-frame
+                        df_raw = data.copy()
+                except Exception:
+                    df_raw = pd.DataFrame()
+
+                # If batch result missing this symbol, retry single
+                if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                    df_raw = _download_single(ysym)
+                # If batch result is all-NaN rows (common in large batches), drop and retry single
+                df_raw = _drop_all_nan_rows(df_raw)
+                if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                    df_raw = _download_single(ysym)
+                    df_raw = _drop_all_nan_rows(df_raw)
+
+                # write to cache if we have something
+                try:
+                    pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+                except Exception:
+                    pass
+                out[orig] = df_raw
 
     return out
 
