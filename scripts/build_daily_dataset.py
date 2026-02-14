@@ -56,7 +56,17 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     keep = [c for c in ["open", "high", "low", "close", "adj_close", "volume"] if c in out.columns]
     out = out[keep].copy()
     out.index = pd.to_datetime(out.index)
-    return out.reset_index().rename(columns={"index": "date"})
+    out = out.reset_index()
+    if "date" not in out.columns:
+        if "Date" in out.columns:
+            out = out.rename(columns={"Date": "date"})
+        elif "index" in out.columns:
+            out = out.rename(columns={"index": "date"})
+        else:
+            # fallback: assume first column is the date-like index
+            first = out.columns[0]
+            out = out.rename(columns={first: "date"})
+    return out
 
 
 def rolling_z(s: pd.Series, window: int = 252) -> pd.Series:
