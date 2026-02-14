@@ -6,10 +6,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### AIIO
-- N/A
-Impact: 0
-
 ### AIHS
 - N/A
 Impact: 0
@@ -18,15 +14,11 @@ Impact: 0
 - N/A
 Impact: 0
 
+### AIIO
+- N/A
+Impact: 0
+
 ### ALHAF.PA
-- N/A
-Impact: 0
-
-### ARBK
-- N/A
-Impact: 0
-
-### ARBB
 - N/A
 Impact: 0
 
@@ -35,5 +27,13 @@ Impact: 0
 Impact: 0
 
 ### AAP
+- N/A
+Impact: 0
+
+### AMGO.L
+- N/A
+Impact: 0
+
+### AFJKU
 - N/A
 Impact: 0
