@@ -526,8 +526,10 @@ def download_history_cached_dict(
         if p.exists() and (time.time() - p.stat().st_mtime) <= YF_HISTORY_CACHE_TTL_S:
             try:
                 df = pd.read_pickle(p)
-                out[t] = df
-                continue
+                # Skip empty cache entries (force re-download)
+                if isinstance(df, pd.DataFrame) and not df.empty:
+                    out[t] = df
+                    continue
             except Exception:
                 pass
         to_download.append(t)
@@ -628,12 +630,13 @@ def download_history_cached_dict(
                     df_raw = _download_single(ysym)
                     df_raw = _drop_all_nan_rows(df_raw)
 
-                # write to cache if we have something
-                try:
+            # write to cache if we have something
+            try:
+                if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
                     pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
-                except Exception:
-                    pass
-                out[orig] = df_raw
+            except Exception:
+                pass
+            out[orig] = df_raw
 
     return out
 
