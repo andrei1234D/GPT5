@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo (with LFS)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
@@ -284,7 +284,7 @@ jobs:
     needs: prepare-data
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
