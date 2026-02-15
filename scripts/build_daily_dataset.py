@@ -185,6 +185,25 @@ def _load_bad_tickers(path: str) -> set[str]:
         return set()
 
 
+def _load_aliases(path: str) -> dict[str, str]:
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        df = pd.read_csv(p)
+        if "original" in df.columns and "alias" in df.columns:
+            out = {}
+            for _, row in df.iterrows():
+                o = str(row["original"]).strip().upper()
+                a = str(row["alias"]).strip().upper()
+                if o and a:
+                    out[o] = a
+            return out
+    except Exception:
+        pass
+    return {}
+
+
 def _append_bad_tickers(path: str, tickers: List[str]) -> None:
     if not tickers:
         return
@@ -588,13 +607,15 @@ def main() -> None:
     parser.add_argument("--sector-sleep", type=float, default=0.05)
     parser.add_argument("--bad-tickers", default="data/bad_tickers.csv")
     parser.add_argument("--short-history-out", default="data/short_history.csv")
+    parser.add_argument("--aliases", default="data/aliases.csv")
     args = parser.parse_args()
 
     uni = pd.read_csv(args.universe)
     if "ticker" not in uni.columns:
         raise ValueError("universe file must contain 'ticker'")
     uni["ticker"] = uni["ticker"].astype(str).str.strip()
-    tickers = [t for t in uni["ticker"].tolist() if t]
+    orig_tickers = [t.strip().upper() for t in uni["ticker"].tolist() if t]
+    tickers = orig_tickers[:]
     bad = _load_bad_tickers(args.bad_tickers)
     if bad:
         tickers = [t for t in tickers if t.upper() not in bad]
@@ -699,8 +720,21 @@ def main() -> None:
 
     df = add_stock_features(stock_df, index_features, spy_df, sector_close_df, sector_map)
 
-    # attach company names
-    name_map = dict(zip(uni["ticker"], uni.get("company", "")))
+    # refresh aliases (may have been updated during fetch), then replace tickers
+    aliases_map = _load_aliases(args.aliases)
+    if aliases_map:
+        df["ticker"] = df["ticker"].map(lambda t: aliases_map.get(str(t).upper(), str(t).upper()))
+        df = df.drop_duplicates(subset=["ticker"], keep="first")
+
+    # attach company names (by resolved ticker)
+    name_map = {}
+    for _, row in uni.iterrows():
+        t = str(row["ticker"]).strip().upper()
+        if not t:
+            continue
+        r = aliases_map.get(t, t)
+        if r not in name_map:
+            name_map[r] = row.get("company", "")
     df["company"] = df["ticker"].map(name_map)
 
     # Align to a single as-of date (cross-sectional features need same date)

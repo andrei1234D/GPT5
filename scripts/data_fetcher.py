@@ -158,6 +158,10 @@ def download_history_cached_dict(
                 if df_try is not None and not df_try.empty:
                     print(f"[data_fetcher] resolved {sym} -> {trial}")
                     alias_updates[orig_sym] = trial
+                    try:
+                        save_aliases_csv("data/aliases.csv", {orig_sym: trial})
+                    except Exception:
+                        pass
                     return df_try
             return pd.DataFrame()
 
