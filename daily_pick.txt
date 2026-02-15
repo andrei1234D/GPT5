@@ -1,18 +1,18 @@
 Daily Stock Pick — February 14, 2026
 
-PGTK – Pacific Green Technologies Inc.
+ACXP – Acurx Pharmaceuticals, Inc.
 
-News: Sold Limestone Coast North 250MW/500MWh BESS project to Intera for ~A$33M cash; expanding BESS pipeline incl. Poland; note recent restatements/material weaknesses. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1553404/000121390025056287/ea0243690-10k_pacific.htm))
+News: PipelineNews: Ibezapolstat is Phase 3–ready after positive Phase 2b (96% CC; 100% SCC) and successful FDA End-of-Phase 2 meeting; preparing international Phase 3. ([acurxpharma.com](https://www.acurxpharma.com/news-media/press-releases/detail/68/acurx-announces-positive-phase-2b-results-showing-100-of?utm_source=openai))
 
-Score (0–1000): 635
+Score (0–1000): 640
 
 ADVICE: Buy
 
-Certainty: 56%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/PGTK/forecast
+Forecast image URL: https://stockscan.io/stocks/ACXP/forecast
 
-Verifier note: Positive near-term EV from realized cash inflow and de-risked asset-sale model vs. peers’ binary biotech risks; balance with OTC/liquidity and ICFR weaknesses flagged in FY2024 10-K. Sources: sec.gov (PGTK 10-K incl. Intera sale, restatement details).
+Verifier note: Best EV/lowest risk of set: late-stage, QIDP/Fast-Track antibiotic with supportive data and FDA-aligned Phase 3 plan; risks: micro-cap liquidity and likely dilution; avoid peers with wind-down/delisting or very low cash (e.g., TTOO winding down; BIAF cash tight). Sources: acurxpharma.com PRs; ACXP 10-Q (3/31/25); BIAF IR; PR on TTOO liquidation. ([acurxpharma.com](https://www.acurxpharma.com/news-media/press-releases/detail/80/acurx-announces-successful-fda-end-of-phase-2-meeting-and?utm_source=openai))
 
 ---
 **Legend**

@@ -13,6 +13,6 @@ Rank,TickerName,Ticker,PipelineNews
 7,SRNE - Sorrento Therapeutics,SRNE,N/A | Impact: 0
 8,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
 9,PGTK - Pacific Green Technologies,PGTK,N/A | Impact: 0
-10,TTOO - T2 Biosystems,TTOO,N/A | Impact: 0
+10,TTOO - T2 Biosystems,TTOO,N/A
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
