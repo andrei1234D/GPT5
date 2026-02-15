@@ -754,6 +754,33 @@ def main() -> None:
     # Drop rows missing required downstream features
     req = [c for c in REQUIRED_FEATURES if c in df.columns]
     if req:
+        # Normalize infs to NaN so we can detect fully-missing features
+        df[req] = df[req].replace([np.inf, -np.inf], np.nan)
+        # If an entire required feature is missing, fill with 0 to keep model shape
+        all_nan = [c for c in req if df[c].notna().sum() == 0]
+        if all_nan:
+            print(f"[build_daily_dataset][WARN] required features all-NaN, filling 0: {all_nan}")
+            for c in all_nan:
+                df[c] = 0.0
+        # Debug report: per-ticker missing required features (before drop)
+        if "ticker" in df.columns and not df.empty:
+            try:
+                miss_cnt = df[req].isna().sum(axis=1)
+                report = df[["ticker", "date"]].copy()
+                report["missing_required"] = miss_cnt
+                report["missing_required_frac"] = miss_cnt / float(len(req))
+                report = report.sort_values(
+                    ["missing_required", "ticker"],
+                    ascending=[False, True],
+                )
+                out_path = Path(args.out)
+                report_path = out_path.with_name(out_path.stem + ".nan_report.csv")
+                report.to_csv(report_path, index=False)
+                if report["missing_required"].max() > 0:
+                    print("[build_daily_dataset] Top missing (required features):")
+                    print(report.head(10).to_string(index=False))
+            except Exception:
+                pass
         before = len(df)
         df = df.dropna(subset=req).copy()
         dropped = before - len(df)
