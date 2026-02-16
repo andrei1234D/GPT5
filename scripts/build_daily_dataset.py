@@ -762,7 +762,7 @@ def main() -> None:
     if asof_date is not None:
         df_dates = pd.to_datetime(df["date"]).dt.tz_localize(None)
         df = df[df_dates == asof_date].copy()
-        print(f\"[build_daily_dataset] asof_date={asof_date.date()} df_max={df_max.date() if df_max is not None else 'NA'} spy_max={spy_max.date() if spy_max is not None else 'NA'}\")
+        print(f"[build_daily_dataset] asof_date={asof_date.date()} df_max={df_max.date() if df_max is not None else 'NA'} spy_max={spy_max.date() if spy_max is not None else 'NA'}")
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
     # Drop rows missing required downstream features
