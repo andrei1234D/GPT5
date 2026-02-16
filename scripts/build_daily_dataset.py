@@ -739,16 +739,30 @@ def main() -> None:
 
     # Align to a single as-of date (cross-sectional features need same date)
     asof_date = None
+    df_max = None
+    spy_max = None
+    try:
+        if "date" in df.columns:
+            df_max = pd.to_datetime(df["date"]).dt.tz_localize(None).max()
+    except Exception:
+        df_max = None
     try:
         if "date" in spy_df.columns:
-            asof_date = pd.to_datetime(spy_df["date"]).max()
+            spy_max = pd.to_datetime(spy_df["date"]).dt.tz_localize(None).max()
     except Exception:
-        asof_date = None
-    if asof_date is None and "date" in df.columns:
-        asof_date = pd.to_datetime(df["date"]).max()
+        spy_max = None
+
+    if df_max is not None and spy_max is not None:
+        asof_date = min(df_max, spy_max)
+    elif df_max is not None:
+        asof_date = df_max
+    elif spy_max is not None:
+        asof_date = spy_max
 
     if asof_date is not None:
-        df = df[pd.to_datetime(df["date"]) == asof_date].copy()
+        df_dates = pd.to_datetime(df["date"]).dt.tz_localize(None)
+        df = df[df_dates == asof_date].copy()
+        print(f\"[build_daily_dataset] asof_date={asof_date.date()} df_max={df_max.date() if df_max is not None else 'NA'} spy_max={spy_max.date() if spy_max is not None else 'NA'}\")
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
     # Drop rows missing required downstream features
