@@ -35,7 +35,7 @@ def _is_rate_limit(err: object) -> bool:
     return isinstance(err, YFRateLimitError) or "RateLimit" in s or "Too Many Requests" in s
 
 def _sleep_backoff(attempt: int) -> None:
-    base = max(YF_RETRY_SLEEP, 0.1)
+    base = max(YF_RATE_LIMIT_SLEEP, YF_RETRY_SLEEP, 0.1)
     exp = min(attempt, 10)
     sleep_s = min(base * (2 ** exp), 60.0)
     sleep_s += random.random() * 0.25 * sleep_s
@@ -68,6 +68,12 @@ YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
 YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", "200"))
 YF_BATCH_SLEEP = float(os.getenv("YF_BATCH_SLEEP", "0"))
 YF_DISABLE_BATCH = os.getenv("YF_DISABLE_BATCH", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
+# Rate-limit handling
+YF_RATE_LIMIT_RETRIES = int(os.getenv("YF_RATE_LIMIT_RETRIES", "2"))
+YF_RATE_LIMIT_SLEEP = float(os.getenv("YF_RATE_LIMIT_SLEEP", "2.5"))
+# Limit suffix attempts per symbol (0 = all)
+YF_SUFFIX_MAX = int(os.getenv("YF_SUFFIX_MAX", "0"))
+YF_SUFFIX_PRIORITY = os.getenv("YF_SUFFIX_PRIORITY", "")
 
 
 def _cache_path_for(ticker: str, period: Optional[str], start: Optional[str], end: Optional[str], interval: str) -> Path:
@@ -98,6 +104,10 @@ def download_history_cached_dict(
     norm_map: Dict[str, str] = {}
     rate_limit_hit = False
     rate_limited_tickers: set[str] = set()
+
+    def _is_rate_limit(err: object) -> bool:
+        s = str(err)
+        return ("RateLimit" in s) or ("Too Many Requests" in s)
 
     def _mark_rate_limit(err: object, tickers: List[str] | None = None) -> bool:
         nonlocal rate_limit_hit
@@ -189,7 +199,7 @@ def download_history_cached_dict(
                     )
                 except Exception as e:
                     is_rate_limit = _mark_rate_limit(e, [mark_sym or sym])
-                    if is_rate_limit:
+                    if is_rate_limit and attempt < YF_RATE_LIMIT_RETRIES:
                         _sleep_backoff(attempt)
                         attempt += 1
                         continue
@@ -209,7 +219,19 @@ def download_history_cached_dict(
                     print(f"[data_fetcher] resolved {sym} -> {base}")
                     alias_updates[orig_sym] = base
                     return df_try
-            for suf in sorted(_YH_SUFFIXES):
+            if YF_SUFFIX_PRIORITY:
+                priority = [s.strip().upper() for s in YF_SUFFIX_PRIORITY.split(",") if s.strip()]
+            else:
+                priority = [
+                    "TO","V","L","AX","PA","AS","DE","F","SW","MI","MC","HK","T",
+                    "SI","KS","KQ","NS","BO","SA","BR","MX","NZ","IR","HE","ST",
+                    "OL","CO","WA","PR","VI","AD","SR","TA","SS","SZ","TW","DU",
+                ]
+            base_list = [s for s in priority if s in _YH_SUFFIXES]
+            suffixes = base_list + [s for s in sorted(_YH_SUFFIXES) if s not in base_list]
+            if YF_SUFFIX_MAX > 0:
+                suffixes = suffixes[:YF_SUFFIX_MAX]
+            for suf in suffixes:
                 if cur_suf and suf == cur_suf:
                     continue
                 trial = f"{base}.{suf}"

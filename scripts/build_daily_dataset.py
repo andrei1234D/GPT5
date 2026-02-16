@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -696,6 +697,24 @@ def main() -> None:
                 continue
         ohlcv["ticker"] = t
         rows.append(ohlcv)
+
+    # Debug fetch summary
+    try:
+        out_path = Path(args.out)
+        debug_path = out_path.with_name(out_path.stem + ".fetch_debug.json")
+        debug = {
+            "universe_total": len(tickers),
+            "missing_universe": len(missing_universe),
+            "short_history": len(minrows_bad),
+            "rate_limited": len(rate_limited),
+            "missing_universe_sample": missing_universe[:50],
+            "short_history_sample": minrows_bad[:50],
+            "rate_limited_sample": sorted(list(rate_limited))[:50],
+        }
+        debug_path.parent.mkdir(parents=True, exist_ok=True)
+        debug_path.write_text(json.dumps(debug, indent=2))
+    except Exception:
+        pass
 
     if not rows:
         raise RuntimeError("No usable ticker history found.")
