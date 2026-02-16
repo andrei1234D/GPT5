@@ -68,6 +68,7 @@ YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
 YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", "200"))
 YF_BATCH_SLEEP = float(os.getenv("YF_BATCH_SLEEP", "0"))
 YF_DISABLE_BATCH = os.getenv("YF_DISABLE_BATCH", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
+YF_BATCH_FALLBACK_ALL = os.getenv("YF_BATCH_FALLBACK_ALL", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
 # Rate-limit handling
 YF_RATE_LIMIT_RETRIES = int(os.getenv("YF_RATE_LIMIT_RETRIES", "2"))
 YF_RATE_LIMIT_SLEEP = float(os.getenv("YF_RATE_LIMIT_SLEEP", "2.5"))
@@ -99,15 +100,23 @@ def download_history_cached_dict(
     Only downloads missing or expired tickers in a single yf.download batch when possible.
     """
     os.makedirs(YF_HISTORY_CACHE_DIR, exist_ok=True)
+    # de-duplicate tickers while preserving order
+    if tickers:
+        seen = set()
+        uniq = []
+        for t in tickers:
+            tt = (t or "").strip().upper()
+            if not tt or tt in seen:
+                continue
+            seen.add(tt)
+            uniq.append(tt)
+        tickers = uniq
+
     out: Dict[str, pd.DataFrame] = {}
     to_download: List[str] = []
     norm_map: Dict[str, str] = {}
     rate_limit_hit = False
     rate_limited_tickers: set[str] = set()
-
-    def _is_rate_limit(err: object) -> bool:
-        s = str(err)
-        return ("RateLimit" in s) or ("Too Many Requests" in s)
 
     def _mark_rate_limit(err: object, tickers: List[str] | None = None) -> bool:
         nonlocal rate_limit_hit
@@ -199,7 +208,7 @@ def download_history_cached_dict(
                     )
                 except Exception as e:
                     is_rate_limit = _mark_rate_limit(e, [mark_sym or sym])
-                    if is_rate_limit and attempt < YF_RATE_LIMIT_RETRIES:
+                    if is_rate_limit and (YF_RATE_LIMIT_RETRIES < 0 or attempt < YF_RATE_LIMIT_RETRIES):
                         _sleep_backoff(attempt)
                         attempt += 1
                         continue
@@ -212,13 +221,6 @@ def download_history_cached_dict(
             if not base:
                 return pd.DataFrame()
             cur_suf = sym.split(".", 1)[1] if "." in sym else None
-            if cur_suf:
-                df_try = _download_single(base, orig_sym)
-                df_try = _drop_all_nan_rows(df_try)
-                if df_try is not None and not df_try.empty:
-                    print(f"[data_fetcher] resolved {sym} -> {base}")
-                    alias_updates[orig_sym] = base
-                    return df_try
             if YF_SUFFIX_PRIORITY:
                 priority = [s.strip().upper() for s in YF_SUFFIX_PRIORITY.split(",") if s.strip()]
             else:
@@ -242,6 +244,17 @@ def download_history_cached_dict(
                     alias_updates[orig_sym] = trial
                     try:
                         save_aliases_csv("data/aliases.csv", {orig_sym: trial})
+                    except Exception:
+                        pass
+                    return df_try
+            if cur_suf:
+                df_try = _download_single(base, orig_sym)
+                df_try = _drop_all_nan_rows(df_try)
+                if df_try is not None and not df_try.empty:
+                    print(f"[data_fetcher] resolved {sym} -> {base}")
+                    alias_updates[orig_sym] = base
+                    try:
+                        save_aliases_csv("data/aliases.csv", {orig_sym: base})
                     except Exception:
                         pass
                     return df_try
@@ -288,7 +301,7 @@ def download_history_cached_dict(
                     break
                 except Exception as e:
                     is_rate_limit = _mark_rate_limit(e, chunk)
-                    if is_rate_limit:
+                    if is_rate_limit and (YF_RATE_LIMIT_RETRIES < 0 or attempt < YF_RATE_LIMIT_RETRIES):
                         _sleep_backoff(attempt)
                         attempt += 1
                         continue
@@ -296,47 +309,70 @@ def download_history_cached_dict(
                     data = None
                     break
 
-            # Extract per-ticker frames from the batch result
+            # First pass: extract per-ticker frames from batch only
+            batch_frames: Dict[str, pd.DataFrame] = {}
+            batch_missing = []
             for orig in chunk:
                 ysym = norm_map.get(orig)
-                df_raw = None
-                try:
-                    if data is None:
-                        df_raw = _download_single(ysym)
-                    elif isinstance(data.columns, pd.MultiIndex):
-                        # try (ticker, field) orientation
-                        try:
-                            df_raw = data.xs(ysym, axis=1, level=0, drop_level=True)
-                        except Exception:
+                df_raw = pd.DataFrame()
+                if data is not None:
+                    try:
+                        if isinstance(data.columns, pd.MultiIndex):
+                            # try (ticker, field) orientation
                             try:
-                                df_raw = data[ysym]
+                                df_raw = data.xs(ysym, axis=1, level=0, drop_level=True)
                             except Exception:
-                                df_raw = pd.DataFrame()
-                    else:
-                        # single-ticker or single-frame
-                        df_raw = data.copy()
-                except Exception:
-                    df_raw = pd.DataFrame()
-
-                # If batch result missing this symbol, retry single
-                if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
-                    df_raw = _download_single(ysym, orig)
-                # If batch result is all-NaN rows (common in large batches), drop and retry single
+                                try:
+                                    df_raw = data[ysym]
+                                except Exception:
+                                    df_raw = pd.DataFrame()
+                        else:
+                            # single-ticker or single-frame
+                            df_raw = data.copy()
+                    except Exception:
+                        df_raw = pd.DataFrame()
                 df_raw = _drop_all_nan_rows(df_raw)
                 if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
-                    df_raw = _download_single(ysym, orig)
-                # If still empty, try common suffixes
-                if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
-                    df_raw = _try_suffixes(orig, ysym)
-                    df_raw = _drop_all_nan_rows(df_raw)
+                    batch_missing.append(orig)
+                    df_raw = pd.DataFrame()
+                batch_frames[orig] = df_raw
 
-                # write to cache if we have something
-                try:
-                    if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
-                        pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
-                except Exception:
-                    pass
-                out[orig] = df_raw
+            # If any missing in batch, optionally re-fetch all tickers singly (slow but robust)
+            if batch_missing and YF_BATCH_FALLBACK_ALL:
+                for orig in chunk:
+                    ysym = norm_map.get(orig)
+                    df_raw = _download_single(ysym, orig)
+                    df_raw = _drop_all_nan_rows(df_raw)
+                    if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                        df_raw = _try_suffixes(orig, ysym)
+                        df_raw = _drop_all_nan_rows(df_raw)
+                    try:
+                        if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
+                            pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+                    except Exception:
+                        pass
+                    out[orig] = df_raw
+            else:
+                for orig in chunk:
+                    ysym = norm_map.get(orig)
+                    df_raw = batch_frames.get(orig, pd.DataFrame())
+                    # If batch result missing this symbol, retry single
+                    if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                        df_raw = _download_single(ysym, orig)
+                    # If batch result is all-NaN rows, drop and retry single
+                    df_raw = _drop_all_nan_rows(df_raw)
+                    if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                        df_raw = _download_single(ysym, orig)
+                    # If still empty, try common suffixes
+                    if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
+                        df_raw = _try_suffixes(orig, ysym)
+                        df_raw = _drop_all_nan_rows(df_raw)
+                    try:
+                        if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
+                            pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+                    except Exception:
+                        pass
+                    out[orig] = df_raw
 
             if YF_BATCH_SLEEP > 0:
                 time.sleep(YF_BATCH_SLEEP)

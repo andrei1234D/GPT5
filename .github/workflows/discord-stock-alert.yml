@@ -109,8 +109,9 @@ jobs:
           YF_MIN_ROWS: '200'
           YF_SUFFIX_MAX: '12'
           YF_BATCH_SLEEP: '0.1'
-          YF_RATE_LIMIT_RETRIES: '2'
+          YF_RATE_LIMIT_RETRIES: '-1'
           YF_RATE_LIMIT_SLEEP: '2.5'
+          YF_BATCH_FALLBACK_ALL: '1'
         run: python scripts/build_daily_dataset.py --universe data/universe_clean.csv --out data/daily_scored.parquet --history-days 260 --include-sectors --sector-mode yfinance --sector-map data/sector_map.json
 
       - name: Deterministic keep (7%)

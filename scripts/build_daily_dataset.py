@@ -616,7 +616,12 @@ def main() -> None:
         raise ValueError("universe file must contain 'ticker'")
     uni["ticker"] = uni["ticker"].astype(str).str.strip()
     orig_tickers = [t.strip().upper() for t in uni["ticker"].tolist() if t]
-    tickers = orig_tickers[:]
+    # Apply aliases before fetch so we request the resolved symbols
+    aliases_map = _load_aliases(args.aliases)
+    if aliases_map:
+        tickers = [aliases_map.get(t, t) for t in orig_tickers]
+    else:
+        tickers = orig_tickers[:]
     bad = _load_bad_tickers(args.bad_tickers)
     if bad:
         tickers = [t for t in tickers if t.upper() not in bad]
