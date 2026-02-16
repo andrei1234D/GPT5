@@ -1,9 +1,10 @@
 # scripts/data_fetcher.py
 from __future__ import annotations
-import os, time, logging
+import os, time, logging, random
 from typing import Dict, List, Optional
 
 import yfinance as yf
+from yfinance.exceptions import YFRateLimitError
 import hashlib
 from pathlib import Path
 import pandas as pd
@@ -28,6 +29,17 @@ logger = logging.getLogger("data_fetcher")
 # ---------- env knobs ----------
 YF_MAX_RETRIES = int(os.getenv("YF_MAX_RETRIES", "3"))
 YF_RETRY_SLEEP = float(os.getenv("YF_RETRY_SLEEP", "1.0"))
+
+def _is_rate_limit(err: object) -> bool:
+    s = str(err)
+    return isinstance(err, YFRateLimitError) or "RateLimit" in s or "Too Many Requests" in s
+
+def _sleep_backoff(attempt: int) -> None:
+    base = max(YF_RETRY_SLEEP, 0.1)
+    exp = min(attempt, 10)
+    sleep_s = min(base * (2 ** exp), 60.0)
+    sleep_s += random.random() * 0.25 * sleep_s
+    time.sleep(sleep_s)
 
 # ---------- symbol normalization (consistent with features.py) ----------
 _YH_SUFFIXES = {
@@ -87,33 +99,43 @@ def download_history_cached_dict(
     rate_limit_hit = False
     rate_limited_tickers: set[str] = set()
 
-    def _mark_rate_limit(err: object, tickers: List[str] | None = None) -> None:
+    def _mark_rate_limit(err: object, tickers: List[str] | None = None) -> bool:
         nonlocal rate_limit_hit
-        s = str(err)
-        if "RateLimit" in s or "Too Many Requests" in s:
+        if _is_rate_limit(err):
             rate_limit_hit = True
             if tickers:
                 rate_limited_tickers.update([t.upper() for t in tickers if t])
+            return True
+        return False
 
-    def _check_shared_rate_limit(tickers: List[str] | None = None) -> None:
+    def _check_shared_rate_limit(tickers: List[str] | None = None) -> bool:
         nonlocal rate_limit_hit
-        if rate_limit_hit:
-            return
         try:
             import yfinance.shared as shared  # type: ignore
             errs = getattr(shared, "_ERRORS", None)
             if not errs:
-                return
-            vals = errs.values() if isinstance(errs, dict) else errs
+                return False
+            if isinstance(errs, dict):
+                vals = list(errs.values())
+                try:
+                    shared._ERRORS = {}
+                except Exception:
+                    pass
+            else:
+                vals = list(errs)
+                try:
+                    shared._ERRORS = {}
+                except Exception:
+                    pass
             for e in vals:
-                s = str(e)
-                if "RateLimit" in s or "Too Many Requests" in s:
+                if _is_rate_limit(e):
                     rate_limit_hit = True
                     if tickers:
                         rate_limited_tickers.update([t.upper() for t in tickers if t])
-                    return
+                    return True
         except Exception:
-            return
+            return False
+        return False
 
     # normalize symbols and decide cache hits
     extra_aliases = {}
@@ -151,22 +173,28 @@ def download_history_cached_dict(
 
     if to_download:
         def _download_single(sym: str, mark_sym: str | None = None) -> pd.DataFrame:
-            try:
-                return yf.download(
-                    tickers=sym,
-                    period=period,
-                    start=start,
-                    end=end,
-                    interval=interval,
-                    auto_adjust=auto_adjust,
-                    progress=progress,
-                    group_by=group_by,
-                    threads=False,
-                )
-            except Exception as e:
-                _mark_rate_limit(e, [mark_sym or sym])
-                print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
-                return pd.DataFrame()
+            attempt = 0
+            while True:
+                try:
+                    return yf.download(
+                        tickers=sym,
+                        period=period,
+                        start=start,
+                        end=end,
+                        interval=interval,
+                        auto_adjust=auto_adjust,
+                        progress=progress,
+                        group_by=group_by,
+                        threads=False,
+                    )
+                except Exception as e:
+                    is_rate_limit = _mark_rate_limit(e, [mark_sym or sym])
+                    if is_rate_limit:
+                        _sleep_backoff(attempt)
+                        attempt += 1
+                        continue
+                    print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
+                    return pd.DataFrame()
 
         def _try_suffixes(orig_sym: str, sym: str) -> pd.DataFrame:
             # Try common Yahoo suffixes. If sym already has a suffix, strip it first.
@@ -217,24 +245,34 @@ def download_history_cached_dict(
         # Chunked batch downloads to avoid Yahoo batch instability
         for chunk in _chunks(to_download, YF_BATCH_SIZE):
             syms = [norm_map[t] for t in chunk]
-            try:
-                print(f"[data_fetcher] yf.download batch for {len(syms)} symbols")
-                data = yf.download(
-                    tickers=" ".join(syms),
-                    period=period,
-                    start=start,
-                    end=end,
-                    interval=interval,
-                    auto_adjust=auto_adjust,
-                    progress=progress,
-                    group_by=group_by,
-                    threads=threads,
-                )
-                _check_shared_rate_limit(chunk)
-            except Exception as e:
-                _mark_rate_limit(e, chunk)
-                print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
-                data = None
+            data = None
+            attempt = 0
+            while True:
+                try:
+                    print(f"[data_fetcher] yf.download batch for {len(syms)} symbols")
+                    data = yf.download(
+                        tickers=" ".join(syms),
+                        period=period,
+                        start=start,
+                        end=end,
+                        interval=interval,
+                        auto_adjust=auto_adjust,
+                        progress=progress,
+                        group_by=group_by,
+                        threads=threads,
+                    )
+                    if _check_shared_rate_limit(chunk):
+                        raise YFRateLimitError("rate limited")
+                    break
+                except Exception as e:
+                    is_rate_limit = _mark_rate_limit(e, chunk)
+                    if is_rate_limit:
+                        _sleep_backoff(attempt)
+                        attempt += 1
+                        continue
+                    print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
+                    data = None
+                    break
 
             # Extract per-ticker frames from the batch result
             for orig in chunk:
