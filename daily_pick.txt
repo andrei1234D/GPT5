@@ -1,18 +1,18 @@
-Daily Stock Pick — February 14, 2026
+Daily Stock Pick — February 16, 2026
 
-ACXP – Acurx Pharmaceuticals, Inc.
+ALSPT.PA – Spartoo SA
 
-News: PipelineNews: Ibezapolstat is Phase 3–ready after positive Phase 2b (96% CC; 100% SCC) and successful FDA End-of-Phase 2 meeting; preparing international Phase 3. ([acurxpharma.com](https://www.acurxpharma.com/news-media/press-releases/detail/68/acurx-announces-positive-phase-2b-results-showing-100-of?utm_source=openai))
+News: FY2024 results showed positive operating cash flow with net debt cut to €5.5M; H1’25 kept cash flow positive despite softer sales.
 
 Score (0–1000): 640
 
 ADVICE: Buy
 
-Certainty: 62%
+Certainty: 58%
 
-Forecast image URL: https://stockscan.io/stocks/ACXP/forecast
+Forecast image URL: https://stockscan.io/stocks/ALSPT.PA/forecast
 
-Verifier note: Best EV/lowest risk of set: late-stage, QIDP/Fast-Track antibiotic with supportive data and FDA-aligned Phase 3 plan; risks: micro-cap liquidity and likely dilution; avoid peers with wind-down/delisting or very low cash (e.g., TTOO winding down; BIAF cash tight). Sources: acurxpharma.com PRs; ACXP 10-Q (3/31/25); BIAF IR; PR on TTOO liquidation. ([acurxpharma.com](https://www.acurxpharma.com/news-media/press-releases/detail/80/acurx-announces-successful-fda-end-of-phase-2-meeting-and?utm_source=openai))
+Verifier note: Deep value (P/S ≈0.03; €4–5M mkt cap) with improving cash generation and reduced net debt offsets revenue decline; upcoming FY2025 results (likely March) are a catalyst; small-cap liquidity risk remains. Sources: live.euronext.com company news (Mar 24, 2025; Sep 30, 2024), BusinessWire release (Mar 24, 2025), MarketScreener quote/financials, StockAnalysis profile. ([live.euronext.com](https://live.euronext.com/en/products/equities/company-news/2025-03-24-spartoo-reports-2024-full-year-results-highlighted-sharp?utm_source=openai))
 
 ---
 **Legend**

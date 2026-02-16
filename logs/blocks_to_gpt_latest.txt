@@ -1,11 +1,2 @@
 Rank,TickerName,Ticker,PipelineNews
-1,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
-2,GFASY - Gafisa,GFASY,N/A | Impact: 0
-3,DSY - Big Tree Cloud Holdings,DSY,N/A | Impact: 0
-4,ZYBT - Zhengye Biotechnology,ZYBT,N/A | Impact: 0
-5,CANF - Can-Fite BioPharma,CANF,N/A | Impact: 0
-6,BIAF - bioAffinity Technologies,BIAF,N/A | Impact: 0
-7,SRNE - Sorrento Therapeutics,SRNE,N/A | Impact: 0
-8,ACXP - Acurx Pharmaceuticals,ACXP,N/A | Impact: 0
-9,PGTK - Pacific Green Technologies,PGTK,N/A | Impact: 0
-10,TTOO - T2 Biosystems,TTOO,N/A
+1,ALSPT.PA - Spartoo,ALSPT.PA,N/A
