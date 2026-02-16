@@ -26,10 +26,10 @@ jobs:
       # -----------------------------
       # Cache
       # -----------------------------
-      - name: Restore cached data (aliases, universe, etc.)
+      - name: Restore cached market history
         uses: actions/cache@v4
         with:
-          path: data
+          path: data/yf_history_cache
           key: universe-cache-${{ hashFiles('data/universe_clean.csv') }}
           restore-keys: |
             universe-cache-

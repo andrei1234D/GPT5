@@ -635,6 +635,8 @@ def main() -> None:
         group_by="ticker",
         threads=True,
     )
+    rate_limit_hit = bool(getattr(download_history_cached_dict, "last_rate_limit", False))
+    rate_limited = set(getattr(download_history_cached_dict, "last_rate_limited_tickers", []) or [])
     req_hist = _ensure_required_history(req_hist, required, period, args.history_days)
 
     # Fetch universe tickers separately to avoid large-batch poisoning
@@ -647,6 +649,8 @@ def main() -> None:
         group_by="ticker",
         threads=True,
     )
+    rate_limit_hit = rate_limit_hit or bool(getattr(download_history_cached_dict, "last_rate_limit", False))
+    rate_limited.update(getattr(download_history_cached_dict, "last_rate_limited_tickers", []) or [])
 
     hist_map = {}
     hist_map.update(req_hist)
@@ -752,17 +756,35 @@ def main() -> None:
     except Exception:
         spy_max = None
 
-    if df_max is not None and spy_max is not None:
+    df_dates = None
+    date_counts = None
+    if "date" in df.columns:
+        df_dates = pd.to_datetime(df["date"]).dt.tz_localize(None)
+        date_counts = df_dates.value_counts()
+
+    if date_counts is not None and not date_counts.empty:
+        max_count = int(date_counts.max())
+        threshold = max(1, int(max_count * 0.90))
+        candidates = date_counts[date_counts >= threshold]
+        if not candidates.empty:
+            asof_date = candidates.index.max()
+        else:
+            asof_date = date_counts.index[0]
+    elif df_max is not None and spy_max is not None:
         asof_date = min(df_max, spy_max)
     elif df_max is not None:
         asof_date = df_max
     elif spy_max is not None:
         asof_date = spy_max
 
-    if asof_date is not None:
-        df_dates = pd.to_datetime(df["date"]).dt.tz_localize(None)
+    if asof_date is not None and df_dates is not None:
         df = df[df_dates == asof_date].copy()
-        print(f"[build_daily_dataset] asof_date={asof_date.date()} df_max={df_max.date() if df_max is not None else 'NA'} spy_max={spy_max.date() if spy_max is not None else 'NA'}")
+        print(
+            f"[build_daily_dataset] asof_date={asof_date.date()} "
+            f"df_max={df_max.date() if df_max is not None else 'NA'} "
+            f"spy_max={spy_max.date() if spy_max is not None else 'NA'} "
+            f"asof_count={int(date_counts.get(asof_date, 0)) if date_counts is not None else 'NA'}"
+        )
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
     # Drop rows missing required downstream features
@@ -812,7 +834,10 @@ def main() -> None:
 
     # Persist bad tickers so we skip them next run
     # Only hard failures go to bad_tickers; short history is tracked separately
-    _append_bad_tickers(args.bad_tickers, missing_universe)
+    if rate_limit_hit:
+        print(f"[build_daily_dataset][WARN] rate limit detected; excluding {len(rate_limited)} tickers from bad_tickers update")
+    missing_for_bad = [t for t in missing_universe if t not in rate_limited]
+    _append_bad_tickers(args.bad_tickers, missing_for_bad)
     _write_short_history(args.short_history_out, minrows_bad)
 
     # Debug: per-feature missingness snapshot

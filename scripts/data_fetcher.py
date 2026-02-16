@@ -54,6 +54,7 @@ YF_HISTORY_CACHE_DIR = os.getenv("YF_HISTORY_CACHE_DIR", "data/yf_history_cache"
 YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
 # Large Yahoo batch requests are unreliable; chunk or disable batching.
 YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", "200"))
+YF_BATCH_SLEEP = float(os.getenv("YF_BATCH_SLEEP", "0"))
 YF_DISABLE_BATCH = os.getenv("YF_DISABLE_BATCH", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
 
 
@@ -83,6 +84,36 @@ def download_history_cached_dict(
     out: Dict[str, pd.DataFrame] = {}
     to_download: List[str] = []
     norm_map: Dict[str, str] = {}
+    rate_limit_hit = False
+    rate_limited_tickers: set[str] = set()
+
+    def _mark_rate_limit(err: object, tickers: List[str] | None = None) -> None:
+        nonlocal rate_limit_hit
+        s = str(err)
+        if "RateLimit" in s or "Too Many Requests" in s:
+            rate_limit_hit = True
+            if tickers:
+                rate_limited_tickers.update([t.upper() for t in tickers if t])
+
+    def _check_shared_rate_limit(tickers: List[str] | None = None) -> None:
+        nonlocal rate_limit_hit
+        if rate_limit_hit:
+            return
+        try:
+            import yfinance.shared as shared  # type: ignore
+            errs = getattr(shared, "_ERRORS", None)
+            if not errs:
+                return
+            vals = errs.values() if isinstance(errs, dict) else errs
+            for e in vals:
+                s = str(e)
+                if "RateLimit" in s or "Too Many Requests" in s:
+                    rate_limit_hit = True
+                    if tickers:
+                        rate_limited_tickers.update([t.upper() for t in tickers if t])
+                    return
+        except Exception:
+            return
 
     # normalize symbols and decide cache hits
     extra_aliases = {}
@@ -119,7 +150,7 @@ def download_history_cached_dict(
             return df
 
     if to_download:
-        def _download_single(sym: str) -> pd.DataFrame:
+        def _download_single(sym: str, mark_sym: str | None = None) -> pd.DataFrame:
             try:
                 return yf.download(
                     tickers=sym,
@@ -133,6 +164,7 @@ def download_history_cached_dict(
                     threads=False,
                 )
             except Exception as e:
+                _mark_rate_limit(e, [mark_sym or sym])
                 print(f"[data_fetcher][WARN] yf.download single failed for {sym}: {e}")
                 return pd.DataFrame()
 
@@ -143,7 +175,7 @@ def download_history_cached_dict(
                 return pd.DataFrame()
             cur_suf = sym.split(".", 1)[1] if "." in sym else None
             if cur_suf:
-                df_try = _download_single(base)
+                df_try = _download_single(base, orig_sym)
                 df_try = _drop_all_nan_rows(df_try)
                 if df_try is not None and not df_try.empty:
                     print(f"[data_fetcher] resolved {sym} -> {base}")
@@ -153,7 +185,7 @@ def download_history_cached_dict(
                 if cur_suf and suf == cur_suf:
                     continue
                 trial = f"{base}.{suf}"
-                df_try = _download_single(trial)
+                df_try = _download_single(trial, orig_sym)
                 df_try = _drop_all_nan_rows(df_try)
                 if df_try is not None and not df_try.empty:
                     print(f"[data_fetcher] resolved {sym} -> {trial}")
@@ -198,7 +230,9 @@ def download_history_cached_dict(
                     group_by=group_by,
                     threads=threads,
                 )
+                _check_shared_rate_limit(chunk)
             except Exception as e:
+                _mark_rate_limit(e, chunk)
                 print(f"[data_fetcher][WARN] yf.download batch failed: {e}")
                 data = None
 
@@ -226,23 +260,26 @@ def download_history_cached_dict(
 
                 # If batch result missing this symbol, retry single
                 if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
-                    df_raw = _download_single(ysym)
+                    df_raw = _download_single(ysym, orig)
                 # If batch result is all-NaN rows (common in large batches), drop and retry single
                 df_raw = _drop_all_nan_rows(df_raw)
                 if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
-                    df_raw = _download_single(ysym)
+                    df_raw = _download_single(ysym, orig)
                 # If still empty, try common suffixes
                 if df_raw is None or (hasattr(df_raw, "empty") and df_raw.empty):
                     df_raw = _try_suffixes(orig, ysym)
                     df_raw = _drop_all_nan_rows(df_raw)
 
-            # write to cache if we have something
-            try:
-                if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
-                    pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
-            except Exception:
-                pass
-            out[orig] = df_raw
+                # write to cache if we have something
+                try:
+                    if isinstance(df_raw, pd.DataFrame) and not df_raw.empty:
+                        pd.to_pickle(df_raw, _cache_path_for(orig, period, start, end, interval))
+                except Exception:
+                    pass
+                out[orig] = df_raw
+
+            if YF_BATCH_SLEEP > 0:
+                time.sleep(YF_BATCH_SLEEP)
 
     if alias_updates:
         try:
@@ -250,5 +287,7 @@ def download_history_cached_dict(
             logger.info("[data_fetcher] saved %d alias updates to data/aliases.csv", len(alias_updates))
         except Exception:
             pass
+    download_history_cached_dict.last_rate_limit = rate_limit_hit  # type: ignore[attr-defined]
+    download_history_cached_dict.last_rate_limited_tickers = sorted(rate_limited_tickers)  # type: ignore[attr-defined]
     return out
 
