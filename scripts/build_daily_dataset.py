@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -13,6 +14,16 @@ import time
 import yfinance as yf
 
 from data_fetcher import download_history_cached_dict
+
+# Configure yfinance tz cache to a writable location (GH Actions can be restrictive)
+try:
+    from yfinance import set_tz_cache_location  # type: ignore
+
+    tz_cache_dir = Path(os.getenv("YF_TZ_CACHE_DIR", "data/yf_tz_cache"))
+    tz_cache_dir.mkdir(parents=True, exist_ok=True)
+    set_tz_cache_location(str(tz_cache_dir))
+except Exception:
+    pass
 
 
 INDEX_TICKERS = ["SPY", "^VIX", "^TNX", "^IRX", "^RUT"]
@@ -94,8 +105,18 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
         out = out.rename(columns=ren)
     keep = [c for c in ["open", "high", "low", "close", "adj_close", "volume"] if c in out.columns]
     out = out[keep].copy()
+    # If duplicate columns exist (e.g., after flattening MultiIndex), coalesce them
+    for c in list(keep):
+        if (out.columns == c).sum() > 1:
+            sub = out.loc[:, out.columns == c]
+            for col in sub.columns:
+                sub[col] = pd.to_numeric(sub[col], errors="coerce")
+            out[c] = sub.bfill(axis=1).iloc[:, 0]
+    # Drop duplicate columns and coerce types
+    out = out.loc[:, ~out.columns.duplicated()].copy()
     for c in keep:
-        out[c] = pd.to_numeric(out[c], errors="coerce")
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c], errors="coerce")
     out.index = pd.to_datetime(out.index)
     out = out.reset_index()
     if "date" not in out.columns:
@@ -749,10 +770,21 @@ def main() -> None:
     df = add_stock_features(stock_df, index_features, spy_df, sector_close_df, sector_map)
 
     # refresh aliases (may have been updated during fetch), then replace tickers
+    # IMPORTANT: never drop by ticker alone here; keep full history for rolling features.
     aliases_map = _load_aliases(args.aliases)
     if aliases_map:
         df["ticker"] = df["ticker"].map(lambda t: aliases_map.get(str(t).upper(), str(t).upper()))
-        df = df.drop_duplicates(subset=["ticker"], keep="first")
+        # If aliasing causes collisions, keep one row per ticker+date (prefer fewer NaNs).
+        if "date" in df.columns:
+            req_cols = [c for c in REQUIRED_FEATURES if c in df.columns]
+            if req_cols:
+                df["_nan_count"] = df[req_cols].isna().sum(axis=1)
+                df = df.sort_values(["ticker", "date", "_nan_count"])
+                df = df.drop_duplicates(subset=["ticker", "date"], keep="first")
+                df = df.drop(columns=["_nan_count"])
+            else:
+                df = df.sort_values(["ticker", "date"])
+                df = df.drop_duplicates(subset=["ticker", "date"], keep="last")
 
     # attach company names (by resolved ticker)
     name_map = {}
