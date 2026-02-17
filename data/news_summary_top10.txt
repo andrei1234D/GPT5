@@ -1,7 +1,39 @@
-### AAPL
-- Apple announces record-breaking quarterly earnings.
-Impact: +40
+### SLNAF
+- N/A
+Impact: 0
 
-### TSLA
-- Tesla faces production delays for Model Y.
-Impact: -20
+### TMPOQ
+- N/A
+Impact: 0
+
+### JPPYY
+- N/A
+Impact: 0
+
+### TIOG
+- N/A
+Impact: 0
+
+### IDEXQ
+- N/A
+Impact: 0
+
+### ZEVY
+- N/A
+Impact: 0
+
+### ALPP
+- N/A
+Impact: 0
+
+### EMWPF
+- N/A
+Impact: 0
+
+### AFMDQ
+- N/A
+Impact: 0
+
+### CAUD
+- N/A
+Impact: 0
