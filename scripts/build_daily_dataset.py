@@ -108,9 +108,9 @@ def _to_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     # If duplicate columns exist (e.g., after flattening MultiIndex), coalesce them
     for c in list(keep):
         if (out.columns == c).sum() > 1:
-            sub = out.loc[:, out.columns == c]
-            for col in sub.columns:
-                sub[col] = pd.to_numeric(sub[col], errors="coerce")
+            sub = out.loc[:, out.columns == c].copy()
+            # Convert each duplicate column by position (labels may be identical)
+            sub = sub.apply(pd.to_numeric, errors="coerce")
             out[c] = sub.bfill(axis=1).iloc[:, 0]
     # Drop duplicate columns and coerce types
     out = out.loc[:, ~out.columns.duplicated()].copy()
