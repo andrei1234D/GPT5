@@ -1,10 +1,10 @@
-Daily Stock Pick — February 17, 2026
+Daily Stock Pick — February 18, 2026
 
 CAUD – Collective Audience, Inc.
 
-News: Now trading OTC after 2024 Nasdaq delisting; operations continue with roll-up activity (e.g., 51% DSL Digital). ([streetinsider.com](https://www.streetinsider.com/Corporate%2BNews/Collective%2BAudience%2B%28CAUD%29%2BDelisted%2Bfrom%2BNasdaq/23607837.html?utm_source=openai))
+News: Acquired 51% of DSL Digital to expand performance marketing (8-K June 28, 2024) and continued 2025 buildout/IR updates. ([marketwatch.com](https://www.marketwatch.com/story/collective-audience-files-8k-entry-into-definitive-agreement-caud-4e3544e7?utm_source=openai))
 
-Score (0–1000): 565
+Score (0–1000): 580
 
 ADVICE: Ignore
 
@@ -12,7 +12,7 @@ Certainty: 62%
 
 Forecast image URL: https://stockscan.io/stocks/CAUD/forecast
 
-Verifier note: Least-bad among distressed set: CAUD is active and consolidating but carries delisting, dilution/liquidity risks; peers show asset sales/receivership (ZEVY) or fraud overhang (TIOG). Sources: streetinsider.com; marketwatch.com; stockanalysis.com (OTC/price); prnewswire.com (ZEVY receivership); techcabal.com (Tingo SEC/furloughs). ([streetinsider.com](https://www.streetinsider.com/Corporate%2BNews/Collective%2BAudience%2B%28CAUD%29%2BDelisted%2Bfrom%2BNasdaq/23607837.html?utm_source=openai))
+Verifier note: Least-bad vs peers: CAUD remains operating with bolt-on M&A; others show insolvency/fraud/dissolution risks (Selina insolvency; Tingo SEC fraud case; Jupai microcap collapse). Sources: collectiveaudience.co IR; MarketWatch 8-K; news.com.au on Selina; TechCabal + BrandSpur on Tingo; StockAnalysis/TipRanks on JPPYY. ([collectiveaudience.co](https://collectiveaudience.co/investor-center/?utm_source=openai))
 
 ---
 **Legend**

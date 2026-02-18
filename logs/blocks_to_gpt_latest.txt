@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
 1,SLNAF - Selina Hospitality,SLNAF,N/A | Impact: 0
-2,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
-3,JPPYY - Jupai,JPPYY,N/A | Impact: 0
-4,TIOG - Tingo Group,TIOG,N/A | Impact: 0
-5,IDEXQ - Ideanomics,IDEXQ,N/A | Impact: 0
-6,ZEVY - Lightning eMotors,ZEVY,N/A | Impact: 0
-7,ALPP - Alpine 4,ALPP,N/A | Impact: 0
-8,EMWPF - Eros Media World,EMWPF,N/A | Impact: 0
-9,AFMDQ - Affimed,AFMDQ,N/A | Impact: 0
-10,CAUD - Collective Audience,CAUD,N/A | Impact: 0
+2,ZVOI - Zovio,ZVOI,N/A | Impact: 0
+3,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
+4,EMWPF - Eros Media World,EMWPF,N/A | Impact: 0
+5,TIOG - Tingo Group,TIOG,N/A | Impact: 0
+6,JPPYY - Jupai,JPPYY,N/A | Impact: 0
+7,CAUD - Collective Audience,CAUD,N/A | Impact: 0
+8,XELA - Exela Technologies,XELA,N/A | Impact: 0
+9,IDEXQ - Ideanomics,IDEXQ,N/A | Impact: 0
+10,NVOS - Novo Integrated Sciences,NVOS,N/A | Impact: 0
