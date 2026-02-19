@@ -1,18 +1,18 @@
-Daily Stock Pick — February 18, 2026
+Daily Stock Pick — February 19, 2026
 
-CAUD – Collective Audience, Inc.
+ENSV – Enservco Corporation
 
-News: Acquired 51% of DSL Digital to expand performance marketing (8-K June 28, 2024) and continued 2025 buildout/IR updates. ([marketwatch.com](https://www.marketwatch.com/story/collective-audience-files-8k-entry-into-definitive-agreement-caud-4e3544e7?utm_source=openai))
+News: Q3’24 revenue +51.7% y/y (new logistics segment); 4Q’23 net income $1.9M; $10M equity facility and ~$2.2M debt-to-equity conversion (Jun’24) support liquidity.
 
-Score (0–1000): 580
+Score (0–1000): 620
 
-ADVICE: Ignore
+ADVICE: Buy
 
-Certainty: 62%
+Certainty: 56%
 
-Forecast image URL: https://stockscan.io/stocks/CAUD/forecast
+Forecast image URL: https://stockscan.io/stocks/ENSV/forecast
 
-Verifier note: Least-bad vs peers: CAUD remains operating with bolt-on M&A; others show insolvency/fraud/dissolution risks (Selina insolvency; Tingo SEC fraud case; Jupai microcap collapse). Sources: collectiveaudience.co IR; MarketWatch 8-K; news.com.au on Selina; TechCabal + BrandSpur on Tingo; StockAnalysis/TipRanks on JPPYY. ([collectiveaudience.co](https://collectiveaudience.co/investor-center/?utm_source=openai))
+Verifier note: Least-bad among distressed set: real revenue growth and a profitable 4Q’23 vs peers with severe legal/insolvency flags; dilution risk persists via equity facility but debt conversion de-levers. Sources: nasdaq.com (Zacks), stockanalysis.com (revenue/stats, next est. earnings 3/23/2026), wsj.com (ENSV 4Q net), marketwatch.com (Form 8‑K equity facility and debt conversion).
 
 ---
 **Legend**
