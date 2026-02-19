@@ -1,11 +1,11 @@
 date,ticker,company,pred_score,rank
-2026-02-17,SLNAF,Selina Hospitality,2.2709208,1
-2026-02-17,ZVOI,Zovio,2.1843104,2
-2026-02-17,TMPOQ,Tempo Automation,2.095407,3
-2026-02-17,EMWPF,Eros Media World,1.9792687,4
-2026-02-17,TIOG,Tingo Group,1.7641046,5
-2026-02-17,JPPYY,Jupai,1.739985,6
-2026-02-17,CAUD,Collective Audience,1.7372159,7
-2026-02-17,XELA,Exela Technologies,1.7117763,8
-2026-02-17,IDEXQ,Ideanomics,1.6077123,9
-2026-02-17,NVOS,Novo Integrated Sciences,1.570034,10
+2026-02-18,SLNAF,Selina Hospitality,2.2941372,1
+2026-02-18,XELA,Exela Technologies,1.9921116,2
+2026-02-18,EMWPF,Eros Media World,1.9792687,3
+2026-02-18,ZVOI,Zovio,1.8299406,4
+2026-02-18,TMPOQ,Tempo Automation,1.7932031,5
+2026-02-18,TIOG,Tingo Group,1.7097187,6
+2026-02-18,NVOS,Novo Integrated Sciences,1.6664165,7
+2026-02-18,CAUD,Collective Audience,1.6154035,8
+2026-02-18,ALPP,Alpine 4,1.5521082,9
+2026-02-18,ENSV,Enservco,1.5482521,10
