@@ -125,14 +125,15 @@ def _append_score_legend(text: str) -> str:
     legend = (
         "\n\n---\n"
         "**Legend**\n"
-        "🟢🟢🟢 **Ultra Strong Buy** — Score > 800 → “Guaranteed high return”\n"
-        "🟢 **Strong Buy** — Score > 700 → “Amazing Chances”\n"
-        "🟡 **Buy** — Score ≈ 600 → “Great Chances”\n"
-        "🔴 **Ignore** — Score < 599 → “Ignore”\n"
+        ">800 Ultra Strong Buy\n"
+        ">700 Strong Buy\n"
+        ">600 Buy\n"
+        "<599 Ignore\n"
+        "MAE~10%\n"
+        "Per-point: 0.167%/pt\n"
         "\n"
     )
     return (text or "").rstrip() + legend
-
 
 def main():
     now = datetime.now(TZ)
