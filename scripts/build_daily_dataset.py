@@ -606,6 +606,27 @@ def add_stock_features(
 
     df["SPY_close"] = df["SPY_close"].where(df["SPY_close"] > 0, np.nan)
 
+    if df["SPY_close"].notna().any():
+        spy_close = df[["date", "SPY_close"]].drop_duplicates("date").set_index("date")["SPY_close"]
+        spy_ema50 = spy_close.ewm(span=50, adjust=False).mean()
+        spy_ema200 = spy_close.ewm(span=200, adjust=False).mean()
+        spy_dist_ema200 = spy_close / spy_ema200 - 1.0
+        spy_ema50_slope = spy_ema50 / spy_ema50.shift(20) - 1.0
+        market_trend = 0.6 * spy_dist_ema200 + 0.4 * spy_ema50_slope
+        market_regime = pd.Series(0, index=market_trend.index)
+        market_regime[(spy_close > spy_ema200) & (spy_ema50_slope > 0)] = 1
+        market_regime[(spy_close < spy_ema200) & (spy_ema50_slope < 0)] = -1
+        m_mean = market_trend.mean()
+        m_std = market_trend.std(ddof=0)
+        market_trend_z = (market_trend - m_mean) / (m_std if m_std else np.nan)
+        df["market_trend"] = df["date"].map(market_trend)
+        df["market_regime"] = df["date"].map(market_regime)
+        df["market_trend_z"] = df["date"].map(market_trend_z)
+    else:
+        df["market_trend"] = np.nan
+        df["market_regime"] = np.nan
+        df["market_trend_z"] = np.nan
+
     df["RS_spy_ratio"] = df["close"] / df["SPY_close"]
     df.loc[df["RS_spy_ratio"] <= 0, "RS_spy_ratio"] = np.nan
     df["RS_spy"] = np.log(df["RS_spy_ratio"])
@@ -910,6 +931,9 @@ def main() -> None:
     elif df_max is not None:
         asof_date = df_max
     elif spy_max is not None:
+        asof_date = spy_max
+
+    if asof_date is not None and spy_max is not None and asof_date > spy_max:
         asof_date = spy_max
 
     if asof_date is not None and df_dates is not None:

@@ -149,6 +149,7 @@ def main() -> None:
     parser.add_argument("--out", default="data/daily_keep_7/keep.parquet")
     parser.add_argument("--knobs", default="knobs/keep_best_locked.json")
     parser.add_argument("--keep-pct", type=float, default=0.07)
+    parser.add_argument("--min-date-count", type=int, default=0)
     parser.add_argument("--direction", choices=["asc", "desc"], default="asc")
     args = parser.parse_args()
 
@@ -163,6 +164,9 @@ def main() -> None:
     keep_pct = float(knobs.get("keep_pct", args.keep_pct))
     if keep_pct <= 0 or keep_pct >= 1:
         raise ValueError("--keep-pct must be between 0 and 1 (exclusive).")
+    min_date_count = int(knobs.get("min_date_count", 50))
+    if args.min_date_count and int(args.min_date_count) > 0:
+        min_date_count = int(args.min_date_count)
 
     bull_scale = knobs.get("market_bull_scale", None)
     if bull_scale is None:
@@ -181,7 +185,7 @@ def main() -> None:
         weights=weights,
         raw_features=raw_features,
         keep_pct=keep_pct,
-        min_date_count=int(knobs.get("min_date_count", 50)),
+        min_date_count=min_date_count,
         score_mode=str(knobs.get("score_mode", "date_z")),
         higher_is_better=bool(knobs.get("higher_is_better", True)),
         min_sustain_all=float(knobs.get("min_sustain_all", 0.0)),
