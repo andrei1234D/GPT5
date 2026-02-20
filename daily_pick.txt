@@ -1,18 +1,18 @@
-Daily Stock Pick — February 19, 2026
+Daily Stock Pick — February 20, 2026
 
-ENSV – Enservco Corporation
+CAUD – Collective Audience, Inc.
 
-News: Q3’24 revenue +51.7% y/y (new logistics segment); 4Q’23 net income $1.9M; $10M equity facility and ~$2.2M debt-to-equity conversion (Jun’24) support liquidity.
+News: Pro forma growth from DSL Digital and BeOp acquisitions with improving Adjusted EBITDA trajectory and Fortune 1000 bookings. ([collectiveaudience.co](https://collectiveaudience.co/collective-audience-to-report-record-pro-forma-revenue-for-q3-2024-provides-2025-growth-outlook/?utm_source=openai))
 
-Score (0–1000): 620
+Score (0–1000): 610
 
 ADVICE: Buy
 
-Certainty: 56%
+Certainty: 58%
 
-Forecast image URL: https://stockscan.io/stocks/ENSV/forecast
+Forecast image URL: https://stockscan.io/stocks/CAUD/forecast
 
-Verifier note: Least-bad among distressed set: real revenue growth and a profitable 4Q’23 vs peers with severe legal/insolvency flags; dilution risk persists via equity facility but debt conversion de-levers. Sources: nasdaq.com (Zacks), stockanalysis.com (revenue/stats, next est. earnings 3/23/2026), wsj.com (ENSV 4Q net), marketwatch.com (Form 8‑K equity facility and debt conversion).
+Verifier note: Least-bad among high-risk set: CAUD shows record pro forma revenue and near-breakeven Adj. EBITDA following DSL Digital (51%) and BeOp deals, versus peers with delisting/wind-down/insolvency risks (ALPP/ORGS/NVOS; SLNA). Sources: company PR (collectiveaudience.co), DSL deal 8-K summary (MarketWatch), Nasdaq delisting notice (nasdaq.com), Selina distress coverage (TipRanks). ([collectiveaudience.co](https://collectiveaudience.co/collective-audience-to-report-record-pro-forma-revenue-for-q3-2024-provides-2025-growth-outlook/?utm_source=openai))
 
 ---
 **Legend**

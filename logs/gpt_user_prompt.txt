@@ -1,18 +1,18 @@
-TODAY is Feb 19. You are given the 10 ML-ranked candidates, ordered.
+TODAY is Feb 20. You are given the 10 ML-ranked candidates, ordered.
 Pick exactly ONE option with the best EV and lowest risk using up-to-date web data for the next 6 months.
 Do not assume any candidate is good; score strictly by evidence.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,PipelineNews
 1,SLNAF - Selina Hospitality,SLNAF,N/A | Impact: 0
-2,XELA - Exela Technologies,XELA,N/A | Impact: 0
+2,ORGS - Orgenesis,ORGS,N/A | Impact: 0
 3,EMWPF - Eros Media World,EMWPF,N/A | Impact: 0
-4,ZVOI - Zovio,ZVOI,N/A | Impact: 0
-5,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
-6,TIOG - Tingo Group,TIOG,N/A | Impact: 0
-7,NVOS - Novo Integrated Sciences,NVOS,N/A | Impact: 0
-8,CAUD - Collective Audience,CAUD,N/A | Impact: 0
-9,ALPP - Alpine 4,ALPP,N/A | Impact: 0
-10,ENSV - Enservco,ENSV,N/A | Impact: 0
+4,XELA - Exela Technologies,XELA,N/A | Impact: 0
+5,SRAX - SRAX,SRAX,N/A | Impact: 0
+6,TMPOQ - Tempo Automation,TMPOQ,N/A | Impact: 0
+7,ALPP - Alpine 4,ALPP,N/A | Impact: 0
+8,NVOS - Novo Integrated Sciences,NVOS,N/A | Impact: 0
+9,CAUD - Collective Audience,CAUD,N/A | Impact: 0
+10,TBLT - Toughbuilt Industries,TBLT,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
