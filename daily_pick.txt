@@ -1,18 +1,18 @@
 Daily Stock Pick — February 20, 2026
 
-CAUD – Collective Audience, Inc.
+HAI.TO – Haivision Systems Inc.
 
-News: Pro forma growth from DSL Digital and BeOp acquisitions with improving Adjusted EBITDA trajectory and Fortune 1000 bookings. ([collectiveaudience.co](https://collectiveaudience.co/collective-audience-to-report-record-pro-forma-revenue-for-q3-2024-provides-2025-growth-outlook/?utm_source=openai))
+News: Q4 FY2025 revenue +33% y/y to $40.2M; 17.6% adj. EBITDA margin; FY2025 revenue $137.6M with improving profitability momentum.
 
-Score (0–1000): 610
+Score (0–1000): 690
 
 ADVICE: Buy
 
-Certainty: 58%
+Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/CAUD/forecast
+Forecast image URL: https://stockscan.io/stocks/HAI.TO/forecast
 
-Verifier note: Least-bad among high-risk set: CAUD shows record pro forma revenue and near-breakeven Adj. EBITDA following DSL Digital (51%) and BeOp deals, versus peers with delisting/wind-down/insolvency risks (ALPP/ORGS/NVOS; SLNA). Sources: company PR (collectiveaudience.co), DSL deal 8-K summary (MarketWatch), Nasdaq delisting notice (nasdaq.com), Selina distress coverage (TipRanks). ([collectiveaudience.co](https://collectiveaudience.co/collective-audience-to-report-record-pro-forma-revenue-for-q3-2024-provides-2025-growth-outlook/?utm_source=openai))
+Verifier note: Low leverage software-like margins; record Q4 growth and positive operating profit reduce downside risk; steady enterprise/defense demand offers clearer 6‑month EV vs risk than highly levered/biotech peers. Sources: ir.haivision.com (FY2025/Q4 results). ([ir.haivision.com](https://ir.haivision.com/news/news-details/2026/Haivision-Announces-Results-for-the-Three-Months-and-Full-Year-Ended-October-31-2025/default.aspx?utm_source=openai))
 
 ---
 **Legend**
