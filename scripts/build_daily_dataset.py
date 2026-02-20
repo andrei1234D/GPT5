@@ -50,21 +50,58 @@ REQUIRED_FEATURES = [
     "BRI",
     "TailwindScore",
     "TotalScore",
+    "mom_6m",
+    "mom_3m",
+    "ema_stack",
+    "ema50_slope",
+    "vol_20",
+    "vol_60",
+    "vol_120",
+    "vol_ratio_20_120",
+    "vol_of_vol_20",
+    "vol_spike_20",
+    "gap_up",
+    "gap_up_on_vol",
+    "pullback_quality",
+    "mdd_3m",
+    "sustain_all",
+    "log_adv_20",
+    "log_adv_60",
+    "adv_ratio_20_60",
+    "proximity_high_126",
+    "RS_spy_ratio",
+    "RS_sector_ratio",
+    "RS_spy_slope90",
+    "RS_sector_slope90",
+    "market_trend",
+    "market_trend_z",
+    "market_regime",
     "z_mom_6m",
     "z_mom_3m",
     "z_ema_stack",
     "z_ema50_slope",
+    "z_vol_20",
     "z_vol_60",
+    "z_vol_120",
+    "z_vol_ratio_20_120",
+    "z_vol_of_vol_20",
+    "z_vol_spike_20",
     "z_mdd_3m",
     "z_sustain",
     "z_log_adv",
+    "z_log_adv_60",
+    "z_adv_ratio_20_60",
+    "z_gap_up",
+    "z_gap_up_on_vol",
+    "z_pullback_quality",
     "z_prox_high",
     "z_RS_spy_slope",
     "z_RS_sector_slope",
-    "ema_stack",
-    "ema50_slope",
-    "RS_spy_slope90",
-    "RS_sector_slope90",
+    "combo_mom_trend",
+    "combo_rs_trend",
+    "combo_vol_trend",
+    "combo_tailwind_mom",
+    "combo_trend_regime",
 ]
 
 
@@ -469,7 +506,12 @@ def add_stock_features(
     df["logret"] = df["logret"].replace([np.inf, -np.inf], np.nan)
     df["mom_6m"] = g["close"].apply(lambda s: s / s.shift(126) - 1.0)
     df["mom_3m"] = g["close"].apply(lambda s: s / s.shift(63) - 1.0)
+    df["vol_20"] = g["logret"].apply(lambda s: s.rolling(20, min_periods=10).std())
     df["vol_60"] = g["logret"].apply(lambda s: s.rolling(60, min_periods=20).std())
+    df["vol_120"] = g["logret"].apply(lambda s: s.rolling(120, min_periods=40).std())
+    df["vol_of_vol_20"] = g["vol_20"].apply(lambda s: s.rolling(20, min_periods=10).std())
+    df["vol_ratio_20_120"] = df["vol_20"] / df["vol_120"]
+    df.loc[~np.isfinite(df["vol_ratio_20_120"]), "vol_ratio_20_120"] = np.nan
     df["mdd_3m"] = g["close"].apply(lambda s: trailing_mdd(s, 63, min_periods=20))
 
     df["ema20"] = g["close"].apply(lambda s: s.ewm(span=20, adjust=False).mean())
@@ -500,10 +542,30 @@ def add_stock_features(
     )
     df["log_adv_20"] = np.log1p(df["adv_20"])
     df["log_adv_60"] = np.log1p(df["adv_60"])
+    df["adv_ratio_20_60"] = df["adv_20"] / df["adv_60"]
+    df.loc[~np.isfinite(df["adv_ratio_20_60"]), "adv_ratio_20_60"] = np.nan
+
+    df["dollar_vol"] = pd.to_numeric(df["close"], errors="coerce") * pd.to_numeric(
+        df["volume"], errors="coerce"
+    )
+    df["log_dollar_vol"] = np.log1p(df["dollar_vol"])
+
+    def rolling_z_window(s: pd.Series, window: int) -> pd.Series:
+        mean = s.rolling(window).mean()
+        std = s.rolling(window).std(ddof=0)
+        return (s - mean) / std.replace(0, np.nan)
+
+    df["vol_spike_20"] = g["log_dollar_vol"].apply(lambda s: rolling_z_window(s, 20))
+    prev_close = g["close"].shift(1)
+    df["gap_up"] = df["open"] / prev_close - 1.0
+    df.loc[prev_close <= 0, "gap_up"] = np.nan
+    df["gap_up_on_vol"] = df["gap_up"] * df["vol_spike_20"]
 
     df["proximity_high_126"] = (
         df["close"] / g["close"].apply(lambda s: s.rolling(126, min_periods=30).max()) - 1.0
     )
+    df["pullback_depth"] = (-df["proximity_high_126"]).clip(lower=0)
+    df["pullback_quality"] = df["pullback_depth"] * df["sustain_all"]
 
     index_features = index_features.copy()
     index_features["date"] = pd.to_datetime(index_features["date"])
@@ -575,11 +637,21 @@ def add_stock_features(
     df["z_mom_3m"] = z_by_date("mom_3m")
     df["z_ema_stack"] = z_by_date("ema_stack")
     df["z_ema50_slope"] = z_by_date("ema50_slope")
+    df["z_vol_20"] = z_by_date("vol_20")
     df["z_vol_60"] = z_by_date("vol_60")
+    df["z_vol_120"] = z_by_date("vol_120")
+    df["z_vol_ratio_20_120"] = z_by_date("vol_ratio_20_120")
+    df["z_vol_of_vol_20"] = z_by_date("vol_of_vol_20")
+    df["z_vol_spike_20"] = z_by_date("vol_spike_20")
     df["abs_mdd_3m"] = df["mdd_3m"].abs()
     df["z_mdd_3m"] = z_by_date("abs_mdd_3m")
     df["z_sustain"] = z_by_date("sustain_all")
     df["z_log_adv"] = z_by_date("log_adv_20")
+    df["z_log_adv_60"] = z_by_date("log_adv_60")
+    df["z_adv_ratio_20_60"] = z_by_date("adv_ratio_20_60")
+    df["z_gap_up"] = z_by_date("gap_up")
+    df["z_gap_up_on_vol"] = z_by_date("gap_up_on_vol")
+    df["z_pullback_quality"] = z_by_date("pullback_quality")
     df["z_prox_high"] = z_by_date("proximity_high_126")
     df["z_RS_spy_slope"] = z_by_date("RS_spy_slope90")
     df["z_RS_sector_slope"] = z_by_date("RS_sector_slope90")
@@ -613,6 +685,13 @@ def add_stock_features(
     )
 
     df["TotalScore"] = 0.55 * df["STSI"] + 0.25 * df["RLI"] + 0.20 * df["TailwindScore"]
+
+    trend_z = df["market_trend_z"].fillna(0.0)
+    df["combo_mom_trend"] = df["z_mom_6m"].fillna(0.0) * trend_z
+    df["combo_rs_trend"] = df["z_RS_spy_slope"].fillna(0.0) * trend_z
+    df["combo_vol_trend"] = df["z_vol_spike_20"].fillna(0.0) * trend_z
+    df["combo_tailwind_mom"] = df["TailwindScore"].fillna(0.0) * df["z_mom_6m"].fillna(0.0)
+    df["combo_trend_regime"] = trend_z * df["market_regime"].fillna(0.0)
 
     return df
 

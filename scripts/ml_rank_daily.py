@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.impute import SimpleImputer
 
 
 FEATURES = [
@@ -55,17 +57,42 @@ def predict_xgb(model_pair, X: np.ndarray):
     return model.predict(dmat)
 
 
+def load_lgb_model(path: Path):
+    import lightgbm as lgb
+
+    return lgb.Booster(model_file=str(path))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/daily_scored.parquet")
     parser.add_argument("--keep", default="data/daily_keep_7/keep.parquet")
-    parser.add_argument(
-        "--model",
-        default="scripts/train_model/LLM_bot/Brain/xgb_rank_fwd_end_6m.json",
-    )
+    parser.add_argument("--model", default="")
     parser.add_argument("--out", default="data/top10_ml.csv")
-    parser.add_argument("--topk", type=int, default=10)
+    parser.add_argument("--topk", type=int, default=None)
+    parser.add_argument("--knobs", default="knobs/ml_knobs.json")
     args = parser.parse_args()
+
+    model_type = "lightgbm"
+    features = FEATURES
+    model_path = args.model
+    knobs_path = Path(args.knobs)
+    if knobs_path.exists():
+        try:
+            knobs = json.loads(knobs_path.read_text(encoding="utf-8"))
+            model_type = str(knobs.get("model_type", model_type)).lower()
+            features = knobs.get("feature_cols", features)
+            if not model_path:
+                model_path = str(knobs.get("model_path", model_path))
+            if args.topk is None and "topk" in knobs:
+                args.topk = int(knobs.get("topk", 10))
+        except Exception:
+            pass
+
+    if not model_path:
+        model_path = "scripts/train_model/LLM_bot/Brain/xgb_rank_fwd_end_6m.json"
+    if args.topk is None:
+        args.topk = 10
 
     data_df = pd.read_parquet(args.data)
     keep_df = pd.read_parquet(args.keep, columns=["date", "ticker"])
@@ -80,28 +107,20 @@ def main() -> None:
         raise SystemExit("No rows after keep filter.")
 
     X = df.copy()
-    missing_cols = [c for c in FEATURES if c not in X.columns]
-    if missing_cols:
-        for c in missing_cols:
+    for c in features:
+        if c not in X.columns:
             X[c] = 0.0
-        print(f"[ml_rank_daily] Missing feature columns filled with 0: {missing_cols}")
+    X = X[features]
 
-    X = X[FEATURES].copy()
+    imputer = SimpleImputer(strategy="median")
+    X_imp = imputer.fit_transform(X)
 
-    all_nan = [c for c in FEATURES if X[c].isna().all()]
-    if all_nan:
-        for c in all_nan:
-            X[c] = 0.0
-        print(f"[ml_rank_daily] All-NaN feature columns filled with 0: {all_nan}")
-
-    # Fill remaining NaNs with per-column median (robust, no feature drop)
-    medians = X.median(numeric_only=True)
-    X = X.fillna(medians)
-    X = X.fillna(0.0)
-    X_imp = X.to_numpy()
-
-    model_pair = load_xgb_model(Path(args.model))
-    pred = predict_xgb(model_pair, X_imp)
+    if model_type in {"xgb", "xgboost"}:
+        model_pair = load_xgb_model(Path(model_path))
+        pred = predict_xgb(model_pair, X_imp)
+    else:
+        lgb_model = load_lgb_model(Path(model_path))
+        pred = lgb_model.predict(X_imp)
     df["pred_score"] = pred
 
     df = df.sort_values("pred_score", ascending=False).head(int(args.topk)).copy()

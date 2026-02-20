@@ -52,6 +52,7 @@ jobs:
           openai
           scikit-learn==1.6.1
           xgboost==3.1.2
+          lightgbm
           REQ
           cat requirements.txt
 
@@ -115,10 +116,10 @@ jobs:
         run: python scripts/build_daily_dataset.py --universe data/universe_clean.csv --out data/daily_scored.parquet --history-days 260 --include-sectors --sector-mode yfinance --sector-map data/sector_map.json
 
       - name: Deterministic keep (7%)
-        run: python scripts/deterministic_keep.py --input data/daily_scored.parquet --out data/daily_keep_7/keep.parquet --keep-pct 0.07 --direction asc
+        run: python scripts/deterministic_keep.py --input data/daily_scored.parquet --out data/daily_keep_7/keep.parquet --knobs knobs/keep_best_locked.json
 
       - name: ML rank top 10
-        run: python scripts/ml_rank_daily.py --data data/daily_scored.parquet --keep data/daily_keep_7/keep.parquet --out data/top10_ml.csv --topk 10
+        run: python scripts/ml_rank_daily.py --data data/daily_scored.parquet --keep data/daily_keep_7/keep.parquet --knobs knobs/ml_knobs.json --out data/top10_ml.csv --topk 10
 
       # -----------------------------
       # Commit top10 output for downstream job

@@ -65,7 +65,7 @@ def _normalize_symbol_for_yahoo(sym: str) -> str:
 YF_HISTORY_CACHE_DIR = os.getenv("YF_HISTORY_CACHE_DIR", "data/yf_history_cache")
 YF_HISTORY_CACHE_TTL_S = int(os.getenv("YF_HISTORY_CACHE_TTL_S", "86400"))
 # Large Yahoo batch requests are unreliable; chunk or disable batching.
-YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", "200"))
+YF_BATCH_SIZE = int(os.getenv("YF_BATCH_SIZE", os.getenv("YF_CHUNK_SIZE", "200")))
 YF_BATCH_SLEEP = float(os.getenv("YF_BATCH_SLEEP", "0"))
 YF_DISABLE_BATCH = os.getenv("YF_DISABLE_BATCH", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
 YF_BATCH_FALLBACK_ALL = os.getenv("YF_BATCH_FALLBACK_ALL", "0").strip() in {"1", "true", "TRUE", "yes", "YES"}
