@@ -227,6 +227,40 @@ def load_sector_map(tickers: List[str], path: str, mode: str, sleep_s: float) ->
     return updated
 
 
+def load_fundamentals(tickers: List[str], path: str, sleep_s: float) -> dict[str, dict]:
+    p = Path(path)
+    try:
+        cached = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        cached = {}
+
+    updated = dict(cached)
+    to_fetch = [t for t in tickers if t not in updated]
+
+    if to_fetch:
+        for t in to_fetch:
+            try:
+                info = yf.Ticker(t).get_info()
+                updated[t] = {
+                    "trailingPE": info.get("trailingPE"),
+                    "forwardPE": info.get("forwardPE"),
+                    "earningsGrowth": info.get("earningsGrowth"),
+                    "marketCap": info.get("marketCap"),
+                }
+            except Exception:
+                pass
+            if sleep_s:
+                time.sleep(sleep_s)
+
+        p.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            p.write_text(json.dumps(updated))
+        except Exception:
+            pass
+
+    return updated
+
+
 def _load_bad_tickers(path: str) -> set[str]:
     p = Path(path)
     if not p.exists():
@@ -727,6 +761,8 @@ def main() -> None:
     parser.add_argument("--sector-mode", choices=["yfinance", "none"], default="yfinance")
     parser.add_argument("--sector-map", default="data/sector_map.json")
     parser.add_argument("--sector-sleep", type=float, default=0.05)
+    parser.add_argument("--fundamentals-path", default="data/fundamentals.json")
+    parser.add_argument("--fundamentals-sleep", type=float, default=0.05)
     parser.add_argument("--bad-tickers", default="data/bad_tickers.csv")
     parser.add_argument("--short-history-out", default="data/short_history.csv")
     parser.add_argument("--aliases", default="data/aliases.csv")
@@ -946,6 +982,55 @@ def main() -> None:
         )
     if "close" in df.columns:
         df = df[df["close"].notna()].copy()
+
+    # Fundamentals (PEG) - trailing PE first, then forward PE; invalid if PE<=0 or growth<=0
+    try:
+        tickers_f = sorted(df["ticker"].dropna().astype(str).str.strip().unique().tolist())
+    except Exception:
+        tickers_f = []
+    fund_map = load_fundamentals(tickers_f, args.fundamentals_path, args.fundamentals_sleep)
+    if fund_map:
+        fund_df = pd.DataFrame.from_dict(fund_map, orient="index")
+        fund_df.index.name = "ticker"
+        fund_df = fund_df.reset_index()
+        df = df.merge(fund_df, on="ticker", how="left", sort=False, copy=False, validate="m:1")
+    else:
+        df["trailingPE"] = np.nan
+        df["forwardPE"] = np.nan
+        df["earningsGrowth"] = np.nan
+        df["marketCap"] = np.nan
+
+    for c in ["trailingPE", "forwardPE", "earningsGrowth", "marketCap"]:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
+
+    pe_used = df["trailingPE"].where(df["trailingPE"] > 0, df["forwardPE"])
+    pe_used = pe_used.where(pe_used > 0)
+    growth = df["earningsGrowth"]
+    df["peg"] = pe_used / growth
+    df.loc[(pe_used <= 0) | (growth <= 0), "peg"] = np.nan
+    df["marketCap"] = df["marketCap"].where(df["marketCap"] > 0, np.nan)
+    df["log_mcap"] = np.log10(df["marketCap"])
+
+    try:
+        df["mcap_bucket"] = pd.qcut(df["log_mcap"], q=3, labels=False, duplicates="drop")
+    except Exception:
+        df["mcap_bucket"] = np.nan
+
+    def _z_score(s: pd.Series) -> pd.Series:
+        std = s.std(ddof=0)
+        if not np.isfinite(std) or std == 0:
+            return pd.Series(np.nan, index=s.index)
+        return (s - s.mean()) / std
+
+    df["z_peg_bucket"] = df.groupby("mcap_bucket")["peg"].transform(_z_score)
+    df["z_peg_bucket"] = -df["z_peg_bucket"]
+
+    try:
+        peg_valid = int(df["peg"].notna().sum())
+        print(f"[build_daily_dataset] PEG valid={peg_valid}/{len(df)}")
+    except Exception:
+        pass
     # Drop rows missing required downstream features
     req = [c for c in REQUIRED_FEATURES if c in df.columns]
     if req:
