@@ -4,6 +4,8 @@ import sys
 import time
 import json
 import csv
+import re
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -121,7 +123,112 @@ def _post_discord(webhook_url: str, title: str, description: str) -> None:
     requests.post(webhook_url, json=payload, timeout=60).raise_for_status()
 
 
+def _score_pct_per_point() -> float:
+    try:
+        data = json.loads(Path("knobs/score_calibration.json").read_text(encoding="utf-8"))
+        mu_perfect = float(data.get("mu_perfect", 1.672281))
+        return (mu_perfect * 100.0) / 1000.0
+    except Exception:
+        return 0.1672281
+
+
+def _load_score_calibration() -> dict | None:
+    try:
+        data = json.loads(Path("knobs/score_calibration.json").read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    bins = int(data.get("bins", 0))
+    mu_adj = data.get("mu_adj")
+    if not bins or not isinstance(mu_adj, list) or len(mu_adj) != bins:
+        return None
+    return {
+        "bins": bins,
+        "pred_min": float(data.get("pred_min", 0.0)),
+        "pred_max": float(data.get("pred_max", 1.0)),
+        "mu_adj": mu_adj,
+    }
+
+
+def _expected_return_from_pred(pred: float, calib: dict | None) -> float | None:
+    if calib is None or pred is None or not math.isfinite(pred):
+        return None
+    pred_min = float(calib["pred_min"])
+    pred_max = float(calib["pred_max"])
+    bins = int(calib["bins"])
+    if not math.isfinite(pred_min) or not math.isfinite(pred_max) or pred_max <= pred_min:
+        return None
+    idx = int((pred - pred_min) / (pred_max - pred_min) * bins)
+    if idx < 0:
+        idx = 0
+    elif idx >= bins:
+        idx = bins - 1
+    try:
+        mu = float(calib["mu_adj"][idx])
+        if not math.isfinite(mu):
+            return None
+        return mu * 100.0
+    except Exception:
+        return None
+
+
+def _extract_ticker(text: str) -> str | None:
+    if not text:
+        return None
+    for line in text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        # Expect "TICKER – Full Name" or "TICKER - Full Name"
+        if " - " in s or " – " in s:
+            parts = re.split(r"\s[–-]\s", s, maxsplit=1)
+            if parts:
+                t = parts[0].strip()
+                if re.fullmatch(r"[A-Z0-9.\-]+", t):
+                    return t
+        # Fallback: line starts with ticker
+        m = re.match(r"^([A-Z0-9.\-]{1,15})\b", s)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _extract_score(text: str) -> int | None:
+    if not text:
+        return None
+    for line in text.splitlines():
+        if line.lower().startswith("score"):
+            m = re.search(r"(\d{1,4})", line)
+            if m:
+                try:
+                    val = int(m.group(1))
+                    if 0 <= val <= 1000:
+                        return val
+                except Exception:
+                    pass
+    return None
+
+
 def _append_score_legend(text: str) -> str:
+    score = _extract_score(text)
+    pct_per_point = _score_pct_per_point()
+    expected_line = ""
+    # Prefer calibrated expected return from model prediction (top10_ml.csv)
+    expected = None
+    try:
+        ticker = _extract_ticker(text)
+        if ticker:
+            top_df = pd.read_csv("data/top10_ml.csv")
+            top_df["ticker"] = top_df["ticker"].astype(str).str.strip()
+            row = top_df[top_df["ticker"] == ticker].head(1)
+            if not row.empty and "pred_score" in row.columns:
+                pred = float(row.iloc[0]["pred_score"])
+                expected = _expected_return_from_pred(pred, _load_score_calibration())
+    except Exception:
+        expected = None
+    if expected is None and score is not None:
+        expected = score * pct_per_point
+    if expected is not None and math.isfinite(expected):
+        expected_line = f"Expected return (approx): {expected:.1f}%\n"
     legend = (
         "\n\n---\n"
         "**Legend**\n"
@@ -129,8 +236,8 @@ def _append_score_legend(text: str) -> str:
         ">700 Strong Buy\n"
         ">600 Buy\n"
         "<599 Ignore\n"
-        "MAE~10%\n"
-        "Per-point: 0.167%/pt\n"
+        f"{expected_line}"
+        "MAE~9%\n"
         "\n"
     )
     return (text or "").rstrip() + legend
