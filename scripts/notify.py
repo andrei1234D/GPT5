@@ -225,12 +225,12 @@ def _replace_score_line(text: str, score: int) -> str:
 
 def _advice_from_score(score: int) -> str:
     if score > 800:
-        return "Ultra Strong Buy"
+        return "**🟢🟢🟢 Ultra Strong Buy**"
     if score > 700:
-        return "Strong Buy"
+        return "**🟢🟢 Strong Buy**"
     if score > 600:
-        return "Buy"
-    return "Ignore"
+        return "**🟢 Buy**"
+    return "**🔴 Ignore**"
 
 
 def _replace_advice_line(text: str, advice: str) -> str:
@@ -283,10 +283,10 @@ def _append_score_legend(text: str) -> str:
     legend = (
         "\n\n---\n"
         "**Legend**\n"
-        ">800 Ultra Strong Buy\n"
-        ">700 Strong Buy\n"
-        ">600 Buy\n"
-        "<599 Ignore\n"
+        "**🟢🟢🟢 Ultra Strong Buy**\n"
+        "**🟢🟢 Strong Buy**\n"
+        "**🟢 Buy**\n"
+        "**🔴 Ignore**\n"
         f"{expected_line}"
         "MAE~25%\n"
         "\n"
