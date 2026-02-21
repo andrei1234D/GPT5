@@ -237,7 +237,7 @@ def _append_score_legend(text: str) -> str:
         ">600 Buy\n"
         "<599 Ignore\n"
         f"{expected_line}"
-        "MAE~9%\n"
+        "MAE~25%\n"
         "\n"
     )
     return (text or "").rstrip() + legend
