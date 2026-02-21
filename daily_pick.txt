@@ -1,10 +1,10 @@
 Daily Stock Pick — February 21, 2026
 
-ENLT – Enlight Renewable Energy Ltd.
+ENLT – Enlight Renewable Energy
 
-News: Feb 17, 2026: Q4/FY25 results confirm covenant compliance; FY25 guidance was raised in Nov and storage pipeline expanded.
+News: Q4’25 results (Feb 17, 2026) show expanded storage pipeline and major financings; Q3’25 had raised guidance amid ~46% revenue growth. ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-fourth-quarter-2025-financial-results-2026-02-17?utm_source=openai))
 
-Score (0–1000): 680
+Score (0-1000): 754
 
 ADVICE: Buy
 
@@ -12,7 +12,7 @@ Certainty: 62%
 
 Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
 
-Verifier note: Profitable growth (Q3’25 rev +46% YoY; FY25 guide $555–565m), strong financing/tax equity secured, low standalone leverage (net debt to cap ~36%) and covenant compliance; execution/rate risks but 90% hedged 2025 output supports 6‑mo downside control. Sources: nasdaq.com (Feb 17, 2026 PR), globenewswire.com (Nov 12, 2025 PR), clenera.com IR summary.
+Verifier note: Best EV/risk: real revenue growth, secured project/tax equity ($1.4B Snowflake A; $470m Roadrunner/Quail), topco cash ~$217m and undrawn credit support execution; prior 2025 equity/debt raises moderate dilution but de-risk buildout; key risks are project execution, power-price/geopolitical exposure. Sources: Nasdaq press release (Feb 17, 2026); Investing.com Q3’25 update. ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-fourth-quarter-2025-financial-results-2026-02-17?utm_source=openai))
 
 ---
 **Legend**
