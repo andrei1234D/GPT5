@@ -2,17 +2,17 @@ Daily Stock Pick — February 21, 2026
 
 ENLT – Enlight Renewable Energy Ltd.
 
-News: Raised FY2025 guidance; secured ~$1.4B project finance (Snowflake A) and tax equity, with ~90% of 2025 output hedged/fixed.
+News: Feb 17, 2026: Q4/FY25 results confirm covenant compliance; FY25 guidance was raised in Nov and storage pipeline expanded.
 
-Score (0–1000): 720
+Score (0–1000): 680
 
-ADVICE: Strong Buy
+ADVICE: Buy
 
-Certainty: 68%
+Certainty: 62%
 
-Forecast image URL: "https://stockscan.io/stocks/ENLT/forecast"
+Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
 
-Verifier note: Strong growth and visibility (Q3–Q4 2025: ~46% rev growth; FY2025 rev $555–565M, adj. EBITDA $405–415M), robust financing and topco liquidity; dilution manageable vs. pipeline; lower risk than pre-revenue/levered peers. Sources: nasdaq.com (Q3 & Q4 2025 results/financing), investing.com (guidance/metrics). ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-third-quarter-2025-financial-results-2025-11-12?utm_source=openai))
+Verifier note: Profitable growth (Q3’25 rev +46% YoY; FY25 guide $555–565m), strong financing/tax equity secured, low standalone leverage (net debt to cap ~36%) and covenant compliance; execution/rate risks but 90% hedged 2025 output supports 6‑mo downside control. Sources: nasdaq.com (Feb 17, 2026 PR), globenewswire.com (Nov 12, 2025 PR), clenera.com IR summary.
 
 ---
 **Legend**
@@ -20,6 +20,6 @@ Verifier note: Strong growth and visibility (Q3–Q4 2025: ~46% rev growth; FY20
 >700 Strong Buy
 >600 Buy
 <599 Ignore
-MAE~10%
-Per-point: 0.167%/pt
+Expected return (approx): 126.1%
+MAE~25%
 

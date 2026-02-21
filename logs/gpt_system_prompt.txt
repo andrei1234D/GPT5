@@ -23,15 +23,11 @@ EVIDENCE RULES
 - Keep the research lightweight: target ~3 sources total (prefer 2-3), max 5 only if needed.
 - If no valuable data is found in the first sources, you can look for up to 10 sources for the unknown tickers. But aim for the first rule of few sources.
 
-SCORING (0–1000)
-- Produce an independent score (integer 0–1000) based on EV and risk over the next 6 months.
-- Convert the provided rank into a points prior; ranking is a strong probabilistic signal.
-- Treat the ranking as a meaningful gradient: start near the top and let rank provide a soft pull upward,
-  but allow evidence to override and justify moving down when risks are materially lower.
-- Adjust your confidence primarily using evidence from fundamentals, valuation, catalysts, and risk.
-- If evidence contradicts the ranking (e.g., dilution, going-concern risk, weak earnings quality),
-  you must penalize the score accordingly, even for highly ranked tickers.
-  - The score must reflect expected return and risk over the next 6 months, consistent with the Legend/Advice meanings.
+SCORING (0-1000)
+- Do NOT change the provided gpt_score. Report it exactly as given for the chosen ticker.
+- Use evidence to choose the best ticker, even if it has a lower score than a higher-ranked name.
+- Your job is to explain why a lower score can win (risk, fundamentals, catalysts, valuation).
+- The score is a model prior; your decision can override the rank, but the score itself stays unchanged.
 
 
 LEGEND / ADVICE
@@ -39,8 +35,7 @@ LEGEND / ADVICE
 - Score > 700 Strong Buy
 - Score > 600 Buy
 - Score < 599 Ignore
-- Avg error: ~10% return variation
-- Point return (approx):0.167%/pt
+
 
 OUTPUT FORMAT (MANDATORY)
 Output exactly 8 lines, exactly in this order, for the SINGLE chosen pick:
