@@ -1,23 +1,25 @@
-Daily Stock Pick — February 20, 2026
+Daily Stock Pick — February 21, 2026
 
-HAI.TO – Haivision Systems Inc.
+ENLT – Enlight Renewable Energy Ltd.
 
-News: Q4 FY2025 revenue +33% y/y to $40.2M; 17.6% adj. EBITDA margin; FY2025 revenue $137.6M with improving profitability momentum.
+News: Raised FY2025 guidance; secured ~$1.4B project finance (Snowflake A) and tax equity, with ~90% of 2025 output hedged/fixed.
 
-Score (0–1000): 690
+Score (0–1000): 720
 
-ADVICE: Buy
+ADVICE: Strong Buy
 
 Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/HAI.TO/forecast
+Forecast image URL: "https://stockscan.io/stocks/ENLT/forecast"
 
-Verifier note: Low leverage software-like margins; record Q4 growth and positive operating profit reduce downside risk; steady enterprise/defense demand offers clearer 6‑month EV vs risk than highly levered/biotech peers. Sources: ir.haivision.com (FY2025/Q4 results). ([ir.haivision.com](https://ir.haivision.com/news/news-details/2026/Haivision-Announces-Results-for-the-Three-Months-and-Full-Year-Ended-October-31-2025/default.aspx?utm_source=openai))
+Verifier note: Strong growth and visibility (Q3–Q4 2025: ~46% rev growth; FY2025 rev $555–565M, adj. EBITDA $405–415M), robust financing and topco liquidity; dilution manageable vs. pipeline; lower risk than pre-revenue/levered peers. Sources: nasdaq.com (Q3 & Q4 2025 results/financing), investing.com (guidance/metrics). ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-third-quarter-2025-financial-results-2025-11-12?utm_source=openai))
 
 ---
 **Legend**
-🟢🟢🟢 **Ultra Strong Buy** — Score > 800 → “Guaranteed high return”
-🟢 **Strong Buy** — Score > 700 → “Amazing Chances”
-🟡 **Buy** — Score ≈ 600 → “Great Chances”
-🔴 **Ignore** — Score < 599 → “Ignore”
+>800 Ultra Strong Buy
+>700 Strong Buy
+>600 Buy
+<599 Ignore
+MAE~10%
+Per-point: 0.167%/pt
 
