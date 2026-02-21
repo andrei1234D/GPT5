@@ -116,10 +116,10 @@ jobs:
         run: python scripts/build_daily_dataset.py --universe data/universe_clean.csv --out data/daily_scored.parquet --history-days 260 --include-sectors --sector-mode yfinance --sector-map data/sector_map.json
 
       - name: Deterministic keep (7%)
-        run: python scripts/deterministic_keep.py --input data/daily_scored.parquet --out data/daily_keep_7/keep.parquet --knobs knobs/keep_best_locked.json
+        run: python scripts/deterministic_keep.py --input data/daily_scored.parquet --out data/daily_keep_10/keep.parquet --knobs knobs/keep_best_locked.json
 
       - name: ML rank top 10
-        run: python scripts/ml_rank_daily.py --data data/daily_scored.parquet --keep data/daily_keep_7/keep.parquet --knobs knobs/ml_knobs.json --out data/top10_ml.csv --topk 10
+        run: python scripts/ml_rank_daily.py --data data/daily_scored.parquet --keep data/daily_keep_10/keep.parquet --knobs knobs/ml_knobs.json --out data/top10_ml.csv --topk 10
 
       # -----------------------------
       # Commit top10 output for downstream job
@@ -133,7 +133,7 @@ jobs:
           git fetch origin main
           git rebase --autostash origin/main
 
-          git add -f data/sector_map.json data/short_history.csv data/aliases.csv data/bad_tickers.csv data/daily_scored.parquet data/daily_scored.missing.csv data/daily_keep_7/keep.parquet data/top10_ml.csv || true
+          git add -f data/sector_map.json data/short_history.csv data/aliases.csv data/bad_tickers.csv data/daily_scored.parquet data/daily_scored.missing.csv data/daily_keep_10/keep.parquet data/top10_ml.csv || true
           if git diff --cached --quiet; then
             echo "No new ML output"
             exit 0

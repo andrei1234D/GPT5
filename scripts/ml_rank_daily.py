@@ -160,7 +160,7 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/daily_scored.parquet")
-    parser.add_argument("--keep", default="data/daily_keep_7/keep.parquet")
+    parser.add_argument("--keep", default="data/daily_keep_10/keep.parquet")
     parser.add_argument("--model", default="")
     parser.add_argument("--out", default="data/top10_ml.csv")
     parser.add_argument("--topk", type=int, default=None)

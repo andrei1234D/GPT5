@@ -146,7 +146,7 @@ def build_keep_df(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="data/daily_scored.parquet")
-    parser.add_argument("--out", default="data/daily_keep_7/keep.parquet")
+    parser.add_argument("--out", default="data/daily_keep_10/keep.parquet")
     parser.add_argument("--knobs", default="knobs/keep_best_locked.json")
     parser.add_argument("--keep-pct", type=float, default=0.07)
     parser.add_argument("--min-date-count", type=int, default=0)
