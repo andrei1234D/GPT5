@@ -1011,6 +1011,7 @@ def main() -> None:
     df["peg"] = pe_used / growth_pct
     df.loc[(pe_used <= 0) | (growth <= 0), "peg"] = np.nan
     df["peg"] = df["peg"].where(np.isfinite(df["peg"]))
+    df["peg"] = df["peg"].clip(lower=0.0, upper=3.0)
     df["marketCap"] = df["marketCap"].where(df["marketCap"] > 0, np.nan)
     df["log_mcap"] = np.log10(df["marketCap"])
 
