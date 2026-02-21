@@ -45,7 +45,7 @@ LEGEND / ADVICE
 - Score > 700 Strong Buy
 - Score > 600 Buy
 - Score < 599 Ignore
-- Avg error: ~9% return variation
+
 
 OUTPUT FORMAT (MANDATORY)
 Output exactly 8 lines, exactly in this order, for the SINGLE chosen pick:
