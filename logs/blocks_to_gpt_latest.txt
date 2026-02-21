@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,PipelineNews
-1,GNFT.PA - Genfit,GNFT.PA,N/A | Impact: 0
-2,HGRAF - Hydrograph Clean Power,HGRAF,N/A | Impact: 0
-3,26CA.DU - ImmunityBio,26CA.DU,N/A | Impact: 0
-4,HLF - Herbalife Ltd,HLF,N/A | Impact: 0
-5,GNFTY - Genfit,GNFTY,N/A | Impact: 0
-6,TNZ.TO - Tenaz Energy,TNZ.TO,N/A | Impact: 0
-7,FOSL - Fossil Group,FOSL,N/A | Impact: 0
-8,RLMD - Relmada Therapeutics,RLMD,N/A | Impact: 0
-9,SYRE - Spyre Therapeutics,SYRE,N/A | Impact: 0
-10,HAI.TO - Haivision Systems,HAI.TO,N/A | Impact: 0
+1,FDY.TO - Faraday Copper,FDY.TO,N/A | Impact: 0
+2,NAUT - Nautilus Biotechnology,NAUT,N/A | Impact: 0
+3,GNFT.PA - Genfit,GNFT.PA,N/A | Impact: 0
+4,TROO - TROOPS,TROO,N/A | Impact: 0
+5,HGRAF - Hydrograph Clean Power,HGRAF,N/A | Impact: 0
+6,NLST - Netlist,NLST,N/A | Impact: 0
+7,A1G.AX - American Airlines,A1G.AX,N/A | Impact: 0
+8,FF.TO - First Mining Gold,FF.TO,N/A | Impact: 0
+9,HLF - Herbalife Ltd,HLF,N/A | Impact: 0
+10,ENLT - Enlight Renewable Energy,ENLT,N/A | Impact: 0
