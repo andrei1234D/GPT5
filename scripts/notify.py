@@ -223,6 +223,31 @@ def _replace_score_line(text: str, score: int) -> str:
     return "\n".join(lines)
 
 
+def _advice_from_score(score: int) -> str:
+    if score > 800:
+        return "Ultra Strong Buy"
+    if score > 700:
+        return "Strong Buy"
+    if score > 600:
+        return "Buy"
+    return "Ignore"
+
+
+def _replace_advice_line(text: str, advice: str) -> str:
+    if not text:
+        return text
+    lines = text.splitlines()
+    replaced = False
+    for i, line in enumerate(lines):
+        if line.lower().startswith("advice"):
+            lines[i] = f"ADVICE: {advice}"
+            replaced = True
+            break
+    if not replaced:
+        lines.append(f"ADVICE: {advice}")
+    return "\n".join(lines)
+
+
 def _append_score_legend(text: str) -> str:
     score = _extract_score(text)
     pct_per_point = _score_pct_per_point()
@@ -249,6 +274,7 @@ def _append_score_legend(text: str) -> str:
         gpt_score = None
     if gpt_score is not None:
         text = _replace_score_line(text, gpt_score)
+        text = _replace_advice_line(text, _advice_from_score(gpt_score))
         score = gpt_score
     if expected is None and score is not None:
         expected = score * pct_per_point
