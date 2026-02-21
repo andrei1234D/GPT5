@@ -1,4 +1,16 @@
+### FDY.TO
+- N/A
+Impact: 0
+
+### NAUT
+- N/A
+Impact: 0
+
 ### GNFT.PA
+- N/A
+Impact: 0
+
+### TROO
 - N/A
 Impact: 0
 
@@ -6,7 +18,15 @@ Impact: 0
 - N/A
 Impact: 0
 
-### 26CA.DU
+### NLST
+- N/A
+Impact: 0
+
+### A1G.AX
+- N/A
+Impact: 0
+
+### FF.TO
 - N/A
 Impact: 0
 
@@ -14,26 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### GNFTY
-- N/A
-Impact: 0
-
-### TNZ.TO
-- N/A
-Impact: 0
-
-### FOSL
-- N/A
-Impact: 0
-
-### RLMD
-- N/A
-Impact: 0
-
-### SYRE
-- N/A
-Impact: 0
-
-### HAI.TO
+### ENLT
 - N/A
 Impact: 0
