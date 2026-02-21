@@ -1011,7 +1011,6 @@ def main() -> None:
     df["peg"] = pe_used / growth_pct
     df.loc[(pe_used <= 0) | (growth <= 0), "peg"] = np.nan
     df["peg"] = df["peg"].where(np.isfinite(df["peg"]))
-    df["peg"] = df["peg"].clip(lower=0.0, upper=3.0)
     df["marketCap"] = df["marketCap"].where(df["marketCap"] > 0, np.nan)
     df["log_mcap"] = np.log10(df["marketCap"])
 
@@ -1020,6 +1019,32 @@ def main() -> None:
     except Exception:
         df["mcap_bucket"] = np.nan
 
+    # Compress high PEG values into 2.5-3.0 band while preserving differences
+    peg_base = np.log1p(2.5)
+
+    def _compress_high(s: pd.Series) -> pd.Series:
+        s = s.copy()
+        high = s > 2.5
+        if not high.any():
+            return s
+        cap = s.quantile(0.99)
+        if not np.isfinite(cap) or cap <= 2.5:
+            cap = s[high].max()
+        if not np.isfinite(cap) or cap <= 2.5:
+            return s
+        denom = np.log1p(cap) - peg_base
+        if not np.isfinite(denom) or denom <= 0:
+            return s
+        s.loc[high] = 2.5 + 0.5 * (np.log1p(s.loc[high]) - peg_base) / denom
+        s.loc[high] = s.loc[high].clip(2.5, 3.0)
+        return s
+
+    if "mcap_bucket" in df.columns:
+        peg_scaled = df.groupby("mcap_bucket")["peg"].transform(_compress_high)
+        df["peg"] = peg_scaled.where(peg_scaled.notna(), df["peg"])
+    else:
+        df["peg"] = _compress_high(df["peg"])
+
     def _z_score(s: pd.Series) -> pd.Series:
         std = s.std(ddof=0)
         if not np.isfinite(std) or std == 0:
@@ -1027,10 +1052,11 @@ def main() -> None:
         return (s - s.mean()) / std
 
     peg_for_z = np.log1p(df["peg"])
-    df["z_peg_bucket"] = df.groupby("mcap_bucket")[peg_for_z.name].transform(
-        _z_score
-    )
-    df["z_peg_bucket"] = -df["z_peg_bucket"]
+    z_rel = df.groupby("mcap_bucket")[peg_for_z.name].transform(_z_score)
+    rel_score = (-z_rel).clip(-3.0, 3.0) / 3.0
+    abs_score = ((3.0 - df["peg"]) / 3.0).clip(0.0, 1.0) * 2.0 - 1.0
+    peg_signal = 0.6 * abs_score + 0.4 * rel_score
+    df["z_peg_bucket"] = peg_signal.where(rel_score.notna(), abs_score)
 
     try:
         peg_valid = int(df["peg"].notna().sum())
