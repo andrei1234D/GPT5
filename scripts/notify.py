@@ -208,23 +208,48 @@ def _extract_score(text: str) -> int | None:
     return None
 
 
+def _replace_score_line(text: str, score: int) -> str:
+    if not text:
+        return text
+    lines = text.splitlines()
+    replaced = False
+    for i, line in enumerate(lines):
+        if line.lower().startswith("score"):
+            lines[i] = f"Score (0-1000): {score}"
+            replaced = True
+            break
+    if not replaced:
+        lines.append(f"Score (0-1000): {score}")
+    return "\n".join(lines)
+
+
 def _append_score_legend(text: str) -> str:
     score = _extract_score(text)
     pct_per_point = _score_pct_per_point()
     expected_line = ""
     # Prefer calibrated expected return from model prediction (top10_ml.csv)
     expected = None
+    gpt_score = None
     try:
         ticker = _extract_ticker(text)
         if ticker:
             top_df = pd.read_csv("data/top10_ml.csv")
             top_df["ticker"] = top_df["ticker"].astype(str).str.strip()
             row = top_df[top_df["ticker"] == ticker].head(1)
-            if not row.empty and "pred_score" in row.columns:
-                pred = float(row.iloc[0]["pred_score"])
-                expected = _expected_return_from_pred(pred, _load_score_calibration())
+            if not row.empty:
+                if "pred_score" in row.columns:
+                    pred = float(row.iloc[0]["pred_score"])
+                    expected = _expected_return_from_pred(
+                        pred, _load_score_calibration()
+                    )
+                if "gpt_score" in row.columns:
+                    gpt_score = int(row.iloc[0]["gpt_score"])
     except Exception:
         expected = None
+        gpt_score = None
+    if gpt_score is not None:
+        text = _replace_score_line(text, gpt_score)
+        score = gpt_score
     if expected is None and score is not None:
         expected = score * pct_per_point
     if expected is not None and math.isfinite(expected):

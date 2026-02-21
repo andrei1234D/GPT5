@@ -1007,8 +1007,10 @@ def main() -> None:
     pe_used = df["trailingPE"].where(df["trailingPE"] > 0, df["forwardPE"])
     pe_used = pe_used.where(pe_used > 0)
     growth = df["earningsGrowth"]
-    df["peg"] = pe_used / growth
+    growth_pct = growth * 100.0
+    df["peg"] = pe_used / growth_pct
     df.loc[(pe_used <= 0) | (growth <= 0), "peg"] = np.nan
+    df["peg"] = df["peg"].where(np.isfinite(df["peg"]))
     df["marketCap"] = df["marketCap"].where(df["marketCap"] > 0, np.nan)
     df["log_mcap"] = np.log10(df["marketCap"])
 
@@ -1023,7 +1025,10 @@ def main() -> None:
             return pd.Series(np.nan, index=s.index)
         return (s - s.mean()) / std
 
-    df["z_peg_bucket"] = df.groupby("mcap_bucket")["peg"].transform(_z_score)
+    peg_for_z = np.log1p(df["peg"])
+    df["z_peg_bucket"] = df.groupby("mcap_bucket")[peg_for_z.name].transform(
+        _z_score
+    )
     df["z_peg_bucket"] = -df["z_peg_bucket"]
 
     try:
