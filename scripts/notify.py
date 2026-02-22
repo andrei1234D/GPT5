@@ -141,11 +141,23 @@ def _load_score_calibration() -> dict | None:
     mu_adj = data.get("mu_adj")
     if not bins or not isinstance(mu_adj, list) or len(mu_adj) != bins:
         return None
+    p20 = data.get("p20")
+    p50 = data.get("p50")
+    p80 = data.get("p80")
+    if not isinstance(p20, list) or len(p20) != bins:
+        p20 = None
+    if not isinstance(p50, list) or len(p50) != bins:
+        p50 = None
+    if not isinstance(p80, list) or len(p80) != bins:
+        p80 = None
     return {
         "bins": bins,
         "pred_min": float(data.get("pred_min", 0.0)),
         "pred_max": float(data.get("pred_max", 1.0)),
         "mu_adj": mu_adj,
+        "p20": p20,
+        "p50": p50,
+        "p80": p80,
     }
 
 
@@ -167,6 +179,60 @@ def _expected_return_from_pred(pred: float, calib: dict | None) -> float | None:
         if not math.isfinite(mu):
             return None
         return mu * 100.0
+    except Exception:
+        return None
+
+
+def _expected_band_from_pred(
+    pred: float, calib: dict | None
+) -> tuple[float, float] | None:
+    if calib is None or pred is None or not math.isfinite(pred):
+        return None
+    p20 = calib.get("p20")
+    p80 = calib.get("p80")
+    if not isinstance(p20, list) or not isinstance(p80, list):
+        return None
+    pred_min = float(calib["pred_min"])
+    pred_max = float(calib["pred_max"])
+    bins = int(calib["bins"])
+    if not math.isfinite(pred_min) or not math.isfinite(pred_max) or pred_max <= pred_min:
+        return None
+    idx = int((pred - pred_min) / (pred_max - pred_min) * bins)
+    if idx < 0:
+        idx = 0
+    elif idx >= bins:
+        idx = bins - 1
+    try:
+        lo = float(p20[idx])
+        hi = float(p80[idx])
+        if not math.isfinite(lo) or not math.isfinite(hi):
+            return None
+        return lo * 100.0, hi * 100.0
+    except Exception:
+        return None
+
+
+def _expected_median_from_pred(pred: float, calib: dict | None) -> float | None:
+    if calib is None or pred is None or not math.isfinite(pred):
+        return None
+    p50 = calib.get("p50")
+    if not isinstance(p50, list):
+        return None
+    pred_min = float(calib["pred_min"])
+    pred_max = float(calib["pred_max"])
+    bins = int(calib["bins"])
+    if not math.isfinite(pred_min) or not math.isfinite(pred_max) or pred_max <= pred_min:
+        return None
+    idx = int((pred - pred_min) / (pred_max - pred_min) * bins)
+    if idx < 0:
+        idx = 0
+    elif idx >= bins:
+        idx = bins - 1
+    try:
+        med = float(p50[idx])
+        if not math.isfinite(med):
+            return None
+        return med * 100.0
     except Exception:
         return None
 
@@ -251,9 +317,12 @@ def _replace_advice_line(text: str, advice: str) -> str:
 def _append_score_legend(text: str) -> str:
     score = _extract_score(text)
     pct_per_point = _score_pct_per_point()
-    expected_line = ""
+    median_line = ""
+    mean_line = ""
+    band_line = ""
     # Prefer calibrated expected return from model prediction (top10_ml.csv)
-    expected = None
+    expected_median = None
+    expected_mean = None
     gpt_score = None
     try:
         ticker = _extract_ticker(text)
@@ -262,33 +331,43 @@ def _append_score_legend(text: str) -> str:
             top_df["ticker"] = top_df["ticker"].astype(str).str.strip()
             row = top_df[top_df["ticker"] == ticker].head(1)
             if not row.empty:
+                calib = _load_score_calibration()
                 if "pred_score" in row.columns:
                     pred = float(row.iloc[0]["pred_score"])
-                    expected = _expected_return_from_pred(
-                        pred, _load_score_calibration()
-                    )
+                    expected_median = _expected_median_from_pred(pred, calib)
+                    expected_mean = _expected_return_from_pred(pred, calib)
+                    band = _expected_band_from_pred(pred, calib)
+                    if band is not None:
+                        band_line = (
+                            f"Expected range (P20–P80): {band[0]:.1f}%–{band[1]:.1f}%\n"
+                        )
                 if "gpt_score" in row.columns:
                     gpt_score = int(row.iloc[0]["gpt_score"])
     except Exception:
-        expected = None
+        expected_median = None
+        expected_mean = None
         gpt_score = None
     if gpt_score is not None:
         text = _replace_score_line(text, gpt_score)
         text = _replace_advice_line(text, _advice_from_score(gpt_score))
         score = gpt_score
-    if expected is None and score is not None:
-        expected = score * pct_per_point
-    if expected is not None and math.isfinite(expected):
-        expected_line = f"Expected return (approx): {expected:.1f}%\n"
+    if expected_median is not None and math.isfinite(expected_median):
+        median_line = f"Expected return (typical): {expected_median:.1f}%\n"
+    if expected_mean is not None and math.isfinite(expected_mean):
+        mean_line = f"Expected return (average): {expected_mean:.1f}%\n"
+    if not median_line and not mean_line and score is not None:
+        expected_mean = score * pct_per_point
+        mean_line = f"Expected return (approx, score-based): {expected_mean:.1f}%\n"
     legend = (
         "\n\n---\n"
         "**Legend**\n"
-        "**🟢🟢🟢 Ultra Strong Buy**\n"
-        "**🟢🟢 Strong Buy**\n"
-        "**🟢 Buy**\n"
-        "**🔴 Ignore**\n"
-        f"{expected_line}"
-        "MAE~25%\n"
+        "**🟢🟢🟢 Ultra Strong Buy** (>800)\n"
+        "**🟢🟢 Strong Buy** (>700)\n"
+        "**🟢 Buy** (>600)\n"
+        "**🔴 Ignore** (<599)\n"
+        f"{median_line}"
+        f"{mean_line}"
+        f"{band_line}"
         "\n"
     )
     return (text or "").rstrip() + legend
