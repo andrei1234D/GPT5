@@ -1,25 +1,26 @@
-Daily Stock Pick — February 21, 2026
+Daily Stock Pick — February 22, 2026
 
 ENLT – Enlight Renewable Energy
 
-News: Q4’25 results (Feb 17, 2026) show expanded storage pipeline and major financings; Q3’25 had raised guidance amid ~46% revenue growth. ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-fourth-quarter-2025-financial-results-2026-02-17?utm_source=openai))
+News: Q4’25 (Feb 17) showed covenant compliance and net debt/EBITDA ~5.4x; FY25 revenue/EBITDA guidance was raised; storage pipeline expanding. ([globenewswire.com](https://www.globenewswire.com/news-release/2026/02/17/3239033/0/en/Enlight-Renewable-Energy-Reports-Fourth-Quarter-2025-Financial-Results.html?utm_source=openai))
 
 Score (0-1000): 754
 
-ADVICE: Buy
+ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 62%
+Certainty: 63%
 
 Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
 
-Verifier note: Best EV/risk: real revenue growth, secured project/tax equity ($1.4B Snowflake A; $470m Roadrunner/Quail), topco cash ~$217m and undrawn credit support execution; prior 2025 equity/debt raises moderate dilution but de-risk buildout; key risks are project execution, power-price/geopolitical exposure. Sources: Nasdaq press release (Feb 17, 2026); Investing.com Q3’25 update. ([nasdaq.com](https://www.nasdaq.com/press-release/enlight-renewable-energy-reports-fourth-quarter-2025-financial-results-2026-02-17?utm_source=openai))
+Verifier note: Positive EBITDA growth, raised guidance, and healthy covenant headroom vs. moderate leverage; diversified Israel/EU/US portfolio and storage growth support 6‑mo EV; risks: FX, rate, project timing. Sources: globenewswire.com (Q3/Q4’25 results, covenants), investing.com (Q3 highlights). ([globenewswire.com](https://www.globenewswire.com/news-release/2025/11/12/3186018/0/en/Enlight-Renewable-Energy-Reports-Third-Quarter-2025-Financial-Results.html?print=1%5C&utm_source=openai))
 
 ---
 **Legend**
->800 Ultra Strong Buy
->700 Strong Buy
->600 Buy
-<599 Ignore
-Expected return (approx): 126.1%
-MAE~25%
+**🟢🟢🟢 Ultra Strong Buy** (>800)
+**🟢🟢 Strong Buy** (>700)
+**🟢 Buy** (>600)
+**🔴 Ignore** (<599)
+Expected return (typical): 36.4%
+Expected return (average): 126.1%
+Expected range (P20–P80): 13.2%–81.0%
 
