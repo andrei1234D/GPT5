@@ -31,9 +31,9 @@ EVIDENCE RULES
 
 SCORING (0-1000)
 - Do NOT change the provided gpt_score. Report it exactly as given for the chosen ticker.
-- Apply only a mild pull toward higher scores (about a 20–30% influence in your decision).
+- Apply a modest pull toward higher scores, but let evidence override when warranted.
 - Use evidence to choose the best ticker, even if it has a lower score than a higher-ranked name.
-- Your job is to explain why a lower score can win (risk, fundamentals, catalysts, valuation).
+- If you choose a lower-scored ticker, briefly justify why it beats higher-ranked options.
 - The score is a model prior; your decision can override the rank, but the score itself stays unchanged.
 
 
