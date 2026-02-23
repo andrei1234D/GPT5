@@ -161,6 +161,37 @@ def _load_score_calibration() -> dict | None:
     }
 
 
+def _load_score_return_calibration() -> dict | None:
+    try:
+        data = json.loads(Path("knobs/score_calibration.json").read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    bins = int(data.get("score_bins", 0))
+    p20 = data.get("score_p20")
+    p50 = data.get("score_p50")
+    p80 = data.get("score_p80")
+    mean = data.get("score_mean")
+    if not bins:
+        return None
+    if not isinstance(p50, list) or len(p50) != bins:
+        return None
+    if not isinstance(p20, list) or len(p20) != bins:
+        p20 = None
+    if not isinstance(p80, list) or len(p80) != bins:
+        p80 = None
+    if not isinstance(mean, list) or len(mean) != bins:
+        mean = None
+    return {
+        "bins": bins,
+        "score_min": int(data.get("score_min", 0)),
+        "score_max": int(data.get("score_max", 1000)),
+        "p20": p20,
+        "p50": p50,
+        "p80": p80,
+        "mean": mean,
+    }
+
+
 def _expected_return_from_pred(pred: float, calib: dict | None) -> float | None:
     if calib is None or pred is None or not math.isfinite(pred):
         return None
@@ -237,6 +268,75 @@ def _expected_median_from_pred(pred: float, calib: dict | None) -> float | None:
         return None
 
 
+def _score_bin_idx(score: int, calib: dict) -> int | None:
+    if score is None or not math.isfinite(score):
+        return None
+    bins = int(calib.get("bins", 0))
+    score_min = int(calib.get("score_min", 0))
+    score_max = int(calib.get("score_max", 1000))
+    if bins <= 0 or score_max <= score_min:
+        return None
+    idx = int((score - score_min) / (score_max - score_min) * bins)
+    if idx < 0:
+        idx = 0
+    elif idx >= bins:
+        idx = bins - 1
+    return idx
+
+
+def _expected_median_from_score(score: int, calib: dict | None) -> float | None:
+    if calib is None:
+        return None
+    idx = _score_bin_idx(score, calib)
+    if idx is None:
+        return None
+    try:
+        med = float(calib["p50"][idx])
+        if not math.isfinite(med):
+            return None
+        return med * 100.0
+    except Exception:
+        return None
+
+
+def _expected_mean_from_score(score: int, calib: dict | None) -> float | None:
+    if calib is None:
+        return None
+    mean = calib.get("mean")
+    if not isinstance(mean, list):
+        return None
+    idx = _score_bin_idx(score, calib)
+    if idx is None:
+        return None
+    try:
+        mu = float(mean[idx])
+        if not math.isfinite(mu):
+            return None
+        return mu * 100.0
+    except Exception:
+        return None
+
+
+def _expected_band_from_score(score: int, calib: dict | None) -> tuple[float, float] | None:
+    if calib is None:
+        return None
+    p20 = calib.get("p20")
+    p80 = calib.get("p80")
+    if not isinstance(p20, list) or not isinstance(p80, list):
+        return None
+    idx = _score_bin_idx(score, calib)
+    if idx is None:
+        return None
+    try:
+        lo = float(p20[idx])
+        hi = float(p80[idx])
+        if not math.isfinite(lo) or not math.isfinite(hi):
+            return None
+        return lo * 100.0, hi * 100.0
+    except Exception:
+        return None
+
+
 def _extract_ticker(text: str) -> str | None:
     if not text:
         return None
@@ -299,6 +399,16 @@ def _advice_from_score(score: int) -> str:
     return "**🔴 Ignore**"
 
 
+def _advice_from_expected_median(median_pct: float) -> str:
+    if median_pct >= 65.0:
+        return "**🟢🟢🟢 Ultra Strong Buy**"
+    if median_pct >= 50.0:
+        return "**🟢🟢 Strong Buy**"
+    if median_pct >= 30.0:
+        return "**🟢 Buy**"
+    return "**🔴 Ignore**"
+
+
 def _replace_advice_line(text: str, advice: str) -> str:
     if not text:
         return text
@@ -324,6 +434,7 @@ def _append_score_legend(text: str) -> str:
     expected_median = None
     expected_mean = None
     gpt_score = None
+    score_calib_by_score = _load_score_return_calibration()
     try:
         ticker = _extract_ticker(text)
         if ticker:
@@ -348,8 +459,24 @@ def _append_score_legend(text: str) -> str:
         expected_mean = None
         gpt_score = None
     if gpt_score is not None:
+        if score_calib_by_score is not None:
+            median_by_score = _expected_median_from_score(gpt_score, score_calib_by_score)
+            mean_by_score = _expected_mean_from_score(gpt_score, score_calib_by_score)
+            band_by_score = _expected_band_from_score(gpt_score, score_calib_by_score)
+            if median_by_score is not None:
+                expected_median = median_by_score
+            if mean_by_score is not None:
+                expected_mean = mean_by_score
+            if band_by_score is not None:
+                band_line = (
+                    f"Expected range (P20–P80): {band_by_score[0]:.1f}%–{band_by_score[1]:.1f}%\n"
+                )
         text = _replace_score_line(text, gpt_score)
-        text = _replace_advice_line(text, _advice_from_score(gpt_score))
+        if expected_median is not None and math.isfinite(expected_median):
+            advice = _advice_from_expected_median(expected_median)
+        else:
+            advice = _advice_from_score(gpt_score)
+        text = _replace_advice_line(text, advice)
         score = gpt_score
     if expected_median is not None and math.isfinite(expected_median):
         median_line = f"Expected return (typical): {expected_median:.1f}%\n"
@@ -408,7 +535,7 @@ def main():
     news_map = load_news_summary("data/news_summary_top10.txt")
 
     # Build MINIMAL CSV for GPT (ranked top10)
-    header = ["Rank", "TickerName", "Ticker", "PipelineNews"]
+    header = ["Rank", "TickerName", "Ticker", "Score", "PipelineNews"]
 
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -420,10 +547,21 @@ def main():
         for idx, t in enumerate(tickers_to_gpt, start=1):
             name = name_map.get(t, "")
             ticker_name = f"{t} - {name}" if name else t
+            score = ""
+            if "gpt_score" in top_df.columns:
+                try:
+                    score = int(
+                        top_df.loc[top_df["ticker"] == t, "gpt_score"]
+                        .astype("Int64")
+                        .iloc[0]
+                    )
+                except Exception:
+                    score = ""
             row = [
                 idx,
                 ticker_name,
                 t,
+                score,
                 news_map.get(t, "N/A"),
             ]
             writer.writerow(row)

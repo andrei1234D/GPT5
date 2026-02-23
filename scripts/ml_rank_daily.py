@@ -87,6 +87,9 @@ def load_score_calibration(path: Path) -> dict | None:
     mu_adj = data.get("mu_adj")
     if not bins or not isinstance(mu_adj, list) or len(mu_adj) != bins:
         return None
+    p50 = data.get("p50")
+    if not isinstance(p50, list) or len(p50) != bins:
+        p50 = None
     thresholds = data.get("thresholds", {})
     anchors = data.get("anchors", {})
     return {
@@ -94,6 +97,7 @@ def load_score_calibration(path: Path) -> dict | None:
         "pred_min": float(data.get("pred_min", 0.0)),
         "pred_max": float(data.get("pred_max", 1.0)),
         "mu_adj": np.array(mu_adj, dtype=float),
+        "p50": None if p50 is None else np.array(p50, dtype=float),
         "mu_perfect": float(data.get("mu_perfect", thresholds.get("heavy_return", 1.5))),
         "thresholds": {
             "low_return": float(thresholds.get("low_return", 0.60)),
@@ -103,8 +107,8 @@ def load_score_calibration(path: Path) -> dict | None:
             "score_max": int(thresholds.get("score_max", 1000)),
         },
         "anchors": {
-            "return_600": float(anchors.get("return_600", 0.20)),
-            "return_800": float(anchors.get("return_800", 0.60)),
+            "return_600": float(anchors.get("return_600", 0.35)),
+            "return_800": float(anchors.get("return_800", 0.65)),
             "return_950": float(anchors.get("return_950", 1.50)),
         },
     }
@@ -121,7 +125,13 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
         return np.zeros(pred.shape, dtype=int)
     idx = ((pred - pred_min) / (pred_max - pred_min) * bins).astype(int)
     idx = np.clip(idx, 0, bins - 1)
-    mu = calib["mu_adj"][idx]
+    mu_adj = calib["mu_adj"]
+    p50 = calib.get("p50")
+    if isinstance(p50, np.ndarray) and len(p50) == len(mu_adj):
+        mu = p50[idx]
+        mu = np.where(np.isfinite(mu), mu, mu_adj[idx])
+    else:
+        mu = mu_adj[idx]
     t = calib["thresholds"]
     low_ret = float(t["low_return"])
     heavy_ret = float(t["heavy_return"])
@@ -135,7 +145,7 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
     r950 = float(a["return_950"])
 
     score = np.zeros_like(mu, dtype=float)
-    # Piecewise anchors: 600->20%, 800->60%, 950->150%, 1000->perfection
+    # Piecewise anchors: 600->35%, 800->65%, 950->150%, 1000->perfection
     mask_0 = mu <= 0.0
     score[mask_0] = 0.0
     mask_a = (mu > 0.0) & (mu < r600)
@@ -171,6 +181,7 @@ def main() -> None:
     model_type = "lightgbm"
     features = FEATURES
     model_path = args.model
+    peg_nudge = 0.0
     score_calib_path = Path(args.score_calib)
     knobs_path = Path(args.knobs)
     if knobs_path.exists():
@@ -182,6 +193,11 @@ def main() -> None:
                 model_path = str(knobs.get("model_path", model_path))
             if args.topk is None and "topk" in knobs:
                 args.topk = int(knobs.get("topk", 10))
+            if "peg_nudge" in knobs:
+                try:
+                    peg_nudge = float(knobs.get("peg_nudge", peg_nudge))
+                except Exception:
+                    pass
             score_calib_path = Path(
                 knobs.get("score_calibration_path", score_calib_path)
             )
@@ -231,9 +247,14 @@ def main() -> None:
         lgb_model = load_lgb_model(Path(model_path))
         pred = lgb_model.predict(X_imp)
     df["pred_score"] = pred
-    df["gpt_score"] = compute_gpt_score(df["pred_score"].to_numpy(), score_calib)
+    pred_for_rank = df["pred_score"].to_numpy()
+    if peg_nudge and "z_peg_bucket" in df.columns:
+        zpeg = pd.to_numeric(df["z_peg_bucket"], errors="coerce").clip(-1.0, 1.0)
+        pred_for_rank = pred_for_rank + peg_nudge * zpeg.to_numpy()
+    df["pred_score_adj"] = pred_for_rank
+    df["gpt_score"] = compute_gpt_score(df["pred_score_adj"].to_numpy(), score_calib)
 
-    df = df.sort_values("pred_score", ascending=False).head(int(args.topk)).copy()
+    df = df.sort_values("pred_score_adj", ascending=False).head(int(args.topk)).copy()
     df["rank"] = np.arange(1, len(df) + 1)
 
     out_path = Path(args.out)

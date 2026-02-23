@@ -38,10 +38,10 @@ SCORING (0-1000)
 
 
 LEGEND / ADVICE
-- Score > 800 Ultra Strong Buy
-- Score > 700 Strong Buy
-- Score > 600 Buy
-- Score < 599 Ignore
+- Score > 800 Ultra Strong Buy (typical return > 65%)
+- Score > 700 Strong Buy (typical return ~50%)
+- Score > 600 Buy (typical return ~30–40%)
+- Score < 599 Ignore (typical return ~20%)
 
 
 OUTPUT FORMAT (MANDATORY)

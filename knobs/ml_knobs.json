@@ -36,5 +36,6 @@
   ],
   "rank_label": "fwd_max_6m_dd",
   "rank_label_mode": "max",
-  "calendar_6m": true
+  "calendar_6m": true,
+  "peg_nudge": 0.02
 }
