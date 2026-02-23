@@ -1,28 +1,12 @@
-### FBIO
+### EXN.V
 - N/A
 Impact: 0
 
-### BANB.SW
+### GNFT.PA
 - N/A
 Impact: 0
 
-### AFC.L
-- N/A
-Impact: 0
-
-### MAC.L
-- N/A
-Impact: 0
-
-### GTE
-- N/A
-Impact: 0
-
-### XUSIO.MC
-- N/A
-Impact: 0
-
-### AGY.L
+### FDY.TO
 - N/A
 Impact: 0
 
@@ -30,10 +14,26 @@ Impact: 0
 - N/A
 Impact: 0
 
-### JLP.L
+### OIS
 - N/A
 Impact: 0
 
-### MRN.PA
+### FEC.TO
+- N/A
+Impact: 0
+
+### GMX.TO
+- N/A
+Impact: 0
+
+### FTG.TO
+- N/A
+Impact: 0
+
+### NRXS
+- N/A
+Impact: 0
+
+### LPCN
 - N/A
 Impact: 0
