@@ -1,18 +1,18 @@
-Daily Stock Pick — February 22, 2026
+Daily Stock Pick — February 23, 2026
 
 ENLT – Enlight Renewable Energy
 
-News: Q4’25 (Feb 17) showed covenant compliance and net debt/EBITDA ~5.4x; FY25 revenue/EBITDA guidance was raised; storage pipeline expanding. ([globenewswire.com](https://www.globenewswire.com/news-release/2026/02/17/3239033/0/en/Enlight-Renewable-Energy-Reports-Fourth-Quarter-2025-Financial-Results.html?utm_source=openai))
+News: Q4’25 results +46% y/y revenue; 2026 guide $755–785m revenue, $545–565m EBITDA with ~90% generation hedged/under PPAs.
 
 Score (0-1000): 754
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 63%
+Certainty: 72%
 
 Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
 
-Verifier note: Positive EBITDA growth, raised guidance, and healthy covenant headroom vs. moderate leverage; diversified Israel/EU/US portfolio and storage growth support 6‑mo EV; risks: FX, rate, project timing. Sources: globenewswire.com (Q3/Q4’25 results, covenants), investing.com (Q3 highlights). ([globenewswire.com](https://www.globenewswire.com/news-release/2025/11/12/3186018/0/en/Enlight-Renewable-Energy-Reports-Third-Quarter-2025-Financial-Results.html?print=1%5C&utm_source=openai))
+Verifier note: Profitable, fast-growing IPP with contracted cash flows and clear 2026 build/commissioning pipeline; leverage is mostly project-financed and supported by PPAs—lower risk than pre-revenue/litigation/speculative peers. Sources: globenewswire.com (Q4’25 PR), investing.com (Q3 slides/guidance context), stockanalysis.com (stats/valuation).
 
 ---
 **Legend**

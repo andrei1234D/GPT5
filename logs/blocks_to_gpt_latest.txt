@@ -4,8 +4,8 @@ Rank,TickerName,Ticker,PipelineNews
 3,GNFT.PA - Genfit,GNFT.PA,N/A | Impact: 0
 4,TROO - TROOPS,TROO,N/A | Impact: 0
 5,HGRAF - Hydrograph Clean Power,HGRAF,N/A | Impact: 0
-6,NLST - Netlist,NLST,N/A | Impact: 0
-7,A1G.AX - American Airlines,A1G.AX,N/A | Impact: 0
+6,A1G.AX - American Airlines,A1G.AX,N/A | Impact: 0
+7,NLST - Netlist,NLST,N/A | Impact: 0
 8,FF.TO - First Mining Gold,FF.TO,N/A | Impact: 0
 9,HLF - Herbalife Ltd,HLF,N/A | Impact: 0
 10,ENLT - Enlight Renewable Energy,ENLT,N/A | Impact: 0
