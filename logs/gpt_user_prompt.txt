@@ -4,15 +4,15 @@ Do not assume any candidate is good; score strictly by evidence.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,PipelineNews
-1,FDY.TO - Faraday Copper,FDY.TO,N/A | Impact: 0
-2,NAUT - Nautilus Biotechnology,NAUT,N/A | Impact: 0
-3,GNFT.PA - Genfit,GNFT.PA,N/A | Impact: 0
-4,TROO - TROOPS,TROO,N/A | Impact: 0
-5,HGRAF - Hydrograph Clean Power,HGRAF,N/A | Impact: 0
-6,A1G.AX - American Airlines,A1G.AX,N/A | Impact: 0
-7,NLST - Netlist,NLST,N/A | Impact: 0
-8,FF.TO - First Mining Gold,FF.TO,N/A | Impact: 0
-9,HLF - Herbalife Ltd,HLF,N/A | Impact: 0
-10,ENLT - Enlight Renewable Energy,ENLT,N/A | Impact: 0
+1,FBIO - Fortress Biotech,FBIO,N/A | Impact: 0
+2,BANB.SW - Bachem,BANB.SW,N/A | Impact: 0
+3,AFC.L - AFC Energy,AFC.L,N/A | Impact: 0
+4,MAC.L - Marechale Capital,MAC.L,N/A | Impact: 0
+5,GTE - Gran Tierra Energy,GTE,N/A | Impact: 0
+6,XUSIO.MC - Usinas Siderurgicas de Minas Gerais SA Usiminas,XUSIO.MC,N/A | Impact: 0
+7,AGY.L - Allergy Therapeutics,AGY.L,N/A | Impact: 0
+8,HAI.TO - Haivision Systems,HAI.TO,N/A | Impact: 0
+9,JLP.L - Jubilee Metals,JLP.L,N/A | Impact: 0
+10,MRN.PA - Mersen,MRN.PA,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.

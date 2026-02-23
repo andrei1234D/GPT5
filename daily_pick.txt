@@ -1,18 +1,18 @@
 Daily Stock Pick — February 23, 2026
 
-ENLT – Enlight Renewable Energy
+HAI.TO – Haivision Systems
 
-News: Q4’25 results +46% y/y revenue; 2026 guide $755–785m revenue, $545–565m EBITDA with ~90% generation hedged/under PPAs.
+News: Q4 FY2025 revenue +33% YoY to $40.2M with 17.6% adj. EBITDA margin; momentum across defense/broadcast and new Airbus consortium.
 
-Score (0-1000): 754
+Score (0-1000): 319
 
-ADVICE: **🟢🟢 Strong Buy**
+ADVICE: **🔴 Ignore**
 
-Certainty: 72%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
+Forecast image URL: https://stockscan.io/stocks/HAI.TO/forecast
 
-Verifier note: Profitable, fast-growing IPP with contracted cash flows and clear 2026 build/commissioning pipeline; leverage is mostly project-financed and supported by PPAs—lower risk than pre-revenue/litigation/speculative peers. Sources: globenewswire.com (Q4’25 PR), investing.com (Q3 slides/guidance context), stockanalysis.com (stats/valuation).
+Verifier note: Profitable inflection in Q4 and 72%+ gross margins support 6‑mo EV; FY25 revenue +6% with improving cash; risks: small-cap volatility and FY25 opex-driven loss; sources: ir.haivision.com (FY2025 results), investing.com (Q4 call/cash highlights). ([ir.haivision.com](https://ir.haivision.com/news/news-details/2026/Haivision-Announces-Results-for-the-Three-Months-and-Full-Year-Ended-October-31-2025/default.aspx?utm_source=openai))
 
 ---
 **Legend**
@@ -20,7 +20,7 @@ Verifier note: Profitable, fast-growing IPP with contracted cash flows and clear
 **🟢🟢 Strong Buy** (>700)
 **🟢 Buy** (>600)
 **🔴 Ignore** (<599)
-Expected return (typical): 36.4%
-Expected return (average): 126.1%
-Expected range (P20–P80): 13.2%–81.0%
+Expected return (typical): 19.9%
+Expected return (average): 53.3%
+Expected range (P20–P80): 6.7%–45.5%
 
