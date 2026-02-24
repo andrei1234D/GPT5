@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,FEC.TO - Frontera Energy,FEC.TO,582,N/A | Impact: 0
-2,PANL - Pangaea Logistics Solutions,PANL,540,N/A | Impact: 0
-3,LUNMF - Lundin Mining,LUNMF,474,N/A | Impact: 0
-4,DSX - Diana Shipping,DSX,407,N/A | Impact: 0
-5,FSM - Fortuna Mining,FSM,385,N/A | Impact: 0
-6,LUN.TO - Lundin Mining,LUN.TO,382,N/A | Impact: 0
-7,TAYD - Taylor Devices,TAYD,370,N/A | Impact: 0
-8,ATS.VI - AT&S Austria Technologie & Systemtechnik,ATS.VI,340,N/A | Impact: 0
-9,VICR - Vicor,VICR,333,N/A | Impact: 0
-10,DOCN - DigitalOcean,DOCN,328,N/A | Impact: 0
+1,ENLT - Enlight Renewable Energy,ENLT,688,N/A | Impact: 0
+2,ATS.VI - AT&S Austria Technologie & Systemtechnik,ATS.VI,645,N/A | Impact: 0
+3,FORM - FormFactor,FORM,633,N/A | Impact: 0
+4,IMOS - ChipMOS Technologies,IMOS,607,N/A | Impact: 0
+5,DOCN - DigitalOcean,DOCN,602,N/A | Impact: 0
+6,MAU.PA - Etablissements Maurel et Prom,MAU.PA,601,N/A | Impact: 0
+7,ING.L - Ingenta,ING.L,566,N/A | Impact: 0
+8,VICR - Vicor,VICR,551,N/A | Impact: 0
+9,HSHP - Himalaya Shipping,HSHP,537,N/A | Impact: 0
+10,ECO - Okeanis Eco Tankers,ECO,524,N/A | Impact: 0

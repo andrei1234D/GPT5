@@ -1,18 +1,18 @@
 Daily Stock Pick — February 24, 2026
 
-DOCN – DigitalOcean Holdings, Inc.
+FORM – FormFactor, Inc.
 
-News: Q3’25 beat with revenue +16% y/y; raised FY25 outlook; repurchased $1.19B of 2026 converts; AI revenue >2x y/y for 5th straight quarter.
+News: Q4’25 beat with record FY’25 revenue and margin expansion; management guides continued strength into Q1’26 on HBM/AI test demand.
 
-Score (0-1000): 328
+Score (0-1000): 633
 
-ADVICE: **🔴 Ignore**
+ADVICE: **🟢🟢🟢 Ultra Strong Buy**
 
-Certainty: 60%
+Certainty: 66%
 
-Forecast image URL: https://stockscan.io/stocks/DOCN/forecast
+Forecast image URL: https://stockscan.io/stocks/FORM/forecast
 
-Verifier note: Best risk-adjusted pick among list: profitable, 41–43% adj. EBITDA margin and strong FCF with reduced 2026 refi risk after buying back converts; near-term catalyst is FY25/Q4 print and 2026 guide. Higher-ranked names carry commodity/shipping cyclicality and added risks (PANL debt/material weakness; LUN heavy 2026 capex ~$995M and copper price sensitivity). Sources: investors.digitalocean.com; tipranks.com; lundinmining.com; sec.gov.
+Verifier note: Net cash/low debt and improving gross margins reduce downside vs peers; secular HBM/AI wafer-probe demand is a 2026H1 tailwind; no dilution/red flags noted in latest filings/PRs. Sources: investors.formfactor.com (Q4’25 results, balance sheet), globenewswire.com (Feb 4, 2026 press release).
 
 ---
 **Legend**
@@ -20,7 +20,7 @@ Verifier note: Best risk-adjusted pick among list: profitable, 41–43% adj. EBI
 **🟢🟢 Strong Buy** (>700)
 **🟢 Buy** (>600)
 **🔴 Ignore** (<599)
-Expected return (typical): 28.0%
-Expected return (average): 48.0%
-Expected range (P20–P80): 8.2%–67.1%
+Expected return (typical): 66.2%
+Expected return (average): 101.9%
+Expected range (P20–P80): 31.0%–130.2%
 
