@@ -337,6 +337,28 @@ def _expected_band_from_score(score: int, calib: dict | None) -> tuple[float, fl
         return None
 
 
+def _expected_typical_from_score(score: int) -> float | None:
+    if score is None or not math.isfinite(score):
+        return None
+    s = float(score)
+    if s <= 0:
+        return 0.0
+    if s < 600:
+        # 0 -> 600 maps to 0% -> 20%
+        return 20.0 * (s / 600.0)
+    if s < 700:
+        # 600 -> 700 maps to 20% -> 30%
+        return 20.0 + (s - 600.0) * (10.0 / 100.0)
+    if s < 800:
+        # 700 -> 800 maps to 30% -> 50%
+        return 30.0 + (s - 700.0) * (20.0 / 100.0)
+    if s < 950:
+        # 800 -> 950 maps to 50% -> 65%
+        return 50.0 + (s - 800.0) * (15.0 / 150.0)
+    # 950+ stays at 65% unless you want a higher band
+    return 65.0
+
+
 def _extract_ticker(text: str) -> str | None:
     if not text:
         return None
@@ -459,18 +481,18 @@ def _append_score_legend(text: str) -> str:
         expected_mean = None
         gpt_score = None
     if gpt_score is not None:
+        expected_typical = _expected_typical_from_score(gpt_score)
         if score_calib_by_score is not None:
-            median_by_score = _expected_median_from_score(gpt_score, score_calib_by_score)
             mean_by_score = _expected_mean_from_score(gpt_score, score_calib_by_score)
             band_by_score = _expected_band_from_score(gpt_score, score_calib_by_score)
-            if median_by_score is not None:
-                expected_median = median_by_score
             if mean_by_score is not None:
                 expected_mean = mean_by_score
             if band_by_score is not None:
                 band_line = (
                     f"Expected range (P20–P80): {band_by_score[0]:.1f}%–{band_by_score[1]:.1f}%\n"
                 )
+        if expected_typical is not None and math.isfinite(expected_typical):
+            expected_median = expected_typical
         text = _replace_score_line(text, gpt_score)
         if expected_median is not None and math.isfinite(expected_median):
             advice = _advice_from_expected_median(expected_median)
