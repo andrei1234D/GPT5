@@ -517,15 +517,15 @@ def _append_score_legend(text: str) -> str:
         s30 = score_thresholds["score_30"]
         s45 = score_thresholds["score_45"]
         legend_score_lines = (
-            f"Score ≥ {s45}: Ultra Strong Buy\n"
-            f"Score {s30}–{s45-1}: Strong Buy\n"
-            f"Score {s20}–{s30-1}: Buy\n"
-            f"Score < {s20}: Ignore\n"
+            f"**🟢🟢🟢 Ultra Strong Buy** (Score ≥ {s45})\n"
+            f"**🟢🟢 Strong Buy** (Score {s30}–{s45-1})\n"
+            f"**🟢 Buy** (Score {s20}–{s30-1})\n"
+            f"**🔴 Ignore** (Score < {s20})\n"
         )
     legend = (
         "\n\n---\n"
         "**Legend (score tiers, derived from typical return)**\n"
-        f"{legend_score_lines if legend_score_lines else '**🟢🟢🟢 Score: Ultra Strong Buy**\\n**🟢🟢 Score: Strong Buy**\\n**🟢 Score: Buy**\\n**🔴 Score: Ignore**\\n'}"
+        f"{legend_score_lines if legend_score_lines else '**🟢🟢🟢 Ultra Strong Buy**\\n**🟢🟢 Strong Buy**\\n**🟢 Buy**\\n**🔴 Ignore**\\n'}"
         f"{median_line}"
         f"{mean_line}"
         f"{band_line}"
