@@ -1,28 +1,4 @@
-### FEC.TO
-- N/A
-Impact: 0
-
-### PANL
-- N/A
-Impact: 0
-
-### LUNMF
-- N/A
-Impact: 0
-
-### DSX
-- N/A
-Impact: 0
-
-### FSM
-- N/A
-Impact: 0
-
-### LUN.TO
-- N/A
-Impact: 0
-
-### TAYD
+### ENLT
 - N/A
 Impact: 0
 
@@ -30,10 +6,34 @@ Impact: 0
 - N/A
 Impact: 0
 
-### VICR
+### FORM
+- N/A
+Impact: 0
+
+### IMOS
 - N/A
 Impact: 0
 
 ### DOCN
+- N/A
+Impact: 0
+
+### MAU.PA
+- N/A
+Impact: 0
+
+### ING.L
+- N/A
+Impact: 0
+
+### VICR
+- N/A
+Impact: 0
+
+### HSHP
+- N/A
+Impact: 0
+
+### ECO
 - N/A
 Impact: 0
