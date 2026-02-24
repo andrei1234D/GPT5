@@ -1,7 +1,3 @@
-### ENLT
-- N/A
-Impact: 0
-
 ### ATS.VI
 - N/A
 Impact: 0
@@ -10,11 +6,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### IMOS
-- N/A
-Impact: 0
-
-### DOCN
+### TAYD
 - N/A
 Impact: 0
 
@@ -22,7 +14,7 @@ Impact: 0
 - N/A
 Impact: 0
 
-### ING.L
+### IMOS
 - N/A
 Impact: 0
 
@@ -30,10 +22,18 @@ Impact: 0
 - N/A
 Impact: 0
 
+### ING.L
+- N/A
+Impact: 0
+
+### SHIP
+- N/A
+Impact: 0
+
 ### HSHP
 - N/A
 Impact: 0
 
-### ECO
+### PAF.L
 - N/A
 Impact: 0
