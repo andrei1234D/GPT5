@@ -215,8 +215,8 @@
     "score_max": 1000
   },
   "anchors": {
-    "return_600": 0.35,
-    "return_800": 0.65,
+    "return_600": 0.2,
+    "return_800": 0.5,
     "return_950": 1.588667
   },
   "p20": [

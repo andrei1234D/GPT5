@@ -107,8 +107,8 @@ def load_score_calibration(path: Path) -> dict | None:
             "score_max": int(thresholds.get("score_max", 1000)),
         },
         "anchors": {
-            "return_600": float(anchors.get("return_600", 0.35)),
-            "return_800": float(anchors.get("return_800", 0.65)),
+            "return_600": float(anchors.get("return_600", 0.20)),
+            "return_800": float(anchors.get("return_800", 0.50)),
             "return_950": float(anchors.get("return_950", 1.50)),
         },
     }
@@ -145,7 +145,7 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
     r950 = float(a["return_950"])
 
     score = np.zeros_like(mu, dtype=float)
-    # Piecewise anchors: 600->35%, 800->65%, 950->150%, 1000->perfection
+    # Piecewise anchors: 600->20%, 800->50%, 950->150%, 1000->perfection
     mask_0 = mu <= 0.0
     score[mask_0] = 0.0
     mask_a = (mu > 0.0) & (mu < r600)

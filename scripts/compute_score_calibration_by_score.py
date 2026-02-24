@@ -45,8 +45,8 @@ def _load_score_calibration(path: Path) -> dict | None:
             "score_max": int(thresholds.get("score_max", 1000)),
         },
         "anchors": {
-            "return_600": float(anchors.get("return_600", 0.35)),
-            "return_800": float(anchors.get("return_800", 0.65)),
+            "return_600": float(anchors.get("return_600", 0.20)),
+            "return_800": float(anchors.get("return_800", 0.50)),
             "return_950": float(anchors.get("return_950", 1.50)),
         },
     }
