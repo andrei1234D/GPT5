@@ -31,12 +31,6 @@ SCORING (0-1000)
 - The score is a model prior; your decision can override the rank, but the score itself stays unchanged.
 
 
-LEGEND / ADVICE
-- Score > 800 Ultra Strong Buy (typical return > 65%)
-- Score > 700 Strong Buy (typical return ~50%)
-- Score > 600 Buy (typical return ~30–40%)
-- Score < 599 Ignore (typical return ~20%)
-
 
 OUTPUT FORMAT (MANDATORY)
 Output exactly 8 lines, exactly in this order, for the SINGLE chosen pick:

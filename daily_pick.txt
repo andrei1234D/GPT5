@@ -1,26 +1,26 @@
 Daily Stock Pick — February 24, 2026
 
-FORM – FormFactor, Inc.
+IMOS – ChipMOS Technologies Inc.
 
-News: Q4’25 beat with record FY’25 revenue and margin expansion; management guides continued strength into Q1’26 on HBM/AI test demand.
+News: Q4’25 revenue +20.8% Y/Y with margin/earnings up; cash ~$474M and positive FCF; Jan’26 revenue +31% Y/Y; dividend proposed for May 2026 AGM. ([prnewswire.com](https://www.prnewswire.com/news-releases/chipmos-reports-fourth-quarter-and-full-year-2025-results-302695386.html?utm_source=openai))
 
-Score (0-1000): 633
+Score (0-1000): 551
 
-ADVICE: **🟢🟢🟢 Ultra Strong Buy**
+ADVICE: **🟢 Buy**
 
-Certainty: 66%
+Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/FORM/forecast
+Forecast image URL: https://stockscan.io/stocks/IMOS/forecast
 
-Verifier note: Net cash/low debt and improving gross margins reduce downside vs peers; secular HBM/AI wafer-probe demand is a 2026H1 tailwind; no dilution/red flags noted in latest filings/PRs. Sources: investors.formfactor.com (Q4’25 results, balance sheet), globenewswire.com (Feb 4, 2026 press release).
+Verifier note: Favorable 6‑mo EV: accelerating AI/memory demand driving sequential and Y/Y growth, robust liquidity (NT$14.86B cash), positive 2025 FCF, and upcoming dividend vote provide downside support; recent 6‑Ks filed. Sources: prnewswire.com (earnings), tipranks.com (Jan revenue), stocktitan.net (SEC 6‑Ks). ([prnewswire.com](https://www.prnewswire.com/news-releases/chipmos-reports-fourth-quarter-and-full-year-2025-results-302695386.html?utm_source=openai))
 
 ---
-**Legend**
-**🟢🟢🟢 Ultra Strong Buy** (>800)
-**🟢🟢 Strong Buy** (>700)
-**🟢 Buy** (>600)
-**🔴 Ignore** (<599)
-Expected return (typical): 66.2%
-Expected return (average): 101.9%
-Expected range (P20–P80): 31.0%–130.2%
+**Legend (score tiers, derived from typical return)**
+Score ≥ 640: Ultra Strong Buy
+Score 600–639: Strong Buy
+Score 470–599: Buy
+Score < 470: Ignore
+Expected return (typical): 26.8%
+Expected return (average): 45.8%
+Expected range (P20–P80): 7.8%–63.4%
 
