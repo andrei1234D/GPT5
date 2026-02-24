@@ -1,18 +1,18 @@
-Daily Stock Pick — February 23, 2026
+Daily Stock Pick — February 24, 2026
 
-OIS – Oil States International
+DOCN – DigitalOcean Holdings, Inc.
 
-News: Q4 2025 showed $178.5M revenue, $22.8M adj. EBITDA, strong $435M offshore backlog, net cash after retiring converts; GAAP loss driven by non‑cash impairments.
+News: Q3’25 beat with revenue +16% y/y; raised FY25 outlook; repurchased $1.19B of 2026 converts; AI revenue >2x y/y for 5th straight quarter.
 
-Score (0-1000): 762
+Score (0-1000): 328
 
-ADVICE: **🟢🟢 Strong Buy**
+ADVICE: **🔴 Ignore**
 
-Certainty: 66%
+Certainty: 60%
 
-Forecast image URL: https://stockscan.io/stocks/OIS/forecast
+Forecast image URL: https://stockscan.io/stocks/DOCN/forecast
 
-Verifier note: Net cash, rising offshore backlog/book-to-bill, positive adj. earnings/cash flow vs. one‑off impairments support 6‑mo EV; cyclic risk but balance sheet solid. Sources: stocktitan.net (8‑K summary), marketbeat.com (call highlights), sahmcapital.com/Reuters. ([stocktitan.net](https://www.stocktitan.net/sec-filings/OIS/8-k-oil-states-international-inc-reports-material-event-cfd80a259127.html?utm_source=openai))
+Verifier note: Best risk-adjusted pick among list: profitable, 41–43% adj. EBITDA margin and strong FCF with reduced 2026 refi risk after buying back converts; near-term catalyst is FY25/Q4 print and 2026 guide. Higher-ranked names carry commodity/shipping cyclicality and added risks (PANL debt/material weakness; LUN heavy 2026 capex ~$995M and copper price sensitivity). Sources: investors.digitalocean.com; tipranks.com; lundinmining.com; sec.gov.
 
 ---
 **Legend**
@@ -20,7 +20,7 @@ Verifier note: Net cash, rising offshore backlog/book-to-bill, positive adj. ear
 **🟢🟢 Strong Buy** (>700)
 **🟢 Buy** (>600)
 **🔴 Ignore** (<599)
-Expected return (typical): 37.9%
-Expected return (average): 127.4%
-Expected range (P20–P80): 14.5%–86.0%
+Expected return (typical): 28.0%
+Expected return (average): 48.0%
+Expected range (P20–P80): 8.2%–67.1%
 

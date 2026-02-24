@@ -1,11 +1,11 @@
-Rank,TickerName,Ticker,PipelineNews
-1,EXN.V - Exclusive Networks,EXN.V,N/A | Impact: 0
-2,GNFT.PA - Genfit,GNFT.PA,N/A | Impact: 0
-3,FDY.TO - Faraday Copper,FDY.TO,N/A | Impact: 0
-4,HAI.TO - Haivision Systems,HAI.TO,N/A | Impact: 0
-5,OIS - Oil States International,OIS,N/A | Impact: 0
-6,FEC.TO - Frontera Energy,FEC.TO,N/A | Impact: 0
-7,GMX.TO - Globex Mining Enterprises,GMX.TO,N/A | Impact: 0
-8,FTG.TO - Firan Technology,FTG.TO,N/A | Impact: 0
-9,NRXS - Neuraxis,NRXS,N/A | Impact: 0
-10,LPCN - Lipocine,LPCN,N/A | Impact: 0
+Rank,TickerName,Ticker,Score,PipelineNews
+1,FEC.TO - Frontera Energy,FEC.TO,582,N/A | Impact: 0
+2,PANL - Pangaea Logistics Solutions,PANL,540,N/A | Impact: 0
+3,LUNMF - Lundin Mining,LUNMF,474,N/A | Impact: 0
+4,DSX - Diana Shipping,DSX,407,N/A | Impact: 0
+5,FSM - Fortuna Mining,FSM,385,N/A | Impact: 0
+6,LUN.TO - Lundin Mining,LUN.TO,382,N/A | Impact: 0
+7,TAYD - Taylor Devices,TAYD,370,N/A | Impact: 0
+8,ATS.VI - AT&S Austria Technologie & Systemtechnik,ATS.VI,340,N/A | Impact: 0
+9,VICR - Vicor,VICR,333,N/A | Impact: 0
+10,DOCN - DigitalOcean,DOCN,328,N/A | Impact: 0
