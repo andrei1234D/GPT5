@@ -1,39 +1,39 @@
-### EXN.V
-- N/A
-Impact: 0
-
-### GNFT.PA
-- N/A
-Impact: 0
-
-### FDY.TO
-- N/A
-Impact: 0
-
-### HAI.TO
-- N/A
-Impact: 0
-
-### OIS
-- N/A
-Impact: 0
-
 ### FEC.TO
 - N/A
 Impact: 0
 
-### GMX.TO
+### PANL
 - N/A
 Impact: 0
 
-### FTG.TO
+### LUNMF
 - N/A
 Impact: 0
 
-### NRXS
+### DSX
 - N/A
 Impact: 0
 
-### LPCN
+### FSM
+- N/A
+Impact: 0
+
+### LUN.TO
+- N/A
+Impact: 0
+
+### TAYD
+- N/A
+Impact: 0
+
+### ATS.VI
+- N/A
+Impact: 0
+
+### VICR
+- N/A
+Impact: 0
+
+### DOCN
 - N/A
 Impact: 0
