@@ -337,26 +337,29 @@ def _expected_band_from_score(score: int, calib: dict | None) -> tuple[float, fl
         return None
 
 
-def _expected_typical_from_score(score: int) -> float | None:
-    if score is None or not math.isfinite(score):
+def _score_thresholds_from_calib(calib: dict | None) -> dict | None:
+    if calib is None:
         return None
-    s = float(score)
-    if s <= 0:
-        return 0.0
-    if s < 600:
-        # 0 -> 600 maps to 0% -> 20%
-        return 20.0 * (s / 600.0)
-    if s < 700:
-        # 600 -> 700 maps to 20% -> 30%
-        return 20.0 + (s - 600.0) * (10.0 / 100.0)
-    if s < 800:
-        # 700 -> 800 maps to 30% -> 50%
-        return 30.0 + (s - 700.0) * (20.0 / 100.0)
-    if s < 950:
-        # 800 -> 950 maps to 50% -> 65%
-        return 50.0 + (s - 800.0) * (15.0 / 150.0)
-    # 950+ stays at 65% unless you want a higher band
-    return 65.0
+    p50 = calib.get("p50")
+    bins = int(calib.get("bins", 0))
+    score_min = int(calib.get("score_min", 0))
+    score_max = int(calib.get("score_max", 1000))
+    if not isinstance(p50, list) or bins <= 0 or score_max <= score_min:
+        return None
+    targets = {20.0: None, 30.0: None, 45.0: None}
+    for i, v in enumerate(p50):
+        if v is None or not math.isfinite(v):
+            continue
+        pct = float(v) * 100.0
+        for t in list(targets.keys()):
+            if targets[t] is None and pct >= t:
+                score = score_min + (score_max - score_min) * (i / bins)
+                targets[t] = int(round(score))
+    return {
+        "score_20": targets[20.0],
+        "score_30": targets[30.0],
+        "score_45": targets[45.0],
+    }
 
 
 def _extract_ticker(text: str) -> str | None:
@@ -422,11 +425,11 @@ def _advice_from_score(score: int) -> str:
 
 
 def _advice_from_expected_median(median_pct: float) -> str:
-    if median_pct >= 65.0:
+    if median_pct >= 45.0:
         return "**🟢🟢🟢 Ultra Strong Buy**"
-    if median_pct >= 50.0:
-        return "**🟢🟢 Strong Buy**"
     if median_pct >= 30.0:
+        return "**🟢🟢 Strong Buy**"
+    if median_pct >= 20.0:
         return "**🟢 Buy**"
     return "**🔴 Ignore**"
 
@@ -452,11 +455,13 @@ def _append_score_legend(text: str) -> str:
     median_line = ""
     mean_line = ""
     band_line = ""
+    legend_score_lines = ""
     # Prefer calibrated expected return from model prediction (top10_ml.csv)
     expected_median = None
     expected_mean = None
     gpt_score = None
     score_calib_by_score = _load_score_return_calibration()
+    score_thresholds = _score_thresholds_from_calib(score_calib_by_score)
     try:
         ticker = _extract_ticker(text)
         if ticker:
@@ -481,18 +486,18 @@ def _append_score_legend(text: str) -> str:
         expected_mean = None
         gpt_score = None
     if gpt_score is not None:
-        expected_typical = _expected_typical_from_score(gpt_score)
         if score_calib_by_score is not None:
+            median_by_score = _expected_median_from_score(gpt_score, score_calib_by_score)
             mean_by_score = _expected_mean_from_score(gpt_score, score_calib_by_score)
             band_by_score = _expected_band_from_score(gpt_score, score_calib_by_score)
+            if median_by_score is not None:
+                expected_median = median_by_score
             if mean_by_score is not None:
                 expected_mean = mean_by_score
             if band_by_score is not None:
                 band_line = (
                     f"Expected range (P20–P80): {band_by_score[0]:.1f}%–{band_by_score[1]:.1f}%\n"
                 )
-        if expected_typical is not None and math.isfinite(expected_typical):
-            expected_median = expected_typical
         text = _replace_score_line(text, gpt_score)
         if expected_median is not None and math.isfinite(expected_median):
             advice = _advice_from_expected_median(expected_median)
@@ -507,13 +512,20 @@ def _append_score_legend(text: str) -> str:
     if not median_line and not mean_line and score is not None:
         expected_mean = score * pct_per_point
         mean_line = f"Expected return (approx, score-based): {expected_mean:.1f}%\n"
+    if score_thresholds and all(v is not None for v in score_thresholds.values()):
+        s20 = score_thresholds["score_20"]
+        s30 = score_thresholds["score_30"]
+        s45 = score_thresholds["score_45"]
+        legend_score_lines = (
+            f"Score ≥ {s45}: Ultra Strong Buy\n"
+            f"Score {s30}–{s45-1}: Strong Buy\n"
+            f"Score {s20}–{s30-1}: Buy\n"
+            f"Score < {s20}: Ignore\n"
+        )
     legend = (
         "\n\n---\n"
-        "**Legend**\n"
-        "**🟢🟢🟢 Ultra Strong Buy** (>800)\n"
-        "**🟢🟢 Strong Buy** (>700)\n"
-        "**🟢 Buy** (>600)\n"
-        "**🔴 Ignore** (<599)\n"
+        "**Legend (score tiers, derived from typical return)**\n"
+        f"{legend_score_lines if legend_score_lines else '**🟢🟢🟢 Score: Ultra Strong Buy**\\n**🟢🟢 Score: Strong Buy**\\n**🟢 Score: Buy**\\n**🔴 Score: Ignore**\\n'}"
         f"{median_line}"
         f"{mean_line}"
         f"{band_line}"

@@ -227,8 +227,47 @@ def main() -> None:
     data["score_p50"] = [None if not np.isfinite(v) else float(v) for v in q50]
     data["score_p80"] = [None if not np.isfinite(v) else float(v) for v in q80]
     data["score_mean"] = [None if not np.isfinite(v) else float(v) for v in mean]
+
+    # Fit best piecewise mapping under constraints:
+    # 0-600: 0-20%
+    # 600-700: 20-40%
+    # 700-950: 40-65%
+    scores = gpt_score.astype(float)
+    actual_pct = actual * 100.0
+    m1 = scores < 600
+    m2 = (scores >= 600) & (scores < 700)
+    m3 = (scores >= 700) & (scores < 950)
+    m4 = scores >= 950
+
+    best = {"y700": 40.0, "y950": 65.0, "mae": float("inf")}
+    for y700 in range(20, 41):
+        for y950 in range(40, 66):
+            if y950 < y700:
+                continue
+            expected = np.zeros_like(scores, dtype=float)
+            if m1.any():
+                expected[m1] = 20.0 * (scores[m1] / 600.0)
+            if m2.any():
+                expected[m2] = 20.0 + (scores[m2] - 600.0) * ((y700 - 20.0) / 100.0)
+            if m3.any():
+                expected[m3] = y700 + (scores[m3] - 700.0) * ((y950 - y700) / 250.0)
+            if m4.any():
+                expected[m4] = y950
+            mae = float(np.mean(np.abs(expected - actual_pct)))
+            if mae < best["mae"]:
+                best = {"y700": float(y700), "y950": float(y950), "mae": mae}
+
+    data["expected_typical_mapping"] = {
+        "y600": 20.0,
+        "y700": best["y700"],
+        "y950": best["y950"],
+        "y1000": best["y950"],
+        "mae_pct": best["mae"],
+        "notes": "Piecewise fit with constraints: 0-600=>0-20, 600-700=>20-40, 700-950=>40-65",
+    }
     calib_path.write_text(json.dumps(data, indent=2))
     print(f"Wrote score-based calibration to {calib_path}")
+    print(f"Best typical mapping: y700={best['y700']:.1f} y950={best['y950']:.1f} MAE={best['mae']:.2f}%")
 
 
 if __name__ == "__main__":
