@@ -13,9 +13,10 @@ CONTEXT
 - Your job is NOT to expand the universe. You MUST choose only from the provided 10.
 
 GOAL
-Pick exactly ONE ticker that offers the best expected value (EV) with the lowest risk among these 10.
+Select exactly ONE ticker with the best risk-adjusted expected value among the 10 candidates.
+Treat the ranking as a soft prior, but make the decision based on evidence, not superficial cues.
 If none look acceptable after review, still pick the least-bad option and score it accordingly (likely "Ignore").
-Use up-to-date public information by browsing the internet (web search tool) to validate:
+Use up-to-date public information by browsing the internet (web search tool) to validate, for example:
 - earnings quality and sustainability (one-offs vs recurring, revenue trend)
 - balance sheet risk (net debt, liquidity, going-concern language, refinancing walls)
 - dilution risk (recent offerings, shelf registrations, ATM usage)
