@@ -1,26 +1,26 @@
-Daily Stock Pick — February 24, 2026
+Daily Stock Pick — February 25, 2026
 
-IMOS – ChipMOS Technologies Inc.
+DOCN – DigitalOcean Holdings, Inc.
 
-News: Q4’25 revenue +20.8% Y/Y with margin/earnings up; cash ~$474M and positive FCF; Jan’26 revenue +31% Y/Y; dividend proposed for May 2026 AGM. ([prnewswire.com](https://www.prnewswire.com/news-releases/chipmos-reports-fourth-quarter-and-full-year-2025-results-302695386.html?utm_source=openai))
+News: Raised 2026–2027 growth outlook after strong Q4; reduced 2026 converts; AI inference ARR accelerating. ([investors.digitalocean.com](https://investors.digitalocean.com/news/news-details/2026/DigitalOcean-Announces-Fourth-Quarter-and-Fiscal-Year-2025-Financial-Results/))
 
-Score (0-1000): 551
+Score (0-1000): 583
 
 ADVICE: **🟢 Buy**
 
 Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/IMOS/forecast
+Forecast image URL: https://stockscan.io/stocks/DOCN/forecast
 
-Verifier note: Favorable 6‑mo EV: accelerating AI/memory demand driving sequential and Y/Y growth, robust liquidity (NT$14.86B cash), positive 2025 FCF, and upcoming dividend vote provide downside support; recent 6‑Ks filed. Sources: prnewswire.com (earnings), tipranks.com (Jan revenue), stocktitan.net (SEC 6‑Ks). ([prnewswire.com](https://www.prnewswire.com/news-releases/chipmos-reports-fourth-quarter-and-full-year-2025-results-302695386.html?utm_source=openai))
+Verifier note: EV: accelerating revenue (21% ’26 guide) with 36–38% EBITDA margins, improving mix to AI inference; liquidity $254M cash and repurchase of $1.188B 2026 converts lowers near-term refinancing risk; fresh catalyst from 2/24 print. Risks: competitive cloud pricing, capex for GPUs. Sources: investors.digitalocean.com; investors.oceaneering.com (peer cycle check). ([investors.digitalocean.com](https://investors.digitalocean.com/news/news-details/2026/DigitalOcean-Announces-Fourth-Quarter-and-Fiscal-Year-2025-Financial-Results/))
 
 ---
 **Legend (score tiers, derived from typical return)**
-Score ≥ 640: Ultra Strong Buy
-Score 600–639: Strong Buy
-Score 470–599: Buy
-Score < 470: Ignore
-Expected return (typical): 26.8%
-Expected return (average): 45.8%
-Expected range (P20–P80): 7.8%–63.4%
+**🟢🟢🟢 Ultra Strong Buy** (Score ≥ 640)
+**🟢🟢 Strong Buy** (Score 600–639)
+**🟢 Buy** (Score 470–599)
+**🔴 Ignore** (Score < 470)
+Expected return (typical): 29.2%
+Expected return (average): 49.6%
+Expected range (P20–P80): 8.6%–69.5%
 

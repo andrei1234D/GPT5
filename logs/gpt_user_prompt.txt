@@ -1,18 +1,18 @@
-TODAY is Feb 24. You are given the 10 ML-ranked candidates, ordered.
+TODAY is Feb 25. You are given the 10 ML-ranked candidates, ordered.
 Pick exactly ONE option with the best EV and lowest risk using up-to-date web data for the next 6 months.
 Do not assume any candidate is good; score strictly by evidence.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,Score,PipelineNews
-1,ATS.VI - AT&S Austria Technologie & Systemtechnik,ATS.VI,651,N/A | Impact: 0
-2,FORM - FormFactor,FORM,633,N/A | Impact: 0
-3,TAYD - Taylor Devices,TAYD,607,N/A | Impact: 0
-4,MAU.PA - Etablissements Maurel et Prom,MAU.PA,596,N/A | Impact: 0
-5,IMOS - ChipMOS Technologies,IMOS,551,N/A | Impact: 0
-6,VICR - Vicor,VICR,544,N/A | Impact: 0
-7,ING.L - Ingenta,ING.L,544,N/A | Impact: 0
-8,SHIP - Seanergy Maritime,SHIP,524,N/A | Impact: 0
-9,HSHP - Himalaya Shipping,HSHP,521,N/A | Impact: 0
-10,PAF.L - Pan African Resources,PAF.L,510,N/A | Impact: 0
+1,LUNMF - Lundin Mining,LUNMF,651,N/A | Impact: 0
+2,LUN.TO - Lundin Mining,LUN.TO,633,N/A | Impact: 0
+3,FORM - FormFactor,FORM,615,N/A | Impact: 0
+4,TAYD - Taylor Devices,TAYD,602,N/A | Impact: 0
+5,OII - Oceaneering International,OII,596,N/A | Impact: 0
+6,DOCN - DigitalOcean,DOCN,583,N/A | Impact: 0
+7,OTGLY - CD Projekt,OTGLY,566,N/A | Impact: 0
+8,AHCO - AdaptHealth,AHCO,551,N/A | Impact: 0
+9,SDE.TO - Spartan Delta,SDE.TO,544,N/A | Impact: 0
+10,PLAB - Photronics,PLAB,537,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.
