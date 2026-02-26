@@ -1,18 +1,18 @@
-Daily Stock Pick — February 25, 2026
+Daily Stock Pick — February 26, 2026
 
-DOCN – DigitalOcean Holdings, Inc.
+FORM – FormFactor, Inc.
 
-News: Raised 2026–2027 growth outlook after strong Q4; reduced 2026 converts; AI inference ARR accelerating. ([investors.digitalocean.com](https://investors.digitalocean.com/news/news-details/2026/DigitalOcean-Announces-Fourth-Quarter-and-Fiscal-Year-2025-Financial-Results/))
+News: Q4’25 beat with record FY’25 $785M revenue and margins above outlook; mgmt expects continued strength in Q1’26 amid AI/HBM-driven demand.
 
-Score (0-1000): 583
+Score (0-1000): 633
 
-ADVICE: **🟢 Buy**
+ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 70%
+Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/DOCN/forecast
+Forecast image URL: https://stockscan.io/stocks/FORM/forecast
 
-Verifier note: EV: accelerating revenue (21% ’26 guide) with 36–38% EBITDA margins, improving mix to AI inference; liquidity $254M cash and repurchase of $1.188B 2026 converts lowers near-term refinancing risk; fresh catalyst from 2/24 print. Risks: competitive cloud pricing, capex for GPUs. Sources: investors.digitalocean.com; investors.oceaneering.com (peer cycle check). ([investors.digitalocean.com](https://investors.digitalocean.com/news/news-details/2026/DigitalOcean-Announces-Fourth-Quarter-and-Fiscal-Year-2025-Financial-Results/))
+Verifier note: Strong recent execution, positive near-term guide, secular HBM/SiPh test tailwinds, and historically conservative balance sheet support favorable 6‑month EV vs. cyclic miners; limited dilution/credit risk observed. Sources: globenewswire.com (FormFactor Q4’25 PR), formfactor.com (IR press releases), fool.com (earnings call transcript).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: EV: accelerating revenue (21% ’26 guide) with 36–38% EBITDA m
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 29.2%
-Expected return (average): 49.6%
-Expected range (P20–P80): 8.6%–69.5%
+Expected return (typical): 42.0%
+Expected return (average): 68.9%
+Expected range (P20–P80): 13.8%–96.8%
 
