@@ -1,4 +1,20 @@
-### LUNMF
+### ARG.TO
+- N/A
+Impact: 0
+
+### AA
+- N/A
+Impact: 0
+
+### TAYD
+- N/A
+Impact: 0
+
+### PLAB
+- N/A
+Impact: 0
+
+### RERE
 - N/A
 Impact: 0
 
@@ -10,30 +26,14 @@ Impact: 0
 - N/A
 Impact: 0
 
-### TAYD
+### IMOS
 - N/A
 Impact: 0
 
-### OII
+### MAU.PA
 - N/A
 Impact: 0
 
-### DOCN
-- N/A
-Impact: 0
-
-### OTGLY
-- N/A
-Impact: 0
-
-### AHCO
-- N/A
-Impact: 0
-
-### SDE.TO
-- N/A
-Impact: 0
-
-### PLAB
+### ABX.TO
 - N/A
 Impact: 0
