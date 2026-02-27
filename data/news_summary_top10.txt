@@ -26,11 +26,11 @@ Impact: 0
 - N/A
 Impact: 0
 
-### COHR
+### ARKO
 - N/A
 Impact: 0
 
-### NDX1.DE
+### COHR
 - N/A
 Impact: 0
 
