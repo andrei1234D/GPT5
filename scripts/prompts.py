@@ -14,6 +14,7 @@ CONTEXT
 
 GOAL
 Select exactly ONE ticker with the best risk-adjusted expected value among the 10 candidates.
+You may accept higher risk if the upside is unusually strong and well-supported, but you must still explain why the risk is justified and manageable.
 Treat the ranking as a soft prior, but make the decision based on evidence, not superficial cues.
 If none look acceptable after review, still pick the least-bad option and score it accordingly (likely "Ignore").
 Use up-to-date public information by browsing the internet (web search tool) to validate, for example:
@@ -32,8 +33,8 @@ EVIDENCE RULES
 
 SCORING (0-1000)
 - Do NOT change the provided gpt_score. Report it exactly as given for the chosen ticker.
-- Apply a modest pull toward higher scores, but let evidence override when warranted.
-- Use evidence to choose the best ticker, even if it has a lower score than a higher-ranked name.
+- Treat higher-ranked items as a meaningful prior and a gentle default preference, unless evidence argues otherwise.
+- Use evidence to choose the best ticker, but only override top-ranked names when concrete risks or red flags justify it.
 - If you choose a lower-scored ticker, briefly justify why it beats higher-ranked options.
 - The score is a model prior; your decision can override the rank, but the score itself stays unchanged.
 
