@@ -1,18 +1,18 @@
 Daily Stock Pick — February 28, 2026
 
-EFX.TO – Enerflex Ltd.
+FORM – FormFactor, Inc.
 
-News: Q4’25 results (Feb 25): net debt ~$501M (~1.0x), record FCF, APAC divestiture agreement, and Dec’25 redemption/refi of 9% 2027 notes lowers interest burden.
+News: Q4’25 beat with record FY’25; Q1’26 guide higher and margins expanding on AI/HBM probe-card demand.
 
-Score (0-1000): 625
+Score (0-1000): 630
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 70%
+Certainty: 72%
 
-Forecast image URL: https://stockscan.io/stocks/EFX.TO/forecast
+Forecast image URL: https://stockscan.io/stocks/FORM/forecast
 
-Verifier note: Delevered to ~1.0x with improved debt stack (6.875% 2031s replacing 9% 2027s), strong $2.4B+ combined backlog supporting 2026 cash flows, dividend increase—all reducing downside vs. metals-exposed peers; 6‑mo catalysts: APAC sale close, backlog conversion, potential capital returns. Sources: globenewswire.com (Feb 25, 2026), beyondspx.com (Dec 11, 2025), fool.com (Q3’25 call).
+Verifier note: Clean balance sheet and accelerating gross margins with Q1’26 growth guide support 6‑month EV; secular AI/HBM test demand offsets cyclicality; lower commodity/geopolitical risk vs miners; recent Enerflex strong but energy cyclicality higher. Sources: investors.formfactor.com; formfactor.com press releases; Nasdaq/GlobeNewswire Q4’25 release; MotleyFool earnings call; Zacks/Investing.com for guidance context; cross‑checks on peers: lundinmining.com; gmin.gold; globenewswire.com (Enerflex). ([formfactor.com](https://www.formfactor.com/company/news-events/press-releases/?utm_source=openai))
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Delevered to ~1.0x with improved debt stack (6.875% 2031s replaci
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 37.9%
-Expected return (average): 63.9%
-Expected range (P20–P80): 11.9%–89.3%
+Expected return (typical): 42.0%
+Expected return (average): 68.9%
+Expected range (P20–P80): 13.8%–96.8%
 
