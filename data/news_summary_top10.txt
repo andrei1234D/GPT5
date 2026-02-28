@@ -1,3 +1,7 @@
+### GMIN.TO
+- N/A
+Impact: 0
+
 ### LUNMF
 - N/A
 Impact: 0
@@ -6,34 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
+### LUN.TO
+- N/A
+Impact: 0
+
 ### FORM
 - N/A
 Impact: 0
 
+### APM.TO
+- N/A
+Impact: 0
+
+### IMG.TO
+- N/A
+Impact: 0
+
+### OGC.TO
+- N/A
+Impact: 0
+
+### OLA.TO
+- N/A
+Impact: 0
+
 ### EFXT
-- N/A
-Impact: 0
-
-### SKYT
-- N/A
-Impact: 0
-
-### MAU.PA
-- N/A
-Impact: 0
-
-### PAAS.TO
-- N/A
-Impact: 0
-
-### ARKO
-- N/A
-Impact: 0
-
-### COHR
-- N/A
-Impact: 0
-
-### ABX.TO
 - N/A
 Impact: 0
