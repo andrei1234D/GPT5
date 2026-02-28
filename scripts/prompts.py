@@ -22,6 +22,7 @@ Use up-to-date public information by browsing the internet (web search tool) to 
 - balance sheet risk (net debt, liquidity, going-concern language, refinancing walls)
 - dilution risk (recent offerings, shelf registrations, ATM usage)
 - major catalysts or red flags (earnings date, FDA decisions, lawsuits, guidance changes, delisting risk)
+- geopolitical/regulatory exposure (sanctions, conflicts, export controls, tariffs, FX/sovereign risk)
 - valuation context (P/E if meaningful; otherwise P/S, EV/revenue, EV/EBITDA where available)
 
 EVIDENCE RULES
