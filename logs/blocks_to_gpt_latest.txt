@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,ARG.TO - Amerigo Resources,ARG.TO,742,N/A | Impact: 0
-2,AA - Alcoa,AA,683,N/A | Impact: 0
-3,TAYD - Taylor Devices,TAYD,655,N/A | Impact: 0
-4,PLAB - Photronics,PLAB,651,N/A | Impact: 0
-5,RERE - ATRenew,RERE,638,N/A | Impact: 0
-6,LUN.TO - Lundin Mining,LUN.TO,638,N/A | Impact: 0
-7,FORM - FormFactor,FORM,633,N/A | Impact: 0
-8,IMOS - ChipMOS Technologies,IMOS,621,N/A | Impact: 0
-9,MAU.PA - Etablissements Maurel et Prom,MAU.PA,616,N/A | Impact: 0
-10,ABX.TO - Barrick Mining,ABX.TO,607,N/A | Impact: 0
+1,LUNMF - Lundin Mining,LUNMF,666,N/A | Impact: 0
+2,EFX.TO - Enerflex,EFX.TO,634,N/A | Impact: 0
+3,FORM - FormFactor,FORM,633,N/A | Impact: 0
+4,EFXT - Enerflex,EFXT,621,N/A | Impact: 0
+5,SKYT - SkyWater Technology,SKYT,616,N/A | Impact: 0
+6,MAU.PA - Etablissements Maurel et Prom,MAU.PA,616,N/A | Impact: 0
+7,PAAS.TO - Pan American Silver,PAAS.TO,596,N/A | Impact: 0
+8,ARKO - Arko,ARKO,596,N/A | Impact: 0
+9,COHR - Coherent,COHR,596,N/A | Impact: 0
+10,ABX.TO - Barrick Mining,ABX.TO,583,N/A | Impact: 0
