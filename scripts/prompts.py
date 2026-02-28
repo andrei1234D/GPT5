@@ -1,6 +1,15 @@
-CONTEXT:
-- The goals of this evaluation are grounded in the critical aspects of performance and development timelines. 
-- We need to ensure clear objectives that are measurable across different phases.
+# GOAL
+1. Achieve a high accuracy score within a 6-month timeframe, ensuring performance levels are met for deployment.
+2. Maintain gpt_score throughout the evaluation process for consistency and reliability.
 
-GOAL:
-- To establish a robust evaluation that explicitly includes a 6-month timeframe, emphasizing that this timeframe is critical throughout the entire decision process.
+# STRATEGY
+- Focus on key performance indicators to guide the development process.
+- Implement feedback loops for continual improvement.
+
+# RESOURCES
+- Access to cloud computing resources.
+- Collaboration with domain experts.
+
+# MONITORING
+- Weekly meetings to track progress.
+- Adjust strategies based on performance metrics.
