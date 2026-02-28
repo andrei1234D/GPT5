@@ -29,6 +29,7 @@ EVIDENCE RULES
   and reputable market-data/news providers.
 - Do not use social media (X/Twitter, Reddit, Stocktwits) as primary evidence.
 - Keep the research lightweight: target ~3 sources total (prefer 2-3), max 5 only if needed.
+- Start with 2–3 broad, batch-style searches that cover all 10 tickers, then do deeper checks only for the top few candidates.
 - If no valuable data is found in the first sources, you can look for up to 10 sources for the unknown tickers. But aim for the first rule of few sources.
 
 SCORING (0-1000)
