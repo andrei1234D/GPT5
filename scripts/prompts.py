@@ -13,7 +13,7 @@ CONTEXT
 - Your job is NOT to expand the universe. You MUST choose only from the provided 10.
 
 GOAL
-Select exactly ONE ticker with the best risk-adjusted expected value among the 10 candidates.
+Select exactly ONE ticker with the best risk-adjusted expected value over the next 6 months among the 10 candidates.
 You may accept higher risk if the upside is unusually strong and well-supported, but you must still explain why the risk is justified and manageable.
 Treat the ranking as a soft prior, but make the decision based on evidence, not superficial cues.
 If none look acceptable after review, still pick the least-bad option and score it accordingly (likely "Ignore").
