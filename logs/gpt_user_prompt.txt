@@ -1,18 +1,18 @@
-TODAY is Feb 27. You are given the 10 ML-ranked candidates, ordered.
+TODAY is Feb 28. You are given the 10 ML-ranked candidates, ordered.
 Pick exactly ONE option with the best EV and lowest risk using up-to-date web data for the next 6 months.
 Do not assume any candidate is good; score strictly by evidence.
 
 CANDIDATES CSV (Ranked):
 Rank,TickerName,Ticker,Score,PipelineNews
-1,LUNMF - Lundin Mining,LUNMF,666,N/A | Impact: 0
-2,EFX.TO - Enerflex,EFX.TO,634,N/A | Impact: 0
-3,FORM - FormFactor,FORM,633,N/A | Impact: 0
-4,EFXT - Enerflex,EFXT,621,N/A | Impact: 0
-5,SKYT - SkyWater Technology,SKYT,616,N/A | Impact: 0
-6,MAU.PA - Etablissements Maurel et Prom,MAU.PA,616,N/A | Impact: 0
-7,PAAS.TO - Pan American Silver,PAAS.TO,596,N/A | Impact: 0
-8,ARKO - Arko,ARKO,596,N/A | Impact: 0
-9,COHR - Coherent,COHR,596,N/A | Impact: 0
-10,ABX.TO - Barrick Mining,ABX.TO,583,N/A | Impact: 0
+1,GMIN.TO - G Mining Ventures,GMIN.TO,667,N/A | Impact: 0
+2,LUNMF - Lundin Mining,LUNMF,645,N/A | Impact: 0
+3,EFX.TO - Enerflex,EFX.TO,625,N/A | Impact: 0
+4,LUN.TO - Lundin Mining,LUN.TO,625,N/A | Impact: 0
+5,FORM - FormFactor,FORM,622,N/A | Impact: 0
+6,APM.TO - Andean Precious Metals,APM.TO,621,N/A | Impact: 0
+7,IMG.TO - IAMGOLD,IMG.TO,616,N/A | Impact: 0
+8,OGC.TO - OceanaGold,OGC.TO,616,N/A | Impact: 0
+9,OLA.TO - Orla Mining,OLA.TO,615,N/A | Impact: 0
+10,EFXT - Enerflex,EFXT,611,N/A | Impact: 0
 
 Remember: choose only ONE and output exactly 8 lines in the required format.

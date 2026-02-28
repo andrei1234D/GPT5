@@ -1,18 +1,18 @@
-Daily Stock Pick — February 27, 2026
+Daily Stock Pick — February 28, 2026
 
-FORM – FormFactor, Inc.
+EFX.TO – Enerflex Ltd.
 
-News: Q4 FY25 beat with revenue/GM/EPS above outlook; expects continued strength in Q1’26 on HBM/AI testing demand.
+News: Q4’25 results (Feb 25): net debt ~$501M (~1.0x), record FCF, APAC divestiture agreement, and Dec’25 redemption/refi of 9% 2027 notes lowers interest burden.
 
-Score (0-1000): 633
+Score (0-1000): 625
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 64%
+Certainty: 70%
 
-Forecast image URL: https://stockscan.io/stocks/FORM/forecast
+Forecast image URL: https://stockscan.io/stocks/EFX.TO/forecast
 
-Verifier note: Recent beat and margin expansion plus near-term guide support positive 6‑month EV with lower commodity risk vs miners; balance-sheet/earnings quality appear solid; limited dilution risk observed. Sources: globenewswire.com (FormFactor Q4/FY25 results 02/04/2026).
+Verifier note: Delevered to ~1.0x with improved debt stack (6.875% 2031s replacing 9% 2027s), strong $2.4B+ combined backlog supporting 2026 cash flows, dividend increase—all reducing downside vs. metals-exposed peers; 6‑mo catalysts: APAC sale close, backlog conversion, potential capital returns. Sources: globenewswire.com (Feb 25, 2026), beyondspx.com (Dec 11, 2025), fool.com (Q3’25 call).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Recent beat and margin expansion plus near-term guide support pos
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 42.0%
-Expected return (average): 68.9%
-Expected range (P20–P80): 13.8%–96.8%
+Expected return (typical): 37.9%
+Expected return (average): 63.9%
+Expected range (P20–P80): 11.9%–89.3%
 
