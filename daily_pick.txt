@@ -1,18 +1,18 @@
-Daily Stock Pick — February 28, 2026
+Daily Stock Pick — March 2, 2026
 
 FORM – FormFactor, Inc.
 
-News: Q4’25 beat with record FY’25; Q1’26 guide higher and margins expanding on AI/HBM probe-card demand.
+News: Q4’25 beat across revenue/GM/EPS with record FY25 sales; AI/HBM probe-card demand driving margin expansion and Q1’26 strength outlook.
 
 Score (0-1000): 630
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 72%
+Certainty: 68%
 
 Forecast image URL: https://stockscan.io/stocks/FORM/forecast
 
-Verifier note: Clean balance sheet and accelerating gross margins with Q1’26 growth guide support 6‑month EV; secular AI/HBM test demand offsets cyclicality; lower commodity/geopolitical risk vs miners; recent Enerflex strong but energy cyclicality higher. Sources: investors.formfactor.com; formfactor.com press releases; Nasdaq/GlobeNewswire Q4’25 release; MotleyFool earnings call; Zacks/Investing.com for guidance context; cross‑checks on peers: lundinmining.com; gmin.gold; globenewswire.com (Enerflex). ([formfactor.com](https://www.formfactor.com/company/news-events/press-releases/?utm_source=openai))
+Verifier note: Prefer FORM on clean balance sheet and secular AI test demand; recent Q4’25 beat and margin gains reduce downside vs. commodity-tied miners. Sources: investors.formfactor.com; globenewswire.com (Feb 4, 2026); nasdaq.com/Zacks; lundinmining.com (Feb 19, 2026 results/2026 guidance); iamgold.com (Feb 2026 results/guidance). Checked: 10/10 (unverified: none).
 
 ---
 **Legend (score tiers, derived from typical return)**

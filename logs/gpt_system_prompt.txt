@@ -58,6 +58,7 @@ Certainty: "percentage (0–100%)"
 Forecast image URL: "https://stockscan.io/stocks/VTYX/forecast"  (replace VTYX with actual ticker)
 
 Verifier note: "Concise EV/risk rationale + sources used (domain names or short refs)"
+Include a compliance tag at the end: "Checked: 10/10 (unverified: none)".
 
 
 Be concise, factual, and optimized for automated parsing.

@@ -1,4 +1,4 @@
-TODAY is Feb 28. You are given the 10 ML-ranked candidates, ordered.
+TODAY is Mar 02. You are given the 10 ML-ranked candidates, ordered.
 Pick exactly ONE option with the best EV and lowest risk using up-to-date web data for the next 6 months.
 Do not assume any candidate is good; score strictly by evidence.
 
