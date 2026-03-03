@@ -1,32 +1,16 @@
+### ISSC
+- N/A
+Impact: 0
+
 ### GMIN.TO
 - N/A
 Impact: 0
 
-### LUNMF
+### PACS
 - N/A
 Impact: 0
 
-### FORM
-- N/A
-Impact: 0
-
-### EFX.TO
-- N/A
-Impact: 0
-
-### LUN.TO
-- N/A
-Impact: 0
-
-### APM.TO
-- N/A
-Impact: 0
-
-### IMG.TO
-- N/A
-Impact: 0
-
-### OGC.TO
+### KRKNF
 - N/A
 Impact: 0
 
@@ -34,6 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
-### EFXT
+### ENLT
+- N/A
+Impact: 0
+
+### EFX.TO
+- N/A
+Impact: 0
+
+### HBM.TO
+- N/A
+Impact: 0
+
+### VNP.TO
+- N/A
+Impact: 0
+
+### MAU.PA
 - N/A
 Impact: 0
