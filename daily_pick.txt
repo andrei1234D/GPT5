@@ -1,18 +1,18 @@
-Daily Stock Pick — March 2, 2026
+Daily Stock Pick — March 3, 2026
 
-FORM – FormFactor, Inc.
+ENLT – Enlight Renewable Energy
 
-News: Q4’25 beat across revenue/GM/EPS with record FY25 sales; AI/HBM probe-card demand driving margin expansion and Q1’26 strength outlook.
+News: FY25 revenue +46% YoY; 2026 guide implies ~32% revenue and ~25% EBITDA growth with record projects under construction and expanding storage portfolio.
 
-Score (0-1000): 630
+Score (0-1000): 633
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 68%
+Certainty: 64%
 
-Forecast image URL: https://stockscan.io/stocks/FORM/forecast
+Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
 
-Verifier note: Prefer FORM on clean balance sheet and secular AI test demand; recent Q4’25 beat and margin gains reduce downside vs. commodity-tied miners. Sources: investors.formfactor.com; globenewswire.com (Feb 4, 2026); nasdaq.com/Zacks; lundinmining.com (Feb 19, 2026 results/2026 guidance); iamgold.com (Feb 2026 results/guidance). Checked: 10/10 (unverified: none).
+Verifier note: Best 6-month EV from visible pipeline and profitability: FY25 revenue $582m, adj. EBITDA $438m; 2026 guide $755–785m revenue and $545–565m EBITDA with record 3–4 FGW starts and ~1.1 FGW commissioning in 2026; storage now ~48% of mature portfolio revenues, diversifying risk. Key risks: rate sensitivity and geopolitical exposure are mitigated by contracted assets and project finance. Sources: investing.com (company news slides), stocktitan.net (press release summary), marketbeat.com (earnings call notes); cross-checks for peers: ir.pacs.com; investors.gmin.gold; presscenter.iascorp.com; orlamining.com; krakenrobotics.com; barrons.com; investors.com; nasdaq.com. Checked: 6/10 (unverified: EFX.TO, HBM.TO, VNP.TO, MAU.PA). ([investing.com](https://www.investing.com/news/company-news/enlight-renewable-energy-q4-2025-slides-record-results-and-3x-growth-target-by-2028-93CH-4509028?utm_source=openai))
 
 ---
 **Legend (score tiers, derived from typical return)**
