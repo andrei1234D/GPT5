@@ -2,38 +2,38 @@
 - N/A
 Impact: 0
 
-### GMIN.TO
-- N/A
-Impact: 0
-
-### PACS
-- N/A
-Impact: 0
-
 ### KRKNF
 - N/A
 Impact: 0
 
-### OLA.TO
+### AA
 - N/A
 Impact: 0
 
-### ENLT
+### ECO
 - N/A
 Impact: 0
 
-### EFX.TO
+### DBG.PA
 - N/A
 Impact: 0
 
-### HBM.TO
+### DSX
 - N/A
 Impact: 0
 
-### VNP.TO
+### SMSN.L
 - N/A
 Impact: 0
 
-### MAU.PA
+### PAF.L
+- N/A
+Impact: 0
+
+### SDE.TO
+- N/A
+Impact: 0
+
+### COHR
 - N/A
 Impact: 0
