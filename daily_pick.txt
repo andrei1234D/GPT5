@@ -1,18 +1,18 @@
-Daily Stock Pick — March 3, 2026
+Daily Stock Pick — March 4, 2026
 
-ENLT – Enlight Renewable Energy
+ECO – Okeanis Eco Tankers Corp.
 
-News: FY25 revenue +46% YoY; 2026 guide implies ~32% revenue and ~25% EBITDA growth with record projects under construction and expanding storage portfolio.
+News: Declared $1.55 Q4 dividend (ex‑div Mar 3, 2026) amid strong Q4/QFY25 performance and modern, high‑earning VLCC/Suezmax fleet; continued robust tanker rates support payouts. ([stocktitan.net](https://www.stocktitan.net/sec-filings/ECO/6-k-okeanis-eco-tankers-corp-current-report-foreign-issuer-0f749e4fecdb.html?utm_source=openai))
 
-Score (0-1000): 633
+Score (0-1000): 544
 
-ADVICE: **🟢🟢 Strong Buy**
+ADVICE: **🟢 Buy**
 
-Certainty: 64%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/ENLT/forecast
+Forecast image URL: https://stockscan.io/stocks/ECO/forecast
 
-Verifier note: Best 6-month EV from visible pipeline and profitability: FY25 revenue $582m, adj. EBITDA $438m; 2026 guide $755–785m revenue and $545–565m EBITDA with record 3–4 FGW starts and ~1.1 FGW commissioning in 2026; storage now ~48% of mature portfolio revenues, diversifying risk. Key risks: rate sensitivity and geopolitical exposure are mitigated by contracted assets and project finance. Sources: investing.com (company news slides), stocktitan.net (press release summary), marketbeat.com (earnings call notes); cross-checks for peers: ir.pacs.com; investors.gmin.gold; presscenter.iascorp.com; orlamining.com; krakenrobotics.com; barrons.com; investors.com; nasdaq.com. Checked: 6/10 (unverified: EFX.TO, HBM.TO, VNP.TO, MAU.PA). ([investing.com](https://www.investing.com/news/company-news/enlight-renewable-energy-q4-2025-slides-record-results-and-3x-growth-target-by-2028-93CH-4509028?utm_source=openai))
+Verifier note: Best 6‑mo EV via outsized cash returns and young scrubber‑equipped fleet; Q4 dividend $1.55 just paid/declared, multi‑quarter dividend cadence intact; balance sheet reasonable (cash $122.5M, book leverage ~46%); recent equity raised above NAV to fund accretive growth; technical/momentum supportive. Key risks: spot rate volatility and cyclicality, but near‑term visibility strong per booked days and peer‑beating TCEs. Sources: stocktitan.net (SEC 6‑K), investing.com (Q4 slides summary), tipranks.com (dividend history), investors.com (IBD rating), e24.no (rates/guidance). Checked: 10/10 (unverified: SMSN.L, PAF.L, SDE.TO, COHR)
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Best 6-month EV from visible pipeline and profitability: FY25 rev
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 42.0%
-Expected return (average): 68.9%
-Expected range (P20–P80): 13.8%–96.8%
+Expected return (typical): 26.2%
+Expected return (average): 44.9%
+Expected range (P20–P80): 7.6%–63.4%
 

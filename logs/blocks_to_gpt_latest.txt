@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,ISSC - Innovative Solutions and Support,ISSC,683,N/A | Impact: 0
-2,GMIN.TO - G Mining Ventures,GMIN.TO,666,N/A | Impact: 0
-3,PACS - PACS Group,PACS,645,N/A | Impact: 0
-4,KRKNF - Kraken Robotics,KRKNF,634,N/A | Impact: 0
-5,OLA.TO - Orla Mining,OLA.TO,634,N/A | Impact: 0
-6,ENLT - Enlight Renewable Energy,ENLT,633,N/A | Impact: 0
-7,EFX.TO - Enerflex,EFX.TO,622,N/A | Impact: 0
-8,HBM.TO - Hudbay Minerals,HBM.TO,616,N/A | Impact: 0
-9,VNP.TO - 5N Plus,VNP.TO,615,N/A | Impact: 0
-10,MAU.PA - Etablissements Maurel et Prom,MAU.PA,611,N/A | Impact: 0
+1,ISSC - Innovative Solutions and Support,ISSC,677,N/A | Impact: 0
+2,KRKNF - Kraken Robotics,KRKNF,634,N/A | Impact: 0
+3,AA - Alcoa,AA,630,N/A | Impact: 0
+4,ECO - Okeanis Eco Tankers,ECO,544,N/A | Impact: 0
+5,DBG.PA - Derichebourg,DBG.PA,537,N/A | Impact: 0
+6,DSX - Diana Shipping,DSX,521,N/A | Impact: 0
+7,SMSN.L - Samsung Electronics,SMSN.L,510,N/A | Impact: 0
+8,PAF.L - Pan African Resources,PAF.L,501,N/A | Impact: 0
+9,SDE.TO - Spartan Delta,SDE.TO,498,N/A | Impact: 0
+10,COHR - Coherent,COHR,492,N/A | Impact: 0
