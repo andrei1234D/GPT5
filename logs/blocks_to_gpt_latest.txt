@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,ISSC - Innovative Solutions and Support,ISSC,677,N/A | Impact: 0
-2,KRKNF - Kraken Robotics,KRKNF,634,N/A | Impact: 0
-3,AA - Alcoa,AA,630,N/A | Impact: 0
-4,ECO - Okeanis Eco Tankers,ECO,544,N/A | Impact: 0
-5,DBG.PA - Derichebourg,DBG.PA,537,N/A | Impact: 0
-6,DSX - Diana Shipping,DSX,521,N/A | Impact: 0
-7,SMSN.L - Samsung Electronics,SMSN.L,510,N/A | Impact: 0
-8,PAF.L - Pan African Resources,PAF.L,501,N/A | Impact: 0
-9,SDE.TO - Spartan Delta,SDE.TO,498,N/A | Impact: 0
-10,COHR - Coherent,COHR,492,N/A | Impact: 0
+1,CVU - CPI Aerostructures,CVU,630,N/A | Impact: 0
+2,ISSC - Innovative Solutions and Support,ISSC,596,N/A | Impact: 0
+3,SSRM.TO - SSR Mining,SSRM.TO,566,N/A | Impact: 0
+4,DPMLF - DPM Metals,DPMLF,551,N/A | Impact: 0
+5,KRKNF - Kraken Robotics,KRKNF,551,N/A | Impact: 0
+6,GASS - StealthGas,GASS,544,N/A | Impact: 0
+7,PAGS - Pagseguro Digital,PAGS,544,PagSeguro Digital Ltd. (PAGS) reported better-than-expected Q4 earnings but missed revenue estimates. The stock outlook remains neutral with a Zacks Rank #3. | Impact: +10
+8,AA - Alcoa,AA,537,N/A | Impact: 0
+9,SSRM - SSR Mining,SSRM,524,N/A | Impact: 0
+10,AEO - American Eagle Outfitters,AEO,490,N/A | Impact: 0

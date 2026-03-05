@@ -1,18 +1,18 @@
-Daily Stock Pick — March 4, 2026
+Daily Stock Pick — March 5, 2026
 
-ECO – Okeanis Eco Tankers Corp.
+GASS – StealthGas Inc.
 
-News: Declared $1.55 Q4 dividend (ex‑div Mar 3, 2026) amid strong Q4/QFY25 performance and modern, high‑earning VLCC/Suezmax fleet; continued robust tanker rates support payouts. ([stocktitan.net](https://www.stocktitan.net/sec-filings/ECO/6-k-okeanis-eco-tankers-corp-current-report-foreign-issuer-0f749e4fecdb.html?utm_source=openai))
+News: Q4/FY2025 results show fourth straight profitable year and milestone of zero bank debt; stable charter coverage into 2026.
 
 Score (0-1000): 544
 
 ADVICE: **🟢 Buy**
 
-Certainty: 62%
+Certainty: 68%
 
-Forecast image URL: https://stockscan.io/stocks/ECO/forecast
+Forecast image URL: https://stockscan.io/stocks/GASS/forecast
 
-Verifier note: Best 6‑mo EV via outsized cash returns and young scrubber‑equipped fleet; Q4 dividend $1.55 just paid/declared, multi‑quarter dividend cadence intact; balance sheet reasonable (cash $122.5M, book leverage ~46%); recent equity raised above NAV to fund accretive growth; technical/momentum supportive. Key risks: spot rate volatility and cyclicality, but near‑term visibility strong per booked days and peer‑beating TCEs. Sources: stocktitan.net (SEC 6‑K), investing.com (Q4 slides summary), tipranks.com (dividend history), investors.com (IBD rating), e24.no (rates/guidance). Checked: 10/10 (unverified: SMSN.L, PAF.L, SDE.TO, COHR)
+Verifier note: Best 6-month EV/risk: profitable LPG fleet, delevered to debt‑free, reducing downside while cash flow visibility remains solid via charters; cyclical risk manageable without leverage. Sources: stealthgas.com (FY2025 PR), fool.com (Q4’25 call transcript), investing.com (presentation highlights). Checked: 10/10 (unverified due to tool cap: PAGS, AA, AEO, DPMLF).
 
 ---
 **Legend (score tiers, derived from typical return)**
