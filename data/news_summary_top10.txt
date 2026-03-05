@@ -1,4 +1,16 @@
+### CVU
+- N/A
+Impact: 0
+
 ### ISSC
+- N/A
+Impact: 0
+
+### SSRM.TO
+- N/A
+Impact: 0
+
+### DPMLF
 - N/A
 Impact: 0
 
@@ -6,34 +18,22 @@ Impact: 0
 - N/A
 Impact: 0
 
+### GASS
+- N/A
+Impact: 0
+
+### PAGS
+- PagSeguro Digital Ltd. (PAGS) reported better-than-expected Q4 earnings but missed revenue estimates. The stock outlook remains neutral with a Zacks Rank #3.
+Impact: +10
+
 ### AA
 - N/A
 Impact: 0
 
-### ECO
+### SSRM
 - N/A
 Impact: 0
 
-### DBG.PA
-- N/A
-Impact: 0
-
-### DSX
-- N/A
-Impact: 0
-
-### SMSN.L
-- N/A
-Impact: 0
-
-### PAF.L
-- N/A
-Impact: 0
-
-### SDE.TO
-- N/A
-Impact: 0
-
-### COHR
+### AEO
 - N/A
 Impact: 0
