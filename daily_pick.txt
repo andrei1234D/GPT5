@@ -1,18 +1,18 @@
-Daily Stock Pick — March 5, 2026
+Daily Stock Pick — March 06, 2026
 
-GASS – StealthGas Inc.
+KITS.TO – KITS Eyecare Ltd.
 
-News: Q4/FY2025 results show fourth straight profitable year and milestone of zero bank debt; stable charter coverage into 2026.
+News: Record FY2025 results with double-digit growth and new Toronto flagship opening in Q1 2026.
 
-Score (0-1000): 544
+Score (0-1000): 566
 
 ADVICE: **🟢 Buy**
 
-Certainty: 68%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/GASS/forecast
+Forecast image URL: https://stockscan.io/stocks/KITS.TO/forecast
 
-Verifier note: Best 6-month EV/risk: profitable LPG fleet, delevered to debt‑free, reducing downside while cash flow visibility remains solid via charters; cyclical risk manageable without leverage. Sources: stealthgas.com (FY2025 PR), fool.com (Q4’25 call transcript), investing.com (presentation highlights). Checked: 10/10 (unverified due to tool cap: PAGS, AA, AEO, DPMLF).
+Verifier note: KITS just posted record Q4/FY2025 growth with improving EBITDA and continued omnichannel expansion, offering defensible demand and execution momentum over 6 months (newswire.ca Mar 4, 2026; ir.kits.com Q2/Q3 2025). Higher-risk peers: ARREF copper-price leverage despite strong FY2025 print (amerigoresources.com Feb 25, 2026); PANL cyclic, higher leverage and mixed 2025 results (pangaeals.com Q1/Q3 2025); ISSC strong rev from Honeywell assets but margin mix/credit facility risks (sec.gov 10-K Sept 30, 2025); CVU profitability/covenant stress in 2025 (investors.cpiaero.com). Checked: 5/10 (unverified: RERE, EE, PAF.L, EGIEY, DAL).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Best 6-month EV/risk: profitable LPG fleet, delevered to debt‑f
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 26.2%
-Expected return (average): 44.9%
-Expected range (P20–P80): 7.6%–63.4%
+Expected return (typical): 27.6%
+Expected return (average): 47.2%
+Expected range (P20–P80): 8.0%–66.1%
 
