@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,ARREF - Amerigo Resources,ARREF,807,N/A | Impact: 0
-2,PANL - Pangaea Logistics Solutions,PANL,660,N/A | Impact: 0
-3,CVU - CPI Aerostructures,CVU,625,N/A | Impact: 0
-4,RERE - ATRenew,RERE,602,N/A | Impact: 0
-5,ISSC - Innovative Solutions and Support,ISSC,573,N/A | Impact: 0
-6,KITS.TO - KITS Eyecare,KITS.TO,566,N/A | Impact: 0
-7,EE - Excelerate Energy,EE,521,N/A | Impact: 0
-8,PAF.L - Pan African Resources,PAF.L,492,N/A | Impact: 0
-9,EGIEY - Engie Brasil Energia,EGIEY,490,N/A | Impact: 0
-10,DAL - Delta Air Lines,DAL,484,N/A | Impact: 0
+1,FEC.TO - Frontera Energy,FEC.TO,634,N/A | Impact: 0
+2,ISSC - Innovative Solutions and Support,ISSC,622,N/A | Impact: 0
+3,CEPU - Central Puerto,CEPU,596,N/A | Impact: 0
+4,EFX.TO - Enerflex,EFX.TO,501,N/A | Impact: 0
+5,PAF.L - Pan African Resources,PAF.L,492,N/A | Impact: 0
+6,HSHP - Himalaya Shipping,HSHP,484,N/A | Impact: 0
+7,UNIT - Uniti,UNIT,478,N/A | Impact: 0
+8,ELE - Elemental Royalty,ELE,464,N/A | Impact: 0
+9,GASS - StealthGas,GASS,451,N/A | Impact: 0
+10,FCX - Freeport-McMoRan,FCX,451,N/A | Impact: 0
