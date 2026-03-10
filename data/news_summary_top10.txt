@@ -1,4 +1,8 @@
-### FEC.TO
+### TALK
+- N/A
+Impact: 0
+
+### PAGS
 - N/A
 Impact: 0
 
@@ -6,34 +10,30 @@ Impact: 0
 - N/A
 Impact: 0
 
-### CEPU
-- N/A
-Impact: 0
-
-### EFX.TO
-- N/A
-Impact: 0
-
-### PAF.L
-- N/A
-Impact: 0
-
-### HSHP
-- N/A
-Impact: 0
-
 ### UNIT
 - N/A
 Impact: 0
 
-### ELE
+### MAL.TO
 - N/A
 Impact: 0
 
-### GASS
+### EGIEY
 - N/A
 Impact: 0
 
-### FCX
+### MAU.PA
+- N/A
+Impact: 0
+
+### MBRFY
+- N/A
+Impact: 0
+
+### NATR
+- N/A
+Impact: 0
+
+### TFPM.TO
 - N/A
 Impact: 0
