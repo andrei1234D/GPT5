@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,TALK - Talkspace,TALK,651,N/A | Impact: 0
-2,PAGS - Pagseguro Digital,PAGS,537,N/A | Impact: 0
-3,ISSC - Innovative Solutions and Support,ISSC,524,N/A | Impact: 0
-4,UNIT - Uniti,UNIT,524,N/A | Impact: 0
-5,MAL.TO - Magellan Aerospace,MAL.TO,510,N/A | Impact: 0
-6,EGIEY - Engie Brasil Energia,EGIEY,501,N/A | Impact: 0
-7,MAU.PA - Etablissements Maurel et Prom,MAU.PA,492,N/A | Impact: 0
-8,MBRFY - MBRF Global Foods Company,MBRFY,492,N/A | Impact: 0
-9,NATR - Nature's Sunshine Products,NATR,478,N/A | Impact: 0
-10,TFPM.TO - Triple Flag Precious Metals,TFPM.TO,461,N/A | Impact: 0
+1,TALK - Talkspace,TALK,666,N/A | Impact: 0
+2,CVU - CPI Aerostructures,CVU,630,N/A | Impact: 0
+3,JAG.TO - Jaguar Mining,JAG.TO,621,N/A | Impact: 0
+4,RERE - ATRenew,RERE,611,N/A | Impact: 0
+5,ENLT - Enlight Renewable Energy,ENLT,601,N/A | Impact: 0
+6,KRKNF - Kraken Robotics,KRKNF,551,N/A | Impact: 0
+7,UNIT - Uniti,UNIT,521,N/A | Impact: 0
+8,PAAS - Pan American Silver,PAAS,501,"Pan American Silver Corp. (PAAS) reported record earnings, free cash flow, and exploration success at La Colorada mine. | Impact: +40"
+9,CEPU - Central Puerto,CEPU,498,N/A
+10,GMIN.TO - G Mining Ventures,GMIN.TO,492,N/A

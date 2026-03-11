@@ -1,18 +1,18 @@
-Daily Stock Pick — March 10, 2026
+Daily Stock Pick — March 11, 2026
 
-PAGS – Pagseguro Digital
+TALK – Talkspace
 
-News: Q4’25 results (released Mar 4, 2026) show continued revenue growth, improving efficiency, and 2026 guidance focused on high‑quality credit and ROE expansion. ([fool.com](https://www.fool.com/earnings/call-transcripts/2026/03/04/pagseguro-pags-q4-2025-earnings-call-transcript/?utm_source=openai))
+News: Universal Health Services signed a definitive agreement to acquire Talkspace for $5.25/share cash; expected close in Q3 2026 pending approvals. ([uhs.com](https://uhs.com/news/universal-health-services-inc-to-acquire-talkspace-inc/?utm_source=openai))
 
-Score (0-1000): 537
+Score (0-1000): 666
 
-ADVICE: **🟢 Buy**
+ADVICE: **🟢🟢🟢 Ultra Strong Buy**
 
-Certainty: 65%
+Certainty: 78%
 
-Forecast image URL: https://stockscan.io/stocks/PAGS/forecast
+Forecast image URL: https://stockscan.io/stocks/TALK/forecast
 
-Verifier note: Best 6‑mo EV/risk among the 10: recurring payments/banking growth, rising ROE, and conservatively messaged 2026 plan; near‑term catalysts include potential SELIC easing and PagBank credit/pricing leverage; key risks are Brazil macro/FX, regulation, and credit costs. Higher‑ranked TALK has small‑cap volatility and execution risk; ISSC growth partly from one‑off acquisition with margin mix pressure; UNIT remains highly leveraged with strategy/merger uncertainties; MAL.TO mixed operating trends; EGIEY stable but lower upside. Sources: fool.com (earnings transcript), tipranks.com (results summary), mziq.com (IR release notice), sec.irpass.cc (PAGS 6‑K). Checked: 6/10 (unverified: MAU.PA, MBRFY, NATR, TFPM.TO).
+Verifier note: Near-term upside anchored by cash takeout with limited downside; recent 2025 results showed accelerating growth and profitability, adding deal resiliency. Cross-checked via UHS newsroom/PR (uhs.com, PRNewswire), financial press (Investing.com, TipRanks), and TALK Q4’25 call highlights (Motley Fool). Higher-risk peers flagged: CVU losses/material weakness (Nasdaq/10-Q digests); RERE cash-rich but China ADR risk (company IR). Checked: 10/10 (unverified: none).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Best 6‑mo EV/risk among the 10: recurring payments/banking grow
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 25.6%
-Expected return (average): 43.4%
-Expected range (P20–P80): 7.2%–61.4%
+Expected return (typical): 49.0%
+Expected return (average): 79.9%
+Expected range (P20–P80): 18.2%–110.8%
 
