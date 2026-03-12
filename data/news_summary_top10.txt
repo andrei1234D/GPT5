@@ -1,16 +1,12 @@
-### TALK
+### CODA
 - N/A
 Impact: 0
 
-### CVU
+### GMIN.TO
 - N/A
 Impact: 0
 
-### JAG.TO
-- N/A
-Impact: 0
-
-### RERE
+### BWAY
 - N/A
 Impact: 0
 
@@ -18,14 +14,26 @@ Impact: 0
 - N/A
 Impact: 0
 
+### RERE
+- N/A
+Impact: 0
+
+### CEMX.TO
+- N/A
+Impact: 0
+
 ### KRKNF
 - N/A
 Impact: 0
 
-### UNIT
+### ISSC
 - N/A
 Impact: 0
 
-### PAAS
-- Pan American Silver Corp. (PAAS) reported record earnings, free cash flow, and exploration success at La Colorada mine.
-Impact: +40
+### LUNMF
+- N/A
+Impact: 0
+
+### BUKS
+- N/A
+Impact: 0
