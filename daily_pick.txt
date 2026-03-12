@@ -1,18 +1,18 @@
-Daily Stock Pick — March 11, 2026
+Daily Stock Pick — March 12, 2026
 
-TALK – Talkspace
+BWAY – BrainsWay Ltd.
 
-News: Universal Health Services signed a definitive agreement to acquire Talkspace for $5.25/share cash; expected close in Q3 2026 pending approvals. ([uhs.com](https://uhs.com/news/universal-health-services-inc-to-acquire-talkspace-inc/?utm_source=openai))
+News: Q4/FY2025 momentum; FDA‑cleared accelerated Deep TMS protocol and first insurer coverage; recurring‑revenue push with strong cash/no debt.
 
-Score (0-1000): 666
+Score (0-1000): 611
 
-ADVICE: **🟢🟢🟢 Ultra Strong Buy**
+ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 78%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/TALK/forecast
+Forecast image URL: https://stockscan.io/stocks/BWAY/forecast
 
-Verifier note: Near-term upside anchored by cash takeout with limited downside; recent 2025 results showed accelerating growth and profitability, adding deal resiliency. Cross-checked via UHS newsroom/PR (uhs.com, PRNewswire), financial press (Investing.com, TipRanks), and TALK Q4’25 call highlights (Motley Fool). Higher-risk peers flagged: CVU losses/material weakness (Nasdaq/10-Q digests); RERE cash-rich but China ADR risk (company IR). Checked: 10/10 (unverified: none).
+Verifier note: Chosen for defensible 6‑mo EV: multiple FDA indications + new accelerated protocol and initial payer coverage can lift utilization; recurring rentals improving visibility; no‑debt balance sheet lowers downside. Cross‑checks: brainsway.com (Q4/FY2025 PR), investors.brainsway.com (IR + Jan 20, 2025 FDA clearance), company PDF (Aug 2025 cash/no debt). Other tickers quick‑checked where possible: CODA (codaoctopusgroup.com FY2025 PR), ENLT (GlobeNewswire Q4‑2025), RERE (ir.atrenew.com Q2‑2025), CEMX.TO (GlobeNewswire Mar 11, 2026). Tool limit prevented validating GMIN.TO, KRKNF, ISSC, LUNMF, BUKS today; treat as higher‑uncertainty. Checked: 5/10 (unverified: GMIN.TO, KRKNF, ISSC, LUNMF, BUKS).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Near-term upside anchored by cash takeout with limited downside; 
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 49.0%
-Expected return (average): 79.9%
-Expected range (P20–P80): 18.2%–110.8%
+Expected return (typical): 34.7%
+Expected return (average): 59.2%
+Expected range (P20–P80): 10.6%–82.6%
 
