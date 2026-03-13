@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,CODA - Coda Octopus,CODA,616,N/A | Impact: 0
-2,GMIN.TO - G Mining Ventures,GMIN.TO,615,N/A | Impact: 0
-3,BWAY - Brainsway,BWAY,611,N/A | Impact: 0
-4,ENLT - Enlight Renewable Energy,ENLT,607,N/A | Impact: 0
-5,RERE - ATRenew,RERE,596,N/A | Impact: 0
-6,CEMX.TO - CEMATRIX,CEMX.TO,537,N/A | Impact: 0
-7,KRKNF - Kraken Robotics,KRKNF,510,N/A | Impact: 0
-8,ISSC - Innovative Solutions and Support,ISSC,498,N/A | Impact: 0
-9,LUNMF - Lundin Mining,LUNMF,490,N/A | Impact: 0
-10,BUKS - Butler National,BUKS,464,N/A | Impact: 0
+1,SLS - SELLAS Life Sciences,SLS,855,N/A
+2,26CA.DU - ImmunityBio,26CA.DU,866,N/A
+3,FDY.TO - Faraday Copper,FDY.TO,860,N/A
+4,LPCN - Lipocine,LPCN,860,N/A
+5,TNZ.TO - Tenaz Energy,TNZ.TO,856,N/A
+6,SNDK - Sandisk,SNDK,854,N/A
+7,TYRA - Tyra Biosciences,TYRA,867,N/A
+8,STTK - Shattuck Labs,STTK,851,"Shattuck Labs has received an average ""Moderate Buy"" rating from brokerages with a consensus one-year target price of $10.00. Institutional investors have significantly increased their stakes in the company. | Shattuck Labs shares surged 53% this week following positive clinical trial progress for its lead drug SL-325 and a narrowed operating loss in its latest financial report. | Impact: +35"
+9,MAU.PA - Etablissements Maurel et Prom,MAU.PA,859,N/A
+10,IPHB.DU - Impala Platinum,IPHB.DU,856,N/A

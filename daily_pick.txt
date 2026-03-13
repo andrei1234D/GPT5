@@ -1,26 +1,21 @@
-Daily Stock Pick — March 12, 2026
+Daily Stock Pick — March 13, 2026
 
-BWAY – BrainsWay Ltd.
+TYRA – Tyra Biosciences, Inc.
 
-News: Q4/FY2025 momentum; FDA‑cleared accelerated Deep TMS protocol and first insurer coverage; recurring‑revenue push with strong cash/no debt.
+News: March 2: TYRA reported FY25 results with substantial cash runway; initial 3‑month CR data from SURF‑302 (NMIBC) targeted by end of 1H 2026, creating near-term catalysts. ([prnewswire.com](https://www.prnewswire.com/news-releases/tyra-biosciences-reports-fourth-quarter-and-full-year-2025-financial-results-and-recent-highlights-302701497.html?utm_source=openai))
 
-Score (0-1000): 611
+Score (0-1000): 867
 
-ADVICE: **🟢🟢 Strong Buy**
+ADVICE: **🟢🟢🟢 Ultra Strong Buy**
 
 Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/BWAY/forecast
+Forecast image URL: https://stockscan.io/stocks/TYRA/forecast
 
-Verifier note: Chosen for defensible 6‑mo EV: multiple FDA indications + new accelerated protocol and initial payer coverage can lift utilization; recurring rentals improving visibility; no‑debt balance sheet lowers downside. Cross‑checks: brainsway.com (Q4/FY2025 PR), investors.brainsway.com (IR + Jan 20, 2025 FDA clearance), company PDF (Aug 2025 cash/no debt). Other tickers quick‑checked where possible: CODA (codaoctopusgroup.com FY2025 PR), ENLT (GlobeNewswire Q4‑2025), RERE (ir.atrenew.com Q2‑2025), CEMX.TO (GlobeNewswire Mar 11, 2026). Tool limit prevented validating GMIN.TO, KRKNF, ISSC, LUNMF, BUKS today; treat as higher‑uncertainty. Checked: 5/10 (unverified: GMIN.TO, KRKNF, ISSC, LUNMF, BUKS).
+Verifier note: Best 6‑mo EV/risk: solid cash (~$256M) reduces dilution risk and multiple FGFR programs provide diversified catalysts in 1H 2026; recent strength underscores sentiment. Higher-ranked names carry greater binary/commodity risks near term (e.g., STTK pivoted assets; FDY.TO remains pre‑revenue despite BHP/Lundin financing; ImmunityBio headlines lack primary IR detail in our check). Sources: prnewswire.com (TYRA Q4/FY25), stocktitan.net (cash/runway), investing.com (52‑wk high), ir.shattucklabs.com (asset pivot), mining.com and faradaycopper.com (FDY financing), ad-hoc-news.de (ImmunityBio intl. expansion). Checked: 10/10 (unverified: none).
 
 ---
 **Legend (score tiers, derived from typical return)**
-**🟢🟢🟢 Ultra Strong Buy** (Score ≥ 640)
-**🟢🟢 Strong Buy** (Score 600–639)
-**🟢 Buy** (Score 470–599)
-**🔴 Ignore** (Score < 470)
-Expected return (typical): 34.7%
-Expected return (average): 59.2%
-Expected range (P20–P80): 10.6%–82.6%
+**🟢🟢🟢 Ultra Strong Buy**\n**🟢🟢 Strong Buy**\n**🟢 Buy**\n**🔴 Ignore**\nExpected return (typical): 70.8%
+Expected return (average): 94.8%
 
