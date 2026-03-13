@@ -1,4 +1,32 @@
+### CODA
+- N/A
+Impact: 0
+
 ### GMIN.TO
+- N/A
+Impact: 0
+
+### BWAY
+- N/A
+Impact: 0
+
+### ENLT
+- N/A
+Impact: 0
+
+### RERE
+- N/A
+Impact: 0
+
+### CEMX.TO
+- N/A
+Impact: 0
+
+### KRKNF
+- N/A
+Impact: 0
+
+### ISSC
 - N/A
 Impact: 0
 
@@ -6,34 +34,6 @@ Impact: 0
 - N/A
 Impact: 0
 
-### FORM
-- N/A
-Impact: 0
-
-### EFX.TO
-- N/A
-Impact: 0
-
-### LUN.TO
-- N/A
-Impact: 0
-
-### APM.TO
-- N/A
-Impact: 0
-
-### IMG.TO
-- N/A
-Impact: 0
-
-### OGC.TO
-- N/A
-Impact: 0
-
-### OLA.TO
-- N/A
-Impact: 0
-
-### EFXT
+### BUKS
 - N/A
 Impact: 0

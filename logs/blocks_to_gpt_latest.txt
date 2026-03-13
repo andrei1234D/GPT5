@@ -1,11 +1,11 @@
 Rank,TickerName,Ticker,Score,PipelineNews
-1,GMIN.TO - G Mining Ventures,GMIN.TO,666,N/A | Impact: 0
-2,LUNMF - Lundin Mining,LUNMF,638,N/A | Impact: 0
-3,FORM - FormFactor,FORM,630,N/A | Impact: 0
-4,EFX.TO - Enerflex,EFX.TO,625,N/A | Impact: 0
-5,LUN.TO - Lundin Mining,LUN.TO,625,N/A | Impact: 0
-6,APM.TO - Andean Precious Metals,APM.TO,622,N/A | Impact: 0
-7,IMG.TO - IAMGOLD,IMG.TO,621,N/A | Impact: 0
-8,OGC.TO - OceanaGold,OGC.TO,621,N/A | Impact: 0
-9,OLA.TO - Orla Mining,OLA.TO,615,N/A | Impact: 0
-10,EFXT - Enerflex,EFXT,615,N/A | Impact: 0
+1,CODA - Coda Octopus,CODA,616,N/A | Impact: 0
+2,GMIN.TO - G Mining Ventures,GMIN.TO,615,N/A | Impact: 0
+3,BWAY - Brainsway,BWAY,611,N/A | Impact: 0
+4,ENLT - Enlight Renewable Energy,ENLT,607,N/A | Impact: 0
+5,RERE - ATRenew,RERE,596,N/A | Impact: 0
+6,CEMX.TO - CEMATRIX,CEMX.TO,537,N/A | Impact: 0
+7,KRKNF - Kraken Robotics,KRKNF,510,N/A | Impact: 0
+8,ISSC - Innovative Solutions and Support,ISSC,498,N/A | Impact: 0
+9,LUNMF - Lundin Mining,LUNMF,490,N/A | Impact: 0
+10,BUKS - Butler National,BUKS,464,N/A | Impact: 0

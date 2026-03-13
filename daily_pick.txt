@@ -1,18 +1,18 @@
-Daily Stock Pick — February 28, 2026
+Daily Stock Pick — March 12, 2026
 
-FORM – FormFactor, Inc.
+BWAY – BrainsWay Ltd.
 
-News: Q4’25 beat with record FY’25; Q1’26 guide higher and margins expanding on AI/HBM probe-card demand.
+News: Q4/FY2025 momentum; FDA‑cleared accelerated Deep TMS protocol and first insurer coverage; recurring‑revenue push with strong cash/no debt.
 
-Score (0-1000): 630
+Score (0-1000): 611
 
 ADVICE: **🟢🟢 Strong Buy**
 
-Certainty: 72%
+Certainty: 62%
 
-Forecast image URL: https://stockscan.io/stocks/FORM/forecast
+Forecast image URL: https://stockscan.io/stocks/BWAY/forecast
 
-Verifier note: Clean balance sheet and accelerating gross margins with Q1’26 growth guide support 6‑month EV; secular AI/HBM test demand offsets cyclicality; lower commodity/geopolitical risk vs miners; recent Enerflex strong but energy cyclicality higher. Sources: investors.formfactor.com; formfactor.com press releases; Nasdaq/GlobeNewswire Q4’25 release; MotleyFool earnings call; Zacks/Investing.com for guidance context; cross‑checks on peers: lundinmining.com; gmin.gold; globenewswire.com (Enerflex). ([formfactor.com](https://www.formfactor.com/company/news-events/press-releases/?utm_source=openai))
+Verifier note: Chosen for defensible 6‑mo EV: multiple FDA indications + new accelerated protocol and initial payer coverage can lift utilization; recurring rentals improving visibility; no‑debt balance sheet lowers downside. Cross‑checks: brainsway.com (Q4/FY2025 PR), investors.brainsway.com (IR + Jan 20, 2025 FDA clearance), company PDF (Aug 2025 cash/no debt). Other tickers quick‑checked where possible: CODA (codaoctopusgroup.com FY2025 PR), ENLT (GlobeNewswire Q4‑2025), RERE (ir.atrenew.com Q2‑2025), CEMX.TO (GlobeNewswire Mar 11, 2026). Tool limit prevented validating GMIN.TO, KRKNF, ISSC, LUNMF, BUKS today; treat as higher‑uncertainty. Checked: 5/10 (unverified: GMIN.TO, KRKNF, ISSC, LUNMF, BUKS).
 
 ---
 **Legend (score tiers, derived from typical return)**
@@ -20,7 +20,7 @@ Verifier note: Clean balance sheet and accelerating gross margins with Q1’26 g
 **🟢🟢 Strong Buy** (Score 600–639)
 **🟢 Buy** (Score 470–599)
 **🔴 Ignore** (Score < 470)
-Expected return (typical): 42.0%
-Expected return (average): 68.9%
-Expected range (P20–P80): 13.8%–96.8%
+Expected return (typical): 34.7%
+Expected return (average): 59.2%
+Expected range (P20–P80): 10.6%–82.6%
 
