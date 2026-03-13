@@ -9,6 +9,14 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 
 
+DERIVED_FEATURES = {
+    "combo_mom_trend": ("z_mom_6m", "market_trend_z"),
+    "combo_rs_trend": ("z_RS_spy_slope", "market_trend_z"),
+    "combo_vol_trend": ("z_vol_spike_20", "market_trend_z"),
+    "combo_tailwind_mom": ("TailwindScore", "z_mom_6m"),
+    "combo_trend_regime": ("market_trend_z", "market_regime"),
+}
+
 FEATURES = [
     "QMI",
     "RLI",
@@ -47,6 +55,52 @@ FEATURES = [
 ]
 
 
+def add_derived_features(df: pd.DataFrame, features: list[str]) -> pd.DataFrame:
+    for name, (a, b) in DERIVED_FEATURES.items():
+        if name in features and name not in df.columns:
+            if a in df.columns and b in df.columns:
+                df[name] = pd.to_numeric(df[a], errors="coerce") * pd.to_numeric(
+                    df[b], errors="coerce"
+                )
+            else:
+                df[name] = np.nan
+    return df
+
+
+def resolve_path(path_str: str, root: Path) -> Path:
+    path = Path(path_str)
+    if path.is_absolute():
+        return path
+    return (root / path).resolve()
+
+
+def ordered_regime_models(knobs: dict) -> list[tuple[str, dict]]:
+    regime_models = knobs.get("regime_models", {})
+    if not isinstance(regime_models, dict):
+        return []
+    order = ["bear", "neutral", "bull"]
+    out: list[tuple[str, dict]] = []
+    seen = set()
+    for name in order:
+        spec = regime_models.get(name)
+        if isinstance(spec, dict):
+            out.append((name, spec))
+            seen.add(name)
+    for name, spec in regime_models.items():
+        if name not in seen and isinstance(spec, dict):
+            out.append((name, spec))
+    return out
+
+
+def collect_all_features(knobs: dict, fallback: list[str]) -> list[str]:
+    features = list(knobs.get("feature_cols", fallback))
+    for _, spec in ordered_regime_models(knobs):
+        for feature in spec.get("feature_cols", []):
+            if feature not in features:
+                features.append(feature)
+    return features
+
+
 def load_xgb_model(path: Path):
     import xgboost as xgb
 
@@ -76,6 +130,107 @@ def load_lgb_model(path: Path):
     return lgb.Booster(model_file=str(path))
 
 
+def prepare_feature_frame(
+    df: pd.DataFrame,
+    features: list[str],
+    imputer_fill_values: dict[str, float] | None,
+) -> pd.DataFrame:
+    X = df.copy()
+    for col in features:
+        if col not in X.columns:
+            X[col] = np.nan
+    X = X[features].apply(pd.to_numeric, errors="coerce")
+    if imputer_fill_values:
+        fill_map: dict[str, float] = {}
+        for col in features:
+            try:
+                val = float(imputer_fill_values.get(col, 0.0))
+            except Exception:
+                val = 0.0
+            if not np.isfinite(val):
+                val = 0.0
+            fill_map[col] = val
+        return X.fillna(pd.Series(fill_map)).fillna(0.0)
+    imputer = SimpleImputer(strategy="median")
+    arr = imputer.fit_transform(X)
+    return pd.DataFrame(arr, index=X.index, columns=X.columns)
+
+
+def score_single_model(
+    df: pd.DataFrame,
+    model_type: str,
+    model_path: Path,
+    features: list[str],
+    imputer_fill_values: dict[str, float] | None,
+):
+    X = prepare_feature_frame(df, features, imputer_fill_values)
+    if model_type in {"xgb", "xgboost"}:
+        model_pair = load_xgb_model(model_path)
+        return predict_xgb(model_pair, X.to_numpy())
+    lgb_model = load_lgb_model(model_path)
+    return lgb_model.predict(X)
+
+
+def score_with_knobs(
+    df: pd.DataFrame,
+    knobs: dict,
+    root: Path,
+    model_override: str = "",
+) -> np.ndarray:
+    model_type = str(knobs.get("model_type", "lightgbm")).lower()
+    regime_models = ordered_regime_models(knobs)
+    if not regime_models:
+        model_path = model_override or str(knobs.get("model_path", ""))
+        if not model_path:
+            raise SystemExit("No model path configured.")
+        features = list(knobs.get("feature_cols", knobs.get("features", FEATURES)))
+        fills = knobs.get("imputer_fill_values", {})
+        return score_single_model(
+            df,
+            model_type,
+            resolve_path(model_path, root),
+            features,
+            fills if isinstance(fills, dict) else None,
+        )
+
+    regime_col = str(knobs.get("regime_col", "market_regime"))
+    default_regime = str(knobs.get("default_regime", "neutral"))
+    if default_regime not in {name for name, _ in regime_models}:
+        default_regime = regime_models[0][0]
+    regime_values = pd.to_numeric(df.get(regime_col), errors="coerce")
+    pred = pd.Series(index=df.index, dtype="float64")
+
+    for name, spec in regime_models:
+        reg_val = spec.get("regime_value")
+        mask = regime_values == float(reg_val)
+        if not bool(mask.any()):
+            continue
+        pred.loc[mask] = score_single_model(
+            df.loc[mask].copy(),
+            model_type,
+            resolve_path(str(spec.get("model_path", "")), root),
+            list(spec.get("feature_cols", [])),
+            spec.get("imputer_fill_values", {})
+            if isinstance(spec.get("imputer_fill_values", {}), dict)
+            else None,
+        )
+
+    unresolved = pred.isna()
+    if bool(unresolved.any()):
+        default_spec = dict(regime_models)[default_regime]
+        pred.loc[unresolved] = score_single_model(
+            df.loc[unresolved].copy(),
+            model_type,
+            resolve_path(str(default_spec.get("model_path", "")), root),
+            list(default_spec.get("feature_cols", [])),
+            default_spec.get("imputer_fill_values", {})
+            if isinstance(default_spec.get("imputer_fill_values", {}), dict)
+            else None,
+        )
+
+    return pred.to_numpy(dtype=float)
+
+
 def load_score_calibration(path: Path) -> dict | None:
     if not path.exists():
         return None
@@ -87,9 +242,6 @@ def load_score_calibration(path: Path) -> dict | None:
     mu_adj = data.get("mu_adj")
     if not bins or not isinstance(mu_adj, list) or len(mu_adj) != bins:
         return None
-    p50 = data.get("p50")
-    if not isinstance(p50, list) or len(p50) != bins:
-        p50 = None
     thresholds = data.get("thresholds", {})
     anchors = data.get("anchors", {})
     return {
@@ -97,7 +249,6 @@ def load_score_calibration(path: Path) -> dict | None:
         "pred_min": float(data.get("pred_min", 0.0)),
         "pred_max": float(data.get("pred_max", 1.0)),
         "mu_adj": np.array(mu_adj, dtype=float),
-        "p50": None if p50 is None else np.array(p50, dtype=float),
         "mu_perfect": float(data.get("mu_perfect", thresholds.get("heavy_return", 1.5))),
         "thresholds": {
             "low_return": float(thresholds.get("low_return", 0.60)),
@@ -125,13 +276,7 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
         return np.zeros(pred.shape, dtype=int)
     idx = ((pred - pred_min) / (pred_max - pred_min) * bins).astype(int)
     idx = np.clip(idx, 0, bins - 1)
-    mu_adj = calib["mu_adj"]
-    p50 = calib.get("p50")
-    if isinstance(p50, np.ndarray) and len(p50) == len(mu_adj):
-        mu = p50[idx]
-        mu = np.where(np.isfinite(mu), mu, mu_adj[idx])
-    else:
-        mu = mu_adj[idx]
+    mu = calib["mu_adj"][idx]
     t = calib["thresholds"]
     low_ret = float(t["low_return"])
     heavy_ret = float(t["heavy_return"])
@@ -145,7 +290,7 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
     r950 = float(a["return_950"])
 
     score = np.zeros_like(mu, dtype=float)
-    # Piecewise anchors: 600->20%, 800->50%, 950->150%, 1000->perfection
+    # Piecewise mapping: (0,0)->(600,20%)->(800,50%)->(950,150%)->(1000,perfection)
     mask_0 = mu <= 0.0
     score[mask_0] = 0.0
     mask_a = (mu > 0.0) & (mu < r600)
@@ -168,49 +313,34 @@ def compute_gpt_score(pred: np.ndarray, calib: dict) -> np.ndarray:
 
 
 def main() -> None:
+    root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/daily_scored.parquet")
     parser.add_argument("--keep", default="data/daily_keep_10/keep.parquet")
     parser.add_argument("--model", default="")
     parser.add_argument("--out", default="data/top10_ml.csv")
-    parser.add_argument("--topk", type=int, default=None)
+    parser.add_argument("--topk", type=int, default=10)
     parser.add_argument("--knobs", default="knobs/ml_knobs.json")
     parser.add_argument("--score-calib", default="knobs/score_calibration.json")
     args = parser.parse_args()
 
     model_type = "lightgbm"
     features = FEATURES
-    model_path = args.model
-    peg_nudge = 0.0
-    score_calib_path = Path(args.score_calib)
-    knobs_path = Path(args.knobs)
+    score_calib_path = resolve_path(str(args.score_calib), root)
+    knobs_path = resolve_path(str(args.knobs), root)
+    knobs: dict = {}
     if knobs_path.exists():
         try:
             knobs = json.loads(knobs_path.read_text(encoding="utf-8"))
             model_type = str(knobs.get("model_type", model_type)).lower()
-            features = knobs.get("feature_cols", features)
-            if not model_path:
-                model_path = str(knobs.get("model_path", model_path))
-            if args.topk is None and "topk" in knobs:
-                args.topk = int(knobs.get("topk", 10))
-            if "peg_nudge" in knobs:
-                try:
-                    peg_nudge = float(knobs.get("peg_nudge", peg_nudge))
-                except Exception:
-                    pass
-            score_calib_path = Path(
-                knobs.get("score_calibration_path", score_calib_path)
+            features = collect_all_features(knobs, features)
+            score_calib_path = resolve_path(
+                str(knobs.get("score_calibration_path", score_calib_path)), root
             )
         except Exception:
             pass
-
-    if not model_path:
-        model_path = "scripts/train_model/LLM_bot/Brain/xgb_rank_fwd_end_6m.json"
-    if args.topk is None:
-        args.topk = 10
-
     if not score_calib_path.exists():
-        alt = Path("live_bundle/ml/score_calibration.json")
+        alt = resolve_path("knobs/score_calibration.json", root)
         if alt.exists():
             score_calib_path = alt
     score_calib = load_score_calibration(score_calib_path)
@@ -219,8 +349,12 @@ def main() -> None:
             f"Score calibration not found or invalid: {score_calib_path}"
         )
 
-    data_df = pd.read_parquet(args.data)
-    keep_df = pd.read_parquet(args.keep, columns=["date", "ticker"])
+    data_path = resolve_path(str(args.data), root)
+    keep_path = resolve_path(str(args.keep), root)
+    out_path = resolve_path(str(args.out), root)
+
+    data_df = pd.read_parquet(data_path)
+    keep_df = pd.read_parquet(keep_path, columns=["date", "ticker"])
     keep_df["date"] = pd.to_datetime(keep_df["date"])
     keep_df["ticker"] = keep_df["ticker"].astype(str).str.strip()
 
@@ -231,37 +365,33 @@ def main() -> None:
     if df.empty:
         raise SystemExit("No rows after keep filter.")
 
-    X = df.copy()
-    for c in features:
-        if c not in X.columns:
-            X[c] = 0.0
-    X = X[features]
+    df = add_derived_features(df, features)
 
-    imputer = SimpleImputer(strategy="median")
-    X_imp = imputer.fit_transform(X)
-
-    if model_type in {"xgb", "xgboost"}:
-        model_pair = load_xgb_model(Path(model_path))
-        pred = predict_xgb(model_pair, X_imp)
-    else:
-        lgb_model = load_lgb_model(Path(model_path))
-        pred = lgb_model.predict(X_imp)
+    if not knobs:
+        knobs = {
+            "model_type": model_type,
+            "feature_cols": features,
+            "model_path": args.model,
+        }
+    pred = score_with_knobs(df, knobs, root, args.model)
     df["pred_score"] = pred
-    pred_for_rank = df["pred_score"].to_numpy()
-    if peg_nudge and "z_peg_bucket" in df.columns:
-        zpeg = pd.to_numeric(df["z_peg_bucket"], errors="coerce").clip(-1.0, 1.0)
-        pred_for_rank = pred_for_rank + peg_nudge * zpeg.to_numpy()
-    df["pred_score_adj"] = pred_for_rank
+    df["pred_score_adj"] = df["pred_score"].to_numpy(dtype=float)
     df["gpt_score"] = compute_gpt_score(df["pred_score_adj"].to_numpy(), score_calib)
 
     df = df.sort_values("pred_score_adj", ascending=False).head(int(args.topk)).copy()
     df["rank"] = np.arange(1, len(df) + 1)
 
-    out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     cols = [
         c
-        for c in ["date", "ticker", "company", "pred_score", "gpt_score", "rank"]
+        for c in [
+            "date",
+            "ticker",
+            "company",
+            "pred_score",
+            "gpt_score",
+            "rank",
+        ]
         if c in df.columns
     ]
     df[cols].to_csv(out_path, index=False)
