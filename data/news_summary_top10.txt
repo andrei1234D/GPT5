@@ -1,39 +1,4 @@
-### CODA
-- N/A
-Impact: 0
-
-### GMIN.TO
-- N/A
-Impact: 0
-
-### BWAY
-- N/A
-Impact: 0
-
-### ENLT
-- N/A
-Impact: 0
-
-### RERE
-- N/A
-Impact: 0
-
-### CEMX.TO
-- N/A
-Impact: 0
-
-### KRKNF
-- N/A
-Impact: 0
-
-### ISSC
-- N/A
-Impact: 0
-
-### LUNMF
-- N/A
-Impact: 0
-
-### BUKS
-- N/A
-Impact: 0
+### STTK
+- Shattuck Labs has received an average "Moderate Buy" rating from brokerages with a consensus one-year target price of $10.00. Institutional investors have significantly increased their stakes in the company.
+- Shattuck Labs shares surged 53% this week following positive clinical trial progress for its lead drug SL-325 and a narrowed operating loss in its latest financial report.
+Impact: +35
